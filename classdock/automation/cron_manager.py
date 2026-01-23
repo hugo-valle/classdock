@@ -304,8 +304,8 @@ class CronManager:
             # Sanitize assignment name for use in cron comment
             return self.global_config.assignment_name.replace(" ", "-").replace("/", "-")
 
-        # Fallback to directory name if no assignment name configured
-        return Path.cwd().name
+        # Fallback to "classdock" as default identifier
+        return "classdock"
 
     def _get_cron_command(self, steps: List[str]) -> str:
         """Generate command for cron job using Python CLI."""
