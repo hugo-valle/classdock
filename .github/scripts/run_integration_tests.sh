@@ -7,14 +7,14 @@ set -euo pipefail
 source "$(dirname "$0")/workflow_utils.sh"
 
 TEST_CONFIG_DIR="${1:-tests/fixtures}"
-CLASSROOM_PILOT_CMD="${2:-poetry run classroom-pilot}"
+CLASSDOCK_CMD="${2:-poetry run classdock}"
 
 print_message "step" "Running integration tests with configuration directory: $TEST_CONFIG_DIR"
 
 # Test basic configuration
 if [[ -f "$TEST_CONFIG_DIR/test_assignment.conf" ]]; then
     print_message "step" "Testing basic configuration..."
-    $CLASSROOM_PILOT_CMD assignments --dry-run orchestrate --config "$TEST_CONFIG_DIR/test_assignment.conf"
+    $CLASSDOCK_CMD assignments --dry-run orchestrate --config "$TEST_CONFIG_DIR/test_assignment.conf"
 else
     print_message "warning" "Basic configuration not found, skipping"
 fi
@@ -22,7 +22,7 @@ fi
 # Test minimal configuration
 if [[ -f "$TEST_CONFIG_DIR/minimal_assignment.conf" ]]; then
     print_message "step" "Testing minimal configuration..."
-    $CLASSROOM_PILOT_CMD assignments --dry-run orchestrate --config "$TEST_CONFIG_DIR/minimal_assignment.conf"
+    $CLASSDOCK_CMD assignments --dry-run orchestrate --config "$TEST_CONFIG_DIR/minimal_assignment.conf"
 else
     print_message "warning" "Minimal configuration not found, skipping"
 fi
@@ -30,7 +30,7 @@ fi
 # Test advanced configuration
 if [[ -f "$TEST_CONFIG_DIR/advanced_assignment.conf" ]]; then
     print_message "step" "Testing advanced configuration..."
-    $CLASSROOM_PILOT_CMD assignments --dry-run orchestrate --config "$TEST_CONFIG_DIR/advanced_assignment.conf"
+    $CLASSDOCK_CMD assignments --dry-run orchestrate --config "$TEST_CONFIG_DIR/advanced_assignment.conf"
 else
     print_message "warning" "Advanced configuration not found, skipping"
 fi
@@ -38,7 +38,7 @@ fi
 # Test edge case configuration
 if [[ -f "$TEST_CONFIG_DIR/edge_case_assignment.conf" ]]; then
     print_message "step" "Testing edge case configuration..."
-    $CLASSROOM_PILOT_CMD assignments --dry-run orchestrate --config "$TEST_CONFIG_DIR/edge_case_assignment.conf"
+    $CLASSDOCK_CMD assignments --dry-run orchestrate --config "$TEST_CONFIG_DIR/edge_case_assignment.conf"
 else
     print_message "warning" "Edge case configuration not found, skipping"
 fi
@@ -47,7 +47,7 @@ fi
 if [[ -f "$TEST_CONFIG_DIR/invalid_assignment.conf" ]]; then
     print_message "step" "Testing error handling with invalid configuration..."
     set +e
-    $CLASSROOM_PILOT_CMD assignments --dry-run orchestrate --config "$TEST_CONFIG_DIR/invalid_assignment.conf"
+    $CLASSDOCK_CMD assignments --dry-run orchestrate --config "$TEST_CONFIG_DIR/invalid_assignment.conf"
     exit_code=$?
     set -e
     if [[ $exit_code -eq 0 ]]; then
