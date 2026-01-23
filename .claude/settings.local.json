@@ -21,7 +21,8 @@
       "Bash(tar:*)",
       "Bash(python:*)",
       "Bash(python -c:*)",
-      "Bash(pytest tests/ -v --tb=short 2>&1:*)"
+      "Bash(pytest tests/ -v --tb=short 2>&1:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }

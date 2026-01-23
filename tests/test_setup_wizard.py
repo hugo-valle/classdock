@@ -1070,7 +1070,9 @@ class TestAssignmentSetupURLMethods:
         setup = AssignmentSetup()
         url = "https://classroom.github.com/classrooms/12345/assignments/test"
 
-        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=True):
+        # Set API mode to 'never' to prevent GitHub API fallback when assignment_name is empty
+        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=True), \
+             patch.dict('os.environ', {'CLASSROOM_API_MODE': 'never'}):
             # Only organization extraction succeeds
             setup.url_parser.parse_classroom_url.return_value = {
                 'organization': 'test-org',

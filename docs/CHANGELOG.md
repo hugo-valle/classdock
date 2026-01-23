@@ -72,6 +72,33 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   - Retry logic with exponential backoff for transient failures
   - Standardized response handling across GitHub API interactions
 
+## [Released] - v3.1.1b0 - 2025-10-25
+
+### 🔧 Bug Fixes & Testing Infrastructure
+
+#### Fixed
+- **🐛 CI Test Failures**: Resolved help text pollution and test assertion issues
+  - Fixed configuration loading logs appearing in help output
+  - Changed config loading log from INFO to DEBUG level
+  - Added ANSI escape code stripping for reliable help text testing
+  - Created `wide_runner` fixture with terminal width settings for consistent CI rendering
+- **📝 Git Repository Hygiene**: Removed `assignment.conf` from git tracking
+  - File belongs in assignment repos, not in the tool repo
+  - Added to `.gitignore` to prevent future commits
+
+#### Added
+- **🧪 Extended QA Test Infrastructure**: Comprehensive Tier 2 testing improvements
+  - Enhanced `test_project_repos/` end-to-end validation suite
+  - Improved mock helpers for GitHub API testing
+  - Added test orchestration layer with TDD skip mechanism
+  - Better separation between unit tests (Tier 1) and E2E tests (Tier 2)
+
+#### Changed
+- **🔍 GitHub API Integration**: Progressive migration from bash to Python
+  - Foundation laid for centralized error handling (`utils/github_exceptions.py`)
+  - Retry logic with exponential backoff for transient failures
+  - Standardized response handling across GitHub API interactions
+
 ## [Released] - v3.1.0-beta.1 - 2025-10-04
 
 ### 🚀 Major CLI Modernization & Beta Release
