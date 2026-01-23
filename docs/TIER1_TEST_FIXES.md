@@ -49,16 +49,16 @@ if assignment_root and not Path(config_file).is_absolute():
 ## Files Modified
 
 ### Production Code
-1. **`classroom_pilot/config/validator.py`**
+1. **`classdock/config/validator.py`**
    - Added file existence check before loading in `validate_config_file()`
 
-2. **`classroom_pilot/services/assignment_service.py`**
+2. **`classdock/services/assignment_service.py`**
    - Added early dry-run returns to:
      - `help_student()`
      - `help_students()`
      - `check_student()`
 
-3. **`classroom_pilot/cli.py`**
+3. **`classdock/cli.py`**
    - Added assignment_root path resolution to `assignment_validate_config()`
 
 ### Test Files

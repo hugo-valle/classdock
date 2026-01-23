@@ -14,7 +14,14 @@
       "Bash(git -C /home/hvalle/classroom-pilot status)",
       "Bash(git -C /home/hvalle/classroom-pilot diff)",
       "Bash(git -C /home/hvalle/classroom-pilot push)",
-      "Bash(gh pr create:*)"
+      "Bash(gh pr create:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(poetry build:*)",
+      "Bash(tar:*)",
+      "Bash(python:*)",
+      "Bash(python -c:*)",
+      "Bash(pytest tests/ -v --tb=short 2>&1:*)"
     ]
   }
 }

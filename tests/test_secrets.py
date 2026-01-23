@@ -1,5 +1,5 @@
 """
-Comprehensive test suite for classroom_pilot.secrets.manager module.
+Comprehensive test suite for classdock.secrets.manager module.
 
 This test suite provides comprehensive coverage for the SecretsManager class,
 which handles GitHub repository secrets management, token deployment, and
@@ -28,8 +28,8 @@ The SecretsManager class provides methods for:
 - Configuration-driven secrets management workflows
 
 Dependencies and Integration:
-- Integrates with classroom_pilot.config for configuration management
-- Uses classroom_pilot.utils.paths for file and path operations
+- Integrates with classdock.config for configuration management
+- Uses classdock.utils.paths for file and path operations
 - Leverages GitHub API for repository secrets management
 - Supports both file-based and environment-based token sources
 - Compatible with GitHub Classroom repository naming conventions
@@ -41,7 +41,7 @@ from pathlib import Path
 import json
 import tempfile
 
-from classroom_pilot.secrets.manager import SecretsManager
+from classdock.secrets.manager import SecretsManager
 
 
 class TestSecretsManager:
@@ -64,7 +64,7 @@ class TestSecretsManager:
     @pytest.fixture
     def secrets_manager(self):
         """Create a SecretsManager instance for testing."""
-        with patch('classroom_pilot.secrets.manager.ConfigLoader'):
+        with patch('classdock.secrets.manager.ConfigLoader'):
             return SecretsManager(Path("test.conf"))
 
     def test_load_secrets_template_success(self, secrets_manager):
@@ -104,7 +104,7 @@ class TestSecretsManager:
 
     def test_add_single_secret(self, secrets_manager):
         """Test adding a single secret to a repository handles API errors."""
-        from classroom_pilot.utils.github_exceptions import GitHubRepositoryError
+        from classdock.utils.github_exceptions import GitHubRepositoryError
 
         # Since GitHub API calls are not mocked, expect GitHubRepositoryError for non-existent repo
         with pytest.raises(GitHubRepositoryError) as exc_info:

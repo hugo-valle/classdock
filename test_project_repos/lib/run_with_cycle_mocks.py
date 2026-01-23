@@ -66,7 +66,7 @@ def run_cli_with_mocks(scenario: str):
     cli_args = sys.argv[1:]
 
     # Import CLI after path is set
-    from classroom_pilot.cli import app
+    from classdock.cli import app
     import typer.testing
 
     runner = typer.testing.CliRunner()
@@ -74,13 +74,13 @@ def run_cli_with_mocks(scenario: str):
     # Apply appropriate mocks based on scenario
     if scenario == "user_present":
         mock_cycle = mock_user_present_scenario()
-        with patch('classroom_pilot.assignments.cycle_collaborator.CycleCollaboratorManager.cycle_single_repository', mock_cycle):
+        with patch('classdock.assignments.cycle_collaborator.CycleCollaboratorManager.cycle_single_repository', mock_cycle):
             result = runner.invoke(
                 app, ["repos", "cycle-collaborator"] + cli_args)
 
     elif scenario == "user_absent":
         mock_cycle = mock_user_absent_scenario()
-        with patch('classroom_pilot.assignments.cycle_collaborator.CycleCollaboratorManager.cycle_single_repository', mock_cycle):
+        with patch('classdock.assignments.cycle_collaborator.CycleCollaboratorManager.cycle_single_repository', mock_cycle):
             result = runner.invoke(
                 app, ["repos", "cycle-collaborator"] + cli_args)
 

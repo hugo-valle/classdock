@@ -1,10 +1,10 @@
 # Testing Guide
 
-This guide covers testing practices and procedures for Classroom Pilot.
+This guide covers testing practices and procedures for ClassDock.
 
 ## 🧪 Testing Overview
 
-Classroom Pilot maintains a comprehensive test suite with 153+ tests covering all major functionality:
+ClassDock maintains a comprehensive test suite with 153+ tests covering all major functionality:
 
 - **Unit Tests**: Individual component testing
 - **Integration Tests**: Component interaction testing
@@ -33,10 +33,10 @@ poetry run pytest tests/test_cli.py::TestCLI::test_version_command -v
 
 ```bash
 # Run tests with coverage report
-poetry run pytest tests/ --cov=classroom_pilot
+poetry run pytest tests/ --cov=classdock
 
 # Generate HTML coverage report
-poetry run pytest tests/ --cov=classroom_pilot --cov-report=html
+poetry run pytest tests/ --cov=classdock --cov-report=html
 
 # View coverage report
 open htmlcov/index.html
@@ -87,7 +87,7 @@ tests/
 
 ```python
 import pytest
-from classroom_pilot.module import Class
+from classdock.module import Class
 
 class TestClass:
     def test_method_success(self, mock_config):
@@ -208,7 +208,7 @@ def custom_fixture(mock_config):
 
 ```python
 from typer.testing import CliRunner
-from classroom_pilot.cli import app
+from classdock.cli import app
 
 def test_command_success():
     """Test successful command execution."""

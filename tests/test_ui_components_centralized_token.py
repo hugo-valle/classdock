@@ -9,7 +9,7 @@ import pytest
 from unittest.mock import Mock, patch, call
 from io import StringIO
 
-from classroom_pilot.utils.ui_components import show_completion, show_help, show_version
+from classdock.utils.ui_components import show_completion, show_help, show_version
 
 
 class TestShowCompletionCentralizedToken:
@@ -29,7 +29,7 @@ class TestShowCompletionCentralizedToken:
         output = mock_stdout.getvalue()
 
         # Should mention centralized token management
-        assert "centralized" in output.lower() or "~/.config/classroom-pilot" in output
+        assert "centralized" in output.lower() or "~/.config/classdock" in output
 
         # Should NOT mention instructor_token.txt
         assert "instructor_token.txt" not in output
@@ -73,7 +73,7 @@ class TestShowCompletionCentralizedToken:
         output = mock_stdout.getvalue()
 
         # Should show the centralized token location
-        assert "~/.config/classroom-pilot" in output or "token_config.json" in output
+        assert "~/.config/classdock" in output or "token_config.json" in output
 
     @patch('sys.stdout', new_callable=StringIO)
     def test_show_completion_no_token_files_loop(self, mock_stdout):
@@ -95,7 +95,7 @@ class TestShowCompletionCentralizedToken:
         # Should NOT display individual token files from the dict
         # (In centralized approach, we don't iterate token_files)
         # Check that we mention centralized management instead
-        assert "centralized" in output.lower() or "~/.config/classroom-pilot" in output
+        assert "centralized" in output.lower() or "~/.config/classdock" in output
 
     @patch('sys.stdout', new_callable=StringIO)
     @patch('os.system')
@@ -121,7 +121,7 @@ class TestShowHelpCentralizedToken:
         output = mock_stdout.getvalue()
 
         # Should mention centralized token management
-        assert "centralized" in output.lower() or "~/.config/classroom-pilot" in output
+        assert "centralized" in output.lower() or "~/.config/classdock" in output
 
         # Should have TOKEN MANAGEMENT section
         assert "TOKEN MANAGEMENT" in output
@@ -166,7 +166,7 @@ class TestShowHelpCentralizedToken:
 
         # Should mention GitHub token configuration
         assert "token" in requirements_section.lower()
-        assert "~/.config/classroom-pilot" in requirements_section or "environment" in requirements_section
+        assert "~/.config/classdock" in requirements_section or "environment" in requirements_section
 
     @patch('sys.stdout', new_callable=StringIO)
     def test_show_help_token_management_section(self, mock_stdout):
@@ -181,7 +181,7 @@ class TestShowHelpCentralizedToken:
         token_section = output.split("TOKEN MANAGEMENT:")[1].split("\n\n")[0]
 
         # Should mention key token locations
-        assert "~/.config/classroom-pilot" in token_section or "token_config.json" in token_section
+        assert "~/.config/classdock" in token_section or "token_config.json" in token_section
         assert "GITHUB_TOKEN" in token_section or "environment" in token_section.lower()
         assert "repository" in token_section.lower()
 
@@ -252,9 +252,9 @@ class TestUIComponentsIntegration:
 
         # Both should mention centralized token management
         assert ("centralized" in completion_output.lower()
-                or "~/.config/classroom-pilot" in completion_output)
+                or "~/.config/classdock" in completion_output)
         assert ("centralized" in help_output.lower()
-                or "~/.config/classroom-pilot" in help_output)
+                or "~/.config/classdock" in help_output)
 
         # Neither should mention deprecated instructor_token.txt
         assert "instructor_token.txt" not in completion_output
@@ -322,4 +322,4 @@ class TestUIComponentsBackwardCompatibility:
 
         assert len(output) > 0
         # Should emphasize centralized approach
-        assert "centralized" in output.lower() or "~/.config/classroom-pilot" in output
+        assert "centralized" in output.lower() or "~/.config/classdock" in output

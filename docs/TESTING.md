@@ -1,10 +1,10 @@
 # Testing Framework Documentation
 
-Comprehensive testing infrastructure for Classroom Pilot's enterprise-grade codebase with 70+ test cases achieving 100% pass rate.
+Comprehensive testing infrastructure for ClassDock's enterprise-grade codebase with 70+ test cases achieving 100% pass rate.
 
 ## 🎯 Overview
 
-The Classroom Pilot testing framework is a **production-ready testing infrastructure** that ensures reliability, maintainability, and confidence in all code changes. With **70+ comprehensive test cases** and **100% pass rate**, the testing system covers all critical functionality including error handling, CLI operations, configuration management, and GitHub API interactions.
+The ClassDock testing framework is a **production-ready testing infrastructure** that ensures reliability, maintainability, and confidence in all code changes. With **70+ comprehensive test cases** and **100% pass rate**, the testing system covers all critical functionality including error handling, CLI operations, configuration management, and GitHub API interactions.
 
 ### 🏆 Testing Metrics
 
@@ -154,7 +154,7 @@ class TestGitHubErrorHandling:
 class TestRepositoryFetcher:
     """Test repository fetching with comprehensive mocking."""
     
-    @patch('classroom_pilot.repos.fetch.Github')
+    @patch('classdock.repos.fetch.Github')
     def test_api_discovery_success(self, mock_github_class, mock_config):
         """Test successful API-based repository discovery."""
         # Setup mock GitHub client
@@ -362,7 +362,7 @@ pytest tests/ -v
 pytest tests/test_github_exceptions.py -v
 
 # Run tests with coverage report
-pytest tests/ --cov=classroom_pilot --cov-report=html
+pytest tests/ --cov=classdock --cov-report=html
 
 # Run tests with parallel execution
 pytest tests/ -n auto
@@ -415,7 +415,7 @@ jobs:
     
     - name: Run tests
       run: |
-        pytest tests/ -v --cov=classroom_pilot
+        pytest tests/ -v --cov=classdock
     
     - name: Upload coverage
       uses: codecov/codecov-action@v3
@@ -457,7 +457,7 @@ def test_config_validator_raises_specific_error_when_assignment_name_missing():
 ```python
 # Mock at the right level - close to the boundary
 class TestRepositoryOperations:
-    @patch('classroom_pilot.repos.fetch.Github')  # Mock external dependency
+    @patch('classdock.repos.fetch.Github')  # Mock external dependency
     def test_repository_fetch(self, mock_github_class):
         """Mock external dependencies, not internal logic."""
         pass
@@ -508,7 +508,7 @@ class TestErrorScenarios:
                 raise GitHubAPIError("Permission denied")
             return True
         
-        with patch('classroom_pilot.secrets.manager.add_secret', side_effect=mock_add_secret):
+        with patch('classdock.secrets.manager.add_secret', side_effect=mock_add_secret):
             manager = SecretsManager(mock_config)
             results = manager.add_secrets_to_repositories(
                 sample_repositories, 
@@ -558,16 +558,16 @@ class TestEndToEndWorkflows:
 
 ```bash
 # Generate HTML coverage report
-pytest tests/ --cov=classroom_pilot --cov-report=html
+pytest tests/ --cov=classdock --cov-report=html
 
 # Coverage summary
 Name                                          Stmts   Miss  Cover
 -----------------------------------------------------------------
-classroom_pilot/__init__.py                      5      0   100%
-classroom_pilot/cli.py                          145      0   100%
-classroom_pilot/utils/github_exceptions.py     717      0   100%
-classroom_pilot/repos/fetch.py                  89      0   100%
-classroom_pilot/config/loader.py                67      0   100%
+classdock/__init__.py                      5      0   100%
+classdock/cli.py                          145      0   100%
+classdock/utils/github_exceptions.py     717      0   100%
+classdock/repos/fetch.py                  89      0   100%
+classdock/config/loader.py                67      0   100%
 -----------------------------------------------------------------
 TOTAL                                          1023      0   100%
 ```
@@ -611,4 +611,4 @@ def test_large_repository_discovery_performance():
 
 ---
 
-*The Classroom Pilot testing framework ensures enterprise-grade reliability through comprehensive test coverage, professional mocking strategies, and automated quality assurance. Every code change is validated against our rigorous 70+ test suite to maintain the highest standards of software quality.*
+*The ClassDock testing framework ensures enterprise-grade reliability through comprehensive test coverage, professional mocking strategies, and automated quality assurance. Every code change is validated against our rigorous 70+ test suite to maintain the highest standards of software quality.*

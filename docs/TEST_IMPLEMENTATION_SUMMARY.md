@@ -67,7 +67,7 @@ $ poetry run pytest \
 
 ## Code Changes Validated by Tests
 
-### ✅ Service Layer (`classroom_pilot/services/assignment_service.py`)
+### ✅ Service Layer (`classdock/services/assignment_service.py`)
 **Changes**:
 - Added token pre-check before wizard launch
 - Environment token import workflow
@@ -76,7 +76,7 @@ $ poetry run pytest \
 
 **Test Coverage**: 14 dedicated tests
 
-### ✅ UI Components (`classroom_pilot/utils/ui_components.py`)
+### ✅ UI Components (`classdock/utils/ui_components.py`)
 **Changes**:
 - Updated `show_completion()` to remove token file references
 - Added "Token Management" section
@@ -85,7 +85,7 @@ $ poetry run pytest \
 
 **Test Coverage**: 18 dedicated tests
 
-### ✅ Secrets Management (`classroom_pilot/secrets/github_secrets.py`)
+### ✅ Secrets Management (`classdock/secrets/github_secrets.py`)
 **Changes**:
 - Modified `process_single_repo()` to accept `secret_value` parameter
 - Modified `process_batch_repos()` similarly
@@ -93,7 +93,7 @@ $ poetry run pytest \
 
 **Test Coverage**: Covered by existing tests in `test_secrets_centralized_tokens.py`
 
-### ✅ Assignment Setup (`classroom_pilot/assignments/setup.py`)
+### ✅ Assignment Setup (`classdock/assignments/setup.py`)
 **Changes**:
 - Removed token value prompts from `_configure_tokens()`
 - Removed token file creation from `_create_files()`
@@ -122,8 +122,8 @@ $ poetry run pytest \
 ### 1. Proper Mocking Strategy
 ```python
 # Mock at the import source, not the usage location
-@patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
-@patch('classroom_pilot.assignments.setup.AssignmentSetup')
+@patch('classdock.utils.token_manager.GitHubTokenManager')
+@patch('classdock.assignments.setup.AssignmentSetup')
 ```
 
 ### 2. Comprehensive Scenario Coverage
@@ -176,7 +176,7 @@ jobs:
             tests/test_assignment_service_token_precheck.py \
             tests/test_ui_components_centralized_token.py \
             tests/test_secrets_centralized_tokens.py \
-            -v --cov=classroom_pilot --cov-report=term
+            -v --cov=classdock --cov-report=term
 ```
 
 ## Known Limitations
@@ -200,21 +200,21 @@ jobs:
 
 ### 1. Run Full Test Suite
 ```bash
-poetry run pytest tests/ -v --cov=classroom_pilot
+poetry run pytest tests/ -v --cov=classdock
 ```
 
 ### 2. Manual E2E Testing
 ```bash
 # Test 1: Fresh setup with no token
 cd /tmp/test-assignment
-classroom-pilot assignments setup
+classdock assignments setup
 
 # Test 2: Setup with env token
 export GITHUB_TOKEN="your_token"
-classroom-pilot assignments setup
+classdock assignments setup
 
 # Test 3: Secrets deployment
-classroom-pilot secrets add
+classdock secrets add
 ```
 
 ### 3. Verify No Regressions

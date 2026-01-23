@@ -2,16 +2,16 @@
 
 ## 🎯 Overview
 
-Classroom Pilot provides comprehensive automation capabilities for scheduling GitHub Classroom management tasks. Set up automated workflows that run unattended to keep your assignments synchronized and students supported.
+ClassDock provides comprehensive automation capabilities for scheduling GitHub Classroom management tasks. Set up automated workflows that run unattended to keep your assignments synchronized and students supported.
 
 ## 📦 Installation
 
 ```bash
 # Install from PyPI
-pip install classroom-pilot
+pip install classdock
 
 # Verify installation
-classroom-pilot --help
+classdock --help
 ```
 
 ## 🚀 Automation Features
@@ -44,7 +44,7 @@ classroom-pilot --help
 
 ```bash
 # Create assignment configuration
-classroom-pilot assignments setup
+classdock assignments setup
 
 # This creates assignment.conf with your settings
 ```
@@ -53,7 +53,7 @@ classroom-pilot assignments setup
 
 ```bash
 # Setup automated scheduling
-classroom-pilot automation scheduler setup --config assignment.conf
+classdock automation scheduler setup --config assignment.conf
 
 # This configures cron jobs for:
 # - Regular assignment orchestration
@@ -66,10 +66,10 @@ classroom-pilot automation scheduler setup --config assignment.conf
 
 ```bash
 # Check scheduled tasks
-classroom-pilot automation scheduler status
+classdock automation scheduler status
 
 # View automation logs
-classroom-pilot automation scheduler logs
+classdock automation scheduler logs
 ```
 
 ## ⚙️ Automation Commands
@@ -78,32 +78,32 @@ classroom-pilot automation scheduler logs
 
 ```bash
 # Setup automated scheduling
-classroom-pilot automation scheduler setup [--config FILE]
+classdock automation scheduler setup [--config FILE]
 
 # Check scheduler status
-classroom-pilot automation scheduler status
+classdock automation scheduler status
 
 # View scheduler logs
-classroom-pilot automation scheduler logs
+classdock automation scheduler logs
 
 # Disable scheduling
-classroom-pilot automation scheduler disable
+classdock automation scheduler disable
 
 # Re-enable scheduling
-classroom-pilot automation scheduler enable
+classdock automation scheduler enable
 ```
 
 ### Batch Operations
 
 ```bash
 # Run batch operations
-classroom-pilot automation batch [--config FILE]
+classdock automation batch [--config FILE]
 
 # Run specific batch tasks
-classroom-pilot automation batch --tasks "secrets,repos" [--config FILE]
+classdock automation batch --tasks "secrets,repos" [--config FILE]
 
 # Schedule batch operations
-classroom-pilot automation batch --schedule "0 */6 * * *" [--config FILE]
+classdock automation batch --schedule "0 */6 * * *" [--config FILE]
 ```
 
 ## 📅 Scheduling Patterns
@@ -186,7 +186,7 @@ EOF
 export GITHUB_TOKEN="ghp_automation_token_here"
 
 # Setup automation
-classroom-pilot automation scheduler setup --config automation-assignment.conf
+classdock automation scheduler setup --config automation-assignment.conf
 ```
 
 ### Midterm Exam Automation
@@ -203,7 +203,7 @@ AUTOMATION_SCHEDULE_ASSISTANCE="*/5 8-20 * * *"   # Every 5 minutes during exam
 AUTOMATION_SCHEDULE_SYNC="0 */1 * * *"            # Hourly sync
 EOF
 
-classroom-pilot automation scheduler setup --config midterm-automation.conf
+classdock automation scheduler setup --config midterm-automation.conf
 ```
 
 ### Semester-End Automation
@@ -219,7 +219,7 @@ AUTOMATION_SCHEDULE_BACKUP="0 0 * * 0"            # Weekly backup
 AUTOMATION_SCHEDULE_CLEANUP="0 1 * * 0"           # Weekly cleanup
 EOF
 
-classroom-pilot automation scheduler setup --config semester-end-automation.conf
+classdock automation scheduler setup --config semester-end-automation.conf
 ```
 
 ## 📊 Monitoring & Management
@@ -228,42 +228,42 @@ classroom-pilot automation scheduler setup --config semester-end-automation.conf
 
 ```bash
 # Check all automation status
-classroom-pilot automation scheduler status
+classdock automation scheduler status
 
 # View active cron jobs
-crontab -l | grep classroom-pilot
+crontab -l | grep classdock
 
 # Check automation health
-classroom-pilot automation scheduler health
+classdock automation scheduler health
 ```
 
 ### Log Management
 
 ```bash
 # View automation logs
-classroom-pilot automation scheduler logs
+classdock automation scheduler logs
 
 # View specific task logs
-classroom-pilot automation scheduler logs --task orchestrate
+classdock automation scheduler logs --task orchestrate
 
 # Tail live logs
-classroom-pilot automation scheduler logs --follow
+classdock automation scheduler logs --follow
 
 # Rotate logs manually
-classroom-pilot automation scheduler logs --rotate
+classdock automation scheduler logs --rotate
 ```
 
 ### Performance Monitoring
 
 ```bash
 # Check automation performance
-classroom-pilot automation scheduler metrics
+classdock automation scheduler metrics
 
 # View task execution times
-classroom-pilot automation scheduler metrics --task-times
+classdock automation scheduler metrics --task-times
 
 # Monitor resource usage
-classroom-pilot automation scheduler metrics --resources
+classdock automation scheduler metrics --resources
 ```
 
 ## 🛡️ Security & Best Practices
@@ -300,7 +300,7 @@ AUTOMATION_ERROR_EMAIL="instructor@university.edu"
 AUTOMATION_ERROR_SLACK_WEBHOOK="https://hooks.slack.com/..."
 
 # Setup automated alerting
-classroom-pilot automation scheduler setup --config assignment.conf --alerts
+classdock automation scheduler setup --config assignment.conf --alerts
 ```
 
 ## 🔍 Troubleshooting
@@ -313,29 +313,29 @@ classroom-pilot automation scheduler setup --config assignment.conf --alerts
    systemctl status cron
    
    # Verify cron job syntax
-   classroom-pilot automation scheduler validate
+   classdock automation scheduler validate
    ```
 
 2. **Authentication Failures**:
    ```bash
    # Check token permissions
-   classroom-pilot --verbose automation batch --config assignment.conf
+   classdock --verbose automation batch --config assignment.conf
    ```
 
 3. **Schedule Conflicts**:
    ```bash
    # Review active schedules
-   classroom-pilot automation scheduler status --detailed
+   classdock automation scheduler status --detailed
    ```
 
 ### Debug Mode
 
 ```bash
 # Run automation in debug mode
-classroom-pilot --verbose automation batch --config assignment.conf
+classdock --verbose automation batch --config assignment.conf
 
 # Test automation without scheduling
-classroom-pilot --dry-run automation scheduler setup --config assignment.conf
+classdock --dry-run automation scheduler setup --config assignment.conf
 ```
 
 ## 📚 Related Documentation

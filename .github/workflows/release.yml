@@ -92,16 +92,16 @@ jobs:
       - name: Test Python syntax and imports
         run: |
           echo "🔍 Testing Python syntax and imports..."
-          poetry run python -m py_compile classroom_pilot/__init__.py
-          poetry run python -m py_compile classroom_pilot/__main__.py
-          poetry run python -m py_compile classroom_pilot/cli.py
+          poetry run python -m py_compile classdock/__init__.py
+          poetry run python -m py_compile classdock/__main__.py
+          poetry run python -m py_compile classdock/cli.py
           echo "✅ All Python files compile successfully"
 
       - name: Test CLI functionality
         run: |
           echo "🧪 Testing CLI functionality..."
-          poetry run python -m classroom_pilot --help
-          poetry run python -m classroom_pilot --version
+          poetry run python -m classdock --help
+          poetry run python -m classdock --version
           echo "✅ CLI commands work correctly"
 
       - name: Run unit tests
@@ -115,7 +115,7 @@ jobs:
           echo "🧪 Testing package installation..."
           poetry build
           pip install dist/*.whl
-          classroom-pilot --version
+          classdock --version
           echo "✅ Package installs and runs correctly"
 
   security-scan:
@@ -146,8 +146,8 @@ jobs:
         run: |
           echo "🛡️ Running security checks..."
           # Check for common security issues in Python code
-          poetry run python -m py_compile classroom_pilot/*.py
-          poetry run python -m py_compile classroom_pilot/*/*.py
+          poetry run python -m py_compile classdock/*.py
+          poetry run python -m py_compile classdock/*/*.py
           echo "✅ Python security checks passed"
 
       - name: Scan for secrets
@@ -203,13 +203,13 @@ jobs:
           ### 📋 Installation
           \`\`\`bash
           # Install via pip
-          pip install classroom-pilot==$VERSION
+          pip install classdock==$VERSION
           
           # Or install via pipx (recommended)
-          pipx install classroom-pilot==$VERSION
+          pipx install classdock==$VERSION
           
           # Verify installation
-          classroom-pilot --version
+          classdock --version
           \`\`\`
 
           ### ⚠️ Known Limitations
@@ -218,9 +218,9 @@ jobs:
           - Not recommended for production use
 
           ### 🔗 Links
-          - [Documentation](https://github.com/hugo-valle/classroom-pilot/tree/$VERSION/docs)
-          - [PyPI Package](https://pypi.org/project/classroom-pilot/$VERSION/)
-          - [Report Issues](https://github.com/hugo-valle/classroom-pilot/issues)"
+          - [Documentation](https://github.com/hugo-valle/classdock/tree/$VERSION/docs)
+          - [PyPI Package](https://pypi.org/project/classdock/$VERSION/)
+          - [Report Issues](https://github.com/hugo-valle/classdock/issues)"
               ;;
             "beta")
               RELEASE_NOTES="## 🎯 Beta Release $VERSION
@@ -233,13 +233,13 @@ jobs:
           ### 📋 Installation
           \`\`\`bash
           # Install via pip
-          pip install classroom-pilot==$VERSION
+          pip install classdock==$VERSION
           
           # Or install via pipx (recommended)
-          pipx install classroom-pilot==$VERSION
+          pipx install classdock==$VERSION
           
           # Verify installation
-          classroom-pilot --version
+          classdock --version
           \`\`\`
 
           ### 🧪 Testing
@@ -247,9 +247,9 @@ jobs:
           - Please report any remaining issues
 
           ### 🔗 Links
-          - [Documentation](https://github.com/hugo-valle/classroom-pilot/tree/$VERSION/docs)
-          - [PyPI Package](https://pypi.org/project/classroom-pilot/$VERSION/)
-          - [Report Issues](https://github.com/hugo-valle/classroom-pilot/issues)"
+          - [Documentation](https://github.com/hugo-valle/classdock/tree/$VERSION/docs)
+          - [PyPI Package](https://pypi.org/project/classdock/$VERSION/)
+          - [Report Issues](https://github.com/hugo-valle/classdock/issues)"
               ;;
             "stable")
               RELEASE_NOTES="## 🎉 Stable Release $VERSION
@@ -260,19 +260,19 @@ jobs:
           ### 📋 Installation
           \`\`\`bash
           # Install via pip
-          pip install classroom-pilot==$VERSION
+          pip install classdock==$VERSION
           
           # Or install via pipx (recommended)
-          pipx install classroom-pilot==$VERSION
+          pipx install classdock==$VERSION
           
           # Verify installation
-          classroom-pilot --version
+          classdock --version
           \`\`\`
 
           ### 🔗 Links
-          - [Documentation](https://github.com/hugo-valle/classroom-pilot/tree/$VERSION/docs)
-          - [PyPI Package](https://pypi.org/project/classroom-pilot/$VERSION/)
-          - [Report Issues](https://github.com/hugo-valle/classroom-pilot/issues)"
+          - [Documentation](https://github.com/hugo-valle/classdock/tree/$VERSION/docs)
+          - [PyPI Package](https://pypi.org/project/classdock/$VERSION/)
+          - [Report Issues](https://github.com/hugo-valle/classdock/issues)"
               ;;
           esac
           

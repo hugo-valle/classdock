@@ -1,4 +1,4 @@
-# Core dependencies for classroom-pilot
+# Core dependencies for classdock
 # Generated from pyproject.toml for pip installation
 
 # Main CLI framework with tested compatible versions

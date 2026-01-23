@@ -62,8 +62,8 @@
 
 **Version Update Locations:**
 - [ ] `pyproject.toml` - version field updated
-- [ ] `classroom_pilot/__init__.py` - __version__ updated
-- [ ] `classroom_pilot/cli.py` - version command updated
+- [ ] `classdock/__init__.py` - __version__ updated
+- [ ] `classdock/cli.py` - version command updated
 
 **Version Progression:**
 ```
@@ -158,10 +158,10 @@ New:     v<!-- new version -->
 ```bash
 # Migration examples (if applicable)
 # Old approach:
-classroom-pilot old-command --old-option
+classdock old-command --old-option
 
 # New approach:
-classroom-pilot new-command --new-option
+classdock new-command --new-option
 ```
 
 **Deprecation Handling:**
@@ -315,4 +315,4 @@ classroom-pilot new-command --new-option
 **Ready for Final Review:** <!-- ✅ or ❌ -->
 **Ready for Release:** <!-- ✅ or ❌ -->
 
-*Thank you for preparing this release! Your attention to detail ensures a smooth experience for all Classroom Pilot users.*
+*Thank you for preparing this release! Your attention to detail ensures a smooth experience for all ClassDock users.*

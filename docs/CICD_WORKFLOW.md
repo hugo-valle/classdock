@@ -1,6 +1,6 @@
 # CI/CD and Automated Release Workflow
 
-This document describes the automated Continuous Integration and Continuous Deployment (CI/CD) pipeline for `classroom-pilot`.
+This document describes the automated Continuous Integration and Continuous Deployment (CI/CD) pipeline for `classdock`.
 
 ## 🎯 Overview
 
@@ -87,7 +87,7 @@ Steps:
 
 **Environment**:
 - **Name**: `pypi`
-- **URL**: https://pypi.org/project/classroom-pilot/
+- **URL**: https://pypi.org/project/classdock/
 - **Permissions**: Trusted publishing
 
 ### Job 3: Update Documentation (`update-docs`)
@@ -123,9 +123,9 @@ Add these secrets in GitHub repository settings:
 For enhanced security, configure trusted publishing:
 
 1. **PyPI Trusted Publishers**:
-   - Go to https://pypi.org/manage/project/classroom-pilot/settings/
+   - Go to https://pypi.org/manage/project/classdock/settings/
    - Add GitHub as trusted publisher
-   - Repository: `hugo-valle/classroom-pilot`
+   - Repository: `hugo-valle/classdock`
    - Workflow: `publish.yml`
 
 2. **Remove API Token**:
@@ -180,8 +180,8 @@ For enhanced security, configure trusted publishing:
 ### Pipeline Status
 
 Monitor pipeline status at:
-- **Actions**: https://github.com/hugo-valle/classroom-pilot/actions
-- **PyPI**: https://pypi.org/project/classroom-pilot/
+- **Actions**: https://github.com/hugo-valle/classdock/actions
+- **PyPI**: https://pypi.org/project/classdock/
 - **Codecov**: Coverage reports and trends
 
 ### Common Issues and Solutions

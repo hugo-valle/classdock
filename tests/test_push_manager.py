@@ -10,17 +10,17 @@ import subprocess
 from unittest.mock import Mock, patch, call
 from pathlib import Path
 
-from classroom_pilot.assignments.push_manager import (
+from classdock.assignments.push_manager import (
     ClassroomPushManager, PushResult, GitCommitInfo, RepositoryState,
     PushValidationResult
 )
-from classroom_pilot.config import GlobalConfig
+from classdock.config import GlobalConfig
 
 
 class TestGitCommitInfo:
     """Test GitCommitInfo utility class."""
 
-    @patch('classroom_pilot.assignments.push_manager.subprocess.run')
+    @patch('classdock.assignments.push_manager.subprocess.run')
     def test_from_hash_success(self, mock_subprocess):
         """Test creating GitCommitInfo from valid hash."""
         mock_result = Mock()
@@ -35,7 +35,7 @@ class TestGitCommitInfo:
         assert commit_info.author == "John Doe"
         assert commit_info.date == "Mon Oct 4 10:00:00 2025"
 
-    @patch('classroom_pilot.assignments.push_manager.subprocess.run')
+    @patch('classdock.assignments.push_manager.subprocess.run')
     def test_from_hash_failure(self, mock_subprocess):
         """Test creating GitCommitInfo when git command fails."""
         mock_subprocess.side_effect = subprocess.CalledProcessError(
@@ -51,7 +51,7 @@ class TestGitCommitInfo:
 
     def test_from_hash_short_hash(self):
         """Test creating GitCommitInfo from short hash."""
-        with patch('classroom_pilot.assignments.push_manager.subprocess.run') as mock_subprocess:
+        with patch('classdock.assignments.push_manager.subprocess.run') as mock_subprocess:
             mock_subprocess.side_effect = subprocess.CalledProcessError(
                 1, 'git show')
 
@@ -93,12 +93,12 @@ class TestClassroomPushManager:
 
     def test_init_without_config(self):
         """Test ClassroomPushManager initialization without config."""
-        with patch('classroom_pilot.assignments.push_manager.GlobalConfig') as mock_global_config:
+        with patch('classdock.assignments.push_manager.GlobalConfig') as mock_global_config:
             manager = ClassroomPushManager()
             mock_global_config.assert_called_once()
             assert manager.assignment_root == Path.cwd()
 
-    @patch('classroom_pilot.assignments.push_manager.subprocess.run')
+    @patch('classdock.assignments.push_manager.subprocess.run')
     def test_run_git_command_success(self, mock_subprocess, push_manager):
         """Test successful git command execution."""
         mock_result = Mock()
@@ -118,7 +118,7 @@ class TestClassroomPushManager:
             timeout=30
         )
 
-    @patch('classroom_pilot.assignments.push_manager.subprocess.run')
+    @patch('classdock.assignments.push_manager.subprocess.run')
     def test_run_git_command_failure(self, mock_subprocess, push_manager):
         """Test git command execution with failure."""
         mock_subprocess.side_effect = subprocess.CalledProcessError(
@@ -128,7 +128,7 @@ class TestClassroomPushManager:
         with pytest.raises(subprocess.CalledProcessError):
             push_manager._run_git_command(['status'])
 
-    @patch('classroom_pilot.assignments.push_manager.subprocess.run')
+    @patch('classdock.assignments.push_manager.subprocess.run')
     def test_run_git_command_timeout(self, mock_subprocess, push_manager):
         """Test git command execution with timeout."""
         mock_subprocess.side_effect = subprocess.TimeoutExpired(
@@ -216,7 +216,7 @@ class TestRepositoryValidation:
         assert any(
             "Using detected assignment file" in warning for warning in result.warnings)
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_check_working_tree_clean_success(self, mock_git, push_manager):
         """Test working tree check when clean."""
         mock_result = Mock()
@@ -228,7 +228,7 @@ class TestRepositoryValidation:
         assert result.is_valid
         assert not result.has_errors
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_check_working_tree_dirty(self, mock_git, push_manager):
         """Test working tree check with uncommitted changes."""
         # First call returns uncommitted changes
@@ -247,7 +247,7 @@ class TestRepositoryValidation:
         assert result.has_errors
         assert any("uncommitted changes" in error for error in result.errors)
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_check_working_tree_git_error(self, mock_git, push_manager):
         """Test working tree check with git error."""
         mock_git.side_effect = subprocess.CalledProcessError(1, 'git status')
@@ -268,7 +268,7 @@ class TestRemoteManagement:
         config.classroom_repo_url = "https://github.com/org/classroom-repo"
         return ClassroomPushManager(config, tmp_path)
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_setup_classroom_remote_new(self, mock_git, push_manager):
         """Test setting up new classroom remote."""
         # Mock remote list (no classroom remote)
@@ -289,7 +289,7 @@ class TestRemoteManagement:
         ]
         mock_git.assert_has_calls(expected_calls)
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_setup_classroom_remote_existing(self, mock_git, push_manager):
         """Test updating existing classroom remote."""
         # Mock remote list (has classroom remote)
@@ -321,7 +321,7 @@ class TestRemoteManagement:
         assert not success
         assert "not configured" in message
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_setup_classroom_remote_git_error(self, mock_git, push_manager):
         """Test setting up remote with git error."""
         mock_git.side_effect = subprocess.CalledProcessError(1, 'git remote')
@@ -331,7 +331,7 @@ class TestRemoteManagement:
         assert not success
         assert "Failed to setup" in message
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_fetch_classroom_repository_success(self, mock_git, push_manager):
         """Test successful fetch of classroom repository."""
         mock_git.return_value = Mock()
@@ -342,7 +342,7 @@ class TestRemoteManagement:
         assert "Successfully fetched" in message
         mock_git.assert_called_once_with(['fetch', 'classroom'])
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_fetch_classroom_repository_empty_repo(self, mock_git, push_manager):
         """Test fetch when classroom repository is empty."""
         error = subprocess.CalledProcessError(1, 'git fetch')
@@ -354,7 +354,7 @@ class TestRemoteManagement:
         assert success  # Empty repo is okay
         assert "empty or newly created" in message
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_fetch_classroom_repository_error(self, mock_git, push_manager):
         """Test fetch with network error."""
         error = subprocess.CalledProcessError(1, 'git fetch')
@@ -376,8 +376,8 @@ class TestRepositoryState:
         config = Mock(spec=GlobalConfig)
         return ClassroomPushManager(config, tmp_path)
 
-    @patch('classroom_pilot.assignments.push_manager.GitCommitInfo.from_hash')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.GitCommitInfo.from_hash')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_get_repository_state_in_sync(self, mock_git, mock_commit_info, push_manager):
         """Test getting repository state when in sync."""
         # Mock local commit
@@ -406,8 +406,8 @@ class TestRepositoryState:
         assert state.files_changed == []
         assert not state.force_required
 
-    @patch('classroom_pilot.assignments.push_manager.GitCommitInfo.from_hash')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.GitCommitInfo.from_hash')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_get_repository_state_out_of_sync(self, mock_git, mock_commit_info, push_manager):
         """Test getting repository state when out of sync."""
         # Mock local commit
@@ -437,8 +437,8 @@ class TestRepositoryState:
         assert state.files_changed == ["file1.py", "file2.py"]
         assert state.force_required
 
-    @patch('classroom_pilot.assignments.push_manager.GitCommitInfo.from_hash')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.GitCommitInfo.from_hash')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_get_repository_state_no_classroom_commit(self, mock_git, mock_commit_info, push_manager):
         """Test getting repository state when classroom has no commits."""
         # Mock local commit
@@ -539,8 +539,8 @@ class TestPushExecution:
         config = Mock(spec=GlobalConfig)
         return ClassroomPushManager(config, tmp_path)
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.get_repository_state')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.get_repository_state')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_push_to_classroom_success(self, mock_git, mock_get_state, push_manager):
         """Test successful push to classroom repository."""
         # Mock state
@@ -559,8 +559,8 @@ class TestPushExecution:
         assert "Successfully pushed" in message
         mock_git.assert_called_once_with(['push', 'classroom', 'main'])
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.get_repository_state')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.get_repository_state')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_push_to_classroom_force_required(self, mock_git, mock_get_state, push_manager):
         """Test push when force is required."""
         # Mock state requiring force
@@ -579,8 +579,8 @@ class TestPushExecution:
         mock_git.assert_called_once_with(
             ['push', 'classroom', 'main', '--force'])
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.get_repository_state')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.get_repository_state')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_push_to_classroom_permission_error(self, mock_git, mock_get_state, push_manager):
         """Test push with permission error."""
         mock_state = Mock()
@@ -596,8 +596,8 @@ class TestPushExecution:
         assert result == PushResult.PERMISSION_ERROR
         assert "Permission denied" in message
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.get_repository_state')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.get_repository_state')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_push_to_classroom_network_error(self, mock_git, mock_get_state, push_manager):
         """Test push with network error."""
         mock_state = Mock()
@@ -613,8 +613,8 @@ class TestPushExecution:
         assert result == PushResult.NETWORK_ERROR
         assert "Network error" in message
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.get_repository_state')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.get_repository_state')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_verify_push_success(self, mock_git, mock_get_state, push_manager):
         """Test successful push verification."""
         # Mock in-sync state after push
@@ -630,8 +630,8 @@ class TestPushExecution:
         assert success
         assert "Verification passed" in message
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.get_repository_state')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager._run_git_command')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.get_repository_state')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager._run_git_command')
     def test_verify_push_failure(self, mock_git, mock_get_state, push_manager):
         """Test push verification failure."""
         # Mock out-of-sync state after push
@@ -669,13 +669,13 @@ class TestWorkflowExecution:
         config.classroom_repo_url = "https://github.com/org/repo"
         return ClassroomPushManager(config, tmp_path)
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.verify_push')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.push_to_classroom')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.get_repository_state')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.fetch_classroom_repository')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.setup_classroom_remote')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.check_working_tree_clean')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.validate_repository')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.verify_push')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.push_to_classroom')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.get_repository_state')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.fetch_classroom_repository')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.setup_classroom_remote')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.check_working_tree_clean')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.validate_repository')
     def test_execute_push_workflow_success(
         self, mock_validate, mock_check_tree, mock_setup_remote, mock_fetch,
         mock_get_state, mock_push, mock_verify, push_manager
@@ -695,7 +695,7 @@ class TestWorkflowExecution:
         mock_push.return_value = (PushResult.SUCCESS, "Push successful")
         mock_verify.return_value = (True, "Verification passed")
 
-        with patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.show_changes_summary') as mock_summary:
+        with patch('classdock.assignments.push_manager.ClassroomPushManager.show_changes_summary') as mock_summary:
             mock_summary.return_value = "Changes to push"
 
             result, message = push_manager.execute_push_workflow(
@@ -705,7 +705,7 @@ class TestWorkflowExecution:
         assert "Push successful" in message
         assert "Next Steps" in message
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.validate_repository')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.validate_repository')
     def test_execute_push_workflow_validation_error(self, mock_validate, push_manager):
         """Test workflow with repository validation error."""
         mock_validate.return_value = PushValidationResult(
@@ -716,11 +716,11 @@ class TestWorkflowExecution:
         assert result == PushResult.REPOSITORY_ERROR
         assert "Not a git repo" in message
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.get_repository_state')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.fetch_classroom_repository')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.setup_classroom_remote')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.check_working_tree_clean')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.validate_repository')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.get_repository_state')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.fetch_classroom_repository')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.setup_classroom_remote')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.check_working_tree_clean')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.validate_repository')
     def test_execute_push_workflow_up_to_date(
         self, mock_validate, mock_check_tree, mock_setup_remote, mock_fetch,
         mock_get_state, push_manager
@@ -742,11 +742,11 @@ class TestWorkflowExecution:
         assert result == PushResult.UP_TO_DATE
         assert "already in sync" in message
 
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.get_repository_state')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.fetch_classroom_repository')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.setup_classroom_remote')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.check_working_tree_clean')
-    @patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.validate_repository')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.get_repository_state')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.fetch_classroom_repository')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.setup_classroom_remote')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.check_working_tree_clean')
+    @patch('classdock.assignments.push_manager.ClassroomPushManager.validate_repository')
     @patch('builtins.input')
     def test_execute_push_workflow_user_cancellation(
         self, mock_input, mock_validate, mock_check_tree, mock_setup_remote,
@@ -767,7 +767,7 @@ class TestWorkflowExecution:
         # User says no
         mock_input.return_value = "n"
 
-        with patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.show_changes_summary') as mock_summary:
+        with patch('classdock.assignments.push_manager.ClassroomPushManager.show_changes_summary') as mock_summary:
             mock_summary.return_value = "Changes to push"
 
             result, message = push_manager.execute_push_workflow(
@@ -778,7 +778,7 @@ class TestWorkflowExecution:
 
     def test_execute_push_workflow_keyboard_interrupt(self, push_manager):
         """Test workflow with keyboard interrupt."""
-        with patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.validate_repository') as mock_validate:
+        with patch('classdock.assignments.push_manager.ClassroomPushManager.validate_repository') as mock_validate:
             mock_validate.side_effect = KeyboardInterrupt()
 
             result, message = push_manager.execute_push_workflow()

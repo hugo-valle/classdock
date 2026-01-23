@@ -1,10 +1,10 @@
-# Makefile for Classroom Pilot Python Wrapper
+# Makefile for ClassDock Python Wrapper
 
 .PHONY: help install test test-quick test-full test-unit test-integration clean lint format check-all dev
 
 # Default target
 help:
-	@echo "Classroom Pilot Python Wrapper - Development Commands"
+	@echo "ClassDock Python Wrapper - Development Commands"
 	@echo "===================================================="
 	@echo ""
 	@echo "Available targets:"
@@ -32,11 +32,11 @@ install:
 test:
 	@echo "🧪 Running quick functionality tests..."
 	@echo "Testing CLI import..."
-	@python -c "from classroom_pilot.cli import app; print('✅ CLI import successful')"
+	@python -c "from classdock.cli import app; print('✅ CLI import successful')"
 	@echo "Testing BashWrapper import..."
-	@python -c "from classroom_pilot.bash_wrapper import BashWrapper; print('✅ BashWrapper import successful')"
+	@python -c "from classdock.bash_wrapper import BashWrapper; print('✅ BashWrapper import successful')"
 	@echo "Testing Configuration import..."
-	@python -c "from classroom_pilot.config import ConfigLoader; print('✅ ConfigLoader import successful')"
+	@python -c "from classdock.config import ConfigLoader; print('✅ ConfigLoader import successful')"
 	@echo "🎉 All basic tests passed!"
 
 # Unit tests with pytest
@@ -71,8 +71,8 @@ clean:
 	rm -rf build/
 	rm -rf dist/
 	rm -rf *.egg-info/
-	rm -rf classroom_pilot/__pycache__/
-	rm -rf classroom_pilot/**/__pycache__/
+	rm -rf classdock/__pycache__/
+	rm -rf classdock/**/__pycache__/
 	rm -rf tests/__pycache__/
 	rm -rf tests/**/__pycache__/
 	rm -rf .pytest_cache/
@@ -84,13 +84,13 @@ lint:
 	@echo "🔍 Running linting checks..."
 	@if command -v flake8 >/dev/null 2>&1; then \
 		echo "Running flake8..."; \
-		flake8 classroom_pilot/ tests/; \
+		flake8 classdock/ tests/; \
 	else \
 		echo "⚠️  flake8 not installed, skipping"; \
 	fi
 	@if command -v pylint >/dev/null 2>&1; then \
 		echo "Running pylint..."; \
-		pylint classroom_pilot/; \
+		pylint classdock/; \
 	else \
 		echo "⚠️  pylint not installed, skipping"; \
 	fi
@@ -100,7 +100,7 @@ format:
 	@echo "🎨 Formatting code..."
 	@if command -v black >/dev/null 2>&1; then \
 		echo "Running black..."; \
-		black classroom_pilot/ tests/; \
+		black classdock/ tests/; \
 		echo "✅ Code formatted!"; \
 	else \
 		echo "⚠️  black not installed, skipping formatting"; \
@@ -126,33 +126,33 @@ dev:
 # Test specific commands
 test-sync:
 	@echo "🔄 Testing sync command..."
-	python -m classroom_pilot --dry-run --verbose sync
+	python -m classdock --dry-run --verbose sync
 
 test-discover:
 	@echo "🔍 Testing discover command..."
-	python -m classroom_pilot --dry-run --verbose discover
+	python -m classdock --dry-run --verbose discover
 
 test-cycle:
 	@echo "🔄 Testing cycle command..."
-	python -m classroom_pilot --dry-run cycle --list test-assignment
+	python -m classdock --dry-run cycle --list test-assignment
 
 test-all-commands:
 	@echo "🧪 Testing all commands..."
 	@make test-sync
 	@make test-discover
 	@make test-cycle
-	python -m classroom_pilot --dry-run --verbose run
-	python -m classroom_pilot --dry-run --verbose secrets
-	python -m classroom_pilot --dry-run --verbose assist
+	python -m classdock --dry-run --verbose run
+	python -m classdock --dry-run --verbose secrets
+	python -m classdock --dry-run --verbose assist
 	@echo "✅ All command tests completed!"
 
 # Installation test
 test-install:
 	@echo "📦 Testing package installation..."
-	pip uninstall -y classroom-pilot || true
+	pip uninstall -y classdock || true
 	pip install .
-	classroom-pilot --help
-	classroom-pilot version
+	classdock --help
+	classdock version
 	@echo "✅ Installation test passed!"
 
 # Package building
@@ -165,6 +165,6 @@ build:
 info:
 	@echo "📋 Package Information"
 	@echo "===================="
-	@python -c "import classroom_pilot; print(f'Version: {classroom_pilot.__version__}')"
-	@python -c "import classroom_pilot; print(f'Author: {classroom_pilot.__author__}')"
-	@python -c "import classroom_pilot; print(f'Description: {classroom_pilot.__description__}')"
+	@python -c "import classdock; print(f'Version: {classdock.__version__}')"
+	@python -c "import classdock; print(f'Author: {classdock.__author__}')"
+	@python -c "import classdock; print(f'Description: {classdock.__description__}')"

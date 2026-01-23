@@ -16,10 +16,10 @@ The orchestrator automates the complete assignment lifecycle through a single co
 
 ```bash
 # Install from PyPI
-pip install classroom-pilot
+pip install classdock
 
 # Verify installation
-classroom-pilot --help
+classdock --help
 ```
 
 ## 🚀 Quick Start
@@ -30,7 +30,7 @@ Create assignment configuration interactively:
 
 ```bash
 # Run interactive setup wizard
-classroom-pilot assignments setup
+classdock assignments setup
 
 # This creates an assignment.conf file with your settings
 ```
@@ -39,13 +39,13 @@ classroom-pilot assignments setup
 
 ```bash
 # Run complete orchestrated workflow
-classroom-pilot assignments orchestrate --config assignment.conf
+classdock assignments orchestrate --config assignment.conf
 
 # Preview what would be done (dry-run)
-classroom-pilot --dry-run assignments orchestrate --config assignment.conf
+classdock --dry-run assignments orchestrate --config assignment.conf
 
 # Run with verbose output for debugging
-classroom-pilot --verbose assignments orchestrate --config assignment.conf
+classdock --verbose assignments orchestrate --config assignment.conf
 ```
 
 ## ⚙️ Configuration File Format

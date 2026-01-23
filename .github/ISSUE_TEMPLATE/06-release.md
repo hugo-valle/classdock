@@ -1,6 +1,6 @@
 ---
 name: 🚀 Release Preparation
-about: Prepare for a new release of Classroom Pilot
+about: Prepare for a new release of ClassDock
 title: '[RELEASE] Prepare v'
 labels: ['release']
 assignees: []
@@ -91,8 +91,8 @@ assignees: []
 
 **Version Bump Locations:**
 - [ ] `pyproject.toml` - version field
-- [ ] `classroom_pilot/__init__.py` - __version__
-- [ ] `classroom_pilot/cli.py` - version command
+- [ ] `classdock/__init__.py` - __version__
+- [ ] `classdock/cli.py` - version command
 
 **Semantic Versioning Check:**
 - [ ] Version follows semver (MAJOR.MINOR.PATCH)
@@ -157,7 +157,7 @@ assignees: []
 **Local Build Testing:**
 - [ ] Clean build (`poetry build`)
 - [ ] Package contents verified
-- [ ] Installation test (`pip install dist/classroom_pilot-*.whl`)
+- [ ] Installation test (`pip install dist/classdock-*.whl`)
 - [ ] CLI entry point works
 - [ ] Import test successful
 
@@ -308,4 +308,4 @@ assignees: []
 
 ---
 
-*Thank you for managing this release! Your attention to detail ensures a smooth experience for all Classroom Pilot users.*
+*Thank you for managing this release! Your attention to detail ensures a smooth experience for all ClassDock users.*

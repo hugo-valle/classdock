@@ -9,8 +9,8 @@ import pytest
 from unittest.mock import MagicMock, patch
 from pathlib import Path
 
-from classroom_pilot.services.secrets_service import SecretsService
-from classroom_pilot.config.global_config import SecretsConfig
+from classdock.services.secrets_service import SecretsService
+from classdock.config.global_config import SecretsConfig
 
 
 class TestSecretsService:
@@ -20,8 +20,8 @@ class TestSecretsService:
         """Set up test fixtures."""
         self.service = SecretsService(dry_run=False, verbose=False)
 
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.services.secrets_service.get_global_config')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     def test_add_secrets_without_force_update(self, mock_manager_class, mock_get_config):
         """Test adding secrets without force_update (default behavior)."""
         # Mock global config
@@ -56,8 +56,8 @@ class TestSecretsService:
             force_update=False
         )
 
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.services.secrets_service.get_global_config')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     def test_add_secrets_with_force_update_true(self, mock_manager_class, mock_get_config):
         """Test adding secrets with force_update=True."""
         # Mock global config
@@ -93,8 +93,8 @@ class TestSecretsService:
             force_update=True
         )
 
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.services.secrets_service.get_global_config')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     def test_add_secrets_force_update_with_multiple_repos(self, mock_manager_class, mock_get_config):
         """Test force_update with multiple repositories."""
         # Mock global config
@@ -132,7 +132,7 @@ class TestSecretsService:
             force_update=True
         )
 
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
+    @patch('classdock.services.secrets_service.get_global_config')
     def test_add_secrets_no_config(self, mock_get_config):
         """Test behavior when no global config is available."""
         mock_get_config.return_value = None
@@ -142,7 +142,7 @@ class TestSecretsService:
         assert success is False
         assert "not loaded" in message.lower()
 
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
+    @patch('classdock.services.secrets_service.get_global_config')
     def test_add_secrets_no_secrets_config(self, mock_get_config):
         """Test behavior when no secrets are configured."""
         mock_config = MagicMock()
@@ -154,8 +154,8 @@ class TestSecretsService:
         assert success is False
         assert "no secrets" in message.lower()
 
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.services.secrets_service.get_global_config')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     def test_add_secrets_manager_fails_with_force_update(self, mock_manager_class, mock_get_config):
         """Test handling when secrets manager fails with force_update."""
         # Mock global config
@@ -197,8 +197,8 @@ class TestSecretsService:
 class TestSecretsServiceIntegration:
     """Integration tests for SecretsService with force_update."""
 
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.services.secrets_service.get_global_config')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     def test_force_update_workflow(self, mock_manager_class, mock_get_config):
         """Test complete workflow with force_update parameter."""
         # Setup
@@ -247,8 +247,8 @@ class TestSecretsServiceIntegration:
         assert calls[0].kwargs['force_update'] is False
         assert calls[1].kwargs['force_update'] is True
 
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.services.secrets_service.get_global_config')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     def test_force_update_parameter_propagation(self, mock_manager_class, mock_get_config):
         """Test that force_update parameter properly propagates through layers."""
         # Mock config

@@ -7,9 +7,9 @@ Tests assignment setup, orchestration, and management functionality.
 from pathlib import Path
 from unittest.mock import patch, Mock
 
-from classroom_pilot.assignments.setup import AssignmentSetup
-from classroom_pilot.assignments.orchestrator import AssignmentOrchestrator
-from classroom_pilot.assignments.manage import AssignmentManager
+from classdock.assignments.setup import AssignmentSetup
+from classdock.assignments.orchestrator import AssignmentOrchestrator
+from classdock.assignments.manage import AssignmentManager
 
 
 class TestAssignmentSetup:
@@ -39,7 +39,7 @@ class TestAssignmentSetup:
         setup = AssignmentSetup()
 
         # Should be able to access FileManager through imports
-        from classroom_pilot.utils.file_operations import FileManager
+        from classdock.utils.file_operations import FileManager
         # Provide required repo_root parameter as Path
         file_manager = FileManager(Path("/tmp"))
         assert file_manager is not None
@@ -48,8 +48,8 @@ class TestAssignmentSetup:
 class TestAssignmentOrchestrator:
     """Test assignment orchestration functionality."""
 
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     def test_orchestrator_creation(self, mock_token_manager, mock_secrets_manager):
         """Test orchestrator initialization."""
         # Mock token manager
@@ -64,8 +64,8 @@ class TestAssignmentOrchestrator:
         orchestrator = AssignmentOrchestrator()
         assert orchestrator is not None
 
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     def test_orchestrator_with_config(self, mock_token_manager, mock_secrets_manager):
         """Test orchestrator with configuration."""
         # Mock token manager
@@ -81,8 +81,8 @@ class TestAssignmentOrchestrator:
         orchestrator = AssignmentOrchestrator(config_path)
         assert orchestrator is not None
 
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     def test_orchestrator_workflow_methods(self, mock_token_manager, mock_secrets_manager):
         """Test orchestrator has required workflow methods."""
         # Mock token manager
@@ -101,9 +101,9 @@ class TestAssignmentOrchestrator:
         assert hasattr(orchestrator, 'sync_template')
         assert hasattr(orchestrator, 'discover_repositories')
 
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
-    @patch('classroom_pilot.assignments.orchestrator.logger')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.assignments.orchestrator.logger')
     def test_orchestrator_workflow_execution(self, mock_logger, mock_token_manager, mock_secrets_manager):
         """Test orchestrator workflow method execution."""
         # Mock token manager
@@ -125,8 +125,8 @@ class TestAssignmentOrchestrator:
         # Verify logging occurs
         assert mock_logger.info.call_count >= 3
 
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     def test_orchestrator_logger_access(self, mock_token_manager, mock_secrets_manager):
         """Test orchestrator has access to logging."""
         # Mock token manager
@@ -141,7 +141,7 @@ class TestAssignmentOrchestrator:
         orchestrator = AssignmentOrchestrator()
 
         # Should have logger available through module
-        from classroom_pilot.assignments.orchestrator import logger
+        from classdock.assignments.orchestrator import logger
         assert logger is not None
 
 
@@ -168,7 +168,7 @@ class TestAssignmentManager:
         assert hasattr(manager, 'update_assignment')
         assert hasattr(manager, 'archive_assignment')
 
-    @patch('classroom_pilot.assignments.manage.logger')
+    @patch('classdock.assignments.manage.logger')
     def test_manager_lifecycle_execution(self, mock_logger):
         """Test manager lifecycle method execution."""
         manager = AssignmentManager()
@@ -186,15 +186,15 @@ class TestAssignmentManager:
         manager = AssignmentManager()
 
         # Should have logger available through module
-        from classroom_pilot.assignments.manage import logger
+        from classdock.assignments.manage import logger
         assert logger is not None
 
 
 class TestAssignmentsIntegration:
     """Test integration between assignment components."""
 
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     def test_all_components_available(self, mock_token_manager, mock_secrets_manager):
         """Test all assignment components can be imported and created."""
         # Mock token manager
@@ -215,8 +215,8 @@ class TestAssignmentsIntegration:
         assert orchestrator is not None
         assert manager is not None
 
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     def test_components_have_expected_structure(self, mock_token_manager, mock_secrets_manager):
         """Test components have expected attributes and methods."""
         # Mock token manager

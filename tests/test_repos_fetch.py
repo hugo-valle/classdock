@@ -1,5 +1,5 @@
 """
-Comprehensive test suite for classroom_pilot.repos.fetch module.
+Comprehensive test suite for classdock.repos.fetch module.
 
 This test suite provides comprehensive coverage for the RepositoryFetcher class,
 which handles GitHub Classroom repository operations including discovery, fetching,
@@ -38,12 +38,12 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 import subprocess
 
-from classroom_pilot.repos.fetch import (
+from classdock.repos.fetch import (
     RepositoryFetcher,
     RepositoryInfo,
     FetchResult
 )
-from classroom_pilot.utils.github_exceptions import (
+from classdock.utils.github_exceptions import (
     GitHubAuthenticationError,
     GitHubDiscoveryError
 )
@@ -63,9 +63,9 @@ class TestRepositoryFetcherInitialization:
     - test_init_github_authentication_failure: Tests graceful handling of authentication failures
     """
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_init_with_config_path(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test RepositoryFetcher initialization with explicit configuration path.
@@ -88,9 +88,9 @@ class TestRepositoryFetcherInitialization:
         mock_git_manager.assert_called_once()
         mock_path_manager.assert_called_once()
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_init_without_config_path(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test RepositoryFetcher initialization without explicit configuration path.
@@ -109,9 +109,9 @@ class TestRepositoryFetcherInitialization:
         assert hasattr(fetcher, 'git_manager')
         assert hasattr(fetcher, 'path_manager')
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_init_component_setup(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test that RepositoryFetcher properly initializes all required components.
@@ -132,9 +132,9 @@ class TestRepositoryFetcherInitialization:
         assert fetcher.path_manager == mock_path_manager.return_value
         assert fetcher.github_client is None
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_init_github_authentication_success(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test successful GitHub authentication during RepositoryFetcher initialization.
@@ -148,14 +148,14 @@ class TestRepositoryFetcherInitialization:
 
         mock_github_client = Mock()
         with patch.object(RepositoryFetcher, 'authenticate_github', return_value=True) as mock_auth:
-            with patch('classroom_pilot.repos.fetch.GITHUB_AVAILABLE', True):
+            with patch('classdock.repos.fetch.GITHUB_AVAILABLE', True):
                 fetcher = RepositoryFetcher()
 
         mock_auth.assert_called_once()
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_init_github_authentication_failure(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test graceful handling of GitHub authentication failure during initialization.
@@ -196,12 +196,12 @@ class TestRepositoryFetcherAuthentication:
             'ASSIGNMENT_NAME': 'test-assignment'
         }
 
-    @patch('classroom_pilot.repos.fetch.GITHUB_AVAILABLE', True)
-    @patch('classroom_pilot.repos.fetch.Github')
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
-    @patch('classroom_pilot.repos.fetch.os.getenv')
+    @patch('classdock.repos.fetch.GITHUB_AVAILABLE', True)
+    @patch('classdock.repos.fetch.Github')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.os.getenv')
     def test_authenticate_github_with_env_token(self, mock_getenv, mock_config_loader, mock_git_manager,
                                                 mock_path_manager, mock_github_class):
         """
@@ -245,12 +245,12 @@ class TestRepositoryFetcherAuthentication:
         mock_github_class.assert_called_once_with('test_token')
         mock_github_client.get_user.assert_called_once()
 
-    @patch('classroom_pilot.repos.fetch.GITHUB_AVAILABLE', True)
-    @patch('classroom_pilot.repos.fetch.Github')
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
-    @patch('classroom_pilot.repos.fetch.os.getenv')
+    @patch('classdock.repos.fetch.GITHUB_AVAILABLE', True)
+    @patch('classdock.repos.fetch.Github')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.os.getenv')
     def test_authenticate_github_with_config_token(self, mock_getenv, mock_config_loader, mock_git_manager,
                                                    mock_path_manager, mock_github_class):
         """
@@ -286,12 +286,12 @@ class TestRepositoryFetcherAuthentication:
         assert result is True
         mock_github_class.assert_called_once_with('config_token')
 
-    @patch('classroom_pilot.repos.fetch.GITHUB_AVAILABLE', True)
-    @patch('classroom_pilot.repos.fetch.Github')
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
-    @patch('classroom_pilot.repos.fetch.os.getenv')
+    @patch('classdock.repos.fetch.GITHUB_AVAILABLE', True)
+    @patch('classdock.repos.fetch.Github')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.os.getenv')
     def test_authenticate_github_no_token(self, mock_getenv, mock_config_loader, mock_git_manager,
                                           mock_path_manager, mock_github_class):
         """
@@ -317,10 +317,10 @@ class TestRepositoryFetcherAuthentication:
         with pytest.raises(GitHubAuthenticationError, match="No valid GitHub token found"):
             fetcher.authenticate_github()
 
-    @patch('classroom_pilot.repos.fetch.GITHUB_AVAILABLE', False)
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.GITHUB_AVAILABLE', False)
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_authenticate_github_pygithub_unavailable(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test GitHub authentication when PyGithub library is not available.
@@ -366,9 +366,9 @@ class TestRepositoryFetcherDiscovery:
             'TEMPLATE_REPO_URL': 'https://github.com/test-org/python-basics-template.git'
         }
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_discover_repositories_via_api(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test repository discovery using GitHub API.
@@ -424,10 +424,10 @@ class TestRepositoryFetcherDiscovery:
         assert 'student1' in student_repos[0].student_identifier
         assert 'student2' in student_repos[1].student_identifier
 
-    @patch('classroom_pilot.repos.fetch.subprocess.run')
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.subprocess.run')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_discover_repositories_via_cli(self, mock_config_loader, mock_git_manager,
                                            mock_path_manager, mock_subprocess):
         """
@@ -467,9 +467,9 @@ test-org/other-assignment-student1\tOther repo\tprivate"""
             capture_output=True, text=True, check=True
         )
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_discover_repositories_missing_params(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test repository discovery with missing required parameters.
@@ -524,9 +524,9 @@ class TestRepositoryFetcherFiltering:
                            "clone5", False, False, None)
         ]
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_is_student_repository(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test student repository identification logic.
@@ -558,9 +558,9 @@ class TestRepositoryFetcherFiltering:
         assert fetcher._is_student_repository(
             "python-basics-classroom-template", "python-basics") is False
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_extract_student_identifier(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test student identifier extraction from repository names.
@@ -590,9 +590,9 @@ class TestRepositoryFetcherFiltering:
         assert fetcher._extract_student_identifier(
             "other-assignment-student1", "python-basics") is None
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_filter_student_repositories(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test repository filtering functionality.
@@ -625,9 +625,9 @@ class TestRepositoryFetcherFiltering:
         assert len(filtered_with_template) == 3
         assert any(r.is_template for r in filtered_with_template)
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_get_repository_summary(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test repository summary statistics generation.
@@ -678,9 +678,9 @@ class TestRepositoryFetcherSingleFetch:
             student_identifier="student1"
         )
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_fetch_single_repository_clone(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test cloning a new repository.
@@ -724,9 +724,9 @@ class TestRepositoryFetcherSingleFetch:
         assert result.repository == self.repo_info
         mock_git_manager_instance.clone_repo.assert_called_once()
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_fetch_single_repository_update(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test updating an existing repository.
@@ -761,7 +761,7 @@ class TestRepositoryFetcherSingleFetch:
         mock_repo_git_manager = Mock()
         mock_repo_git_manager.pull_repo.return_value = True
 
-        with patch('classroom_pilot.repos.fetch.GitManager', return_value=mock_repo_git_manager) as mock_git_class:
+        with patch('classdock.repos.fetch.GitManager', return_value=mock_repo_git_manager) as mock_git_class:
             fetcher = RepositoryFetcher.__new__(RepositoryFetcher)
             fetcher.config_loader = mock_config_instance
             fetcher.config = {}
@@ -799,9 +799,9 @@ class TestRepositoryFetcherBatchFetch:
             RepositoryInfo("repo3", "url3", "clone3", False, True, "student3")
         ]
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_fetch_repositories_success(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test successful batch repository fetching.
@@ -835,9 +835,9 @@ class TestRepositoryFetcherBatchFetch:
         assert all(r.success for r in results)
         assert mock_fetch.call_count == 3
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_fetch_repositories_mixed_results(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test batch fetching with mixed success and failure results.
@@ -890,9 +890,9 @@ class TestRepositoryFetcherTemplateSync:
     - test_sync_template_repository_error: Tests error handling during template sync
     """
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_sync_template_repository_clone(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test cloning a template repository.
@@ -936,9 +936,9 @@ class TestRepositoryFetcherTemplateSync:
             mock_template_path
         )
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_sync_template_repository_no_config(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test template sync behavior with missing template configuration.
@@ -978,9 +978,9 @@ class TestRepositoryFetcherErrorHandling:
     - test_update_repositories_missing_directory: Tests missing directory handling
     """
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_discover_repositories_github_api_error(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test error handling for GitHub API failures during repository discovery.
@@ -1010,10 +1010,10 @@ class TestRepositoryFetcherErrorHandling:
         with pytest.raises(GitHubDiscoveryError):
             fetcher.discover_repositories('python-basics', 'test-org')
 
-    @patch('classroom_pilot.repos.fetch.subprocess.run')
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.subprocess.run')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_discover_repositories_cli_error(self, mock_config_loader, mock_git_manager,
                                              mock_path_manager, mock_subprocess):
         """
@@ -1057,9 +1057,9 @@ class TestRepositoryFetcherFetchAllRepositories:
     - test_fetch_all_repositories_exception_handling: Tests exception handling
     """
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_fetch_all_repositories_success(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test successful fetch_all_repositories workflow.
@@ -1122,9 +1122,9 @@ class TestRepositoryFetcherFetchAllRepositories:
             )
             mock_fetch.assert_called_once_with(test_repos)
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_fetch_all_repositories_missing_config(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test fetch_all_repositories with missing configuration fields.
@@ -1150,9 +1150,9 @@ class TestRepositoryFetcherFetchAllRepositories:
 
         assert result is False
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_fetch_all_repositories_no_repos_found(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test fetch_all_repositories when no repositories are discovered.
@@ -1179,9 +1179,9 @@ class TestRepositoryFetcherFetchAllRepositories:
 
             assert result is False
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_fetch_all_repositories_all_fetch_failures(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test fetch_all_repositories when all repository fetches fail.
@@ -1225,9 +1225,9 @@ class TestRepositoryFetcherFetchAllRepositories:
 
             assert result is False
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_fetch_all_repositories_partial_success(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test fetch_all_repositories with partial success.
@@ -1279,9 +1279,9 @@ class TestRepositoryFetcherFetchAllRepositories:
 
             assert result is True
 
-    @patch('classroom_pilot.repos.fetch.PathManager')
-    @patch('classroom_pilot.repos.fetch.GitManager')
-    @patch('classroom_pilot.repos.fetch.ConfigLoader')
+    @patch('classdock.repos.fetch.PathManager')
+    @patch('classdock.repos.fetch.GitManager')
+    @patch('classdock.repos.fetch.ConfigLoader')
     def test_fetch_all_repositories_exception_handling(self, mock_config_loader, mock_git_manager, mock_path_manager):
         """
         Test fetch_all_repositories exception handling.

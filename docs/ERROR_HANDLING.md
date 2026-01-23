@@ -1,6 +1,6 @@
 # GitHub API Error Handling System
 
-Comprehensive documentation for the centralized GitHub API error handling and resilience system in Classroom Pilot.
+Comprehensive documentation for the centralized GitHub API error handling and resilience system in ClassDock.
 
 ## 🎯 Overview
 
@@ -88,7 +88,7 @@ class RetryState:
 The primary usage pattern for most GitHub API operations:
 
 ```python
-from classroom_pilot.utils.github_exceptions import github_api_retry
+from classdock.utils.github_exceptions import github_api_retry
 
 @github_api_retry(max_attempts=5, base_delay=2.0, max_delay=30.0)
 def fetch_student_repositories(github_client, org_name, assignment_prefix):
@@ -124,7 +124,7 @@ except GitHubAPIError as e:
 For operations requiring more control and structured error handling:
 
 ```python
-from classroom_pilot.utils.github_exceptions import github_api_context
+from classdock.utils.github_exceptions import github_api_context
 
 def manage_repository_secrets(github_client, repo_name, secrets):
     """
@@ -149,7 +149,7 @@ def manage_repository_secrets(github_client, repo_name, secrets):
 For basic error handling without retry logic:
 
 ```python
-from classroom_pilot.utils.github_exceptions import handle_github_errors
+from classdock.utils.github_exceptions import handle_github_errors
 
 @handle_github_errors
 def get_repository_info(github_client, repo_name):
@@ -373,7 +373,7 @@ def test_repository_fetch_with_retry(mock_github):
 ### Repository Discovery
 
 ```python
-# classroom_pilot/repos/fetch.py
+# classdock/repos/fetch.py
 class RepositoryFetcher:
     @github_api_retry(max_attempts=2, base_delay=1.0)
     def _discover_via_api(self, assignment_prefix: str, organization: str):
@@ -551,7 +551,7 @@ INFO: fetch_repositories succeeded on attempt 2
 
 ```python
 # Check GitHub API availability
-from classroom_pilot.utils.github_exceptions import is_github_available
+from classdock.utils.github_exceptions import is_github_available
 
 if not is_github_available():
     print("GitHub API client is not available - install PyGithub")
@@ -639,4 +639,4 @@ class GitHubCircuitBreaker:
 
 ---
 
-*The GitHub API Error Handling System is a core component of Classroom Pilot's enterprise-grade reliability. It transforms GitHub API interactions from fragile, error-prone operations into robust, production-ready services with comprehensive error recovery and monitoring.*
+*The GitHub API Error Handling System is a core component of ClassDock's enterprise-grade reliability. It transforms GitHub API interactions from fragile, error-prone operations into robust, production-ready services with comprehensive error recovery and monitoring.*

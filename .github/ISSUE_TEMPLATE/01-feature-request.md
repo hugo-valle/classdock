@@ -1,6 +1,6 @@
 ---
 name: 🚀 Feature Request
-about: Suggest a new feature for Classroom Pilot
+about: Suggest a new feature for ClassDock
 title: '[FEATURE] '
 labels: ['enhancement', 'feature']
 assignees: []
@@ -66,7 +66,7 @@ As a [type of user], I want [feature] so that [benefit].
 **CLI Interface (if applicable):**
 ```bash
 # Example of how the new command/option should work
-classroom-pilot new-command --option value
+classdock new-command --option value
 ```
 
 **Expected Behavior:**
@@ -174,7 +174,7 @@ If applicable, add visual representations of the feature.
 
 **Quality Assurance:**
 - [ ] All tests pass (`poetry run pytest tests/ -v`)
-- [ ] CLI works locally (`poetry run classroom-pilot --help`)
+- [ ] CLI works locally (`poetry run classdock --help`)
 - [ ] Code formatting (`poetry run black --check`)
 - [ ] Import sorting (`poetry run isort --check-only`)
 - [ ] Type checking (`poetry run mypy`)
@@ -186,4 +186,4 @@ If applicable, add visual representations of the feature.
 
 ---
 
-*Thank you for contributing to Classroom Pilot! Your feature request helps make this tool better for educators everywhere.*
+*Thank you for contributing to ClassDock! Your feature request helps make this tool better for educators everywhere.*

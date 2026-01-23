@@ -253,7 +253,7 @@ export GITHUB_TOKEN="your_github_token"
 # CLASSROOM_API_MODE=auto is the default
 
 # 3. Run setup with classroom URL
-classroom-pilot assignments setup --url "https://classroom.github.com/classrooms/..."
+classdock assignments setup --url "https://classroom.github.com/classrooms/..."
 ```
 
 ## Environment Requirements

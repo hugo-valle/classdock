@@ -8,22 +8,22 @@ Repository management includes fetching student repositories, managing collabora
 
 ## Commands
 
-### `classroom-pilot repos fetch`
+### `classdock repos fetch`
 
 Fetch and clone student repositories for an assignment.
 
 ```bash
 # Fetch all student repositories
-classroom-pilot repos fetch
+classdock repos fetch
 
 # Fetch for specific assignment
-classroom-pilot repos fetch --assignment "homework-01"
+classdock repos fetch --assignment "homework-01"
 
 # Fetch to specific directory
-classroom-pilot repos fetch --output-dir ./student-repos
+classdock repos fetch --output-dir ./student-repos
 
 # Fetch with filtering
-classroom-pilot repos fetch --students student-list.txt
+classdock repos fetch --students student-list.txt
 ```
 
 **Options:**
@@ -34,22 +34,22 @@ classroom-pilot repos fetch --students student-list.txt
 - `--depth COUNT`: Git clone depth (default: full history)
 - `--branch NAME`: Specific branch to fetch (default: main)
 
-### `classroom-pilot repos list`
+### `classdock repos list`
 
 List repositories for an assignment with detailed information.
 
 ```bash
 # List all repositories
-classroom-pilot repos list
+classdock repos list
 
 # List for specific assignment
-classroom-pilot repos list --assignment "homework-01"
+classdock repos list --assignment "homework-01"
 
 # List with detailed information
-classroom-pilot repos list --detailed
+classdock repos list --detailed
 
 # Export to file
-classroom-pilot repos list --output repos.json --format json
+classdock repos list --output repos.json --format json
 ```
 
 **Options:**
@@ -59,22 +59,22 @@ classroom-pilot repos list --output repos.json --format json
 - `--output FILE`: Save to file
 - `--status STATUS`: Filter by repository status
 
-### `classroom-pilot repos collaborator`
+### `classdock repos collaborator`
 
 Manage repository collaborators and permissions.
 
 ```bash
 # Add collaborator to all repositories
-classroom-pilot repos collaborator add --user teaching-assistant
+classdock repos collaborator add --user teaching-assistant
 
 # Remove collaborator
-classroom-pilot repos collaborator remove --user old-ta
+classdock repos collaborator remove --user old-ta
 
 # List collaborators
-classroom-pilot repos collaborator list
+classdock repos collaborator list
 
 # Cycle collaborators (advanced operation)
-classroom-pilot repos collaborator cycle
+classdock repos collaborator cycle
 ```
 
 **Subcommands:**
@@ -89,22 +89,22 @@ classroom-pilot repos collaborator cycle
 - `--assignment NAME`: Target specific assignment
 - `--dry-run`: Preview changes without execution
 
-### `classroom-pilot repos sync`
+### `classdock repos sync`
 
 Synchronize local repositories with remote changes.
 
 ```bash
 # Sync all repositories
-classroom-pilot repos sync
+classdock repos sync
 
 # Sync specific assignment
-classroom-pilot repos sync --assignment "homework-01"
+classdock repos sync --assignment "homework-01"
 
 # Sync with specific branch
-classroom-pilot repos sync --branch main
+classdock repos sync --branch main
 
 # Force sync (reset local changes)
-classroom-pilot repos sync --force
+classdock repos sync --force
 ```
 
 **Options:**
@@ -114,22 +114,22 @@ classroom-pilot repos sync --force
 - `--parallel COUNT`: Parallel sync operations
 - `--timeout SECONDS`: Operation timeout
 
-### `classroom-pilot repos status`
+### `classdock repos status`
 
 Check status of repository operations and health.
 
 ```bash
 # Check all repository status
-classroom-pilot repos status
+classdock repos status
 
 # Check specific assignment
-classroom-pilot repos status --assignment "homework-01"
+classdock repos status --assignment "homework-01"
 
 # Health check with validation
-classroom-pilot repos status --health-check
+classdock repos status --health-check
 
 # Generate status report
-classroom-pilot repos status --report status.html
+classdock repos status --report status.html
 ```
 
 **Options:**
@@ -138,19 +138,19 @@ classroom-pilot repos status --report status.html
 - `--report FILE`: Generate HTML report
 - `--format FORMAT`: Output format
 
-### `classroom-pilot repos execute`
+### `classdock repos execute`
 
 Execute commands across multiple repositories.
 
 ```bash
 # Run command in all repositories
-classroom-pilot repos execute --command "git status"
+classdock repos execute --command "git status"
 
 # Run script across repositories
-classroom-pilot repos execute --script update-dependencies.sh
+classdock repos execute --script update-dependencies.sh
 
 # Execute with filtering
-classroom-pilot repos execute \
+classdock repos execute \
   --command "npm test" \
   --assignment "final-project" \
   --filter "package.json"
@@ -200,18 +200,18 @@ Repository commands integrate with:
 
 ```bash
 # 1. Fetch all student repositories
-classroom-pilot repos fetch \
+classdock repos fetch \
   --assignment "midterm-project" \
   --output-dir ./midterm-submissions \
   --parallel 10
 
 # 2. Check repository status
-classroom-pilot repos status \
+classdock repos status \
   --assignment "midterm-project" \
   --health-check
 
 # 3. Add grading collaborator
-classroom-pilot repos collaborator add \
+classdock repos collaborator add \
   --user grading-assistant \
   --permission write \
   --assignment "midterm-project"
@@ -221,20 +221,20 @@ classroom-pilot repos collaborator add \
 
 ```bash
 # Execute tests across all repositories
-classroom-pilot repos execute \
+classdock repos execute \
   --assignment "lab-03" \
   --command "npm test" \
   --parallel 5 \
   --timeout 60
 
 # Update dependencies in all repositories
-classroom-pilot repos execute \
+classdock repos execute \
   --assignment "lab-03" \
   --script ./scripts/update-deps.sh \
   --filter "package.json"
 
 # Generate status report
-classroom-pilot repos status \
+classdock repos status \
   --assignment "lab-03" \
   --report lab-03-status.html
 ```
@@ -243,17 +243,17 @@ classroom-pilot repos status \
 
 ```bash
 # Sync all repositories with latest changes
-classroom-pilot repos sync \
+classdock repos sync \
   --assignment "ongoing-project" \
   --branch development
 
 # Clean up old collaborators
-classroom-pilot repos collaborator remove \
+classdock repos collaborator remove \
   --user former-ta \
   --assignment "spring-2024"
 
 # Validate repository health
-classroom-pilot repos status \
+classdock repos status \
   --health-check \
   --report health-check.html
 ```
@@ -266,13 +266,13 @@ The collaborator cycle feature automatically rotates grading responsibilities:
 
 ```bash
 # Setup collaborator cycling
-classroom-pilot repos collaborator cycle \
+classdock repos collaborator cycle \
   --assignment "weekly-labs" \
   --collaborators ta1,ta2,ta3 \
   --strategy round-robin
 
 # Manual cycle trigger
-classroom-pilot repos collaborator cycle \
+classdock repos collaborator cycle \
   --assignment "weekly-labs" \
   --next
 ```
@@ -283,17 +283,17 @@ Filter repositories for targeted operations:
 
 ```bash
 # Filter by file presence
-classroom-pilot repos execute \
+classdock repos execute \
   --command "npm test" \
   --filter "package.json"
 
 # Filter by student list
-classroom-pilot repos fetch \
+classdock repos fetch \
   --students advanced-students.txt \
   --assignment "bonus-project"
 
 # Filter by repository status
-classroom-pilot repos list \
+classdock repos list \
   --status "needs-review" \
   --format table
 ```
@@ -305,32 +305,32 @@ classroom-pilot repos list \
 **Authentication Problems:**
 ```bash
 # Verify GitHub token
-classroom-pilot auth check
+classdock auth check
 
 # Test API access
-classroom-pilot repos list --assignment "test"
+classdock repos list --assignment "test"
 ```
 
 **Clone Failures:**
 ```bash
 # Fetch with verbose output
-classroom-pilot repos fetch \
+classdock repos fetch \
   --assignment "homework-01" \
   --verbose \
   --timeout 300
 
 # Check repository permissions
-classroom-pilot repos status --health-check
+classdock repos status --health-check
 ```
 
 **Collaborator Issues:**
 ```bash
 # List current collaborators
-classroom-pilot repos collaborator list \
+classdock repos collaborator list \
   --assignment "homework-01"
 
 # Verify permissions
-classroom-pilot repos collaborator list \
+classdock repos collaborator list \
   --detailed \
   --format json
 ```
@@ -339,17 +339,17 @@ classroom-pilot repos collaborator list \
 
 ```bash
 # Increase parallel operations
-classroom-pilot repos fetch \
+classdock repos fetch \
   --parallel 20 \
   --depth 1
 
 # Use shallow clones for faster operations
-classroom-pilot repos fetch \
+classdock repos fetch \
   --depth 1 \
   --branch main
 
 # Set appropriate timeouts
-classroom-pilot repos execute \
+classdock repos execute \
   --command "long-running-task" \
   --timeout 600
 ```

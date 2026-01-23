@@ -1,6 +1,6 @@
-# Contributing to Classroom Pilot
+# Contributing to ClassDock
 
-Thank you for your interest in contributing to Classroom Pilot! This document provides guidelines and instructions for contributors.
+Thank you for your interest in contributing to ClassDock! This document provides guidelines and instructions for contributors.
 
 ## 🚀 Getting Started
 
@@ -14,8 +14,8 @@ Thank you for your interest in contributing to Classroom Pilot! This document pr
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/hugo-valle/classroom-pilot.git
-   cd classroom-pilot
+   git clone https://github.com/hugo-valle/classdock.git
+   cd classdock
    ```
 
 2. **Install dependencies:**
@@ -30,7 +30,7 @@ Thank you for your interest in contributing to Classroom Pilot! This document pr
 
 4. **Verify installation:**
    ```bash
-   classroom-pilot --help
+   classdock --help
    ```
 
 ## 🏗️ Development Guidelines
@@ -55,8 +55,8 @@ Thank you for your interest in contributing to Classroom Pilot! This document pr
 - **Pre-release Format**: `alpha.X`, `beta.X`, `rc.X`
 - **Version Locations**: Keep synchronized:
   - `pyproject.toml` → `version = "X.Y.Z"`
-  - `classroom_pilot/__init__.py` → `__version__ = "X.Y.Z"`
-  - `classroom_pilot/cli.py` → version command output
+  - `classdock/__init__.py` → `__version__ = "X.Y.Z"`
+  - `classdock/cli.py` → version command output
 
 ## 🧪 Testing
 
@@ -70,7 +70,7 @@ poetry run pytest tests/ -v
 poetry run pytest tests/test_cli.py -v
 
 # Run with coverage
-poetry run pytest tests/ --cov=classroom_pilot
+poetry run pytest tests/ --cov=classdock
 ```
 
 ### Test Organization
@@ -78,7 +78,7 @@ poetry run pytest tests/ --cov=classroom_pilot
 ```python
 # tests/test_<module>.py
 import pytest
-from classroom_pilot.<module> import Class
+from classdock.<module> import Class
 
 class TestClass:
     def test_method_success(self, mock_config):
@@ -123,7 +123,7 @@ def command_name(
     Command description with example usage.
     
     Example:
-        classroom-pilot command-name --param value
+        classdock command-name --param value
     """
     pass
 ```
@@ -176,7 +176,7 @@ When reporting bugs, please include:
 
 - Python version
 - Operating system
-- Classroom Pilot version
+- ClassDock version
 - Steps to reproduce
 - Expected behavior
 - Actual behavior
@@ -199,4 +199,4 @@ For feature requests, please provide:
 
 ## 📜 License
 
-By contributing to Classroom Pilot, you agree that your contributions will be licensed under the same license as the project.
+By contributing to ClassDock, you agree that your contributions will be licensed under the same license as the project.

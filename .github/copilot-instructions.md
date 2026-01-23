@@ -1,10 +1,10 @@
-# GitHub Copilot Instructions for Classroom Pilot
+# GitHub Copilot Instructions for ClassDock
 
-This document provides comprehensive instructions for AI assistants working on the `classroom-pilot` project.
+This document provides comprehensive instructions for AI assistants working on the `classdock` project.
 
 ## 🎯 Project Overview
 
-**Classroom Pilot** is a comprehensive Python CLI tool for automating GitHub Classroom assignment management. It provides modular functionality for repository operations, assignment orchestration, secret management, and automation workflows.
+**ClassDock** is a comprehensive Python CLI tool for automating GitHub Classroom assignment management. It provides modular functionality for repository operations, assignment orchestration, secret management, and automation workflows.
 
 ### Key Information
 - **Language**: Python 3.10+
@@ -17,8 +17,8 @@ This document provides comprehensive instructions for AI assistants working on t
 ## 📁 Project Structure
 
 ```
-classroom_pilot/
-├── classroom_pilot/          # Main package
+classdock/
+├── classdock/          # Main package
 │   ├── __init__.py          # Package initialization
 │   ├── __main__.py          # Entry point
 │   ├── cli.py               # Main CLI interface (Typer)
@@ -80,8 +80,8 @@ requests = "^2.31.0"
 - **Pre-release Format**: `alpha.X`, `beta.X`, `rc.X`
 - **Version Locations** (keep synchronized):
   - `pyproject.toml` → `version = "X.Y.Z"`
-  - `classroom_pilot/__init__.py` → `__version__ = "X.Y.Z"`
-  - `classroom_pilot/cli.py` → version command output
+  - `classdock/__init__.py` → `__version__ = "X.Y.Z"`
+  - `classdock/cli.py` → version command output
 
 ## 🏗️ Architecture Patterns
 
@@ -129,7 +129,7 @@ except SpecificException as e:
 ### Phase 1: Infrastructure Setup
 
 #### 1.1 GitHub API Error Handling (Foundation)
-- **Location**: `classroom_pilot/utils/github_exceptions.py`
+- **Location**: `classdock/utils/github_exceptions.py`
 - **Purpose**: Centralized error handling for all GitHub API interactions
 - **Components**:
   ```python
@@ -170,7 +170,7 @@ except SpecificException as e:
 
 1. **Import GitHub Error Handling**:
    ```python
-   from classroom_pilot.utils.github_exceptions import (
+   from classdock.utils.github_exceptions import (
        GitHubAPIError, RateLimitError, AuthenticationError,
        retry_on_github_error, handle_github_response
    )
@@ -321,7 +321,7 @@ def mock_github_api(mocker):
 ### Phase 8: Practical Implementation Examples
 
 #### 8.1 Error Handling Infrastructure
-**Real implementation from `classroom_pilot/utils/github_exceptions.py`:**
+**Real implementation from `classdock/utils/github_exceptions.py`:**
 ```python
 class GitHubAPIError(Exception):
     """Base exception for GitHub API errors."""
@@ -345,7 +345,7 @@ def make_github_request(method: str, url: str, **kwargs) -> requests.Response:
 ```
 
 #### 8.2 Module Conversion Example
-**From `classroom_pilot/repos/fetch.py` - bash to API conversion:**
+**From `classdock/repos/fetch.py` - bash to API conversion:**
 ```python
 # BEFORE: Bash wrapper approach
 def get_repo_info(self, repo_url: str) -> dict:
@@ -392,7 +392,7 @@ class TestReposFetch:
 ```
 
 #### 8.4 Secrets Management API Pattern
-**From `classroom_pilot/secrets/manager.py`:**
+**From `classdock/secrets/manager.py`:**
 ```python
 def update_repository_secret(self, repo_url: str, secret_name: str, secret_value: str) -> bool:
     """Update a repository secret using GitHub API."""
@@ -457,7 +457,7 @@ def retry_on_github_error(max_retries: int = 3, base_delay: float = 1):
 ```python
 # tests/test_<module>.py
 import pytest
-from classroom_pilot.<module> import Class
+from classdock.<module> import Class
 
 class TestClass:
     def test_method_success(self, mock_config):
@@ -510,8 +510,8 @@ This project uses a **two-tier testing strategy** with distinct but complementar
 - **Examples**:
   ```bash
   # Tests real GitHub API integration, actual repository cloning
-  classroom-pilot assignments setup --url "https://real-github-classroom-url"
-  classroom-pilot assignments orchestrate --config real_assignment.conf
+  classdock assignments setup --url "https://real-github-classroom-url"
+  classdock assignments orchestrate --config real_assignment.conf
   ```
 
 #### **When to Use Each Tier:**
@@ -574,7 +574,7 @@ def command_name(
     Command description with example usage.
     
     Example:
-        classroom-pilot command-name --param value
+        classdock command-name --param value
     """
     pass
 ```
@@ -612,7 +612,7 @@ def command_name(
 - **Confirm**: Dependencies are properly installed
 
 ### CLI Issues
-- **Test locally**: `poetry run classroom-pilot --help`
+- **Test locally**: `poetry run classdock --help`
 - **Check logs**: Enable verbose mode for debugging
 - **Verify config**: Ensure configuration files are valid
 
@@ -843,8 +843,8 @@ def test_clone_help():
 - `.github/workflows/publish.yml` - Automated publishing workflow
 
 ### External Links
-- **PyPI Package**: https://pypi.org/project/classroom-pilot/
-- **Repository**: https://github.com/hugo-valle/classroom-pilot
+- **PyPI Package**: https://pypi.org/project/classdock/
+- **Repository**: https://github.com/hugo-valle/classdock
 - **Documentation**: Repository README and docs/ folder
 
 ## ⚠️ Critical Reminders

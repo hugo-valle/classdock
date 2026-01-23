@@ -1,5 +1,5 @@
 """
-Test package for classroom-pilot.
+Test package for classdock.
 
-This package contains all tests for the classroom-pilot Python wrapper.
+This package contains all tests for the classdock Python wrapper.
 """

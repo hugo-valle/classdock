@@ -1,5 +1,5 @@
 """
-pytest configuration for classroom-pilot tests.
+pytest configuration for classdock tests.
 
 This file contains fixtures and configuration that are shared across all tests.
 """
@@ -11,7 +11,7 @@ from typing import Dict, Any
 
 import pytest
 
-from classroom_pilot.config.loader import ConfigLoader
+from classdock.config.loader import ConfigLoader
 
 
 @pytest.fixture

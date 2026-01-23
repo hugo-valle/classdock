@@ -9,7 +9,7 @@ import pytest
 from unittest.mock import Mock, patch, MagicMock
 from typer.testing import CliRunner
 
-from classroom_pilot.cli import app
+from classdock.cli import app
 
 
 @pytest.fixture
@@ -21,7 +21,7 @@ def runner():
 @pytest.fixture
 def mock_token_manager():
     """Mock GitHubTokenManager."""
-    with patch('classroom_pilot.utils.token_manager.GitHubTokenManager') as mock:
+    with patch('classdock.utils.token_manager.GitHubTokenManager') as mock:
         manager = Mock()
         mock.return_value = manager
         yield manager
@@ -30,7 +30,7 @@ def mock_token_manager():
 @pytest.fixture
 def mock_api_client():
     """Mock GitHubClassroomAPI."""
-    with patch('classroom_pilot.utils.github_classroom_api.GitHubClassroomAPI') as mock:
+    with patch('classdock.utils.github_classroom_api.GitHubClassroomAPI') as mock:
         client = Mock()
         mock.return_value = client
         yield client
@@ -314,7 +314,7 @@ class TestConfigCheckToken:
 
         assert result.exit_code == 1
         assert "❌ No GitHub token found!" in result.stdout
-        assert "classroom-pilot config set-token" in result.stdout
+        assert "classdock config set-token" in result.stdout
 
     def test_check_token_valid_with_expiration(self, runner, mock_token_manager, mock_api_client):
         """Test check-token with valid token that has expiration."""
@@ -360,7 +360,7 @@ class TestConfigCheckToken:
         assert "❌ Token has EXPIRED!" in result.stdout
         assert "October 17, 2025" in result.stdout
         assert "(2 days ago)" in result.stdout
-        assert "classroom-pilot config set-token" in result.stdout
+        assert "classdock config set-token" in result.stdout
 
     def test_check_token_expiring_soon(self, runner, mock_token_manager, mock_api_client):
         """Test check-token with token expiring soon."""

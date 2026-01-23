@@ -10,7 +10,7 @@ import pytest
 import requests
 from github import UnknownObjectException
 
-from classroom_pilot.utils.github_exceptions import (
+from classdock.utils.github_exceptions import (
     # Base Exception Classes
     GitHubAPIError,
     GitHubRepositoryError,
@@ -443,7 +443,7 @@ class TestGitHubClientUtilities:
     """Tests for GitHub client utility functions - TODO: Implementation needed."""
 
     @pytest.mark.skip(reason="TODO: get_github_client function not implemented yet")
-    @patch('classroom_pilot.utils.github_exceptions.Github')
+    @patch('classdock.utils.github_exceptions.Github')
     def test_get_github_client_with_token(self, mock_github):
         """Test GitHub client creation with token - TODO: Implement function."""
         # TODO: Implement when get_github_client function is added
@@ -455,7 +455,7 @@ class TestGitHubClientUtilities:
         pass
 
     @pytest.mark.skip(reason="TODO: get_github_client function not implemented yet")
-    @patch('classroom_pilot.utils.github_exceptions.Github')
+    @patch('classdock.utils.github_exceptions.Github')
     def test_get_github_client_without_token(self, mock_github):
         """Test GitHub client creation without token - TODO: Implement function."""
         # TODO: Implement when get_github_client function is added
@@ -467,7 +467,7 @@ class TestGitHubClientUtilities:
         pass
 
     @pytest.mark.skip(reason="TODO: validate_github_token function not implemented yet")
-    @patch('classroom_pilot.utils.github_exceptions.get_github_client')
+    @patch('classdock.utils.github_exceptions.get_github_client')
     def test_validate_github_token_success(self, mock_get_client):
         """Test successful GitHub token validation - TODO: Implement function."""
         # TODO: Implement when validate_github_token function is added
@@ -483,7 +483,7 @@ class TestGitHubClientUtilities:
         pass
 
     @pytest.mark.skip(reason="TODO: validate_github_token function not implemented yet")
-    @patch('classroom_pilot.utils.github_exceptions.get_github_client')
+    @patch('classdock.utils.github_exceptions.get_github_client')
     def test_validate_github_token_failure(self, mock_get_client):
         """Test GitHub token validation failure - TODO: Implement function."""
         # TODO: Implement when validate_github_token function is added
@@ -497,7 +497,7 @@ class TestGitHubClientUtilities:
         pass
 
     @pytest.mark.skip(reason="TODO: validate_github_token function not implemented yet")
-    @patch('classroom_pilot.utils.github_exceptions.get_github_client')
+    @patch('classdock.utils.github_exceptions.get_github_client')
     def test_validate_github_token_network_error(self, mock_get_client):
         """Test GitHub token validation with network error - TODO: Implement function."""
         # TODO: Implement when validate_github_token function is added
@@ -609,7 +609,7 @@ class TestRateLimitHandler:
         #         exc._rate_limit = mock_rate_limit
         #         raise exc
         #     return "success"
-        # with patch('classroom_pilot.utils.github_exceptions.get_github_client') as mock_get_client:
+        # with patch('classdock.utils.github_exceptions.get_github_client') as mock_get_client:
         #     mock_client = Mock()
         #     mock_client.get_rate_limit.return_value = mock_rate_limit
         #     mock_get_client.return_value = mock_client

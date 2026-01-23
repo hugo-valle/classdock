@@ -4,26 +4,26 @@ The assignment commands provide comprehensive tools for managing GitHub Classroo
 
 ## Overview
 
-Assignment management in Classroom Pilot covers the complete workflow from initial setup through ongoing maintenance and automation.
+Assignment management in ClassDock covers the complete workflow from initial setup through ongoing maintenance and automation.
 
 ## Commands
 
-### `classroom-pilot assignments setup`
+### `classdock assignments setup`
 
 Initialize a new assignment with proper configuration and repository structure.
 
 ```bash
 # Basic assignment setup
-classroom-pilot assignments setup
+classdock assignments setup
 
 # Setup with specific configuration
-classroom-pilot assignments setup --config assignment.conf
+classdock assignments setup --config assignment.conf
 
 # Dry run to preview changes
-classroom-pilot assignments setup --dry-run
+classdock assignments setup --dry-run
 
 # Verbose output for debugging
-classroom-pilot assignments setup --verbose
+classdock assignments setup --verbose
 ```
 
 **Options:**
@@ -35,27 +35,27 @@ classroom-pilot assignments setup --verbose
 **Example:**
 ```bash
 # Setup assignment with custom config
-classroom-pilot assignments setup \
+classdock assignments setup \
   --config assignments/hw01-config.yaml \
   --verbose
 ```
 
-### `classroom-pilot assignments orchestrate`
+### `classdock assignments orchestrate`
 
 Execute the complete assignment workflow including repository creation, secret distribution, and collaboration setup.
 
 ```bash
 # Run full orchestration
-classroom-pilot assignments orchestrate
+classdock assignments orchestrate
 
 # Orchestrate specific assignment
-classroom-pilot assignments orchestrate --assignment "homework-01"
+classdock assignments orchestrate --assignment "homework-01"
 
 # Skip specific steps
-classroom-pilot assignments orchestrate --skip-secrets
+classdock assignments orchestrate --skip-secrets
 
 # Run with custom timing
-classroom-pilot assignments orchestrate --delay 30
+classdock assignments orchestrate --delay 30
 ```
 
 **Options:**
@@ -73,22 +73,22 @@ classroom-pilot assignments orchestrate --delay 30
 4. **Validation**: Verify setup completion
 5. **Reporting**: Generate operation summary
 
-### `classroom-pilot assignments status`
+### `classdock assignments status`
 
 Check the current status of assignments and their repositories.
 
 ```bash
 # Check all assignments
-classroom-pilot assignments status
+classdock assignments status
 
 # Check specific assignment
-classroom-pilot assignments status --assignment "homework-01"
+classdock assignments status --assignment "homework-01"
 
 # Detailed status report
-classroom-pilot assignments status --detailed
+classdock assignments status --detailed
 
 # Export status to file
-classroom-pilot assignments status --output status-report.json
+classdock assignments status --output status-report.json
 ```
 
 **Options:**
@@ -97,22 +97,22 @@ classroom-pilot assignments status --output status-report.json
 - `--output FILE`: Save report to file
 - `--format FORMAT`: Output format (table, json, yaml)
 
-### `classroom-pilot assignments validate`
+### `classdock assignments validate`
 
 Validate assignment configuration and repository state.
 
 ```bash
 # Validate current configuration
-classroom-pilot assignments validate
+classdock assignments validate
 
 # Validate specific assignment
-classroom-pilot assignments validate --assignment "homework-01"
+classdock assignments validate --assignment "homework-01"
 
 # Validate with strict checking
-classroom-pilot assignments validate --strict
+classdock assignments validate --strict
 
 # Generate validation report
-classroom-pilot assignments validate --report validation.html
+classdock assignments validate --report validation.html
 ```
 
 **Options:**
@@ -161,21 +161,21 @@ Assignment commands integrate seamlessly with:
 
 ```bash
 # 1. Setup assignment configuration
-classroom-pilot assignments setup \
+classdock assignments setup \
   --config assignments/midterm-project.yaml
 
 # 2. Orchestrate full workflow
-classroom-pilot assignments orchestrate \
+classdock assignments orchestrate \
   --assignment "midterm-project" \
   --verbose
 
 # 3. Validate setup
-classroom-pilot assignments validate \
+classdock assignments validate \
   --assignment "midterm-project" \
   --report validation.html
 
 # 4. Check status
-classroom-pilot assignments status \
+classdock assignments status \
   --assignment "midterm-project" \
   --detailed
 ```
@@ -184,13 +184,13 @@ classroom-pilot assignments status \
 
 ```bash
 # Setup automation for ongoing management
-classroom-pilot automation schedule \
+classdock automation schedule \
   --command "assignments orchestrate" \
   --cron "0 6 * * *" \
   --assignment "weekly-labs"
 
 # Monitor assignment status
-classroom-pilot assignments status \
+classdock assignments status \
   --output daily-report.json \
   --format json
 ```
@@ -202,45 +202,45 @@ classroom-pilot assignments status \
 **Configuration Errors:**
 ```bash
 # Validate configuration
-classroom-pilot assignments validate --strict
+classdock assignments validate --strict
 
 # Check configuration syntax
-classroom-pilot config validate --file assignment.conf
+classdock config validate --file assignment.conf
 ```
 
 **Repository Access Issues:**
 ```bash
 # Verify GitHub token permissions
-classroom-pilot auth check
+classdock auth check
 
 # Test repository access
-classroom-pilot repos list --assignment "homework-01"
+classdock repos list --assignment "homework-01"
 ```
 
 **Orchestration Failures:**
 ```bash
 # Run with verbose logging
-classroom-pilot assignments orchestrate \
+classdock assignments orchestrate \
   --verbose \
   --max-retries 5 \
   --delay 60
 
 # Check specific step failures
-classroom-pilot assignments status --detailed
+classdock assignments status --detailed
 ```
 
 ### Getting Help
 
 ```bash
 # General help
-classroom-pilot assignments --help
+classdock assignments --help
 
 # Command-specific help
-classroom-pilot assignments setup --help
-classroom-pilot assignments orchestrate --help
+classdock assignments setup --help
+classdock assignments orchestrate --help
 
 # Configuration help
-classroom-pilot config --help
+classdock config --help
 ```
 
 ## Best Practices

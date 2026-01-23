@@ -1,6 +1,6 @@
 # Quick Start
 
-Get started with Classroom Pilot in 5 minutes.
+Get started with ClassDock in 5 minutes.
 
 ## 🎯 Overview
 
@@ -13,7 +13,7 @@ This guide will walk you through:
 
 ## 📋 Prerequisites
 
-- [Classroom Pilot installed](installation.md)
+- [ClassDock installed](installation.md)
 - GitHub personal access token
 - GitHub Classroom assignment URL
 
@@ -25,7 +25,7 @@ Use the interactive setup wizard to create your first assignment:
 
 ```bash
 # Run interactive setup
-classroom-pilot assignments setup
+classdock assignments setup
 ```
 
 The wizard will guide you through:
@@ -65,13 +65,13 @@ Discover all student repositories for your assignment:
 
 ```bash
 # Discover student repositories
-classroom-pilot repos fetch --config assignment.conf
+classdock repos fetch --config assignment.conf
 
 # Preview without making changes
-classroom-pilot --dry-run repos fetch --config assignment.conf
+classdock --dry-run repos fetch --config assignment.conf
 
 # Discover with verbose output
-classroom-pilot --verbose repos fetch --config assignment.conf
+classdock --verbose repos fetch --config assignment.conf
 ```
 
 This will:
@@ -87,13 +87,13 @@ Distribute secrets to all student repositories:
 
 ```bash
 # Add secrets to all repositories
-classroom-pilot secrets add --config assignment.conf
+classdock secrets add --config assignment.conf
 
 # Preview secret distribution
-classroom-pilot --dry-run secrets add --config assignment.conf
+classdock --dry-run secrets add --config assignment.conf
 
 # Add specific secrets only
-classroom-pilot secrets add --config assignment.conf --secrets "API_KEY"
+classdock secrets add --config assignment.conf --secrets "API_KEY"
 ```
 
 ### Setting Secret Values
@@ -106,7 +106,7 @@ export API_KEY="your_api_key_here"
 export GRADING_TOKEN="your_grading_token"
 
 # Distribute secrets
-classroom-pilot secrets add --config assignment.conf
+classdock secrets add --config assignment.conf
 ```
 
 ## 🔄 Step 4: Complete Workflow
@@ -115,13 +115,13 @@ Run the complete automated workflow:
 
 ```bash
 # Run complete orchestration
-classroom-pilot assignments orchestrate --config assignment.conf
+classdock assignments orchestrate --config assignment.conf
 
 # Preview complete workflow
-classroom-pilot --dry-run assignments orchestrate --config assignment.conf
+classdock --dry-run assignments orchestrate --config assignment.conf
 
 # Run with detailed logging
-classroom-pilot --verbose assignments orchestrate --config assignment.conf
+classdock --verbose assignments orchestrate --config assignment.conf
 ```
 
 This orchestrates:
@@ -138,13 +138,13 @@ Check that everything worked correctly:
 
 ```bash
 # List distributed secrets
-classroom-pilot secrets list --config assignment.conf
+classdock secrets list --config assignment.conf
 
 # Check repository status
-classroom-pilot repos fetch --config assignment.conf
+classdock repos fetch --config assignment.conf
 
 # View detailed status
-classroom-pilot --verbose assignments orchestrate --config assignment.conf --dry-run
+classdock --verbose assignments orchestrate --config assignment.conf --dry-run
 ```
 
 ## 🎯 Common Workflows
@@ -153,17 +153,17 @@ classroom-pilot --verbose assignments orchestrate --config assignment.conf --dry
 
 ```bash
 # Morning workflow: Check and update
-classroom-pilot assignments orchestrate --config assignment.conf
+classdock assignments orchestrate --config assignment.conf
 ```
 
 ### Emergency Secret Rotation
 
 ```bash
 # Remove old secret
-classroom-pilot secrets remove --config assignment.conf --secrets "OLD_TOKEN"
+classdock secrets remove --config assignment.conf --secrets "OLD_TOKEN"
 
 # Add new secret
-NEW_TOKEN="new_value" classroom-pilot secrets add --config assignment.conf --secrets "NEW_TOKEN"
+NEW_TOKEN="new_value" classdock secrets add --config assignment.conf --secrets "NEW_TOKEN"
 ```
 
 ### Multiple Assignment Processing
@@ -172,7 +172,7 @@ NEW_TOKEN="new_value" classroom-pilot secrets add --config assignment.conf --sec
 # Process multiple assignments
 for config in assignment-*.conf; do
     echo "Processing $config..."
-    classroom-pilot assignments orchestrate --config "$config"
+    classdock assignments orchestrate --config "$config"
 done
 ```
 
@@ -206,19 +206,19 @@ done
 **Authentication Errors**:
 ```bash
 # Check token permissions
-classroom-pilot --verbose repos fetch --config assignment.conf
+classdock --verbose repos fetch --config assignment.conf
 ```
 
 **Repository Not Found**:
 ```bash
 # Verify classroom URL format
-classroom-pilot --dry-run repos fetch --config assignment.conf
+classdock --dry-run repos fetch --config assignment.conf
 ```
 
 **Secret Distribution Failures**:
 ```bash
 # Test with dry-run first
-classroom-pilot --dry-run secrets add --config assignment.conf
+classdock --dry-run secrets add --config assignment.conf
 ```
 
 ### Getting Help

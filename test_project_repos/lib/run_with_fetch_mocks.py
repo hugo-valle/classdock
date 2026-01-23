@@ -56,7 +56,7 @@ def mock_repos_list_scenario(repos_list_file: str):
 
     def mock_discover_repositories(self, assignment_prefix: str = None, organization: str = None):
         """Mock discovery from repos list file."""
-        from classroom_pilot.repos.fetch import RepositoryInfo
+        from classdock.repos.fetch import RepositoryInfo
 
         # Create RepositoryInfo objects from repos list
         repo_infos = []
@@ -82,7 +82,7 @@ def mock_repos_list_scenario(repos_list_file: str):
 
     def mock_fetch_repositories(self, repositories, target_directory: str = "student-repos"):
         """Mock successful fetch of all discovered repos."""
-        from classroom_pilot.repos.fetch import FetchResult
+        from classdock.repos.fetch import FetchResult
 
         # Return list of successful FetchResult objects
         results = []
@@ -114,7 +114,7 @@ def mock_invalid_urls_scenario():
 
     def mock_discover_repositories(self, assignment_prefix: str = None, organization: str = None):
         """Mock discovery raising error for invalid URLs."""
-        from classroom_pilot.utils.github_exceptions import GitHubDiscoveryError
+        from classdock.utils.github_exceptions import GitHubDiscoveryError
         raise GitHubDiscoveryError("Invalid repository URL format in list")
 
     return mock_discover_repositories
@@ -135,7 +135,7 @@ def run_cli_with_mocks(scenario: str, repos_list_file: str = None):
     cli_args = sys.argv[1:]
 
     # Import CLI after path is set
-    from classroom_pilot.cli import app
+    from classdock.cli import app
     import typer.testing
 
     runner = typer.testing.CliRunner()
@@ -143,7 +143,7 @@ def run_cli_with_mocks(scenario: str, repos_list_file: str = None):
     # Apply appropriate mocks based on scenario
     if scenario == "auto_discovery":
         mock_func = mock_auto_discovery_scenario()
-        with patch('classroom_pilot.repos.fetch.RepositoryFetcher.fetch_all_repositories', mock_func):
+        with patch('classdock.repos.fetch.RepositoryFetcher.fetch_all_repositories', mock_func):
             result = runner.invoke(app, ["repos", "fetch"] + cli_args)
 
     elif scenario == "repos_list":
@@ -153,13 +153,13 @@ def run_cli_with_mocks(scenario: str, repos_list_file: str = None):
             return 1
 
         mock_discover, mock_fetch = mock_repos_list_scenario(repos_list_file)
-        with patch('classroom_pilot.repos.fetch.RepositoryFetcher.discover_repositories', mock_discover), \
-                patch('classroom_pilot.repos.fetch.RepositoryFetcher.fetch_repositories', mock_fetch):
+        with patch('classdock.repos.fetch.RepositoryFetcher.discover_repositories', mock_discover), \
+                patch('classdock.repos.fetch.RepositoryFetcher.fetch_repositories', mock_fetch):
             result = runner.invoke(app, ["repos", "fetch"] + cli_args)
 
     elif scenario == "empty_list":
         mock_discover = mock_empty_list_scenario()
-        with patch('classroom_pilot.repos.fetch.RepositoryFetcher.discover_repositories', mock_discover):
+        with patch('classdock.repos.fetch.RepositoryFetcher.discover_repositories', mock_discover):
             # Also need to mock fetch_all_repositories to handle empty discovery
             def mock_fetch_all(self, verbose=False):
                 repos = self.discover_repositories(verbose)
@@ -167,12 +167,12 @@ def run_cli_with_mocks(scenario: str, repos_list_file: str = None):
                     return False
                 return True
 
-            with patch('classroom_pilot.repos.fetch.RepositoryFetcher.fetch_all_repositories', mock_fetch_all):
+            with patch('classdock.repos.fetch.RepositoryFetcher.fetch_all_repositories', mock_fetch_all):
                 result = runner.invoke(app, ["repos", "fetch"] + cli_args)
 
     elif scenario == "invalid_urls":
         mock_discover = mock_invalid_urls_scenario()
-        with patch('classroom_pilot.repos.fetch.RepositoryFetcher.discover_repositories', mock_discover):
+        with patch('classdock.repos.fetch.RepositoryFetcher.discover_repositories', mock_discover):
             result = runner.invoke(app, ["repos", "fetch"] + cli_args)
 
     else:

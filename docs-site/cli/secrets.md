@@ -8,22 +8,22 @@ Secret management includes distributing API keys, database credentials, and othe
 
 ## Commands
 
-### `classroom-pilot secrets add`
+### `classdock secrets add`
 
 Add secrets to student repositories for an assignment.
 
 ```bash
 # Add secrets from environment
-classroom-pilot secrets add --assignment "api-project"
+classdock secrets add --assignment "api-project"
 
 # Add secrets from file
-classroom-pilot secrets add --secrets-file api-keys.env
+classdock secrets add --secrets-file api-keys.env
 
 # Add specific secret
-classroom-pilot secrets add --name "API_KEY" --value "secret-value"
+classdock secrets add --name "API_KEY" --value "secret-value"
 
 # Add secrets with confirmation
-classroom-pilot secrets add --confirm --verbose
+classdock secrets add --confirm --verbose
 ```
 
 **Options:**
@@ -40,22 +40,22 @@ classroom-pilot secrets add --confirm --verbose
 - YAML files with structured data
 - JSON files with key-value pairs
 
-### `classroom-pilot secrets list`
+### `classdock secrets list`
 
 List secrets across repositories and assignments.
 
 ```bash
 # List all secrets (names only)
-classroom-pilot secrets list
+classdock secrets list
 
 # List for specific assignment
-classroom-pilot secrets list --assignment "database-project"
+classdock secrets list --assignment "database-project"
 
 # List with detailed information
-classroom-pilot secrets list --detailed
+classdock secrets list --detailed
 
 # Export secret inventory
-classroom-pilot secrets list --output secrets-inventory.json
+classdock secrets list --output secrets-inventory.json
 ```
 
 **Options:**
@@ -65,22 +65,22 @@ classroom-pilot secrets list --output secrets-inventory.json
 - `--output FILE`: Save to file
 - `--show-repos`: Include repository-level details
 
-### `classroom-pilot secrets remove`
+### `classdock secrets remove`
 
 Remove secrets from repositories.
 
 ```bash
 # Remove specific secret
-classroom-pilot secrets remove --name "OLD_API_KEY"
+classdock secrets remove --name "OLD_API_KEY"
 
 # Remove all secrets for assignment
-classroom-pilot secrets remove --assignment "completed-project" --all
+classdock secrets remove --assignment "completed-project" --all
 
 # Remove secrets matching pattern
-classroom-pilot secrets remove --pattern "TEMP_*"
+classdock secrets remove --pattern "TEMP_*"
 
 # Remove with confirmation
-classroom-pilot secrets remove --name "CRITICAL_KEY" --confirm
+classdock secrets remove --name "CRITICAL_KEY" --confirm
 ```
 
 **Options:**
@@ -91,22 +91,22 @@ classroom-pilot secrets remove --name "CRITICAL_KEY" --confirm
 - `--confirm`: Require confirmation
 - `--dry-run`: Preview deletions
 
-### `classroom-pilot secrets rotate`
+### `classdock secrets rotate`
 
 Rotate secrets across repositories with new values.
 
 ```bash
 # Rotate specific secret
-classroom-pilot secrets rotate --name "DATABASE_PASSWORD"
+classdock secrets rotate --name "DATABASE_PASSWORD"
 
 # Rotate from new file
-classroom-pilot secrets rotate --secrets-file new-credentials.env
+classdock secrets rotate --secrets-file new-credentials.env
 
 # Rotate with backup
-classroom-pilot secrets rotate --name "API_KEY" --backup
+classdock secrets rotate --name "API_KEY" --backup
 
 # Schedule rotation
-classroom-pilot secrets rotate --schedule weekly
+classdock secrets rotate --schedule weekly
 ```
 
 **Options:**
@@ -117,22 +117,22 @@ classroom-pilot secrets rotate --schedule weekly
 - `--schedule FREQUENCY`: Schedule automatic rotation
 - `--notify`: Send notifications on completion
 
-### `classroom-pilot secrets validate`
+### `classdock secrets validate`
 
 Validate secret distribution and integrity.
 
 ```bash
 # Validate all secrets
-classroom-pilot secrets validate
+classdock secrets validate
 
 # Validate specific assignment
-classroom-pilot secrets validate --assignment "secure-app"
+classdock secrets validate --assignment "secure-app"
 
 # Validate with health check
-classroom-pilot secrets validate --health-check
+classdock secrets validate --health-check
 
 # Generate validation report
-classroom-pilot secrets validate --report validation.html
+classdock secrets validate --report validation.html
 ```
 
 **Options:**
@@ -142,22 +142,22 @@ classroom-pilot secrets validate --report validation.html
 - `--fix`: Automatically fix detected issues
 - `--strict`: Enable strict validation rules
 
-### `classroom-pilot secrets sync`
+### `classdock secrets sync`
 
 Synchronize secrets across repositories to ensure consistency.
 
 ```bash
 # Sync all secrets
-classroom-pilot secrets sync
+classdock secrets sync
 
 # Sync specific assignment
-classroom-pilot secrets sync --assignment "team-project"
+classdock secrets sync --assignment "team-project"
 
 # Sync from master source
-classroom-pilot secrets sync --source master-secrets.env
+classdock secrets sync --source master-secrets.env
 
 # Sync with conflict resolution
-classroom-pilot secrets sync --resolve-conflicts
+classdock secrets sync --resolve-conflicts
 ```
 
 **Options:**
@@ -207,26 +207,26 @@ github:
 ```bash
 # Use environment variables for sensitive data
 export API_KEY="your-secret-key"
-classroom-pilot secrets add --name "API_KEY"
+classdock secrets add --name "API_KEY"
 
 # Store secrets in encrypted files
-classroom-pilot secrets add --secrets-file encrypted-secrets.env.gpg
+classdock secrets add --secrets-file encrypted-secrets.env.gpg
 
 # Use secure secret sources
-classroom-pilot secrets add --source vault://secrets/api-keys
+classdock secrets add --source vault://secrets/api-keys
 ```
 
 ### Access Control
 
 ```bash
 # Limit secret access by assignment
-classroom-pilot secrets add \
+classdock secrets add \
   --assignment "senior-capstone" \
   --name "PRODUCTION_KEY" \
   --restricted
 
 # Audit secret access
-classroom-pilot secrets list \
+classdock secrets list \
   --detailed \
   --audit-log secrets-audit.log
 ```
@@ -235,13 +235,13 @@ classroom-pilot secrets list \
 
 ```bash
 # Setup automatic rotation
-classroom-pilot secrets rotate \
+classdock secrets rotate \
   --schedule monthly \
   --backup \
   --notify
 
 # Emergency rotation
-classroom-pilot secrets rotate \
+classdock secrets rotate \
   --name "COMPROMISED_KEY" \
   --immediate \
   --notify-urgent
@@ -268,18 +268,18 @@ WEBHOOK_SECRET=webhook-secret-abc123
 EOF
 
 # 2. Distribute to all assignment repositories
-classroom-pilot secrets add \
+classdock secrets add \
   --assignment "api-integration-project" \
   --secrets-file api-project-secrets.env \
   --confirm
 
 # 3. Validate distribution
-classroom-pilot secrets validate \
+classdock secrets validate \
   --assignment "api-integration-project" \
   --report validation.html
 
 # 4. Monitor secret status
-classroom-pilot secrets list \
+classdock secrets list \
   --assignment "api-integration-project" \
   --detailed
 ```
@@ -291,18 +291,18 @@ classroom-pilot secrets list \
 ./generate-new-api-keys.sh > new-keys.env
 
 # 2. Backup existing secrets
-classroom-pilot secrets list \
+classdock secrets list \
   --assignment "production-app" \
   --output backup-$(date +%Y%m%d).json
 
 # 3. Rotate secrets
-classroom-pilot secrets rotate \
+classdock secrets rotate \
   --assignment "production-app" \
   --secrets-file new-keys.env \
   --backup
 
 # 4. Validate rotation
-classroom-pilot secrets validate \
+classdock secrets validate \
   --assignment "production-app" \
   --health-check
 ```
@@ -311,21 +311,21 @@ classroom-pilot secrets validate \
 
 ```bash
 # Immediate secret removal (security incident)
-classroom-pilot secrets remove \
+classdock secrets remove \
   --name "COMPROMISED_KEY" \
   --all-assignments \
   --immediate \
   --confirm
 
 # Emergency rotation with notification
-classroom-pilot secrets rotate \
+classdock secrets rotate \
   --name "CRITICAL_SECRET" \
   --immediate \
   --notify-urgent \
   --backup
 
 # Audit secret access
-classroom-pilot secrets list \
+classdock secrets list \
   --detailed \
   --audit-trail \
   --format json > security-audit.json
@@ -376,21 +376,21 @@ secrets:
 **Permission Errors:**
 ```bash
 # Check repository permissions
-classroom-pilot auth check --permissions secrets
+classdock auth check --permissions secrets
 
 # Verify organization access
-classroom-pilot repos list --assignment "target-assignment"
+classdock repos list --assignment "target-assignment"
 ```
 
 **Distribution Failures:**
 ```bash
 # Retry failed distributions
-classroom-pilot secrets sync \
+classdock secrets sync \
   --assignment "failed-assignment" \
   --retry-failed
 
 # Check individual repository status
-classroom-pilot secrets validate \
+classdock secrets validate \
   --assignment "target" \
   --detailed
 ```
@@ -398,13 +398,13 @@ classroom-pilot secrets validate \
 **Validation Errors:**
 ```bash
 # Fix secret validation issues
-classroom-pilot secrets validate \
+classdock secrets validate \
   --assignment "problem-assignment" \
   --fix \
   --verbose
 
 # Manual secret verification
-classroom-pilot secrets list \
+classdock secrets list \
   --assignment "problem-assignment" \
   --show-repos
 ```
@@ -413,17 +413,17 @@ classroom-pilot secrets list \
 
 ```bash
 # Audit secret access
-classroom-pilot secrets list \
+classdock secrets list \
   --detailed \
   --audit-log security.log
 
 # Check for exposed secrets
-classroom-pilot secrets validate \
+classdock secrets validate \
   --security-scan \
   --report security-report.html
 
 # Emergency cleanup
-classroom-pilot secrets remove \
+classdock secrets remove \
   --pattern "TEMP_*" \
   --all-assignments \
   --force
@@ -435,12 +435,12 @@ classroom-pilot secrets remove \
 
 ```bash
 # Store secrets with encryption
-classroom-pilot secrets add \
+classdock secrets add \
   --secrets-file encrypted-secrets.gpg \
   --decrypt-with gpg
 
 # Use external secret managers
-classroom-pilot secrets add \
+classdock secrets add \
   --source vault://secret/classroom \
   --assignment "secure-project"
 ```
@@ -449,7 +449,7 @@ classroom-pilot secrets add \
 
 ```bash
 # Distribute secrets based on conditions
-classroom-pilot secrets add \
+classdock secrets add \
   --assignment "advanced-class" \
   --condition "student_level=advanced" \
   --secrets-file advanced-secrets.env
@@ -459,7 +459,7 @@ classroom-pilot secrets add \
 
 ```bash
 # Use secret templates
-classroom-pilot secrets add \
+classdock secrets add \
   --template api-project-template \
   --assignment "new-api-project" \
   --substitute student_name={username}

@@ -11,9 +11,9 @@ Successfully reorganized and centralized all project documentation into a unifie
 - `PYTHON_WRAPPER_COMPLETE.md` → `docs/PYTHON_WRAPPER_COMPLETE.md`
 - `TESTING_WORKFLOW_COMPLETE.md` → `docs/TESTING_WORKFLOW_COMPLETE.md`
 
-**From `classroom_pilot/docs/`:**
+**From `classdock/docs/`:**
 - All 10 documentation files moved to main `docs/` folder
-- Removed empty `classroom_pilot/docs/` directory
+- Removed empty `classdock/docs/` directory
 
 ### 📋 Documentation Structure
 ```

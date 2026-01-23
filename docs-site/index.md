@@ -1,10 +1,10 @@
-# Classroom Pilot 🚀
+# ClassDock 🚀
 
-**Classroom Pilot** is a modern Python CLI tool for automating GitHub Classroom assignment management with comprehensive workflow orchestration, repository operations, and secret management.
+**ClassDock** is a modern Python CLI tool for automating GitHub Classroom assignment management with comprehensive workflow orchestration, repository operations, and secret management.
 
-[![PyPI version](https://badge.fury.io/py/classroom-pilot.svg)](https://badge.fury.io/py/classroom-pilot)
-[![Python Support](https://img.shields.io/pypi/pyversions/classroom-pilot.svg)](https://pypi.org/project/classroom-pilot/)
-[![Tests](https://github.com/hugo-valle/classroom-pilot/workflows/Tests/badge.svg)](https://github.com/hugo-valle/classroom-pilot/actions)
+[![PyPI version](https://badge.fury.io/py/classdock.svg)](https://badge.fury.io/py/classdock)
+[![Python Support](https://img.shields.io/pypi/pyversions/classdock.svg)](https://pypi.org/project/classdock/)
+[![Tests](https://github.com/hugo-valle/classdock/workflows/Tests/badge.svg)](https://github.com/hugo-valle/classdock/actions)
 
 ---
 
@@ -12,7 +12,7 @@
 
 ### 🐍 **Modern Python CLI**
 - Type-safe, intuitive commands with rich help and output
-- Simple installation: `pip install classroom-pilot`
+- Simple installation: `pip install classdock`
 - Cross-platform support (Windows, macOS, Linux)
 
 ### 🔧 **Modular Architecture**
@@ -42,23 +42,23 @@
 
 ```bash
 # Install from PyPI
-pip install classroom-pilot
+pip install classdock
 
 # Verify installation
-classroom-pilot --help
+classdock --help
 ```
 
 ### Basic Usage
 
 ```bash
 # Interactive setup
-classroom-pilot assignments setup
+classdock assignments setup
 
 # Run complete workflow
-classroom-pilot assignments orchestrate --config assignment.conf
+classdock assignments orchestrate --config assignment.conf
 
 # Manage secrets
-classroom-pilot secrets add --config assignment.conf
+classdock secrets add --config assignment.conf
 ```
 
 [Get Started →](getting-started/installation.md){ .md-button .md-button--primary }
@@ -70,7 +70,7 @@ classroom-pilot secrets add --config assignment.conf
 - **Current Version**: 3.1.1b0
 - **Python Support**: 3.10, 3.11, 3.12
 - **Tests**: 752+ comprehensive tests with 100% pass rate
-- **Package**: Available on [PyPI](https://pypi.org/project/classroom-pilot/)
+- **Package**: Available on [PyPI](https://pypi.org/project/classdock/)
 - **CI/CD**: Automated testing and publishing
 
 ---
@@ -94,9 +94,9 @@ Set up scheduled automation for continuous assignment management with comprehens
 ## 🆘 Support
 
 - **Documentation**: [Browse Documentation](getting-started/installation.md)
-- **Issues**: [GitHub Issues](https://github.com/hugo-valle/classroom-pilot/issues)
-- **Package**: [PyPI Package](https://pypi.org/project/classroom-pilot/)
-- **Discussions**: [GitHub Discussions](https://github.com/hugo-valle/classroom-pilot/discussions)
+- **Issues**: [GitHub Issues](https://github.com/hugo-valle/classdock/issues)
+- **Package**: [PyPI Package](https://pypi.org/project/classdock/)
+- **Discussions**: [GitHub Discussions](https://github.com/hugo-valle/classdock/discussions)
 
 ---
 
@@ -104,4 +104,4 @@ Set up scheduled automation for continuous assignment management with comprehens
 
 MIT License - see [License](about/license.md) for details.
 
-**Classroom Pilot** - Modern Python automation for GitHub Classroom assignment management.
+**ClassDock** - Modern Python automation for GitHub Classroom assignment management.

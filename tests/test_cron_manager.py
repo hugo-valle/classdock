@@ -11,11 +11,11 @@ from unittest.mock import Mock, patch, mock_open
 from pathlib import Path
 from datetime import datetime
 
-from classroom_pilot.automation.cron_manager import (
+from classdock.automation.cron_manager import (
     CronManager, CronJob, CronJobType, CronOperationResult,
     CronValidationResult, CronStatus
 )
-from classroom_pilot.config import GlobalConfig
+from classdock.config import GlobalConfig
 
 
 class TestCronManager:
@@ -43,7 +43,7 @@ class TestCronManager:
 
     def test_init_without_config(self):
         """Test CronManager initialization without config."""
-        with patch('classroom_pilot.automation.cron_manager.GlobalConfig') as mock_global_config:
+        with patch('classdock.automation.cron_manager.GlobalConfig') as mock_global_config:
             manager = CronManager()
             mock_global_config.assert_called_once()
 
@@ -192,7 +192,7 @@ class TestCronValidation:
             assert not result.is_valid, f"Steps {steps} should be invalid"
             assert result.has_errors
 
-    @patch('classroom_pilot.automation.cron_manager.Path.exists')
+    @patch('classdock.automation.cron_manager.Path.exists')
     @patch('os.access')
     @patch('subprocess.run')
     def test_validate_prerequisites_success(self, mock_subprocess, mock_access, mock_exists, cron_manager):
@@ -207,7 +207,7 @@ class TestCronValidation:
         assert result.is_valid
         assert not result.has_errors
 
-    @patch('classroom_pilot.automation.cron_manager.Path.exists')
+    @patch('classdock.automation.cron_manager.Path.exists')
     def test_validate_prerequisites_missing_script(self, mock_exists, cron_manager):
         """Test prerequisite validation with missing working directory."""
         mock_exists.side_effect = lambda: False  # Directory doesn't exist
@@ -219,7 +219,7 @@ class TestCronValidation:
         assert any(
             "Working directory not found" in error for error in result.errors)
 
-    @patch('classroom_pilot.automation.cron_manager.Path.exists')
+    @patch('classdock.automation.cron_manager.Path.exists')
     def test_validate_prerequisites_valid(self, mock_exists, cron_manager):
         """Test prerequisite validation with valid setup."""
         mock_exists.return_value = True  # Directory exists
@@ -251,21 +251,21 @@ class TestCronOperations:
     def test_get_cron_comment(self, cron_manager):
         """Test cron comment generation with assignment identifier."""
         comment = cron_manager._get_cron_comment(["sync"])
-        # Comment now includes assignment identifier (directory name: classroom-pilot)
-        assert comment == "# GitHub Classroom Assignment Auto-classroom-pilot-sync"
+        # Comment now includes assignment identifier (directory name: classdock)
+        assert comment == "# GitHub Classroom Assignment Auto-classdock-sync"
 
         comment = cron_manager._get_cron_comment(["sync", "secrets"])
-        assert comment == "# GitHub Classroom Assignment Auto-classroom-pilot-sync-secrets"
+        assert comment == "# GitHub Classroom Assignment Auto-classdock-sync-secrets"
 
     def test_get_cron_command(self, cron_manager):
         """Test cron command generation."""
         command = cron_manager._get_cron_command(["sync"])
 
-        assert "python -m classroom_pilot automation cron-sync" in command
+        assert "python -m classdock automation cron-sync" in command
         assert "sync" in command
         assert ">/dev/null 2>&1" in command
 
-    @patch('classroom_pilot.automation.cron_manager.subprocess.run')
+    @patch('classdock.automation.cron_manager.subprocess.run')
     def test_get_current_crontab_exists(self, mock_subprocess, cron_manager):
         """Test getting current crontab when it exists."""
         mock_result = Mock()
@@ -280,7 +280,7 @@ class TestCronOperations:
             ["crontab", "-l"], capture_output=True, text=True, timeout=10
         )
 
-    @patch('classroom_pilot.automation.cron_manager.subprocess.run')
+    @patch('classdock.automation.cron_manager.subprocess.run')
     def test_get_current_crontab_not_exists(self, mock_subprocess, cron_manager):
         """Test getting current crontab when it doesn't exist."""
         mock_result = Mock()
@@ -291,7 +291,7 @@ class TestCronOperations:
 
         assert result is None
 
-    @patch('classroom_pilot.automation.cron_manager.subprocess.run')
+    @patch('classdock.automation.cron_manager.subprocess.run')
     def test_get_current_crontab_exception(self, mock_subprocess, cron_manager):
         """Test getting current crontab with exception."""
         mock_subprocess.side_effect = subprocess.TimeoutExpired(
@@ -302,7 +302,7 @@ class TestCronOperations:
         assert result is None
 
     @patch('tempfile.NamedTemporaryFile')
-    @patch('classroom_pilot.automation.cron_manager.subprocess.run')
+    @patch('classdock.automation.cron_manager.subprocess.run')
     @patch('os.unlink')
     def test_set_crontab_success(self, mock_unlink, mock_subprocess, mock_tempfile, cron_manager):
         """Test successfully setting crontab."""
@@ -328,7 +328,7 @@ class TestCronOperations:
         mock_unlink.assert_called_once_with("/tmp/test.cron")
 
     @patch('tempfile.NamedTemporaryFile')
-    @patch('classroom_pilot.automation.cron_manager.subprocess.run')
+    @patch('classdock.automation.cron_manager.subprocess.run')
     def test_set_crontab_failure(self, mock_subprocess, mock_tempfile, cron_manager):
         """Test setting crontab with failure."""
         # Mock temporary file
@@ -348,18 +348,18 @@ class TestCronOperations:
 
         assert result is False
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
     def test_job_exists_true(self, mock_get_crontab, cron_manager):
         """Test checking if job exists when it does."""
         mock_get_crontab.return_value = (
-            "# GitHub Classroom Assignment Auto-classroom-pilot-sync\n"
-            "0 */4 * * * python -m classroom_pilot automation cron-sync\n"
+            "# GitHub Classroom Assignment Auto-classdock-sync\n"
+            "0 */4 * * * python -m classdock automation cron-sync\n"
         )
 
         result = cron_manager.job_exists(["sync"])
         assert result is True
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
     def test_job_exists_false(self, mock_get_crontab, cron_manager):
         """Test checking if job exists when it doesn't."""
         mock_get_crontab.return_value = (
@@ -370,7 +370,7 @@ class TestCronOperations:
         result = cron_manager.job_exists(["sync"])
         assert result is False
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
     def test_job_exists_no_crontab(self, mock_get_crontab, cron_manager):
         """Test checking if job exists when no crontab exists."""
         mock_get_crontab.return_value = None
@@ -387,12 +387,12 @@ class TestCronInstallation:
         """Create a CronManager instance for testing."""
         return CronManager()
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_prerequisites')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_steps')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_cron_schedule')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.job_exists')
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
-    @patch('classroom_pilot.automation.cron_manager.CronManager._set_crontab')
+    @patch('classdock.automation.cron_manager.CronManager.validate_prerequisites')
+    @patch('classdock.automation.cron_manager.CronManager.validate_steps')
+    @patch('classdock.automation.cron_manager.CronManager.validate_cron_schedule')
+    @patch('classdock.automation.cron_manager.CronManager.job_exists')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._set_crontab')
     def test_install_cron_job_success(
         self, mock_set_crontab, mock_get_crontab, mock_job_exists,
         mock_validate_schedule, mock_validate_steps, mock_validate_prereq,
@@ -421,7 +421,7 @@ class TestCronInstallation:
         assert "successfully" in message
         mock_set_crontab.assert_called_once()
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_prerequisites')
+    @patch('classdock.automation.cron_manager.CronManager.validate_prerequisites')
     def test_install_cron_job_prereq_failure(self, mock_validate_prereq, cron_manager):
         """Test cron job installation with prerequisite validation failure."""
         mock_validate_prereq.return_value = CronValidationResult(
@@ -433,8 +433,8 @@ class TestCronInstallation:
         assert result == CronOperationResult.VALIDATION_ERROR
         assert "Prerequisites validation failed" in message
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_prerequisites')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_steps')
+    @patch('classdock.automation.cron_manager.CronManager.validate_prerequisites')
+    @patch('classdock.automation.cron_manager.CronManager.validate_steps')
     def test_install_cron_job_steps_failure(
         self, mock_validate_steps, mock_validate_prereq, cron_manager
     ):
@@ -449,9 +449,9 @@ class TestCronInstallation:
         assert result == CronOperationResult.VALIDATION_ERROR
         assert "Steps validation failed" in message
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_prerequisites')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_steps')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_cron_schedule')
+    @patch('classdock.automation.cron_manager.CronManager.validate_prerequisites')
+    @patch('classdock.automation.cron_manager.CronManager.validate_steps')
+    @patch('classdock.automation.cron_manager.CronManager.validate_cron_schedule')
     def test_install_cron_job_schedule_failure(
         self, mock_validate_schedule, mock_validate_steps, mock_validate_prereq, cron_manager
     ):
@@ -468,10 +468,10 @@ class TestCronInstallation:
         assert result == CronOperationResult.VALIDATION_ERROR
         assert "Schedule validation failed" in message
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_prerequisites')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_steps')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_cron_schedule')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.job_exists')
+    @patch('classdock.automation.cron_manager.CronManager.validate_prerequisites')
+    @patch('classdock.automation.cron_manager.CronManager.validate_steps')
+    @patch('classdock.automation.cron_manager.CronManager.validate_cron_schedule')
+    @patch('classdock.automation.cron_manager.CronManager.job_exists')
     def test_install_cron_job_already_exists(
         self, mock_job_exists, mock_validate_schedule,
         mock_validate_steps, mock_validate_prereq, cron_manager
@@ -491,12 +491,12 @@ class TestCronInstallation:
         assert result == CronOperationResult.ALREADY_EXISTS
         assert "already exists" in message
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_prerequisites')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_steps')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_cron_schedule')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.job_exists')
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
-    @patch('classroom_pilot.automation.cron_manager.CronManager._set_crontab')
+    @patch('classdock.automation.cron_manager.CronManager.validate_prerequisites')
+    @patch('classdock.automation.cron_manager.CronManager.validate_steps')
+    @patch('classdock.automation.cron_manager.CronManager.validate_cron_schedule')
+    @patch('classdock.automation.cron_manager.CronManager.job_exists')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._set_crontab')
     def test_install_cron_job_no_existing_crontab(
         self, mock_set_crontab, mock_get_crontab, mock_job_exists,
         mock_validate_schedule, mock_validate_steps, mock_validate_prereq,
@@ -524,7 +524,7 @@ class TestCronInstallation:
         mock_set_crontab.assert_called_once()
         # Verify the new crontab contains our job with assignment identifier
         call_args = mock_set_crontab.call_args[0][0]
-        assert "# GitHub Classroom Assignment Auto-classroom-pilot-sync" in call_args
+        assert "# GitHub Classroom Assignment Auto-classdock-sync" in call_args
         assert "0 */4 * * *" in call_args  # Default schedule for sync
 
 
@@ -536,7 +536,7 @@ class TestCronRemoval:
         """Create a CronManager instance for testing."""
         return CronManager()
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
     def test_remove_cron_job_no_crontab(self, mock_get_crontab, cron_manager):
         """Test removing cron job when no crontab exists."""
         mock_get_crontab.return_value = None
@@ -546,8 +546,8 @@ class TestCronRemoval:
         assert result == CronOperationResult.NOT_FOUND
         assert "No crontab exists" in message
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
-    @patch('classroom_pilot.automation.cron_manager.CronManager._set_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._set_crontab')
     def test_remove_cron_job_all_success(self, mock_set_crontab, mock_get_crontab, cron_manager):
         """Test removing all assignment cron jobs successfully."""
         mock_get_crontab.return_value = (
@@ -570,7 +570,7 @@ class TestCronRemoval:
         assert "GitHub Classroom Assignment Auto" not in call_args
         assert "# Other job" in call_args
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
     def test_remove_cron_job_all_not_found(self, mock_get_crontab, cron_manager):
         """Test removing all assignment jobs when none exist."""
         mock_get_crontab.return_value = (
@@ -583,8 +583,8 @@ class TestCronRemoval:
         assert result == CronOperationResult.NOT_FOUND
         assert "No assignment cron jobs found" in message
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
-    @patch('classroom_pilot.automation.cron_manager.CronManager._remove_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._remove_crontab')
     def test_remove_cron_job_all_remove_entire_crontab(
         self, mock_remove_crontab, mock_get_crontab, cron_manager
     ):
@@ -600,7 +600,7 @@ class TestCronRemoval:
         assert result == CronOperationResult.SUCCESS
         mock_remove_crontab.assert_called_once()
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager.job_exists')
+    @patch('classdock.automation.cron_manager.CronManager.job_exists')
     def test_remove_cron_job_specific_not_found(self, mock_job_exists, cron_manager):
         """Test removing specific job when it doesn't exist."""
         mock_job_exists.return_value = False
@@ -611,17 +611,17 @@ class TestCronRemoval:
         # Handle both possible error messages: specific job not found vs no crontab exists
         assert "not found" in message or "No crontab exists" in message
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager.job_exists')
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
-    @patch('classroom_pilot.automation.cron_manager.CronManager._set_crontab')
+    @patch('classdock.automation.cron_manager.CronManager.job_exists')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._set_crontab')
     def test_remove_cron_job_specific_success(
         self, mock_set_crontab, mock_get_crontab, mock_job_exists, cron_manager
     ):
         """Test removing specific job successfully."""
         mock_job_exists.return_value = True
         mock_get_crontab.return_value = (
-            "# GitHub Classroom Assignment Auto-classroom-pilot-sync\n"
-            "0 */4 * * * python -m classroom_pilot automation cron-sync 'assignment.conf' sync >/dev/null 2>&1\n"
+            "# GitHub Classroom Assignment Auto-classdock-sync\n"
+            "0 */4 * * * python -m classdock automation cron-sync 'assignment.conf' sync >/dev/null 2>&1\n"
             "# Other job\n"
             "0 0 * * * /other/command\n"
         )
@@ -634,7 +634,7 @@ class TestCronRemoval:
 
         # Verify sync job is removed but other job remains
         call_args = mock_set_crontab.call_args[0][0]
-        assert "Auto-classroom-pilot-sync" not in call_args
+        assert "Auto-classdock-sync" not in call_args
         assert "# Other job" in call_args
 
 
@@ -646,8 +646,8 @@ class TestCronStatus:
         """Create a CronManager instance for testing."""
         return CronManager()
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
-    @patch('classroom_pilot.automation.cron_manager.Path.exists')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.Path.exists')
     def test_get_cron_status_no_jobs(self, mock_exists, mock_get_crontab, cron_manager):
         """Test getting status when no cron jobs are installed."""
         mock_get_crontab.return_value = None
@@ -661,15 +661,15 @@ class TestCronStatus:
         assert not status.log_file_exists
         assert status.log_file_path is None
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
-    @patch('classroom_pilot.automation.cron_manager.Path.exists')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.Path.exists')
     def test_get_cron_status_with_jobs(self, mock_exists, mock_get_crontab, cron_manager):
         """Test getting status with installed cron jobs."""
         mock_get_crontab.return_value = (
             "# GitHub Classroom Assignment Auto-sync\n"
-            "0 */4 * * * python -m classroom_pilot automation cron-sync 'assignment.conf' sync >/dev/null 2>&1\n"
+            "0 */4 * * * python -m classdock automation cron-sync 'assignment.conf' sync >/dev/null 2>&1\n"
             "# GitHub Classroom Assignment Auto-secrets\n"
-            "0 2 * * * python -m classroom_pilot automation cron-sync 'assignment.conf' secrets >/dev/null 2>&1\n"
+            "0 2 * * * python -m classdock automation cron-sync 'assignment.conf' secrets >/dev/null 2>&1\n"
         )
         mock_exists.return_value = False
 
@@ -690,8 +690,8 @@ class TestCronStatus:
         assert secrets_job.steps == ["secrets"]
         assert secrets_job.schedule == "0 2 * * *"
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
-    @patch('classroom_pilot.automation.cron_manager.Path.exists')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.Path.exists')
     @patch('builtins.open', new_callable=mock_open, read_data="Log line 1\nLog line 2\nLog line 3\n")
     def test_get_cron_status_with_log_file(
         self, mock_file, mock_exists, mock_get_crontab, cron_manager
@@ -706,9 +706,9 @@ class TestCronStatus:
         assert status.log_file_path == cron_manager.log_file_path
         assert status.last_log_activity == "Log line 1\nLog line 2\nLog line 3"
 
-    @patch('classroom_pilot.automation.cron_manager.subprocess.run')
-    @patch('classroom_pilot.automation.cron_manager.Path.exists')
-    @patch('classroom_pilot.automation.cron_manager.Path.stat')
+    @patch('classdock.automation.cron_manager.subprocess.run')
+    @patch('classdock.automation.cron_manager.Path.exists')
+    @patch('classdock.automation.cron_manager.Path.stat')
     def test_show_logs_success(self, mock_stat, mock_exists, mock_subprocess, cron_manager):
         """Test showing logs successfully."""
         mock_exists.return_value = True
@@ -731,7 +731,7 @@ class TestCronStatus:
         assert "Log File Info" in output
         assert "1.0 KB" in output  # Size formatting
 
-    @patch('classroom_pilot.automation.cron_manager.Path.exists')
+    @patch('classdock.automation.cron_manager.Path.exists')
     def test_show_logs_file_not_found(self, mock_exists, cron_manager):
         """Test showing logs when file doesn't exist."""
         mock_exists.return_value = False
@@ -762,12 +762,12 @@ class TestCronManagerEdgeCases:
         """Create a CronManager instance for testing."""
         return CronManager()
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_prerequisites')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_steps')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.validate_cron_schedule')
-    @patch('classroom_pilot.automation.cron_manager.CronManager.job_exists')
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
-    @patch('classroom_pilot.automation.cron_manager.CronManager._set_crontab')
+    @patch('classdock.automation.cron_manager.CronManager.validate_prerequisites')
+    @patch('classdock.automation.cron_manager.CronManager.validate_steps')
+    @patch('classdock.automation.cron_manager.CronManager.validate_cron_schedule')
+    @patch('classdock.automation.cron_manager.CronManager.job_exists')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._set_crontab')
     def test_install_cron_job_permission_error(
         self, mock_set_crontab, mock_get_crontab, mock_job_exists,
         mock_validate_schedule, mock_validate_steps, mock_validate_prereq,
@@ -790,7 +790,7 @@ class TestCronManagerEdgeCases:
         assert result == CronOperationResult.PERMISSION_ERROR
         assert "Permission denied" in message
 
-    @patch('classroom_pilot.automation.cron_manager.CronManager._get_current_crontab')
+    @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
     def test_remove_cron_job_permission_error(self, mock_get_crontab, cron_manager):
         """Test cron job removal with permission error."""
         mock_get_crontab.side_effect = PermissionError("Permission denied")
@@ -800,8 +800,8 @@ class TestCronManagerEdgeCases:
         assert result == CronOperationResult.PERMISSION_ERROR
         assert "Permission denied" in message
 
-    @patch('classroom_pilot.automation.cron_manager.subprocess.run')
-    @patch('classroom_pilot.automation.cron_manager.Path.exists')
+    @patch('classdock.automation.cron_manager.subprocess.run')
+    @patch('classdock.automation.cron_manager.Path.exists')
     def test_show_logs_subprocess_error(self, mock_exists, mock_subprocess, cron_manager):
         """Test showing logs with subprocess error."""
         mock_exists.return_value = True

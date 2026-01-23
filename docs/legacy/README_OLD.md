@@ -1,6 +1,6 @@
-# 📚 Classroom Pilot Documentation
+# 📚 ClassDock Documentation
 
-Welcome to the comprehensive documentation for Classroom Pilot - a modern Python CLI for automating GitHub Classroom assignment management.
+Welcome to the comprehensive documentation for ClassDock - a modern Python CLI for automating GitHub Classroom assignment management.
 
 ## 📋 Table of Contents
 
@@ -27,7 +27,7 @@ Welcome to the comprehensive documentation for Classroom Pilot - a modern Python
 
 ## 🚀 Quick Start
 
-For getting started with Classroom Pilot, refer to the main [README.md](../README.md) in the project root.
+For getting started with ClassDock, refer to the main [README.md](../README.md) in the project root.
 
 ### Key Documentation Flow:
 1. **New Users**: Start with [../README.md](../README.md) → [ORCHESTRATION-SYSTEM-SUMMARY.md](ORCHESTRATION-SYSTEM-SUMMARY.md)
@@ -63,4 +63,4 @@ For getting started with Classroom Pilot, refer to the main [README.md](../READM
 
 ---
 
-*This documentation is maintained as part of the Classroom Pilot project. For the latest updates, see [CHANGELOG.md](CHANGELOG.md).*
+*This documentation is maintained as part of the ClassDock project. For the latest updates, see [CHANGELOG.md](CHANGELOG.md).*

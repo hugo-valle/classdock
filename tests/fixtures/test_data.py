@@ -5,7 +5,7 @@ This module contains test configuration files and sample data.
 """
 
 # Sample test configuration content
-TEST_CONFIG_CONTENT = '''# Test configuration for classroom-pilot
+TEST_CONFIG_CONTENT = '''# Test configuration for classdock
 CLASSROOM_URL="https://classroom.github.com/classrooms/test/assignments/test"
 TEMPLATE_REPO_URL="https://github.com/test/template"
 GITHUB_ORGANIZATION="test-org"

@@ -1,5 +1,5 @@
 """
-Comprehensive test suite for classroom_pilot.assignments.cycle_collaborator module.
+Comprehensive test suite for classdock.assignments.cycle_collaborator module.
 
 This test suite provides complete coverage for the CycleCollaboratorManager class,
 including unit tests for individual methods, integration tests for cycling workflows,
@@ -12,7 +12,7 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 import pytest
 
-from classroom_pilot.assignments.cycle_collaborator import (
+from classdock.assignments.cycle_collaborator import (
     CycleCollaboratorManager,
     AccessStatus,
     CycleResult,
@@ -34,7 +34,7 @@ def mock_config():
 @pytest.fixture
 def cycle_manager(mock_config):
     """Create CycleCollaboratorManager instance with mocked dependencies."""
-    with patch('classroom_pilot.assignments.cycle_collaborator.load_global_config') as mock_load_config:
+    with patch('classdock.assignments.cycle_collaborator.load_global_config') as mock_load_config:
         mock_load_config.return_value = mock_config
         manager = CycleCollaboratorManager(auto_confirm=True)
         return manager
@@ -45,7 +45,7 @@ class TestCycleCollaboratorManager:
 
     def test_initialization(self, mock_config):
         """Test manager initialization."""
-        with patch('classroom_pilot.assignments.cycle_collaborator.load_global_config') as mock_load_config:
+        with patch('classdock.assignments.cycle_collaborator.load_global_config') as mock_load_config:
             mock_load_config.return_value = mock_config
 
             manager = CycleCollaboratorManager(auto_confirm=True)

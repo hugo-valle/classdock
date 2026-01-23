@@ -1,6 +1,6 @@
 # Bash to Python Transition Plan
 
-**Classroom Pilot - Complete Migration Roadmap**
+**ClassDock - Complete Migration Roadmap**
 
 This document outlines the comprehensive plan for migrating all remaining bash script functionality to pure Python implementations, achieving 100% Python codebase with no shell script dependencies.
 
@@ -68,7 +68,7 @@ class AssignmentOrchestrator:
 - Student assistance (needs implementation)
 
 **Integration Points**:
-- CLI: `classroom-pilot assignments orchestrate`
+- CLI: `classdock assignments orchestrate`
 - Configuration: Uses global `assignment.conf`
 - Logging: Centralized Python logging
 - Error handling: Python exceptions
@@ -107,7 +107,7 @@ class StudentUpdateHelper:
 - Conflict resolution algorithms
 
 **Integration Points**:
-- CLI: `classroom-pilot repos update-helper`
+- CLI: `classdock repos update-helper`
 - Batch processing with repository discovery ✅
 - Integration with assignment orchestrator
 
@@ -145,7 +145,7 @@ class CollaboratorManager:
 - Permission validation
 
 **Integration Points**:
-- CLI: `classroom-pilot repos cycle-collaborator`
+- CLI: `classdock repos cycle-collaborator`
 - Configuration: Collaborator rotation settings
 - Automation: Scheduled cycling operations
 
@@ -183,7 +183,7 @@ class TemplatePushManager:
 - Conflict detection and resolution
 
 **Integration Points**:
-- CLI: `classroom-pilot repos push`
+- CLI: `classdock repos push`
 - Configuration: Classroom repository URL
 - Integration with orchestrator workflow
 
@@ -217,7 +217,7 @@ class AssignmentUpdater:
 - Authentication handling
 
 **Integration Points**:
-- CLI: `classroom-pilot assignments update`
+- CLI: `classdock assignments update`
 - Student documentation and guides
 - Template repository integration
 
@@ -279,7 +279,7 @@ class CronManager:
 - Scheduling validation
 
 **Integration Points**:
-- CLI: `classroom-pilot automation cron`
+- CLI: `classdock automation cron`
 - System administration tools
 - Automated workflow execution
 
@@ -519,4 +519,4 @@ For each migration, use this checklist:
 
 ---
 
-*This document serves as the comprehensive roadmap for achieving a 100% Python implementation of Classroom Pilot, eliminating all bash script dependencies while maintaining full functionality and improving cross-platform compatibility.*
+*This document serves as the comprehensive roadmap for achieving a 100% Python implementation of ClassDock, eliminating all bash script dependencies while maintaining full functionality and improving cross-platform compatibility.*

@@ -10,12 +10,12 @@ from unittest.mock import Mock, patch, MagicMock
 import requests
 from dataclasses import dataclass
 
-from classroom_pilot.utils.github_api_client import (
+from classdock.utils.github_api_client import (
     GitHubAPIClient,
     ClassroomInfo,
     AssignmentInfo
 )
-from classroom_pilot.utils.github_exceptions import GitHubAPIError
+from classdock.utils.github_exceptions import GitHubAPIError
 
 
 class TestDataClasses:
@@ -371,7 +371,7 @@ class TestOrganizationValidation:
         assert GitHubAPIClient.is_likely_classroom_name(
             "open-source-project") is False
         assert GitHubAPIClient.is_likely_classroom_name(
-            "classroom-pilot") is False
+            "classdock") is False
         assert GitHubAPIClient.is_likely_classroom_name(
             "my-awesome-project") is False
 
@@ -386,12 +386,12 @@ class TestEnhancedAPIIntegration:
     """Test the enhanced API integration modes."""
 
     @patch('os.getenv')
-    @patch('classroom_pilot.assignments.setup.print_status')
-    @patch('classroom_pilot.assignments.setup.logger')
-    @patch('classroom_pilot.assignments.setup.URLParser.validate_classroom_url')
+    @patch('classdock.assignments.setup.print_status')
+    @patch('classdock.assignments.setup.logger')
+    @patch('classdock.assignments.setup.URLParser.validate_classroom_url')
     def test_api_mode_always(self, mock_validate, mock_logger, mock_print_status, mock_getenv):
         """Test CLASSROOM_API_MODE=always forces API usage."""
-        from classroom_pilot.assignments.setup import AssignmentSetup
+        from classdock.assignments.setup import AssignmentSetup
 
         # Mock environment variable
         def getenv_side_effect(key, default=None):
@@ -402,7 +402,7 @@ class TestEnhancedAPIIntegration:
 
         mock_validate.return_value = True
 
-        with patch('classroom_pilot.utils.github_api_client.GitHubAPIClient') as mock_api_client_class:
+        with patch('classdock.utils.github_api_client.GitHubAPIClient') as mock_api_client_class:
             mock_api_client = Mock()
             mock_api_client.verify_token.return_value = True
             mock_api_client.extract_classroom_data_from_url.return_value = {
@@ -429,10 +429,10 @@ class TestEnhancedAPIIntegration:
             mock_api_client.verify_token.assert_called_once()
 
     @patch('os.getenv')
-    @patch('classroom_pilot.assignments.setup.URLParser.validate_classroom_url')
+    @patch('classdock.assignments.setup.URLParser.validate_classroom_url')
     def test_api_mode_never(self, mock_validate, mock_getenv):
         """Test CLASSROOM_API_MODE=never skips API usage."""
-        from classroom_pilot.assignments.setup import AssignmentSetup
+        from classdock.assignments.setup import AssignmentSetup
 
         # Mock environment variable
         def getenv_side_effect(key, default=None):
@@ -451,7 +451,7 @@ class TestEnhancedAPIIntegration:
 
         test_url = "https://classroom.github.com/classrooms/225080578-soc-cs3550-f25/assignments/project3"
 
-        with patch('classroom_pilot.assignments.setup.logger'):
+        with patch('classdock.assignments.setup.logger'):
             result = setup._populate_from_url(test_url)
 
         # Should use URL parsing result without API validation
@@ -460,12 +460,12 @@ class TestEnhancedAPIIntegration:
         assert setup.config_values['GITHUB_ORGANIZATION'] == 'soc-cs3550-f25'
 
     @patch('os.getenv')
-    @patch('classroom_pilot.assignments.setup.print_status')
-    @patch('classroom_pilot.assignments.setup.logger')
-    @patch('classroom_pilot.assignments.setup.URLParser.validate_classroom_url')
+    @patch('classdock.assignments.setup.print_status')
+    @patch('classdock.assignments.setup.logger')
+    @patch('classdock.assignments.setup.URLParser.validate_classroom_url')
     def test_api_mode_auto_with_classroom_name(self, mock_validate, mock_logger, mock_print_status, mock_getenv):
         """Test CLASSROOM_API_MODE=auto triggers API when org looks like classroom name."""
-        from classroom_pilot.assignments.setup import AssignmentSetup
+        from classdock.assignments.setup import AssignmentSetup
 
         # Mock environment variable (auto is default)
         def getenv_side_effect(key, default=None):
@@ -476,7 +476,7 @@ class TestEnhancedAPIIntegration:
 
         mock_validate.return_value = True
 
-        with patch('classroom_pilot.utils.github_api_client.GitHubAPIClient') as mock_api_client_class:
+        with patch('classdock.utils.github_api_client.GitHubAPIClient') as mock_api_client_class:
             mock_api_client = Mock()
             mock_api_client.verify_token.return_value = True
             mock_api_client.extract_classroom_data_from_url.return_value = {
@@ -506,18 +506,18 @@ class TestEnhancedAPIIntegration:
 class TestAssignmentSetupIntegration:
     """Test integration with AssignmentSetup._populate_from_url method."""
 
-    @patch('classroom_pilot.assignments.setup.print_status')
-    @patch('classroom_pilot.assignments.setup.logger')
-    @patch('classroom_pilot.assignments.setup.URLParser.validate_classroom_url')
+    @patch('classdock.assignments.setup.print_status')
+    @patch('classdock.assignments.setup.logger')
+    @patch('classdock.assignments.setup.URLParser.validate_classroom_url')
     def test_api_fallback_integration(self, mock_validate, mock_logger, mock_print_status):
         """Test that AssignmentSetup uses API fallback when URL parsing is insufficient."""
-        from classroom_pilot.assignments.setup import AssignmentSetup
+        from classdock.assignments.setup import AssignmentSetup
 
         # Setup mocks
         mock_validate.return_value = True
 
         # Mock the GitHubAPIClient at the module level where it's imported
-        with patch('classroom_pilot.utils.github_api_client.GitHubAPIClient') as mock_api_client_class:
+        with patch('classdock.utils.github_api_client.GitHubAPIClient') as mock_api_client_class:
             mock_api_client = Mock()
             mock_api_client.verify_token.return_value = True
             mock_api_client.extract_classroom_data_from_url.return_value = {

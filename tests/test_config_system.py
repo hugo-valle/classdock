@@ -7,9 +7,9 @@ Tests configuration loading, validation, and generation.
 from pathlib import Path
 import pytest
 
-from classroom_pilot.config.loader import ConfigLoader
-from classroom_pilot.config.validator import ConfigValidator
-from classroom_pilot.config.generator import ConfigGenerator
+from classdock.config.loader import ConfigLoader
+from classdock.config.validator import ConfigValidator
+from classdock.config.generator import ConfigGenerator
 
 
 class TestConfigLoader:
@@ -294,7 +294,7 @@ class TestGlobalConfigManager:
 
     def test_load_global_config_default_location(self, test_config_data, tmp_path):
         """Test loading config from default location (current directory)."""
-        from classroom_pilot.config.global_config import load_global_config
+        from classdock.config.global_config import load_global_config
 
         # Create assignment.conf in temp directory
         config_dir = tmp_path / "test_config"
@@ -321,7 +321,7 @@ class TestGlobalConfigManager:
 
     def test_load_global_config_with_assignment_root(self, test_config_data, tmp_path):
         """Test loading config with assignment_root parameter."""
-        from classroom_pilot.config.global_config import load_global_config
+        from classdock.config.global_config import load_global_config
         from pathlib import Path
 
         # Create assignment.conf in temp directory
@@ -343,7 +343,7 @@ class TestGlobalConfigManager:
 
     def test_load_global_config_assignment_root_precedence(self, tmp_path):
         """Test that assignment_root parameter takes precedence over current directory."""
-        from classroom_pilot.config.global_config import load_global_config
+        from classdock.config.global_config import load_global_config
         from pathlib import Path
         import os
 
@@ -385,7 +385,7 @@ ASSIGNMENT_FILE="assignment.ipynb"
 
     def test_load_global_config_custom_filename_with_assignment_root(self, tmp_path):
         """Test loading custom config filename with assignment_root."""
-        from classroom_pilot.config.global_config import load_global_config
+        from classdock.config.global_config import load_global_config
 
         # Create custom config file in assignment root
         assignment_dir = tmp_path / "custom_assignment"
@@ -408,7 +408,7 @@ ASSIGNMENT_FILE="assignment.ipynb"
 
     def test_load_global_config_assignment_root_not_found(self, tmp_path):
         """Test error handling when assignment_root directory doesn't exist."""
-        from classroom_pilot.config.global_config import load_global_config
+        from classdock.config.global_config import load_global_config
         from pathlib import Path
 
         nonexistent_dir = tmp_path / "nonexistent"
@@ -422,7 +422,7 @@ ASSIGNMENT_FILE="assignment.ipynb"
 
     def test_load_global_config_assignment_root_no_config_file(self, tmp_path):
         """Test error handling when assignment_root exists but has no config file."""
-        from classroom_pilot.config.global_config import load_global_config
+        from classdock.config.global_config import load_global_config
 
         # Create empty directory
         empty_dir = tmp_path / "empty_assignment"
@@ -437,7 +437,7 @@ ASSIGNMENT_FILE="assignment.ipynb"
 
     def test_load_global_config_relative_assignment_root(self, tmp_path):
         """Test loading config with relative assignment_root path."""
-        from classroom_pilot.config.global_config import load_global_config
+        from classdock.config.global_config import load_global_config
         from pathlib import Path
         import os
 

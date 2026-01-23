@@ -59,7 +59,7 @@
 <!-- Technical explanation of the fix -->
 
 **Files Changed:**
-- [ ] Core logic (`classroom_pilot/`)
+- [ ] Core logic (`classdock/`)
 - [ ] CLI interface (`cli.py`)
 - [ ] Configuration (`config/`)
 - [ ] Tests (`tests/`)
@@ -79,7 +79,7 @@
 **Before (Broken Behavior):**
 ```bash
 # Command that was failing
-classroom-pilot command --option
+classdock command --option
 # Error output
 Error: Something went wrong
 ```
@@ -87,7 +87,7 @@ Error: Something went wrong
 **After (Fixed Behavior):**
 ```bash
 # Same command now working
-classroom-pilot command --option
+classdock command --option
 # Expected output
 Success: Operation completed
 ```
@@ -170,7 +170,7 @@ $ poetry run pytest tests/test_specific_fix.py -v
 - [ ] `poetry run pytest tests/ -v` ✅
 - [ ] `poetry run black --check` ✅
 - [ ] `poetry run isort --check-only` ✅
-- [ ] `poetry run mypy classroom_pilot/` ✅
+- [ ] `poetry run mypy classdock/` ✅
 - [ ] All CI checks passing ✅
 
 ## 🔒 Security & Performance
@@ -256,4 +256,4 @@ $ poetry run pytest tests/test_specific_fix.py -v
 **Ready for Review:** <!-- ✅ or ❌ -->
 **Ready for Merge:** <!-- ✅ or ❌ -->
 
-*Thank you for fixing this bug! Your contribution makes Classroom Pilot more reliable for all users.*
+*Thank you for fixing this bug! Your contribution makes ClassDock more reliable for all users.*

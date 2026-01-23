@@ -1,12 +1,12 @@
 # Architecture Overview
 
-This document provides an overview of the Classroom Pilot architecture and design patterns.
+This document provides an overview of the ClassDock architecture and design patterns.
 
 ## 🏗️ Project Structure
 
 ```
-classroom_pilot/
-├── classroom_pilot/          # Main package
+classdock/
+├── classdock/          # Main package
 │   ├── __init__.py          # Package initialization
 │   ├── __main__.py          # Entry point
 │   ├── cli.py               # Main CLI interface (Typer)

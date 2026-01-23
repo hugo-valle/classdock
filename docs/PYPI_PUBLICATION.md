@@ -1,13 +1,13 @@
 # PyPI Publication Guide
 
-This document outlines the process for publishing `classroom-pilot` to PyPI, both manual and automated approaches.
+This document outlines the process for publishing `classdock` to PyPI, both manual and automated approaches.
 
 ## 📦 Package Overview
 
-- **Package Name**: `classroom-pilot`
-- **PyPI URL**: https://pypi.org/project/classroom-pilot/
+- **Package Name**: `classdock`
+- **PyPI URL**: https://pypi.org/project/classdock/
 - **Current Version**: `3.0.0-alpha.1`
-- **Installation**: `pip install classroom-pilot`
+- **Installation**: `pip install classdock`
 
 ## 🚀 Manual Publication Process
 
@@ -57,8 +57,8 @@ password = pypi-your-api-token-here
 
 6. **Verify Publication**:
    ```bash
-   pip install classroom-pilot --upgrade
-   classroom-pilot version
+   pip install classdock --upgrade
+   classdock version
    ```
 
 ## 🤖 Automated Publication (GitHub Actions)
@@ -110,7 +110,7 @@ Follow semantic versioning (semver):
 
 Ensure version consistency across:
 - `pyproject.toml` (Poetry configuration)
-- `classroom_pilot/__init__.py` (Package version)
+- `classdock/__init__.py` (Package version)
 - Git tags (release tags)
 
 ## 🔍 Testing Publication
@@ -125,11 +125,11 @@ python -m venv test_env
 source test_env/bin/activate
 
 # Install from PyPI
-pip install classroom-pilot
+pip install classdock
 
 # Test CLI
-classroom-pilot --help
-classroom-pilot version
+classdock --help
+classdock version
 ```
 
 ### Rollback Strategy
@@ -150,7 +150,7 @@ If issues are found:
 ### v3.1.1b2 (November 14, 2025)
 - **Status**: ✅ Published via GitHub Actions
 - **Features**: Automated release workflow
-- **PyPI**: https://pypi.org/project/classroom-pilot/3.1.1b2/
+- **PyPI**: https://pypi.org/project/classdock/3.1.1b2/
 
 ### Future Releases
 - `v3.0.0-alpha.2`: API improvements and additional testing
@@ -171,7 +171,7 @@ If issues are found:
 - **PyPI Help**: https://pypi.org/help/
 - **Poetry Docs**: https://python-poetry.org/docs/
 - **GitHub Actions**: https://docs.github.com/en/actions
-- **Project Issues**: https://github.com/hugo-valle/classroom-pilot/issues
+- **Project Issues**: https://github.com/hugo-valle/classdock/issues
 
 ## 📝 Checklist
 
@@ -188,4 +188,4 @@ Before each publication:
 
 ---
 
-*This document is part of the classroom-pilot project documentation.*
+*This document is part of the classdock project documentation.*

@@ -1,6 +1,6 @@
 # 🔄 GitHub Actions Workflows
 
-This directory contains all GitHub Actions workflows for the `classroom-pilot` repository. Each workflow serves a specific purpose in our CI/CD pipeline and repository management.
+This directory contains all GitHub Actions workflows for the `classdock` repository. Each workflow serves a specific purpose in our CI/CD pipeline and repository management.
 
 ## 🎯 Modernized Workflow Architecture (October 2025)
 
@@ -35,7 +35,7 @@ This directory contains all GitHub Actions workflows for the `classroom-pilot` r
 - **✅ Enhanced Security**: Eliminates secret exposure risks
 - **⚡ Better Performance**: Direct authentication without token lookups
 
-**Setup Required**: Configure trusted publishing on [PyPI project settings](https://pypi.org/manage/project/classroom-pilot/settings/publishing/).
+**Setup Required**: Configure trusted publishing on [PyPI project settings](https://pypi.org/manage/project/classdock/settings/publishing/).
 
 ### Required Secrets
 
@@ -338,7 +338,7 @@ Automatically updates dependencies and creates pull requests for review.
 
 ### Purpose
 
-**NEW**: Comprehensive end-to-end testing with real GitHub API integration and multiple configuration scenarios. Validates the complete classroom-pilot workflow in realistic environments.
+**NEW**: Comprehensive end-to-end testing with real GitHub API integration and multiple configuration scenarios. Validates the complete classdock workflow in realistic environments.
 
 ### Triggers
 
@@ -376,7 +376,7 @@ Automatically updates dependencies and creates pull requests for review.
 
 ### Purpose
 
-**NEW**: Specialized testing for Python wrapper functionality and CLI integration. Ensures the classroom-pilot Python package works correctly across different environments.
+**NEW**: Specialized testing for Python wrapper functionality and CLI integration. Ensures the classdock Python package works correctly across different environments.
 
 ### Triggers
 

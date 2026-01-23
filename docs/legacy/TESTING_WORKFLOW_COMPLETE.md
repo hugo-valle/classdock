@@ -2,7 +2,7 @@
 
 ## 🎉 Mission Accomplished!
 
-The Python wrapper for Classroom Pilot is now **complete** with a comprehensive testing workflow that ensures reliability and maintainability.
+The Python wrapper for ClassDock is now **complete** with a comprehensive testing workflow that ensures reliability and maintainability.
 
 ## 📋 What We Built
 
@@ -63,7 +63,7 @@ make test-all-commands  # Test all CLI commands
 - ✅ Configuration loading and validation
 - ✅ Dry-run functionality
 - ✅ Verbose output
-- ✅ Entry point installation (`classroom-pilot` command)
+- ✅ Entry point installation (`classdock` command)
 
 ## 🚀 Usage Examples
 

@@ -203,10 +203,10 @@ jobs:
           echo "🔍 Verifying publication on PyPI..."
           sleep 30  # Wait for PyPI to update
           
-          if pip install classroom-pilot==$VERSION --dry-run --quiet 2>/dev/null; then
+          if pip install classdock==$VERSION --dry-run --quiet 2>/dev/null; then
             echo "✅ Package verification successful"
-            echo "📦 Available at: https://pypi.org/project/classroom-pilot/$VERSION/"
+            echo "📦 Available at: https://pypi.org/project/classdock/$VERSION/"
           else
             echo "⚠️ Package not yet available on PyPI (may take a few minutes)"
-            echo "Check manually: https://pypi.org/project/classroom-pilot/$VERSION/"
+            echo "Check manually: https://pypi.org/project/classdock/$VERSION/"
           fi

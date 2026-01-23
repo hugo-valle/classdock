@@ -4,9 +4,9 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**Classroom Pilot** is a Python CLI tool for automating GitHub Classroom assignment management. It handles assignment setup, repository discovery, secret distribution, automated scheduling, and collaborator management.
+**ClassDock** is a Python CLI tool for automating GitHub Classroom assignment management. It handles assignment setup, repository discovery, secret distribution, automated scheduling, and collaborator management.
 
-- **Package**: `classroom-pilot` on PyPI
+- **Package**: `classdock` on PyPI
 - **Python**: 3.10+
 - **CLI Framework**: Typer
 - **Package Manager**: Poetry
@@ -24,26 +24,26 @@ make test-unit             # Unit tests with pytest
 make test-full             # Comprehensive test suite
 poetry run pytest tests/ -v                     # Run all tests
 poetry run pytest tests/test_file.py -v         # Run single test file
-poetry run pytest tests/ --cov=classroom_pilot  # With coverage
+poetry run pytest tests/ --cov=classdock  # With coverage
 
 # Code quality
 make lint                  # Run flake8 and pylint
 make format                # Format with black
-poetry run black classroom_pilot/ tests/
-poetry run isort classroom_pilot/
-poetry run mypy classroom_pilot/
+poetry run black classdock/ tests/
+poetry run isort classdock/
+poetry run mypy classdock/
 
 # Build and run
 make build                 # Build package
-poetry run classroom-pilot --help               # Run CLI locally
-python -m classroom_pilot --help                # Alternative
+poetry run classdock --help               # Run CLI locally
+python -m classdock --help                # Alternative
 ```
 
 ## Architecture
 
 ### CLI Command Structure
 ```
-classroom-pilot
+classdock
 ├── assignments   # Setup, orchestrate, manage assignments
 ├── repos         # Fetch, collaborate, push operations
 ├── secrets       # Add, remove, list, manage secrets
@@ -53,7 +53,7 @@ classroom-pilot
 
 ### Package Structure
 ```
-classroom_pilot/
+classdock/
 ├── cli.py                  # Main Typer CLI interface (entry point)
 ├── config/                 # Configuration management (loader, validator, generator)
 ├── assignments/            # Assignment lifecycle (setup, orchestrator, manage)
@@ -80,8 +80,8 @@ classroom_pilot/
 
 Keep version synchronized in three locations:
 1. `pyproject.toml` → `version = "X.Y.Z"`
-2. `classroom_pilot/__init__.py` → `__version__ = "X.Y.Z"`
-3. `classroom_pilot/cli.py` → version command output
+2. `classdock/__init__.py` → `__version__ = "X.Y.Z"`
+3. `classdock/cli.py` → version command output
 
 ## Critical Dependencies
 

@@ -1,11 +1,49 @@
 # Changelog
 
-All notable changes to the GitHub Classroom Assignment Management Tools (gh_classroom_tools) will be documented in this file.
+All notable changes to ClassDock will be documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-**Note**: This tools package is designed to be used as a Git submodule in assignment template repositories.
+## [0.1.0] - 2026-01-22
+
+### 🔄 Rebranded
+
+- **Package renamed** from `classroom-pilot` to `classdock`
+- **CLI command changed** from `classroom-pilot` to `classdock`
+- **Repository renamed** to `hugo-valle/classdock`
+- **Python package renamed** from `classroom_pilot` to `classdock`
+
+### ⚠️ Breaking Changes
+
+- All imports must be updated: `from classroom_pilot` → `from classdock`
+- CLI command updated: `classroom-pilot` → `classdock`
+- Module execution updated: `python -m classroom_pilot` → `python -m classdock`
+
+### ✨ What's the Same
+
+- All functionality remains identical to classroom-pilot v3.1.2
+- Configuration files (`assignment.conf`) are fully compatible
+- GitHub API integration unchanged
+- Secret management capabilities unchanged
+- Automation and cron scheduling unchanged
+
+### 📝 Documentation
+
+- Complete documentation rebrand to ClassDock
+- Added comprehensive [migration guide](MIGRATION.md)
+- Updated all examples and tutorials
+- Updated all CLI command references
+
+### 🔗 Migration
+
+- Old package `classroom-pilot` marked as deprecated (v3.1.3)
+- Automatic GitHub URL redirects from old repository name
+- See [MIGRATION.md](MIGRATION.md) for complete migration instructions
+
+---
+
+## Previous Releases (as classroom-pilot)
 
 ## [Released] - v3.1.1b0 - 2025-10-25
 
@@ -56,7 +94,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 #### Refactored - Project Organization
 - **📁 Scripts Reorganization**:
-  - **Legacy preservation**: Moved `classroom_pilot/scripts/` → `classroom_pilot/scripts_legacy/`
+  - **Legacy preservation**: Moved `classdock/scripts/` → `classdock/scripts_legacy/`
   - **Reference updates**: Updated 500+ internal cross-references across codebase
   - **Backward compatibility**: All bash scripts preserved and accessible for legacy workflows
   - **Documentation updates**: Comprehensive documentation reflecting new organization

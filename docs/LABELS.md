@@ -1,6 +1,6 @@
 # GitHub Labels Documentation
 
-This document explains the labeling system used in the Classroom Pilot project for issues and pull requests.
+This document explains the labeling system used in the ClassDock project for issues and pull requests.
 
 ## 📋 Label Categories
 

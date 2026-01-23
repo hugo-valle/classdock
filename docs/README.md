@@ -1,16 +1,16 @@
-# 📚 Classroom Pilot Documentation
+# 📚 ClassDock Documentation
 
-Welcome to the documentation for Classroom Pilot - a modern Python CLI tool for GitHub Classroom automation.
+Welcome to the documentation for ClassDock - a modern Python CLI tool for GitHub Classroom automation.
 
 ## 🎯 Quick Start
 
 - **[Main README](../README.md)** - Project overview, installation, and basic usage
-- **[PyPI Package](https://pypi.org/project/classroom-pilot/)** - Official package on PyPI
+- **[PyPI Package](https://pypi.org/project/classdock/)** - Official package on PyPI
 
 ## 📖 User Guides
 
 ### Installation & Setup
-- **[Installation Guide](../README.md#installation)** - How to install classroom-pilot
+- **[Installation Guide](../README.md#installation)** - How to install classdock
 - **[Quick Start Guide](../README.md#quick-start)** - Get up and running quickly
 - **[Configuration Guide](../README.md#configuration)** - Setting up assignment configurations
 
@@ -51,8 +51,8 @@ Welcome to the documentation for Classroom Pilot - a modern Python CLI tool for 
 ### Current Release
 - **Version**: 3.1.1b0
 - **Python Support**: 3.10, 3.11, 3.12
-- **Package**: [classroom-pilot on PyPI](https://pypi.org/project/classroom-pilot/)
-- **Repository**: [hugo-valle/classroom-pilot](https://github.com/hugo-valle/classroom-pilot)
+- **Package**: [classdock on PyPI](https://pypi.org/project/classdock/)
+- **Repository**: [hugo-valle/classdock](https://github.com/hugo-valle/classdock)
 
 ### Quality Metrics
 - **Tests**: 153+ comprehensive tests with 100% pass rate
@@ -62,10 +62,10 @@ Welcome to the documentation for Classroom Pilot - a modern Python CLI tool for 
 
 ## 📞 Support
 
-- **Issues**: [GitHub Issues](https://github.com/hugo-valle/classroom-pilot/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/hugo-valle/classroom-pilot/discussions)
-- **PyPI Package**: [https://pypi.org/project/classroom-pilot/](https://pypi.org/project/classroom-pilot/)
+- **Issues**: [GitHub Issues](https://github.com/hugo-valle/classdock/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/hugo-valle/classdock/discussions)
+- **PyPI Package**: [https://pypi.org/project/classdock/](https://pypi.org/project/classdock/)
 
 ---
 
-*For the most up-to-date information, always refer to the [main README](../README.md) and [PyPI package page](https://pypi.org/project/classroom-pilot/).*
+*For the most up-to-date information, always refer to the [main README](../README.md) and [PyPI package page](https://pypi.org/project/classdock/).*

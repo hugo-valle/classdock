@@ -100,7 +100,7 @@ Detailed description of the issue.
 ## 🖥️ Environment Information
 
 **Affected Versions:**
-- Classroom Pilot Version: ___________
+- ClassDock Version: ___________
 - Python Version: ___________
 - Platform: ___________
 

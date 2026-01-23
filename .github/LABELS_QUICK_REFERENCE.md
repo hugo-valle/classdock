@@ -1,6 +1,6 @@
 # Labels Quick Reference
 
-This is a quick reference for the labels used in the Classroom Pilot project.
+This is a quick reference for the labels used in the ClassDock project.
 
 ## 🏷️ Required Labels (Applied Automatically)
 

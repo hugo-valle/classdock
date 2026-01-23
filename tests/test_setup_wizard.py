@@ -1,5 +1,5 @@
 """
-Comprehensive test suite for classroom_pilot.assignments.setup module.
+Comprehensive test suite for classdock.assignments.setup module.
 
 This test suite provides comprehensive coverage for the AssignmentSetup class,
 including unit tests for individual methods, integration tests for the complete 
@@ -9,7 +9,7 @@ workflow, error handling, edge cases, and proper mocking of external dependencie
 import pytest
 from pathlib import Path
 from unittest.mock import Mock, patch
-from classroom_pilot.assignments.setup import AssignmentSetup
+from classdock.assignments.setup import AssignmentSetup
 
 
 @pytest.fixture
@@ -18,7 +18,7 @@ def mock_dependencies():
     Creates and yields a dictionary of mocked dependencies for the AssignmentSetup class.
 
     This function uses the `unittest.mock.patch` context manager to mock the following classes
-    from the `classroom_pilot.assignments.setup` module:
+    from the `classdock.assignments.setup` module:
         - PathManager
         - InputHandler
         - Validators
@@ -33,12 +33,12 @@ def mock_dependencies():
     Yields:
         dict: A dictionary containing the mocked instances of the dependencies.
     """
-    with patch('classroom_pilot.assignments.setup.PathManager') as mock_path_mgr, \
-            patch('classroom_pilot.assignments.setup.InputHandler') as mock_input, \
-            patch('classroom_pilot.assignments.setup.Validators') as mock_validators, \
-            patch('classroom_pilot.assignments.setup.URLParser') as mock_url_parser, \
-            patch('classroom_pilot.assignments.setup.ConfigGenerator') as mock_config_gen, \
-            patch('classroom_pilot.assignments.setup.FileManager') as mock_file_mgr:
+    with patch('classdock.assignments.setup.PathManager') as mock_path_mgr, \
+            patch('classdock.assignments.setup.InputHandler') as mock_input, \
+            patch('classdock.assignments.setup.Validators') as mock_validators, \
+            patch('classdock.assignments.setup.URLParser') as mock_url_parser, \
+            patch('classdock.assignments.setup.ConfigGenerator') as mock_config_gen, \
+            patch('classdock.assignments.setup.FileManager') as mock_file_mgr:
 
         # Configure PathManager mock
         mock_path_instance = Mock()
@@ -149,7 +149,7 @@ class TestCollectAssignmentInfo:
         This ensures that logging is properly integrated during the assignment
         information collection process.
         """
-        with patch('classroom_pilot.assignments.setup.logger') as mock_logger:
+        with patch('classdock.assignments.setup.logger') as mock_logger:
             setup = AssignmentSetup()
             test_url = "https://classroom.github.com/classrooms/12345/assignments/test"
             setup.input_handler.prompt_input.return_value = test_url
@@ -333,7 +333,7 @@ class TestConfigureTokens:
         With centralized tokens, this method no longer prompts for token values or creates token files.
         Instead, it informs the user that the centralized GitHub token will be used.
         """
-        with patch('classroom_pilot.assignments.setup.print_colored') as mock_print:
+        with patch('classdock.assignments.setup.print_colored') as mock_print:
             setup = AssignmentSetup()
 
             # Execute
@@ -354,7 +354,7 @@ class TestConfigureTokens:
         With centralized tokens, validation is handled by the token manager, not the setup wizard.
         The wizard simply informs the user that centralized tokens will be used.
         """
-        with patch('classroom_pilot.assignments.setup.print_colored') as mock_print:
+        with patch('classdock.assignments.setup.print_colored') as mock_print:
             setup = AssignmentSetup()
 
             # Execute
@@ -401,7 +401,7 @@ class TestCreateFiles:
             setup.token_validation
         )
         # create_token_files() is NO LONGER called with centralized tokens
-        # Token files are managed centrally in ~/.config/classroom-pilot/
+        # Token files are managed centrally in ~/.config/classdock/
         setup.file_manager.update_gitignore.assert_called_once()
 
     def test_create_files_with_secrets_disabled(self, mock_dependencies):
@@ -464,8 +464,8 @@ class TestConfigureSecretManagement:
             - 'USE_SECRETS' is set to 'true' in the configuration.
             - '_configure_tokens' is called once.
         """
-        with patch('classroom_pilot.assignments.setup.print_colored'), \
-                patch('classroom_pilot.assignments.setup.print_success'):
+        with patch('classdock.assignments.setup.print_colored'), \
+                patch('classdock.assignments.setup.print_success'):
 
             setup = AssignmentSetup()
             setup.input_handler.prompt_yes_no.return_value = True
@@ -484,8 +484,8 @@ class TestConfigureSecretManagement:
         value to 'false' when secret management is disabled by the user (i.e., when the prompt returns False).
         Mocks out colored printing functions to isolate test behavior.
         """
-        with patch('classroom_pilot.assignments.setup.print_colored'), \
-                patch('classroom_pilot.assignments.setup.print_success'):
+        with patch('classdock.assignments.setup.print_colored'), \
+                patch('classdock.assignments.setup.print_success'):
 
             setup = AssignmentSetup()
             setup.input_handler.prompt_yes_no.return_value = False
@@ -528,10 +528,10 @@ class TestRunWizardIntegration:
 
         All steps are asserted to be called once, confirming the complete flow.
         """
-        with patch('classroom_pilot.assignments.setup.show_welcome'), \
-                patch('classroom_pilot.assignments.setup.show_completion'), \
-                patch('classroom_pilot.assignments.setup.print_success'), \
-                patch('classroom_pilot.assignments.setup.logger'):
+        with patch('classdock.assignments.setup.show_welcome'), \
+                patch('classdock.assignments.setup.show_completion'), \
+                patch('classdock.assignments.setup.print_success'), \
+                patch('classdock.assignments.setup.logger'):
 
             setup = AssignmentSetup()
 
@@ -559,9 +559,9 @@ class TestRunWizardIntegration:
 
         With updated behavior, run_wizard() returns False instead of calling sys.exit().
         """
-        with patch('classroom_pilot.assignments.setup.show_welcome'), \
-                patch('classroom_pilot.assignments.setup.print_colored'), \
-                patch('classroom_pilot.assignments.setup.logger'):
+        with patch('classdock.assignments.setup.show_welcome'), \
+                patch('classdock.assignments.setup.print_colored'), \
+                patch('classdock.assignments.setup.logger'):
 
             setup = AssignmentSetup()
             setup._collect_assignment_info = Mock(
@@ -584,11 +584,11 @@ def test_setup_assignment_function():
 
     Mocks are used to isolate the test from actual implementation details.
     """
-    with patch('classroom_pilot.assignments.setup.AssignmentSetup') as mock_class:
+    with patch('classdock.assignments.setup.AssignmentSetup') as mock_class:
         mock_instance = Mock()
         mock_class.return_value = mock_instance
 
-        from classroom_pilot.assignments.setup import setup_assignment
+        from classdock.assignments.setup import setup_assignment
 
         # Execute
         setup_assignment()
@@ -623,9 +623,9 @@ class TestEdgeCasesAndErrorHandling:
 
         With updated behavior, run_wizard() returns False instead of calling sys.exit().
         """
-        with patch('classroom_pilot.assignments.setup.show_welcome'), \
-                patch('classroom_pilot.assignments.setup.print_error'), \
-                patch('classroom_pilot.assignments.setup.logger'):
+        with patch('classdock.assignments.setup.show_welcome'), \
+                patch('classdock.assignments.setup.print_error'), \
+                patch('classdock.assignments.setup.logger'):
 
             setup = AssignmentSetup()
             setup._collect_assignment_info = Mock(
@@ -762,7 +762,7 @@ class TestEdgeCasesAndErrorHandling:
         so empty token scenarios are not applicable to the setup wizard.
         Tokens are validated by the centralized token manager.
         """
-        with patch('classroom_pilot.assignments.setup.print_colored'):
+        with patch('classdock.assignments.setup.print_colored'):
             setup = AssignmentSetup()
 
             # Execute
@@ -814,10 +814,10 @@ class TestEdgeCasesAndErrorHandling:
         methods to focus on state management, and verifies that configuration values set in one wizard run
         do not leak into another.
         """
-        with patch('classroom_pilot.assignments.setup.show_welcome'), \
-                patch('classroom_pilot.assignments.setup.show_completion'), \
-                patch('classroom_pilot.assignments.setup.print_success'), \
-                patch('classroom_pilot.assignments.setup.logger'):
+        with patch('classdock.assignments.setup.show_welcome'), \
+                patch('classdock.assignments.setup.show_completion'), \
+                patch('classdock.assignments.setup.print_success'), \
+                patch('classdock.assignments.setup.logger'):
 
             # First wizard run
             setup1 = AssignmentSetup()
@@ -850,7 +850,7 @@ class TestEdgeCasesAndErrorHandling:
         Test that AssignmentSetup raises a FileNotFoundError with the expected message
         when PathManager fails to find the workspace root during initialization.
         """
-        with patch('classroom_pilot.assignments.setup.PathManager') as mock_path_mgr:
+        with patch('classdock.assignments.setup.PathManager') as mock_path_mgr:
             mock_path_instance = Mock()
             mock_path_instance.get_workspace_root.side_effect = FileNotFoundError(
                 "No workspace found")
@@ -866,7 +866,7 @@ class TestEdgeCasesAndErrorHandling:
         ConfigGenerator fails to initialize due to an invalid config file path.
         This ensures proper error propagation during setup initialization.
         """
-        with patch('classroom_pilot.assignments.setup.ConfigGenerator') as mock_config_gen:
+        with patch('classdock.assignments.setup.ConfigGenerator') as mock_config_gen:
             mock_config_gen.side_effect = ValueError(
                 "Invalid config file path")
 
@@ -963,15 +963,15 @@ class TestAssignmentSetupURLMethods:
             setup.config_values['ASSIGNMENT_NAME'] = 'test-assignment'
             return True
 
-        with patch('classroom_pilot.assignments.setup.URLParser.validate_classroom_url', return_value=True), \
+        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=True), \
                 patch.object(setup, '_populate_from_url', side_effect=mock_populate), \
                 patch.object(setup, '_collect_repository_info'), \
                 patch.object(setup, '_collect_assignment_details'), \
                 patch.object(setup, '_configure_secret_management'), \
                 patch.object(setup, '_create_files'), \
-                patch('classroom_pilot.assignments.setup.show_welcome'), \
-                patch('classroom_pilot.assignments.setup.show_completion'), \
-                patch('classroom_pilot.assignments.setup.print_colored'):
+                patch('classdock.assignments.setup.show_welcome'), \
+                patch('classdock.assignments.setup.show_completion'), \
+                patch('classdock.assignments.setup.print_colored'):
 
             setup.url_parser.parse_classroom_url.return_value = {
                 'organization': 'test-org',
@@ -991,8 +991,8 @@ class TestAssignmentSetupURLMethods:
         url = "https://invalid-url.com"
 
         # Mock URL validation to return False
-        with patch('classroom_pilot.assignments.setup.URLParser.validate_classroom_url', return_value=False), \
-                patch('classroom_pilot.assignments.setup.print_error'):
+        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=False), \
+                patch('classdock.assignments.setup.print_error'):
 
             result = setup.run_wizard_with_url(url)
 
@@ -1005,11 +1005,11 @@ class TestAssignmentSetupURLMethods:
         url = "https://classroom.github.com/classrooms/12345/assignments/test"
 
         # Mock URL validation but simulate user cancellation
-        with patch('classroom_pilot.assignments.setup.URLParser.validate_classroom_url', return_value=True), \
+        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=True), \
                 patch.object(setup, '_collect_repository_info', side_effect=KeyboardInterrupt), \
-                patch('classroom_pilot.assignments.setup.show_welcome'), \
-                patch('classroom_pilot.assignments.setup.print_error'), \
-                patch('classroom_pilot.assignments.setup.print_colored'):
+                patch('classdock.assignments.setup.show_welcome'), \
+                patch('classdock.assignments.setup.print_error'), \
+                patch('classdock.assignments.setup.print_colored'):
 
             setup.url_parser.extract_org_from_url.return_value = "test-org"
             setup.url_parser.extract_assignment_from_url.return_value = "test-assignment"
@@ -1023,7 +1023,7 @@ class TestAssignmentSetupURLMethods:
         setup = AssignmentSetup()
         url = "https://classroom.github.com/classrooms/12345/assignments/test-assignment"
 
-        with patch('classroom_pilot.assignments.setup.URLParser.validate_classroom_url', return_value=True):
+        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=True):
             setup.url_parser.parse_classroom_url.return_value = {
                 'organization': 'test-org',
                 'assignment_name': 'test-assignment'
@@ -1041,8 +1041,8 @@ class TestAssignmentSetupURLMethods:
         setup = AssignmentSetup()
         url = "https://invalid-url.com"
 
-        with patch('classroom_pilot.assignments.setup.URLParser.validate_classroom_url', return_value=False), \
-                patch('classroom_pilot.assignments.setup.print_error'):
+        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=False), \
+                patch('classdock.assignments.setup.print_error'):
 
             result = setup._populate_from_url(url)
 
@@ -1054,8 +1054,8 @@ class TestAssignmentSetupURLMethods:
         setup = AssignmentSetup()
         url = "https://classroom.github.com/classrooms/12345/assignments/test"
 
-        with patch('classroom_pilot.assignments.setup.URLParser.validate_classroom_url', return_value=True), \
-                patch('classroom_pilot.assignments.setup.print_error'):
+        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=True), \
+                patch('classdock.assignments.setup.print_error'):
 
             # Mock extraction to raise an exception
             setup.url_parser.extract_org_from_url.side_effect = Exception(
@@ -1070,7 +1070,7 @@ class TestAssignmentSetupURLMethods:
         setup = AssignmentSetup()
         url = "https://classroom.github.com/classrooms/12345/assignments/test"
 
-        with patch('classroom_pilot.assignments.setup.URLParser.validate_classroom_url', return_value=True):
+        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=True):
             # Only organization extraction succeeds
             setup.url_parser.parse_classroom_url.return_value = {
                 'organization': 'test-org',

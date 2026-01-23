@@ -101,7 +101,7 @@ jobs:
 
           # Benchmark Python CLI assignment orchestrator with dry-run
           benchmark_script "assignments-orchestrate" \
-            "python -m classroom_pilot assignments --dry-run --verbose orchestrate" \
+            "python -m classdock assignments --dry-run --verbose orchestrate" \
             "--config performance_test_data/test_assignment.conf"
 
           end_step_timing "assignment_orchestrator_benchmark"
@@ -115,7 +115,7 @@ jobs:
 
           # Benchmark Python CLI repo fetch with dry-run
           benchmark_script "repos-fetch" \
-            "python -m classroom_pilot repos --dry-run --verbose fetch" \
+            "python -m classdock repos --dry-run --verbose fetch" \
             "--config performance_test_data/test_assignment.conf"
 
           end_step_timing "repo_fetch_benchmark"
@@ -129,7 +129,7 @@ jobs:
 
           # Benchmark Python CLI secrets management with dry-run
           benchmark_script "secrets-add" \
-            "python -m classroom_pilot secrets --dry-run --verbose add" \
+            "python -m classdock secrets --dry-run --verbose add" \
             "--assignment-root performance_test_data/"
 
           end_step_timing "secrets_benchmark"
@@ -143,7 +143,7 @@ jobs:
 
           # Monitor system resources during Python CLI execution
           monitor_resources "python_cli_workflow_simulation" \
-            "python -m classroom_pilot assignments --dry-run --verbose orchestrate --config performance_test_data/test_assignment.conf"
+            "python -m classdock assignments --dry-run --verbose orchestrate --config performance_test_data/test_assignment.conf"
 
           end_step_timing "resource_monitoring"
 
@@ -229,12 +229,12 @@ jobs:
 
           # Benchmark assignment orchestration CLI command
           benchmark_script "cli_assignments_orchestrate" \
-            "poetry run classroom-pilot assignments --dry-run orchestrate" \
+            "poetry run classdock assignments --dry-run orchestrate" \
             "--config assignment.conf"
 
           # Benchmark assignment setup CLI command
           benchmark_script "cli_assignments_setup" \
-            "poetry run classroom-pilot assignments --dry-run setup" \
+            "poetry run classdock assignments --dry-run setup" \
             "--config assignment.conf"
 
           end_step_timing "cli_assignments_benchmark"
@@ -248,12 +248,12 @@ jobs:
 
           # Benchmark repository fetch CLI command
           benchmark_script "cli_repos_fetch" \
-            "poetry run classroom-pilot repos --dry-run fetch" \
+            "poetry run classdock repos --dry-run fetch" \
             "--config assignment.conf"
 
           # Benchmark collaborator management CLI command
           benchmark_script "cli_repos_collaborator" \
-            "poetry run classroom-pilot repos --dry-run collaborator" \
+            "poetry run classdock repos --dry-run collaborator" \
             "--config assignment.conf"
 
           end_step_timing "cli_repos_benchmark"
@@ -267,7 +267,7 @@ jobs:
 
           # Benchmark secrets management CLI command
           benchmark_script "cli_secrets_manage" \
-            "poetry run classroom-pilot secrets --dry-run manage" \
+            "poetry run classdock secrets --dry-run manage" \
             "--config assignment.conf"
 
           end_step_timing "cli_secrets_benchmark"

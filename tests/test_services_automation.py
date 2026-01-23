@@ -1,6 +1,6 @@
 from unittest.mock import patch, Mock
 
-from classroom_pilot.services.automation_service import AutomationService
+from classdock.services.automation_service import AutomationService
 
 
 def test_cron_install_success():
@@ -10,7 +10,7 @@ def test_cron_install_success():
     mock_cron.install_cron_job.return_value = (
         Mock(value="success"), "installed")
 
-    with patch('classroom_pilot.automation.CronManager', return_value=mock_cron):
+    with patch('classdock.automation.CronManager', return_value=mock_cron):
         ok, message = svc.cron_install(['sync'], None, 'assignment.conf')
 
     assert ok is True
@@ -25,7 +25,7 @@ def test_cron_install_failure():
     mock_res.value = 'error'
     mock_cron.install_cron_job.return_value = (mock_res, 'failed')
 
-    with patch('classroom_pilot.automation.CronManager', return_value=mock_cron):
+    with patch('classdock.automation.CronManager', return_value=mock_cron):
         ok, message = svc.cron_install(['sync'], None, 'assignment.conf')
 
     assert ok is False
@@ -38,7 +38,7 @@ def test_cron_remove_success():
     mock_cron = Mock()
     mock_cron.remove_cron_job.return_value = (Mock(value='success'), 'removed')
 
-    with patch('classroom_pilot.automation.CronManager', return_value=mock_cron):
+    with patch('classdock.automation.CronManager', return_value=mock_cron):
         ok, message = svc.cron_remove(['sync'], 'assignment.conf')
 
     assert ok is True
@@ -53,7 +53,7 @@ def test_cron_remove_failure():
     mock_res.value = 'not_found'
     mock_cron.remove_cron_job.return_value = (mock_res, 'not found')
 
-    with patch('classroom_pilot.automation.CronManager', return_value=mock_cron):
+    with patch('classdock.automation.CronManager', return_value=mock_cron):
         ok, message = svc.cron_remove(['sync'], 'assignment.conf')
 
     assert ok is False
@@ -66,7 +66,7 @@ def test_cron_logs_success():
     mock_cron = Mock()
     mock_cron.show_logs.return_value = (True, 'line1\nline2')
 
-    with patch('classroom_pilot.automation.CronManager', return_value=mock_cron):
+    with patch('classdock.automation.CronManager', return_value=mock_cron):
         ok, output = svc.cron_logs(10)
 
     assert ok is True
@@ -81,7 +81,7 @@ def test_cron_status_success():
     mock_status.has_jobs = False
     mock_cron.get_cron_status.return_value = mock_status
 
-    with patch('classroom_pilot.automation.CronManager', return_value=mock_cron):
+    with patch('classdock.automation.CronManager', return_value=mock_cron):
         ok, status = svc.cron_status('assignment.conf')
 
     assert ok is True
@@ -94,7 +94,7 @@ def test_cron_sync_dry_run():
     mock_manager = Mock()
     mock_manager.log_file = '/tmp/log'
 
-    with patch('classroom_pilot.automation.cron_sync.CronSyncManager', return_value=mock_manager):
+    with patch('classdock.automation.cron_sync.CronSyncManager', return_value=mock_manager):
         ok, info = svc.cron_sync(
             ['sync'], dry_run=True, verbose=False, stop_on_failure=False, show_log=False)
 
@@ -111,7 +111,7 @@ def test_cron_sync_execute_failure():
     mock_manager = Mock()
     mock_manager.execute_cron_sync.return_value = FakeResult()
 
-    with patch('classroom_pilot.automation.cron_sync.CronSyncManager', return_value=mock_manager):
+    with patch('classdock.automation.cron_sync.CronSyncManager', return_value=mock_manager):
         ok, res = svc.cron_sync(
             ['sync'], dry_run=False, verbose=False, stop_on_failure=False, show_log=False)
 
