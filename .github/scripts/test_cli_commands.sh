@@ -6,50 +6,50 @@ set -euo pipefail
 
 source "$(dirname "$0")/workflow_utils.sh"
 
-CLASSROOM_PILOT_CMD="${1:-poetry run classroom-pilot}"
+CLASSDOCK_CMD="${1:-poetry run classdock}"
 
 print_message "step" "Testing CLI commands and help system"
 
 # Test main help command
 print_message "step" "Testing main help..."
-$CLASSROOM_PILOT_CMD --help
+$CLASSDOCK_CMD --help
 
 # Test version flag
 print_message "step" "Testing version flag..."
-$CLASSROOM_PILOT_CMD --version
+$CLASSDOCK_CMD --version
 
 # Test subcommand help
 print_message "step" "Testing assignments help..."
-$CLASSROOM_PILOT_CMD assignments --help
+$CLASSDOCK_CMD assignments --help
 
 print_message "step" "Testing repos help..."
-$CLASSROOM_PILOT_CMD repos --help
+$CLASSDOCK_CMD repos --help
 
 print_message "step" "Testing secrets help..."
-$CLASSROOM_PILOT_CMD secrets --help
+$CLASSDOCK_CMD secrets --help
 
 print_message "step" "Testing automation help..."
-$CLASSROOM_PILOT_CMD automation --help
+$CLASSDOCK_CMD automation --help
 
 # Test specific command help
 print_message "step" "Testing specific command help..."
-$CLASSROOM_PILOT_CMD assignments orchestrate --help
-$CLASSROOM_PILOT_CMD repos fetch --help
-$CLASSROOM_PILOT_CMD secrets manage --help
+$CLASSDOCK_CMD assignments orchestrate --help
+$CLASSDOCK_CMD repos fetch --help
+$CLASSDOCK_CMD secrets manage --help
 
 # Test error conditions
 print_message "step" "Testing error conditions..."
 set +e
 
 # Test invalid command
-$CLASSROOM_PILOT_CMD invalid-command 2>/dev/null
+$CLASSDOCK_CMD invalid-command 2>/dev/null
 if [[ $? -eq 0 ]]; then
     print_message "error" "Expected error for invalid command, but succeeded"
     exit 1
 fi
 
 # Test missing required arguments (should show help)
-$CLASSROOM_PILOT_CMD assignments orchestrate 2>/dev/null
+$CLASSDOCK_CMD assignments orchestrate 2>/dev/null
 if [[ $? -eq 0 ]]; then
     print_message "warning" "Command succeeded without required arguments (may be using defaults)"
 fi

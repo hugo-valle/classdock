@@ -2,7 +2,7 @@
 
 # Workflow Status Aggregation Script for GitHub Actions
 # Collects and consolidates build time monitoring and status across all workflows
-# Created for classroom-pilot project
+# Created for classdock project
 
 set -euo pipefail
 

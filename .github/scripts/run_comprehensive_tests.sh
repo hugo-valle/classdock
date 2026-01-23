@@ -22,7 +22,7 @@ run_comprehensive_tests() {
         "--tb=short"
         "--strict-markers"
         "--disable-warnings"
-        "--cov=classroom_pilot"
+        "--cov=classdock"
         "--cov-branch"
         "--cov-report=term-missing:skip-covered"
         "--cov-report=xml:test-results/python$PYTHON_VERSION/coverage.xml"
