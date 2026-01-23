@@ -15,7 +15,7 @@ permissions:
 env:
   # Performance monitoring
   CI_START_TIME: ${{ github.event.head_commit.timestamp }}
-  CACHE_VERSION: v2
+  CACHE_VERSION: v3
   # Python testing environment
   PYTHONDONTWRITEBYTECODE: 1
   PYTHONUNBUFFERED: 1
@@ -71,7 +71,7 @@ jobs:
       - name: �📚 Install dependencies
         run: |
           source .github/scripts/workflow_utils.sh
-          poetry install
+          poetry install --sync
 
       - name: ✅ Validate environment
         run: |
