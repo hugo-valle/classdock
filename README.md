@@ -1,17 +1,17 @@
-# Classroom Pilot
+# ClassDock
 
 A comprehensive Python CLI tool for automating GitHub Classroom assignment management with modular workflow orchestration, repository operations, and secret management.
 
-[![PyPI version](https://badge.fury.io/py/classroom-pilot.svg)](https://badge.fury.io/py/classroom-pilot)
-[![Python Support](https://img.shields.io/pypi/pyversions/classroom-pilot.svg)](https://pypi.org/project/classroom-pilot/)
-[![Tests](https://github.com/hugo-valle/classroom-pilot/workflows/Tests/badge.svg)](https://github.com/hugo-valle/classroom-pilot/actions)
+[![PyPI version](https://badge.fury.io/py/classdock.svg)](https://badge.fury.io/py/classdock)
+[![Python Support](https://img.shields.io/pypi/pyversions/classdock.svg)](https://pypi.org/project/classdock/)
+[![Tests](https://github.com/hugo-valle/classdock/workflows/Tests/badge.svg)](https://github.com/hugo-valle/classdock/actions)
 
 ## 🎯 Overview
 
-Classroom Pilot provides instructors with a powerful, modern CLI to automate GitHub Classroom workflows:
+ClassDock provides instructors with a powerful, modern CLI to automate GitHub Classroom workflows:
 
 - **🐍 Modern Python CLI** - Type-safe, intuitive commands with rich help and output
-- **📦 PyPI Package** - Simple installation: `pip install classroom-pilot`
+- **📦 PyPI Package** - Simple installation: `pip install classdock`
 - **🔧 Modular Architecture** - Organized command structure for different workflow areas
 - **🔍 Smart Repository Discovery** - Automated filtering and batch operations
 - **🔐 Secret Management** - Secure distribution of tokens and credentials
@@ -29,18 +29,18 @@ Classroom Pilot provides instructors with a powerful, modern CLI to automate Git
 
 ```bash
 # Install from PyPI
-pip install classroom-pilot
+pip install classdock
 
 # Verify installation
-classroom-pilot --help
+classdock --help
 ```
 
 ### Development Installation
 
 ```bash
 # Clone repository
-git clone https://github.com/hugo-valle/classroom-pilot.git
-cd classroom-pilot
+git clone https://github.com/hugo-valle/classdock.git
+cd classdock
 
 # Install with Poetry
 poetry install
@@ -60,7 +60,7 @@ pip install -e .
 
 ### Centralized Error Handling
 
-Classroom Pilot includes a comprehensive error handling system for reliable GitHub operations:
+ClassDock includes a comprehensive error handling system for reliable GitHub operations:
 
 - **🔄 Automatic Retry Logic** - Intelligent retry with exponential backoff for transient failures
 - **⏱️ Rate Limit Management** - Automatic handling of GitHub API rate limits
@@ -70,7 +70,7 @@ Classroom Pilot includes a comprehensive error handling system for reliable GitH
 
 ```python
 # Example: Automatic retry with error context
-from classroom_pilot.utils.github_exceptions import github_api_retry
+from classdock.utils.github_exceptions import github_api_retry
 
 @github_api_retry(max_attempts=3, base_delay=1.0)
 def discover_repositories():
@@ -119,37 +119,37 @@ EOF
 
 ### 2. Command Structure
 
-Classroom Pilot uses a modular command structure:
+ClassDock uses a modular command structure:
 
 ```bash
 # Main command groups
-classroom-pilot assignments    # Assignment setup and orchestration
-classroom-pilot repos         # Repository operations and collaboration
-classroom-pilot secrets       # Secret and token management
-classroom-pilot automation    # Scheduling and batch processing
+classdock assignments    # Assignment setup and orchestration
+classdock repos         # Repository operations and collaboration
+classdock secrets       # Secret and token management
+classdock automation    # Scheduling and batch processing
 
 # Legacy commands (for backward compatibility)
-classroom-pilot setup         # Interactive assignment setup
-classroom-pilot run           # Complete workflow execution
+classdock setup         # Interactive assignment setup
+classdock run           # Complete workflow execution
 ```
 
 ### 3. Common Workflows
 
 ```bash
 # Setup a new assignment (interactive)
-classroom-pilot assignments setup
+classdock assignments setup
 
 # Discover student repositories
-classroom-pilot repos fetch --config assignment.conf
+classdock repos fetch --config assignment.conf
 
 # Add secrets to all student repos
-classroom-pilot secrets add --config assignment.conf
+classdock secrets add --config assignment.conf
 
 # Run orchestrated workflow
-classroom-pilot assignments orchestrate --config assignment.conf
+classdock assignments orchestrate --config assignment.conf
 
 # Check what would happen (dry-run)
-classroom-pilot --dry-run assignments orchestrate
+classdock --dry-run assignments orchestrate
 ```
 
 ## 🔧 Command Reference
@@ -158,56 +158,56 @@ classroom-pilot --dry-run assignments orchestrate
 
 ```bash
 # Setup new assignment configuration
-classroom-pilot assignments setup
+classdock assignments setup
 
 # Orchestrate complete assignment workflow
-classroom-pilot assignments orchestrate [--config FILE] [--dry-run]
+classdock assignments orchestrate [--config FILE] [--dry-run]
 
 # Manage assignment templates
-classroom-pilot assignments manage [--config FILE]
+classdock assignments manage [--config FILE]
 ```
 
 ### Repository Operations
 
 ```bash
 # Fetch student repositories
-classroom-pilot repos fetch [--config FILE]
+classdock repos fetch [--config FILE]
 
 # Manage collaborators
-classroom-pilot repos collaborator add|remove [--config FILE]
+classdock repos collaborator add|remove [--config FILE]
 ```
 
 ### Secret Management
 
 ```bash
 # Add secrets to repositories
-classroom-pilot secrets add [--config FILE] [--secrets LIST]
+classdock secrets add [--config FILE] [--secrets LIST]
 
 # Remove secrets from repositories  
-classroom-pilot secrets remove [--config FILE] [--secrets LIST]
+classdock secrets remove [--config FILE] [--secrets LIST]
 
 # List existing secrets
-classroom-pilot secrets list [--config FILE]
+classdock secrets list [--config FILE]
 ```
 
 ### Automation & Scheduling
 
 ```bash
 # Setup cron jobs for automation
-classroom-pilot automation scheduler setup [--config FILE]
+classdock automation scheduler setup [--config FILE]
 
 # Run batch operations
-classroom-pilot automation batch [--config FILE]
+classdock automation batch [--config FILE]
 ```
 
 ### Global Options
 
 | Option | Description | Example |
 |--------|-------------|---------|
-| `--dry-run` | Preview actions without executing | `classroom-pilot --dry-run assignments orchestrate` |
-| `--verbose` | Enable detailed logging | `classroom-pilot --verbose repos fetch` |
-| `--config FILE` | Use custom configuration file | `classroom-pilot --config my.conf assignments setup` |
-| `--help` | Show help for any command | `classroom-pilot assignments --help` |
+| `--dry-run` | Preview actions without executing | `classdock --dry-run assignments orchestrate` |
+| `--verbose` | Enable detailed logging | `classdock --verbose repos fetch` |
+| `--config FILE` | Use custom configuration file | `classdock --config my.conf assignments setup` |
+| `--help` | Show help for any command | `classdock assignments --help` |
 
 ## ⚙️ Configuration
 
@@ -229,7 +229,7 @@ ASSIGNMENT_FILE="homework.py"
 GITHUB_HOSTS="github.enterprise.com,git.company.internal"
 
 # Optional: Authentication
-# Prefer centralized token manager (~/.config/classroom-pilot/token_config.json) or set GITHUB_TOKEN
+# Prefer centralized token manager (~/.config/classdock/token_config.json) or set GITHUB_TOKEN
 # Example (CI): export GITHUB_TOKEN="ghp_your_token_here"
 
 # Optional: Secrets management
@@ -255,7 +255,7 @@ export GITHUB_TOKEN="ghp_your_token_here"
 export ASSIGNMENT_FILE="main.cpp"
 
 # Run with overrides
-classroom-pilot assignments orchestrate
+classdock assignments orchestrate
 ```
 
 ## 💡 Best Practices
@@ -288,7 +288,7 @@ classroom-pilot assignments orchestrate
 ### Project Architecture
 
 ```text
-classroom_pilot/
+classdock/
 ├── __init__.py              # Package initialization
 ├── __main__.py             # CLI entry point
 ├── cli.py                  # Main Typer CLI interface
@@ -322,8 +322,8 @@ classroom_pilot/
 
 ```bash
 # Clone and setup development environment
-git clone https://github.com/hugo-valle/classroom-pilot.git
-cd classroom-pilot
+git clone https://github.com/hugo-valle/classdock.git
+cd classdock
 
 # Install with Poetry
 poetry install
@@ -333,14 +333,14 @@ poetry shell
 poetry run pytest tests/ -v
 
 # Test CLI functionality
-poetry run classroom-pilot --help
+poetry run classdock --help
 
 # Format code
-poetry run black classroom_pilot/
-poetry run isort classroom_pilot/
+poetry run black classdock/
+poetry run isort classdock/
 
 # Type checking
-poetry run mypy classroom_pilot/
+poetry run mypy classdock/
 
 # Create feature branch
 git checkout -b feature/new-feature
@@ -367,7 +367,7 @@ poetry run pytest tests/test_cli.py -v
 poetry run pytest tests/test_github_exceptions.py -v  # New error handling tests
 
 # Test with coverage
-poetry run pytest tests/ --cov=classroom_pilot
+poetry run pytest tests/ --cov=classdock
 
 # Test error handling specifically
 poetry run pytest tests/test_github_exceptions.py -v --tb=short
@@ -384,8 +384,8 @@ poetry run pytest tests/test_github_exceptions.py -v --tb=short
 
 ### Key Resources
 
-- **[PyPI Package](https://pypi.org/project/classroom-pilot/)** - Official package page
-- **[GitHub Repository](https://github.com/hugo-valle/classroom-pilot)** - Source code and issues
+- **[PyPI Package](https://pypi.org/project/classdock/)** - Official package page
+- **[GitHub Repository](https://github.com/hugo-valle/classdock)** - Source code and issues
 - **[CLI Architecture](docs/CLI_ARCHITECTURE.md)** - Modular command structure and design
 - **[Error Handling Guide](docs/ERROR_HANDLING.md)** - GitHub API resilience and retry patterns
 - **[CI/CD Documentation](docs/CICD_WORKFLOW.md)** - Automated publishing workflow
@@ -419,10 +419,10 @@ poetry run pytest tests/test_github_exceptions.py -v --tb=short
 
 ## 🆘 Support
 
-- **Documentation**: [GitHub Repository](https://github.com/hugo-valle/classroom-pilot)
-- **Issues**: [GitHub Issues](https://github.com/hugo-valle/classroom-pilot/issues)
-- **Package**: [PyPI Package](https://pypi.org/project/classroom-pilot/)
-- **Discussions**: [GitHub Discussions](https://github.com/hugo-valle/classroom-pilot/discussions)
+- **Documentation**: [GitHub Repository](https://github.com/hugo-valle/classdock)
+- **Issues**: [GitHub Issues](https://github.com/hugo-valle/classdock/issues)
+- **Package**: [PyPI Package](https://pypi.org/project/classdock/)
+- **Discussions**: [GitHub Discussions](https://github.com/hugo-valle/classdock/discussions)
 
 ## 📜 License
 
@@ -430,4 +430,4 @@ MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**Classroom Pilot** - Modern Python automation for GitHub Classroom assignment management.
+**ClassDock** - Modern Python automation for GitHub Classroom assignment management.

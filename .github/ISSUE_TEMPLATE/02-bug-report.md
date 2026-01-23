@@ -1,6 +1,6 @@
 ---
 name: 🐛 Bug Report
-about: Report a bug or issue with Classroom Pilot
+about: Report a bug or issue with ClassDock
 title: '[BUG] '
 labels: ['bug']
 assignees: []
@@ -58,7 +58,7 @@ A clear and concise description of what the bug is.
 **Minimal Reproduction:**
 ```bash
 # Exact commands that reproduce the issue
-classroom-pilot command --option value
+classdock command --option value
 ```
 
 ## 🎯 Expected Behavior
@@ -86,9 +86,9 @@ What exit code did the command return? (if applicable)
 
 ## 🖥️ Environment Information
 
-**Classroom Pilot Version:**
+**ClassDock Version:**
 ```bash
-# Output of: classroom-pilot --version
+# Output of: classdock --version
 ```
 
 **System Information:**
@@ -98,7 +98,7 @@ What exit code did the command return? (if applicable)
 - Shell: [e.g., bash, zsh, PowerShell]
 
 **Installation Method:**
-- [ ] PyPI (`pip install classroom-pilot`)
+- [ ] PyPI (`pip install classdock`)
 - [ ] Development install (`poetry install`)
 - [ ] Other: _________________
 
@@ -113,7 +113,7 @@ What exit code did the command return? (if applicable)
 **Configuration Files:**
 ```yaml
 # Contents of relevant config files (remove sensitive data)
-# assignment.conf, .classroom-pilot/config.yml, etc.
+# assignment.conf, .classdock/config.yml, etc.
 ```
 
 **Environment Variables:**
@@ -211,7 +211,7 @@ Attach any configuration files, scripts, or other files that help reproduce the 
 
 **Quality Assurance:**
 - [ ] All tests pass (`poetry run pytest tests/ -v`)
-- [ ] CLI works locally (`poetry run classroom-pilot --help`)
+- [ ] CLI works locally (`poetry run classdock --help`)
 - [ ] Code formatting (`poetry run black --check`)
 - [ ] Import sorting (`poetry run isort --check-only`)
 - [ ] Type checking (`poetry run mypy`)
@@ -223,4 +223,4 @@ Attach any configuration files, scripts, or other files that help reproduce the 
 
 ---
 
-*Thank you for reporting this bug! Your help makes Classroom Pilot more reliable for all users.*
+*Thank you for reporting this bug! Your help makes ClassDock more reliable for all users.*

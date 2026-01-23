@@ -10,7 +10,7 @@ from unittest.mock import Mock, patch, MagicMock
 from pathlib import Path
 import tempfile
 
-from classroom_pilot.services.assignment_service import AssignmentService
+from classdock.services.assignment_service import AssignmentService
 
 
 class TestAssignmentServiceInit:
@@ -77,8 +77,8 @@ class TestAssignmentServiceSetup:
         assert success is False
         assert "Simplified setup mode not yet implemented" in message
 
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_success(self, mock_assignment_setup, mock_token_manager):
         """Test successful setup execution."""
         # Mock the token manager to return a valid token
@@ -100,8 +100,8 @@ class TestAssignmentServiceSetup:
         mock_assignment_setup.assert_called_once()
         mock_wizard.run_wizard.assert_called_once()
 
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_cancelled(self, mock_assignment_setup, mock_token_manager):
         """Test setup cancelled by user."""
         # Mock the token manager to return a valid token
@@ -121,7 +121,7 @@ class TestAssignmentServiceSetup:
         assert success is False
         assert "setup was cancelled or failed" in message
 
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_exception(self, mock_assignment_setup):
         """Test setup with exception."""
         # Mock the AssignmentSetup class to raise an exception
@@ -133,8 +133,8 @@ class TestAssignmentServiceSetup:
         assert success is False
         assert "Assignment setup failed" in message
 
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_with_url_success(self, mock_assignment_setup, mock_token_manager):
         """Test successful setup with GitHub Classroom URL."""
         # Mock the token manager to return a valid token
@@ -157,8 +157,8 @@ class TestAssignmentServiceSetup:
         mock_assignment_setup.assert_called_once()
         mock_wizard.run_wizard_with_url.assert_called_once_with(url)
 
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_with_url_cancelled(self, mock_assignment_setup, mock_token_manager):
         """Test setup with URL cancelled by user."""
         # Mock the token manager to return a valid token
@@ -180,8 +180,8 @@ class TestAssignmentServiceSetup:
         assert "setup was cancelled or failed" in message
         mock_wizard.run_wizard_with_url.assert_called_once_with(url)
 
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_with_url_exception(self, mock_assignment_setup, mock_token_manager):
         """Test setup with URL when wizard raises exception."""
         # Mock the token manager to return a valid token
@@ -208,7 +208,7 @@ class TestAssignmentServiceSetup:
 class TestAssignmentServiceOrchestrate:
     """Test assignment orchestration functionality."""
 
-    @patch('classroom_pilot.assignments.orchestrator.AssignmentOrchestrator')
+    @patch('classdock.assignments.orchestrator.AssignmentOrchestrator')
     def test_orchestrate_dry_run(self, mock_orchestrator):
         """Test orchestration in dry-run mode."""
         # Mock the orchestrator and its validation
@@ -225,7 +225,7 @@ class TestAssignmentServiceOrchestrate:
         # Verify configuration was validated even in dry-run
         mock_orch.validate_configuration.assert_called_once()
 
-    @patch('classroom_pilot.assignments.orchestrator.AssignmentOrchestrator')
+    @patch('classdock.assignments.orchestrator.AssignmentOrchestrator')
     def test_orchestrate_success(self, mock_orchestrator):
         """Test successful orchestration."""
         # Mock the orchestrator
@@ -256,7 +256,7 @@ class TestAssignmentServiceValidateConfig:
         assert "DRY RUN" in message
         assert "validate configuration" in message
 
-    @patch('classroom_pilot.config.ConfigValidator')
+    @patch('classdock.config.ConfigValidator')
     def test_validate_config_success(self, mock_validator, tmp_path):
         """Test successful config validation."""
         # Create a temporary config file
@@ -314,7 +314,7 @@ class TestAssignmentServiceStudentHelp:
 class TestAssignmentServiceIntegration:
     """Integration tests combining multiple service operations."""
 
-    @patch('classroom_pilot.assignments.orchestrator.AssignmentOrchestrator')
+    @patch('classdock.assignments.orchestrator.AssignmentOrchestrator')
     def test_service_chain_dry_run(self, mock_orchestrator):
         """Test chaining multiple service calls in dry-run mode."""
         # Mock the orchestrator for the orchestrate() call

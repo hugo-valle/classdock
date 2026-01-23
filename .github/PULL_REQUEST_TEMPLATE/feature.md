@@ -77,8 +77,8 @@
 **New CLI Commands:**
 ```bash
 # Example of how to use the new feature
-classroom-pilot new-command --option value
-classroom-pilot existing-command --new-option value
+classdock new-command --option value
+classdock existing-command --new-option value
 ```
 
 **Configuration Changes:**
@@ -92,7 +92,7 @@ new_feature:
 **Python API Changes:**
 ```python
 # New Python API usage (if applicable)
-from classroom_pilot.new_module import NewClass
+from classdock.new_module import NewClass
 result = NewClass().new_method()
 ```
 
@@ -131,7 +131,7 @@ $ poetry run pytest tests/ -v
 
 **Help Text Example:**
 ```bash
-$ classroom-pilot new-command --help
+$ classdock new-command --help
 # Paste help output to verify clarity
 ```
 
@@ -148,10 +148,10 @@ $ classroom-pilot new-command --help
 <!-- If breaking changes exist, provide migration instructions -->
 ```bash
 # Old way:
-classroom-pilot old-command --old-option
+classdock old-command --old-option
 
 # New way:
-classroom-pilot new-command --new-option
+classdock new-command --new-option
 ```
 
 ## 🎨 Code Quality
@@ -168,7 +168,7 @@ classroom-pilot new-command --new-option
 - [ ] `poetry run pytest tests/ -v` ✅
 - [ ] `poetry run black --check` ✅
 - [ ] `poetry run isort --check-only` ✅
-- [ ] `poetry run mypy classroom_pilot/` ✅
+- [ ] `poetry run mypy classdock/` ✅
 - [ ] All CI checks passing ✅
 
 ## 🔒 Security & Performance
@@ -222,4 +222,4 @@ classroom-pilot new-command --new-option
 **Ready for Review:** <!-- ✅ or ❌ -->
 **Ready for Merge:** <!-- ✅ or ❌ -->
 
-*Thank you for contributing to Classroom Pilot! This feature will help make GitHub Classroom management even better for educators.*
+*Thank you for contributing to ClassDock! This feature will help make GitHub Classroom management even better for educators.*

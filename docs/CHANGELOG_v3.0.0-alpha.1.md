@@ -1,4 +1,4 @@
-# Classroom Pilot v3.0.0-alpha.1 Release Notes
+# ClassDock v3.0.0-alpha.1 Release Notes
 
 **Release Date**: September 9, 2025  
 **Branch**: feature/python-migration  
@@ -6,7 +6,7 @@
 
 ## 🚀 Major Version Release: v3.0.0-alpha.1
 
-This release represents a **complete architectural transformation** of Classroom Pilot from a collection of bash scripts to a professional, enterprise-grade Python package with comprehensive modular architecture.
+This release represents a **complete architectural transformation** of ClassDock from a collection of bash scripts to a professional, enterprise-grade Python package with comprehensive modular architecture.
 
 ## 🎯 Release Highlights
 
@@ -30,7 +30,7 @@ This release represents a **complete architectural transformation** of Classroom
 ## 📦 New Package Structure
 
 ```
-classroom_pilot/
+classdock/
 ├── config/              # Configuration management
 │   ├── loader.py        # Configuration loading
 │   ├── validator.py     # Configuration validation  
@@ -62,35 +62,35 @@ classroom_pilot/
 ### **Modular Commands**
 ```bash
 # Assignment Management
-classroom-pilot assignments setup        # Interactive wizard
-classroom-pilot assignments orchestrate  # Full workflow
-classroom-pilot assignments manage       # Lifecycle management
+classdock assignments setup        # Interactive wizard
+classdock assignments orchestrate  # Full workflow
+classdock assignments manage       # Lifecycle management
 
 # Repository Operations  
-classroom-pilot repos fetch             # Discover & fetch
-classroom-pilot repos update            # Update repositories
-classroom-pilot repos push              # Sync to classroom
-classroom-pilot repos cycle-collaborator # Manage permissions
+classdock repos fetch             # Discover & fetch
+classdock repos update            # Update repositories
+classdock repos push              # Sync to classroom
+classdock repos cycle-collaborator # Manage permissions
 
 # Secret Management
-classroom-pilot secrets add             # Deploy secrets
-classroom-pilot secrets manage          # Advanced management
+classdock secrets add             # Deploy secrets
+classdock secrets manage          # Advanced management
 
 # Automation & Scheduling
-classroom-pilot automation cron         # Manage cron jobs
-classroom-pilot automation sync         # Execute sync tasks
-classroom-pilot automation batch        # Batch processing
+classdock automation cron         # Manage cron jobs
+classdock automation sync         # Execute sync tasks
+classdock automation batch        # Batch processing
 
 # Utility Commands
-classroom-pilot version                 # Show version info
-classroom-pilot --help                  # Comprehensive help
+classdock version                 # Show version info
+classdock --help                  # Comprehensive help
 ```
 
 ### **Legacy Compatibility**
 ```bash
 # These still work for backward compatibility
-classroom-pilot setup    # → assignments setup
-classroom-pilot run      # → assignments orchestrate
+classdock setup    # → assignments setup
+classdock run      # → assignments orchestrate
 ```
 
 ## ✨ Key Features
@@ -218,12 +218,12 @@ classroom-pilot run      # → assignments orchestrate
 ### **New Installation**
 ```bash
 # Install from source
-git clone https://github.com/hugo-valle/classroom-pilot.git
-cd classroom-pilot
+git clone https://github.com/hugo-valle/classdock.git
+cd classdock
 pip install -e .
 
 # Or install from PyPI (coming soon)
-pip install classroom-pilot
+pip install classdock
 ```
 
 ### **Upgrade from v2.x**
@@ -235,12 +235,12 @@ git pull origin main
 pip install -r requirements.txt
 
 # Test new CLI
-classroom-pilot --help
+classdock --help
 ```
 
 ## 🎉 Acknowledgments
 
-This major version represents months of architectural planning and implementation, transforming Classroom Pilot from a collection of scripts into a professional, enterprise-grade automation suite.
+This major version represents months of architectural planning and implementation, transforming ClassDock from a collection of scripts into a professional, enterprise-grade automation suite.
 
 **Key Achievements:**
 - ✅ Complete modular architecture implementation
@@ -251,11 +251,11 @@ This major version represents months of architectural planning and implementatio
 
 ## 🔗 Resources
 
-- **GitHub Repository**: https://github.com/hugo-valle/classroom-pilot
+- **GitHub Repository**: https://github.com/hugo-valle/classdock
 - **Documentation**: See `docs/` directory for comprehensive guides
-- **Issue Tracker**: https://github.com/hugo-valle/classroom-pilot/issues
-- **Feature Requests**: https://github.com/hugo-valle/classroom-pilot/issues
+- **Issue Tracker**: https://github.com/hugo-valle/classdock/issues
+- **Feature Requests**: https://github.com/hugo-valle/classdock/issues
 
 ---
 
-**Classroom Pilot v3.0.0-alpha.1** - The future of GitHub Classroom automation is here! 🚀
+**ClassDock v3.0.0-alpha.1** - The future of GitHub Classroom automation is here! 🚀

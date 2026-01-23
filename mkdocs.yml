@@ -1,9 +1,9 @@
-site_name: Classroom Pilot
+site_name: ClassDock
 site_description: Modern Python CLI for automating GitHub Classroom assignment management 🚀
-site_url: https://hugo-valle.github.io/classroom-pilot/
+site_url: https://hugo-valle.github.io/classdock/
 
-repo_url: https://github.com/hugo-valle/classroom-pilot
-repo_name: hugo-valle/classroom-pilot
+repo_url: https://github.com/hugo-valle/classdock
+repo_name: hugo-valle/classdock
 
 docs_dir: docs-site
 
@@ -100,8 +100,8 @@ extra:
     provider: mike
   social:
     - icon: fontawesome/brands/github
-      link: https://github.com/hugo-valle/classroom-pilot
+      link: https://github.com/hugo-valle/classdock
     - icon: fontawesome/brands/python
-      link: https://pypi.org/project/classroom-pilot/
+      link: https://pypi.org/project/classdock/
 
 copyright: Copyright &copy; 2024 Hugo Valle

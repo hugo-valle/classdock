@@ -37,13 +37,13 @@ hotfix/v3.1.1       # ✅ Clear hotfix intent
 
 ### **Display Names** (Use 'v' for readability)
 ```bash
-"🎉 classroom-pilot v3.1.0b2"    # ✅ User-friendly
+"🎉 classdock v3.1.0b2"    # ✅ User-friendly
 "Release v3.1.0b2"               # ✅ Clear in UI
 ```
 
 ### **PyPI Versions** (No 'v' prefix)
 ```bash
-https://pypi.org/project/classroom-pilot/3.1.0b2/  # ✅ Direct match
+https://pypi.org/project/classdock/3.1.0b2/  # ✅ Direct match
 ```
 
 ## 🔄 **Updated Workflow Process**
@@ -53,7 +53,7 @@ https://pypi.org/project/classroom-pilot/3.1.0b2/  # ✅ Direct match
 1. Extract version from pyproject.toml: "3.1.0b2"
 2. Create git tag: 3.1.0b2                    # No 'v' prefix
 3. Create GitHub Release: 3.1.0b2             # No 'v' prefix  
-4. Publish to PyPI: classroom-pilot==3.1.0b2  # Perfect match ✅
+4. Publish to PyPI: classdock==3.1.0b2  # Perfect match ✅
 ```
 
 ### **Example Tag Creation**
@@ -63,10 +63,10 @@ git tag -a "3.1.0b2" -m "🎉 Release 3.1.0b2"
 
 # GitHub Release (automated)
 tag_name: "3.1.0b2"
-name: "🎉 classroom-pilot v3.1.0b2"
+name: "🎉 classdock v3.1.0b2"
 
 # PyPI URL (result)
-https://pypi.org/project/classroom-pilot/3.1.0b2/
+https://pypi.org/project/classdock/3.1.0b2/
 ```
 
 ## 🎯 **Benefits**
@@ -102,7 +102,7 @@ git push origin "$TAG_NAME"
 uses: softprops/action-gh-release@v2
 with:
   tag_name: ${{ steps.version.outputs.version }}        # No 'v' prefix
-  name: 🎉 classroom-pilot v${{ steps.version.outputs.version }}  # 'v' for display only
+  name: 🎉 classdock v${{ steps.version.outputs.version }}  # 'v' for display only
 ```
 
 ## ✅ **Verification**
@@ -110,8 +110,8 @@ with:
 When the next release is triggered, you should see:
 
 1. **Git tag**: `3.1.0b2` (no 'v' prefix)
-2. **GitHub Release**: Uses tag `3.1.0b2` with display name "🎉 classroom-pilot v3.1.0b2"  
-3. **PyPI**: `https://pypi.org/project/classroom-pilot/3.1.0b2/` (direct match)
+2. **GitHub Release**: Uses tag `3.1.0b2` with display name "🎉 classdock v3.1.0b2"  
+3. **PyPI**: `https://pypi.org/project/classdock/3.1.0b2/` (direct match)
 
 **Perfect consistency across all systems! 🚀**
 

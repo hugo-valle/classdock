@@ -4,7 +4,7 @@ Comprehensive secret management for GitHub Classroom assignments through the mod
 
 ## 🎯 Overview
 
-Classroom Pilot provides robust secret management capabilities for:
+ClassDock provides robust secret management capabilities for:
 
 - **Automated Secret Distribution** - Add secrets across multiple student repositories
 - **Secure Token Management** - Handle authentication tokens safely
@@ -16,10 +16,10 @@ Classroom Pilot provides robust secret management capabilities for:
 
 ```bash
 # Install from PyPI
-pip install classroom-pilot
+pip install classdock
 
 # Verify installation
-classroom-pilot --help
+classdock --help
 ```
 
 ## 🚀 Quick Setup
@@ -28,8 +28,8 @@ classroom-pilot --help
 
 ```bash
 # Create centralized token config (recommended)
-mkdir -p ~/.config/classroom-pilot
-cat > ~/.config/classroom-pilot/token_config.json << 'EOF'
+mkdir -p ~/.config/classdock
+cat > ~/.config/classdock/token_config.json << 'EOF'
 {
     "github_token": "ghp_your_github_token_here",
     "username": "instructor",
@@ -37,7 +37,7 @@ cat > ~/.config/classroom-pilot/token_config.json << 'EOF'
     "expires_at": null
 }
 EOF
-chmod 600 ~/.config/classroom-pilot/token_config.json
+chmod 600 ~/.config/classdock/token_config.json
 
 # Or set environment variable for CI/automation
 export GITHUB_TOKEN="ghp_your_github_token_here"
@@ -62,10 +62,10 @@ EOF
 
 ```bash
 # Add secrets to all student repositories
-classroom-pilot secrets add --config assignment.conf
+classdock secrets add --config assignment.conf
 
 # Preview what would be done first
-classroom-pilot --dry-run secrets add --config assignment.conf
+classdock --dry-run secrets add --config assignment.conf
 ```
 
 ## 🔧 Secret Management Commands
@@ -74,36 +74,36 @@ classroom-pilot --dry-run secrets add --config assignment.conf
 
 ```bash
 # Add all configured secrets
-classroom-pilot secrets add --config assignment.conf
+classdock secrets add --config assignment.conf
 
 # Add specific secrets
-classroom-pilot secrets add --config assignment.conf --secrets "API_KEY,GRADING_TOKEN"
+classdock secrets add --config assignment.conf --secrets "API_KEY,GRADING_TOKEN"
 
 # Add secrets with custom values
-API_KEY="custom_value" classroom-pilot secrets add --config assignment.conf --secrets "API_KEY"
+API_KEY="custom_value" classdock secrets add --config assignment.conf --secrets "API_KEY"
 ```
 
 ### Removing Secrets
 
 ```bash
 # Remove specific secrets
-classroom-pilot secrets remove --config assignment.conf --secrets "OLD_TOKEN"
+classdock secrets remove --config assignment.conf --secrets "OLD_TOKEN"
 
 # Remove all configured secrets
-classroom-pilot secrets remove --config assignment.conf
+classdock secrets remove --config assignment.conf
 
 # Preview removal (dry-run)
-classroom-pilot --dry-run secrets remove --config assignment.conf --secrets "OLD_TOKEN"
+classdock --dry-run secrets remove --config assignment.conf --secrets "OLD_TOKEN"
 ```
 
 ### Listing Secrets
 
 ```bash
 # List secrets in all repositories
-classroom-pilot secrets list --config assignment.conf
+classdock secrets list --config assignment.conf
 
 # List secrets with details
-classroom-pilot --verbose secrets list --config assignment.conf
+classdock --verbose secrets list --config assignment.conf
 ```
 
 ## ⚙️ Configuration
@@ -136,7 +136,7 @@ export DATABASE_URL="postgresql://user:pass@host:5432/db"
 export GRADING_TOKEN="grading_token_value"
 
 # Run secret management
-classroom-pilot secrets add --config assignment.conf
+classdock secrets add --config assignment.conf
 ```
 
 ### Secret File Management
@@ -174,10 +174,10 @@ export API_KEY="$new_api_key"
 export GRADING_TOKEN="$new_token"
 
 # Step 3: Distribute new secrets
-classroom-pilot secrets add --config assignment.conf --secrets "API_KEY,GRADING_TOKEN"
+classdock secrets add --config assignment.conf --secrets "API_KEY,GRADING_TOKEN"
 
 # Step 4: Verify distribution
-classroom-pilot secrets list --config assignment.conf
+classdock secrets list --config assignment.conf
 ```
 
 ### Conditional Secret Management
@@ -186,13 +186,13 @@ Apply secrets based on conditions:
 
 ```bash
 # Add secrets only to specific repositories
-EXCLUDE_REPOS="template,instructor-solution" classroom-pilot secrets add --config assignment.conf
+EXCLUDE_REPOS="template,instructor-solution" classdock secrets add --config assignment.conf
 
 # Add different secrets for different assignments
 if [[ "$ASSIGNMENT_TYPE" == "final" ]]; then
-    SECRETS_LIST="API_KEY,FINAL_EXAM_TOKEN" classroom-pilot secrets add --config assignment.conf
+    SECRETS_LIST="API_KEY,FINAL_EXAM_TOKEN" classdock secrets add --config assignment.conf
 else
-    SECRETS_LIST="API_KEY,HOMEWORK_TOKEN" classroom-pilot secrets add --config assignment.conf
+    SECRETS_LIST="API_KEY,HOMEWORK_TOKEN" classdock secrets add --config assignment.conf
 fi
 ```
 
@@ -214,7 +214,7 @@ for assignment in "${ASSIGNMENTS[@]}"; do
     config_file="assignment-${assignment}.conf"
     
     # Update API key
-    API_KEY="$NEW_API_KEY" classroom-pilot secrets add --config "$config_file" --secrets "API_KEY"
+    API_KEY="$NEW_API_KEY" classdock secrets add --config "$config_file" --secrets "API_KEY"
     
     echo "Completed $assignment"
 done
@@ -243,24 +243,24 @@ GITHUB_TOKEN_FILE="secure_token.txt"
 
 ```bash
 # Validate secrets before distribution
-classroom-pilot --dry-run secrets add --config assignment.conf
+classdock --dry-run secrets add --config assignment.conf
 
 # Check secret format and permissions
-classroom-pilot --verbose secrets add --config assignment.conf
+classdock --verbose secrets add --config assignment.conf
 
 # Verify secret distribution
-classroom-pilot secrets list --config assignment.conf
+classdock secrets list --config assignment.conf
 ```
 
 ### Access Control
 
 ```bash
 # Limit secret access to specific repositories
-EXCLUDE_REPOS="public-template,instructor-repo" classroom-pilot secrets add --config assignment.conf
+EXCLUDE_REPOS="public-template,instructor-repo" classdock secrets add --config assignment.conf
 
 # Use different tokens for different secret types
-GITHUB_TOKEN_FILE="grading_token.txt" classroom-pilot secrets add --config assignment.conf --secrets "GRADING_TOKEN"
-GITHUB_TOKEN_FILE="api_token.txt" classroom-pilot secrets add --config assignment.conf --secrets "API_KEY"
+GITHUB_TOKEN_FILE="grading_token.txt" classdock secrets add --config assignment.conf --secrets "GRADING_TOKEN"
+GITHUB_TOKEN_FILE="api_token.txt" classdock secrets add --config assignment.conf --secrets "API_KEY"
 ```
 
 ## 📊 Monitoring & Auditing
@@ -269,26 +269,26 @@ GITHUB_TOKEN_FILE="api_token.txt" classroom-pilot secrets add --config assignmen
 
 ```bash
 # List all secrets across repositories
-classroom-pilot secrets list --config assignment.conf > secret_audit.txt
+classdock secrets list --config assignment.conf > secret_audit.txt
 
 # Check secret distribution status
-classroom-pilot --verbose secrets list --config assignment.conf
+classdock --verbose secrets list --config assignment.conf
 
 # Verify specific secrets
-classroom-pilot secrets list --config assignment.conf --secrets "API_KEY,GRADING_TOKEN"
+classdock secrets list --config assignment.conf --secrets "API_KEY,GRADING_TOKEN"
 ```
 
 ### Distribution Monitoring
 
 ```bash
 # Monitor secret distribution in real-time
-classroom-pilot --verbose secrets add --config assignment.conf
+classdock --verbose secrets add --config assignment.conf
 
 # Check for distribution failures
-classroom-pilot secrets add --config assignment.conf 2>&1 | grep -i error
+classdock secrets add --config assignment.conf 2>&1 | grep -i error
 
 # Validate distribution success
-classroom-pilot secrets list --config assignment.conf | grep -c "API_KEY"
+classdock secrets list --config assignment.conf | grep -c "API_KEY"
 ```
 
 ## 🔄 Integration with Automation
@@ -307,14 +307,14 @@ AUTOMATION_SCHEDULE_SECRETS="0 3 * * 1"  # Monday at 3 AM
 AUTOMATION_SCHEDULE_ROTATION="0 2 1 * *" # First day of month at 2 AM
 EOF
 
-classroom-pilot automation scheduler setup --config secret-rotation.conf
+classdock automation scheduler setup --config secret-rotation.conf
 ```
 
 ### Workflow Integration
 
 ```bash
 # Integrate secret management with complete workflow
-classroom-pilot assignments orchestrate --config assignment.conf
+classdock assignments orchestrate --config assignment.conf
 
 # This automatically:
 # 1. Discovers student repositories
@@ -330,29 +330,29 @@ classroom-pilot assignments orchestrate --config assignment.conf
 1. **Authentication Failures**:
    ```bash
    # Check token permissions
-   classroom-pilot --verbose secrets add --config assignment.conf
+   classdock --verbose secrets add --config assignment.conf
    ```
 
 2. **Secret Not Found**:
    ```bash
    # Verify secret configuration
-   classroom-pilot --dry-run secrets add --config assignment.conf
+   classdock --dry-run secrets add --config assignment.conf
    ```
 
 3. **Distribution Failures**:
    ```bash
    # Check repository access
-   classroom-pilot repos fetch --config assignment.conf
+   classdock repos fetch --config assignment.conf
    ```
 
 ### Debug Mode
 
 ```bash
 # Enable detailed logging
-classroom-pilot --verbose secrets add --config assignment.conf
+classdock --verbose secrets add --config assignment.conf
 
 # Dry-run with maximum detail
-classroom-pilot --dry-run --verbose secrets add --config assignment.conf
+classdock --dry-run --verbose secrets add --config assignment.conf
 ```
 
 ## 📚 Related Documentation
@@ -376,10 +376,10 @@ EXCLUDE_REPOS="template,instructor-solution"
 EOF
 
 # Distribute exam secrets
-classroom-pilot secrets add --config exam-secrets.conf
+classdock secrets add --config exam-secrets.conf
 
 # Verify distribution
-classroom-pilot secrets list --config exam-secrets.conf
+classdock secrets list --config exam-secrets.conf
 ```
 
 ### API Key Management
@@ -390,13 +390,13 @@ OLD_KEY="old_api_key_value"
 NEW_KEY="new_api_key_value"
 
 # Remove old key
-API_KEY="$OLD_KEY" classroom-pilot secrets remove --config assignment.conf --secrets "API_KEY"
+API_KEY="$OLD_KEY" classdock secrets remove --config assignment.conf --secrets "API_KEY"
 
 # Add new key
-API_KEY="$NEW_KEY" classroom-pilot secrets add --config assignment.conf --secrets "API_KEY"
+API_KEY="$NEW_KEY" classdock secrets add --config assignment.conf --secrets "API_KEY"
 
 # Verify update
-classroom-pilot secrets list --config assignment.conf --secrets "API_KEY"
+classdock secrets list --config assignment.conf --secrets "API_KEY"
 ```
 
 ---

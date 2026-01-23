@@ -10,8 +10,8 @@ from unittest.mock import MagicMock, patch, Mock
 from datetime import datetime, timezone
 from pathlib import Path
 
-from classroom_pilot.secrets.github_secrets import GitHubSecretsManager
-from classroom_pilot.config.global_config import SecretsConfig, GlobalConfig
+from classdock.secrets.github_secrets import GitHubSecretsManager
+from classdock.config.global_config import SecretsConfig, GlobalConfig
 
 
 class TestGitHubSecretsManagerForceUpdate:
@@ -36,8 +36,8 @@ class TestGitHubSecretsManagerForceUpdate:
     @pytest.fixture
     def secrets_manager(self, mock_global_config):
         """Create a GitHubSecretsManager instance with mocked config."""
-        with patch('classroom_pilot.secrets.github_secrets.get_global_config', return_value=mock_global_config):
-            with patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager._get_github_token', return_value='ghp_test_token_1234567890'):
+        with patch('classdock.secrets.github_secrets.get_global_config', return_value=mock_global_config):
+            with patch('classdock.secrets.github_secrets.GitHubSecretsManager._get_github_token', return_value='ghp_test_token_1234567890'):
                 manager = GitHubSecretsManager(dry_run=False)
                 return manager
 
@@ -207,8 +207,8 @@ class TestForceUpdateEdgeCases:
     @pytest.fixture
     def secrets_manager(self, mock_global_config):
         """Create a GitHubSecretsManager instance."""
-        with patch('classroom_pilot.secrets.github_secrets.get_global_config', return_value=mock_global_config):
-            with patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager._get_github_token', return_value='ghp_test_token'):
+        with patch('classdock.secrets.github_secrets.get_global_config', return_value=mock_global_config):
+            with patch('classdock.secrets.github_secrets.GitHubSecretsManager._get_github_token', return_value='ghp_test_token'):
                 return GitHubSecretsManager(dry_run=False)
 
     def test_force_update_with_no_existing_secret(self, secrets_manager):
@@ -265,8 +265,8 @@ class TestForceUpdateEdgeCases:
 
     def test_force_update_in_dry_run_mode(self, mock_global_config):
         """Test that force_update works correctly in dry run mode."""
-        with patch('classroom_pilot.secrets.github_secrets.get_global_config', return_value=mock_global_config):
-            with patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager._get_github_token', return_value='ghp_test'):
+        with patch('classdock.secrets.github_secrets.get_global_config', return_value=mock_global_config):
+            with patch('classdock.secrets.github_secrets.GitHubSecretsManager._get_github_token', return_value='ghp_test'):
                 manager = GitHubSecretsManager(dry_run=True)
 
                 existing_secret = {

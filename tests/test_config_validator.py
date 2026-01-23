@@ -1,5 +1,5 @@
 """
-Comprehensive test suite for classroom_pilot.config.validator module.
+Comprehensive test suite for classdock.config.validator module.
 
 This test suite provides comprehensive coverage for the ConfigValidator class,
 which is responsible for validating GitHub Classroom assignment configuration values.
@@ -30,7 +30,7 @@ to ensure robust production behavior with clear error messages for users.
 """
 
 import pytest
-from classroom_pilot.config.validator import ConfigValidator
+from classdock.config.validator import ConfigValidator
 
 
 class TestConfigValidatorURLValidation:

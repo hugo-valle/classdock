@@ -1,5 +1,5 @@
 """
-Comprehensive test suite for classroom_pilot.config.generator module.
+Comprehensive test suite for classdock.config.generator module.
 
 This test suite provides comprehensive coverage for the ConfigGenerator class,
 which is responsible for generating GitHub Classroom assignment configuration files.
@@ -32,7 +32,7 @@ from pathlib import Path
 from datetime import datetime
 from unittest.mock import patch, mock_open
 
-from classroom_pilot.config.generator import ConfigGenerator
+from classdock.config.generator import ConfigGenerator
 
 
 class TestConfigGeneratorInitialization:
@@ -127,7 +127,7 @@ class TestConfigGeneratorHeaderGeneration:
         """
         generator = ConfigGenerator(Path("/test/config.conf"))
 
-        with patch('classroom_pilot.config.generator.datetime') as mock_datetime:
+        with patch('classdock.config.generator.datetime') as mock_datetime:
             # Mock datetime to ensure consistent output
             mock_datetime.now.return_value.strftime.return_value = "2025-09-17 10:30:45"
 
@@ -545,8 +545,8 @@ class TestConfigGeneratorFileOperations:
     - test_create_config_file_write_error: Tests error handling for file write operations
     """
 
-    @patch('classroom_pilot.config.generator.print_header')
-    @patch('classroom_pilot.config.generator.print_success')
+    @patch('classdock.config.generator.print_header')
+    @patch('classdock.config.generator.print_success')
     def test_create_config_file_success(self, mock_print_success, mock_print_header):
         """
         Test successful configuration file creation with proper UI feedback and file operations.
@@ -586,8 +586,8 @@ class TestConfigGeneratorFileOperations:
             mock_print_success.assert_called_once_with(
                 f"Configuration file created: {config_path}")
 
-    @patch('classroom_pilot.config.generator.print_header')
-    @patch('classroom_pilot.config.generator.print_success')
+    @patch('classdock.config.generator.print_header')
+    @patch('classdock.config.generator.print_success')
     def test_create_config_file_content_structure(self, mock_print_success, mock_print_header):
         """
         Test that the created configuration file contains proper content structure and sections.
@@ -631,7 +631,7 @@ class TestConfigGeneratorFileOperations:
             assert 'CLASSROOM_URL="https://classroom.github.com/test"' in full_content
             assert 'STEP_MANAGE_SECRETS=false' in full_content
 
-    @patch('classroom_pilot.config.generator.print_header')
+    @patch('classdock.config.generator.print_header')
     def test_create_config_file_write_error(self, mock_print_header):
         """
         Test proper handling of file write errors during configuration file creation.
@@ -797,8 +797,8 @@ class TestConfigGeneratorIntegration:
     - test_complete_config_generation_without_secrets: Tests end-to-end generation with secrets disabled
     """
 
-    @patch('classroom_pilot.config.generator.print_header')
-    @patch('classroom_pilot.config.generator.print_success')
+    @patch('classdock.config.generator.print_header')
+    @patch('classdock.config.generator.print_success')
     def test_complete_config_generation_with_secrets(self, mock_print_success, mock_print_header):
         """
         Test complete end-to-end configuration file generation with secrets management enabled.
@@ -858,8 +858,8 @@ class TestConfigGeneratorIntegration:
 
             # Verify secrets configuration\n            assert 'STEP_MANAGE_SECRETS=true' in full_content\n            assert 'INSTRUCTOR_TESTS_TOKEN:Token for accessing instructor test repository:true' in full_content\n            assert 'DATABASE_ACCESS_TOKEN:DATABASE_ACCESS_TOKEN for assignment functionality:false' in full_content
 
-    @patch('classroom_pilot.config.generator.print_header')
-    @patch('classroom_pilot.config.generator.print_success')
+    @patch('classdock.config.generator.print_header')
+    @patch('classdock.config.generator.print_success')
     def test_complete_config_generation_without_secrets(self, mock_print_success, mock_print_header):
         """
         Test complete end-to-end configuration file generation with secrets management disabled.

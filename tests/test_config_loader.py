@@ -1,5 +1,5 @@
 """
-Comprehensive test suite for classroom_pilot.config.loader module.
+Comprehensive test suite for classdock.config.loader module.
 
 This test suite provides comprehensive coverage for the ConfigLoader class,
 which is responsible for loading, parsing, and updating GitHub Classroom assignment
@@ -35,7 +35,7 @@ import tempfile
 from pathlib import Path
 from unittest.mock import Mock, patch, mock_open
 
-from classroom_pilot.config.loader import ConfigLoader
+from classdock.config.loader import ConfigLoader
 
 
 class TestConfigLoaderInitialization:
@@ -63,14 +63,14 @@ class TestConfigLoaderInitialization:
         """
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager') as mock_path_manager:
+        with patch('classdock.config.loader.PathManager') as mock_path_manager:
             loader = ConfigLoader(config_path)
 
             assert loader.config_path == config_path
             assert hasattr(loader, 'path_manager')
             mock_path_manager.assert_called_once()
 
-    @patch('classroom_pilot.config.loader.PathManager')
+    @patch('classdock.config.loader.PathManager')
     def test_init_without_path_uses_pathmanager(self, mock_path_manager_class):
         """
         Test that ConfigLoader uses PathManager to find config file when no path is provided.
@@ -89,7 +89,7 @@ class TestConfigLoaderInitialization:
         assert loader.config_path == Path("/found/config.conf")
         mock_path_manager.find_config_file.assert_called_once()
 
-    @patch('classroom_pilot.config.loader.PathManager')
+    @patch('classdock.config.loader.PathManager')
     def test_init_with_none_path(self, mock_path_manager_class):
         """
         Test that ConfigLoader handles None path by delegating to PathManager.
@@ -118,7 +118,7 @@ class TestConfigLoaderInitialization:
         """
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager') as mock_path_manager_class:
+        with patch('classdock.config.loader.PathManager') as mock_path_manager_class:
             mock_path_manager = Mock()
             mock_path_manager_class.return_value = mock_path_manager
 
@@ -134,7 +134,7 @@ class TestConfigLoaderInitialization:
         This test verifies that the constructor accepts both string and Path
         object inputs for the configuration file path and handles them appropriately.
         """
-        with patch('classroom_pilot.config.loader.PathManager'):
+        with patch('classdock.config.loader.PathManager'):
             # Test with Path object
             path_obj = Path("/test/config.conf")
             loader1 = ConfigLoader(path_obj)
@@ -179,7 +179,7 @@ ASSIGNMENT_FILE=assignment.ipynb"""
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -209,7 +209,7 @@ TEMPLATE_REPO_URL=https://github.com/test/template
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -239,7 +239,7 @@ MIXED_QUOTES="value with inner quotes"'''
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -275,7 +275,7 @@ GITHUB_ORGANIZATION=test-org
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -297,7 +297,7 @@ GITHUB_ORGANIZATION=test-org
         """
         config_path = Path("/nonexistent/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch.object(Path, 'exists', return_value=False):
 
             loader = ConfigLoader(config_path)
@@ -324,7 +324,7 @@ KEY7=https://example.com/path?param=value&other=123"""
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -368,7 +368,7 @@ GITHUB_ORGANIZATION=test-org"""
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -392,7 +392,7 @@ GITHUB_ORGANIZATION=test-org"""
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -414,7 +414,7 @@ GITHUB_ORGANIZATION=test-org"""
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -434,7 +434,7 @@ GITHUB_ORGANIZATION=test-org"""
         """
         config_path = Path("/nonexistent/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch.object(Path, 'exists', return_value=False):
 
             loader = ConfigLoader(config_path)
@@ -455,7 +455,7 @@ GITHUB_ORGANIZATION=test-org"""
         """
         config_path = Path("/nonexistent/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch.object(Path, 'exists', return_value=False):
 
             loader = ConfigLoader(config_path)
@@ -507,7 +507,7 @@ GITHUB_ORGANIZATION=test-org"""
         def mock_write(content):
             written_content.append(content)
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=initial_config)) as mock_file, \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -549,7 +549,7 @@ GITHUB_ORGANIZATION=old-org"""
         def mock_write(content):
             written_content.append(content)
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=initial_config)) as mock_file, \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -592,7 +592,7 @@ GITHUB_ORGANIZATION=test-org"""
         def mock_write(content):
             written_content.append(content)
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=initial_config)) as mock_file, \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -626,7 +626,7 @@ GITHUB_ORGANIZATION=test-org"""
         where no configuration file path is available and returns False with
         appropriate error logging.
         """
-        with patch('classroom_pilot.config.loader.PathManager') as mock_path_manager_class:
+        with patch('classdock.config.loader.PathManager') as mock_path_manager_class:
             mock_path_manager = Mock()
             mock_path_manager.find_config_file.return_value = None
             mock_path_manager_class.return_value = mock_path_manager
@@ -648,7 +648,7 @@ GITHUB_ORGANIZATION=test-org"""
         """
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', side_effect=IOError("Permission denied")):
 
             loader = ConfigLoader(config_path)
@@ -674,7 +674,7 @@ GITHUB_ORGANIZATION=test-org"""
         def mock_write(content):
             written_content.append(content)
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=initial_config)) as mock_file, \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -731,7 +731,7 @@ class TestConfigLoaderErrorHandling:
         """
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', side_effect=IOError("File read error")), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -751,7 +751,7 @@ class TestConfigLoaderErrorHandling:
         """
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', side_effect=PermissionError("Permission denied")), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -778,7 +778,7 @@ KEY_WITH_MULTIPLE===EQUALS=value
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=malformed_config)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -809,7 +809,7 @@ KEY_WITH_MULTIPLE===EQUALS=value
         """
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', side_effect=UnicodeDecodeError('utf-8', b'', 0, 1, 'invalid start byte')), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -829,7 +829,7 @@ KEY_WITH_MULTIPLE===EQUALS=value
         """
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data="")), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -857,7 +857,7 @@ KEY_WITH_MULTIPLE===EQUALS=value
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=comments_only_config)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -898,7 +898,7 @@ NORMAL_KEY=normal_value"""
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -927,7 +927,7 @@ URL_WITH_PARAMS=https://example.com/path?param1=value1&param2=value2#anchor"""
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -958,7 +958,7 @@ SINGLE_EMPTY_QUOTES=''"""
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -989,7 +989,7 @@ KEY4 = "value with spaces"
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -1018,7 +1018,7 @@ CLASSROOM_URL=final_value"""
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -1045,7 +1045,7 @@ Classroom_Url=mixedcase_value"""
 
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -1085,7 +1085,7 @@ class TestConfigLoaderIntegration:
         found_config_path = Path("/workspace/assignment.conf")
         config_content = """CLASSROOM_URL=https://classroom.github.com/test"""
 
-        with patch('classroom_pilot.config.loader.PathManager') as mock_path_manager_class:
+        with patch('classdock.config.loader.PathManager') as mock_path_manager_class:
             mock_path_manager = Mock()
             mock_path_manager.find_config_file.return_value = found_config_path
             mock_path_manager_class.return_value = mock_path_manager
@@ -1120,7 +1120,7 @@ GITHUB_ORGANIZATION=test-org"""
         def mock_write_handler(content):
             written_content.append(content)
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=initial_config)) as mock_file, \
                 patch.object(Path, 'exists', return_value=True):
 
@@ -1165,7 +1165,7 @@ GITHUB_ORGANIZATION=test-org"""
 
             config_path.write_text(initial_content)
 
-            with patch('classroom_pilot.config.loader.PathManager'):
+            with patch('classdock.config.loader.PathManager'):
                 loader = ConfigLoader(config_path)
 
                 # Test loading
@@ -1194,7 +1194,7 @@ GITHUB_ORGANIZATION=test-org"""
         config_content = """CLASSROOM_URL=https://classroom.github.com/test"""
         config_path = Path("/test/config.conf")
 
-        with patch('classroom_pilot.config.loader.PathManager'), \
+        with patch('classdock.config.loader.PathManager'), \
                 patch('builtins.open', mock_open(read_data=config_content)), \
                 patch.object(Path, 'exists', return_value=True):
 

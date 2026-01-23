@@ -9,8 +9,8 @@ import pytest
 from unittest.mock import MagicMock, patch
 from typer.testing import CliRunner
 
-from classroom_pilot.cli import app
-from classroom_pilot.config.global_config import SecretsConfig, GlobalConfig
+from classdock.cli import app
+from classdock.config.global_config import SecretsConfig, GlobalConfig
 
 
 @pytest.fixture
@@ -49,9 +49,9 @@ def mock_global_config():
 class TestSecretsAddCLIForceFlag:
     """Test the --force flag for secrets add CLI command."""
 
-    @patch('classroom_pilot.cli.get_global_config')
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.cli.get_global_config')
+    @patch('classdock.services.secrets_service.get_global_config')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     def test_secrets_add_without_force_flag(self, mock_manager_class, mock_get_config_service, mock_get_config_cli, runner, mock_global_config):
         """Test secrets add command without --force flag (default behavior)."""
         # Setup mocks
@@ -75,9 +75,9 @@ class TestSecretsAddCLIForceFlag:
         call_kwargs = mock_manager.add_secrets_from_global_config.call_args.kwargs
         assert call_kwargs.get('force_update', False) is False
 
-    @patch('classroom_pilot.cli.get_global_config')
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.cli.get_global_config')
+    @patch('classdock.services.secrets_service.get_global_config')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     def test_secrets_add_with_force_flag(self, mock_manager_class, mock_get_config_service, mock_get_config_cli, runner, mock_global_config):
         """Test secrets add command with --force flag."""
         # Setup mocks
@@ -102,9 +102,9 @@ class TestSecretsAddCLIForceFlag:
         call_kwargs = mock_manager.add_secrets_from_global_config.call_args.kwargs
         assert call_kwargs.get('force_update') is True
 
-    @patch('classroom_pilot.cli.get_global_config')
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.cli.get_global_config')
+    @patch('classdock.services.secrets_service.get_global_config')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     def test_secrets_add_with_force_short_flag(self, mock_manager_class, mock_get_config_service, mock_get_config_cli, runner, mock_global_config):
         """Test secrets add command with -f short flag."""
         # Setup mocks
@@ -128,9 +128,9 @@ class TestSecretsAddCLIForceFlag:
         call_kwargs = mock_manager.add_secrets_from_global_config.call_args.kwargs
         assert call_kwargs.get('force_update') is True
 
-    @patch('classroom_pilot.cli.get_global_config')
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.cli.get_global_config')
+    @patch('classdock.services.secrets_service.get_global_config')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     def test_secrets_add_force_with_multiple_repos(self, mock_manager_class, mock_get_config_service, mock_get_config_cli, runner, mock_global_config):
         """Test --force with multiple repositories."""
         # Setup mocks
@@ -155,9 +155,9 @@ class TestSecretsAddCLIForceFlag:
         # Verify multiple repos were passed
         assert len(call_kwargs.get('repo_urls', [])) == 3
 
-    @patch('classroom_pilot.cli.get_global_config')
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.cli.get_global_config')
+    @patch('classdock.services.secrets_service.get_global_config')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     def test_secrets_add_force_without_repos(self, mock_manager_class, mock_get_config_service, mock_get_config_cli, runner, mock_global_config):
         """Test --force without specifying repos (auto-discovery)."""
         # Setup mocks
@@ -201,7 +201,7 @@ class TestSecretsAddCLIForceFlag:
         assert 'force' in output_lower and 'update' in output_lower, \
             f"Expected force update description in output, but got: {clean_output[:500]}"
 
-    @patch('classroom_pilot.cli.get_global_config')
+    @patch('classdock.cli.get_global_config')
     def test_secrets_add_force_with_no_config(self, mock_get_config, runner):
         """Test --force flag behavior when no config is available."""
         mock_get_config.return_value = None
@@ -216,7 +216,7 @@ class TestSecretsAddCLIForceFlag:
         assert 'not loaded' in result.output.lower(
         ) or 'configuration' in result.output.lower()
 
-    @patch('classroom_pilot.cli.get_global_config')
+    @patch('classdock.cli.get_global_config')
     def test_secrets_add_force_with_no_secrets_config(self, mock_get_config, runner):
         """Test --force flag when no secrets are configured."""
         mock_config = MagicMock(spec=GlobalConfig)
@@ -236,9 +236,9 @@ class TestSecretsAddCLIForceFlag:
 class TestSecretsAddCLIIntegration:
     """Integration tests for secrets add CLI with force flag."""
 
-    @patch('classroom_pilot.cli.get_global_config')
-    @patch('classroom_pilot.services.secrets_service.get_global_config')
-    @patch('classroom_pilot.secrets.github_secrets.GitHubSecretsManager')
+    @patch('classdock.cli.get_global_config')
+    @patch('classdock.services.secrets_service.get_global_config')
+    @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     def test_complete_workflow_with_force(self, mock_manager_class, mock_get_config_service, mock_get_config_cli, runner, mock_global_config):
         """Test complete workflow: add secrets, then force update."""
         # Setup

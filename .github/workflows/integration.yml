@@ -45,7 +45,7 @@ jobs:
       - name: Setup Integration Test Environment
         id: setup
         run: |
-          TEST_ORG="classroom-pilot-test-$(date +%s)"
+          TEST_ORG="classdock-test-$(date +%s)"
           TEST_REPOS="test-assignment-repo-1,test-assignment-repo-2,test-assignment-repo-3"
           echo "test-org=$TEST_ORG" >> $GITHUB_OUTPUT
           echo "test-repos=$TEST_REPOS" >> $GITHUB_OUTPUT

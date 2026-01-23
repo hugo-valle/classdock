@@ -1,7 +1,7 @@
 # 🌿 Branching Strategy & Release Workflow
 
 ## Overview
-This document defines the branching strategy, merge rules, and automated release workflow for the classroom-pilot project.
+This document defines the branching strategy, merge rules, and automated release workflow for the classdock project.
 
 ## Branch Structure
 
@@ -122,13 +122,13 @@ main → hotfix/critical-fix → main (via PR)
 ### Version Synchronization
 All versions must be updated consistently:
 - `pyproject.toml` → `version = "X.Y.Z"`
-- `classroom_pilot/__init__.py` → `__version__ = "X.Y.Z"`
+- `classdock/__init__.py` → `__version__ = "X.Y.Z"`
 - Git tag → `X.Y.Z` (auto-created, no 'v' prefix for PyPI compatibility)
 
 ### Branch and Tag Naming
 - **Branch names**: `release/vX.Y.Z` (with 'v' prefix for clarity)
 - **Git tags**: `X.Y.Z` (without 'v' prefix for PyPI compatibility)  
-- **Display names**: Can use 'v' prefix for readability (e.g., "classroom-pilot v3.1.0")
+- **Display names**: Can use 'v' prefix for readability (e.g., "classdock v3.1.0")
 
 ### Release Types
 
@@ -198,7 +198,7 @@ git checkout -b release/v3.2.0
 
 # 2. Update version and changelog
 # Edit pyproject.toml: version = "3.2.0"
-# Edit classroom_pilot/__init__.py: __version__ = "3.2.0"
+# Edit classdock/__init__.py: __version__ = "3.2.0"
 # Update docs/CHANGELOG.md
 
 # 3. Test and commit

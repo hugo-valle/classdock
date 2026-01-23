@@ -8,7 +8,7 @@ import pytest
 from unittest.mock import patch
 from pathlib import Path
 
-from classroom_pilot.automation.scheduler import AutomationScheduler
+from classdock.automation.scheduler import AutomationScheduler
 
 
 class TestAutomationScheduler:
@@ -17,7 +17,7 @@ class TestAutomationScheduler:
     @pytest.fixture
     def automation_scheduler(self):
         """Create an AutomationScheduler instance for testing."""
-        with patch('classroom_pilot.automation.scheduler.ConfigLoader'):
+        with patch('classdock.automation.scheduler.ConfigLoader'):
             return AutomationScheduler(Path("test.conf"))
 
     def test_install_cron_jobs(self, automation_scheduler):
@@ -162,7 +162,7 @@ class TestAutomationSchedulerEdgeCases:
     @pytest.fixture
     def automation_scheduler(self):
         """Create an AutomationScheduler instance for testing."""
-        with patch('classroom_pilot.automation.scheduler.ConfigLoader'):
+        with patch('classdock.automation.scheduler.ConfigLoader'):
             return AutomationScheduler(Path("test.conf"))
 
     def test_run_batch_operation_with_failures(self, automation_scheduler):

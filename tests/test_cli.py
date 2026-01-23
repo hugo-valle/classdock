@@ -1,5 +1,5 @@
 """
-Comprehensive test suite for classroom_pilot.cli module.
+Comprehensive test suite for classdock.cli module.
 
 This test suite provides comprehensive coverage for the CLI interface,
 which handles command-line operations for GitHub Classroom assignment management.
@@ -35,10 +35,10 @@ Command Structure:
 Dependencies and Integration:
 - Built on Typer framework for modern CLI development
 - Integrates with Rich console for enhanced user experience
-- Uses classroom_pilot.config for configuration management
-- Leverages classroom_pilot.repos for repository operations
-- Connects to classroom_pilot.secrets for secure deployment
-- Supports classroom_pilot.automation for scheduling workflows
+- Uses classdock.config for configuration management
+- Leverages classdock.repos for repository operations
+- Connects to classdock.secrets for secure deployment
+- Supports classdock.automation for scheduling workflows
 """
 
 import subprocess
@@ -104,16 +104,16 @@ class TestBasicCLI:
         """
         # First, try to verify the module can be imported
         try:
-            import classroom_pilot.cli
+            import classdock.cli
             module_importable = True
         except ImportError as e:
             module_importable = False
             print(f"Module import failed: {e}")
 
-        assert module_importable, "classroom_pilot.cli module could not be imported"
+        assert module_importable, "classdock.cli module could not be imported"
 
         # Use sys.executable to ensure we're using the same Python interpreter
-        cmd = f"{sys.executable} -m classroom_pilot --help"
+        cmd = f"{sys.executable} -m classdock --help"
         success, stdout, stderr = run_cli_command(cmd)
 
         # Enhanced error reporting for debugging CI issues
@@ -139,7 +139,7 @@ class TestBasicCLI:
         # More flexible assertions to handle potential formatting differences
         stdout_lower = stdout.lower()
         assert "usage:" in stdout_lower or "usage" in stdout_lower, f"'Usage:' not found in stdout: {stdout}"
-        assert "classroom pilot" in stdout_lower or "classroom-pilot" in stdout_lower, f"'Classroom Pilot' not found in stdout: {stdout}"
+        assert "classdock" in stdout_lower, f"'ClassDock' not found in stdout: {stdout}"
 
     def test_version_flag(self):
         """
@@ -151,7 +151,7 @@ class TestBasicCLI:
         for user reference and debugging purposes.
         """
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot --version")
+            "python -m classdock --version")
         assert success, f"Version flag failed: {stderr}"
         assert "v" in stdout.lower() or "version" in stdout.lower()
 
@@ -159,16 +159,16 @@ class TestBasicCLI:
         """Test help works without configuration file."""
         # First, try to verify the module can be imported
         try:
-            import classroom_pilot.cli
+            import classdock.cli
             module_importable = True
         except ImportError as e:
             module_importable = False
             print(f"Module import failed: {e}")
 
-        assert module_importable, "classroom_pilot.cli module could not be imported"
+        assert module_importable, "classdock.cli module could not be imported"
 
         # Use sys.executable to ensure we're using the same Python interpreter
-        cmd = f"{sys.executable} -m classroom_pilot --help"
+        cmd = f"{sys.executable} -m classdock --help"
         success, stdout, stderr = run_cli_command(cmd)
 
         # Enhanced error reporting for debugging CI issues
@@ -195,7 +195,7 @@ class TestWorkflowCommands:
     def test_discover_command_dry_run(self):
         """Test the repo fetch command (discover equivalent) in dry-run mode."""
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot repos --dry-run --verbose fetch")
+            "python -m classdock repos --dry-run --verbose fetch")
         assert success, f"Repo fetch command failed: {stderr}"
         # Dry run message appears in stderr from logger
         assert "DRY RUN:" in stderr
@@ -203,7 +203,7 @@ class TestWorkflowCommands:
     def test_secrets_command_dry_run(self):
         """Test the secrets add command in dry-run mode."""
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot secrets --dry-run --verbose add")
+            "python -m classdock secrets --dry-run --verbose add")
         assert success, f"Secrets add command failed: {stderr}"
         # Dry run message appears in stderr from logger
         assert "[DRY RUN]" in stderr or "Dry run:" in stderr or "DRY RUN:" in stderr
@@ -225,7 +225,7 @@ ASSIGNMENT_NAME=test-assignment
 """)
 
         success, stdout, stderr = run_cli_command(
-            f"python -m classroom_pilot assignments --dry-run --verbose orchestrate --config {config_file}",
+            f"python -m classdock assignments --dry-run --verbose orchestrate --config {config_file}",
             cwd=tmp_path)
         assert success, f"Assignment orchestrate command failed: {stdout}\n{stderr}"
         # Dry run message appears in stderr from logger
@@ -249,7 +249,7 @@ class TestManagementCommands:
     def test_assignment_setup_command_help(self):
         """Test the assignment setup command help."""
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot assignments setup --help")
+            "python -m classdock assignments setup --help")
         assert success, f"Assignment setup help command failed: {stderr}"
         # Check for the actual help text from the current implementation
         assert "interactive wizard" in stdout.lower(
@@ -258,7 +258,7 @@ class TestManagementCommands:
     def test_cron_status_dry_run(self):
         """Test the automation cron-status command in dry-run mode."""
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot automation --dry-run --verbose cron-status")
+            "python -m classdock automation --dry-run --verbose cron-status")
         assert success, f"Cron status command failed: {stderr}"
         # Dry run message appears in stderr from logger
         assert "DRY RUN:" in stderr
@@ -276,7 +276,7 @@ class TestCycleCommands:
     def test_cycle_list_mode(self):
         """Test assignments cycle-collaborator command in dry-run mode."""
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot assignments --dry-run --verbose cycle-collaborator --help")
+            "python -m classdock assignments --dry-run --verbose cycle-collaborator --help")
         assert success, f"Cycle collaborator command failed: {stderr}"
         # Check help is displayed correctly
         assert "Cycle collaborator permissions" in stdout or "cycle" in stdout.lower()
@@ -321,7 +321,7 @@ BATCH_SIZE=5
     def test_assignment_root_success(self, temp_assignment_dir):
         """Test --assignment-root option with valid directory."""
         success, stdout, stderr = run_cli_command(
-            f"python -m classroom_pilot --assignment-root {temp_assignment_dir} assignments validate-config")
+            f"python -m classdock --assignment-root {temp_assignment_dir} assignments validate-config")
 
         assert success, f"Assignment root option failed: {stderr}"
         assert "Configuration loaded successfully" in stderr or "Configuration file" in stdout
@@ -330,7 +330,7 @@ BATCH_SIZE=5
     def test_assignment_root_with_subcommand_dry_run(self, temp_assignment_dir):
         """Test --assignment-root option with assignment setup command."""
         success, stdout, stderr = run_cli_command(
-            f"python -m classroom_pilot --assignment-root {temp_assignment_dir} assignments --dry-run setup")
+            f"python -m classdock --assignment-root {temp_assignment_dir} assignments --dry-run setup")
 
         assert success, f"Assignment root with setup failed: {stderr}"
         # Should load config from the specified directory
@@ -341,7 +341,7 @@ BATCH_SIZE=5
         """Test --assignment-root option with non-existent directory."""
         # Run from an empty temp directory so it doesn't fall back to current dir config
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot --assignment-root /nonexistent/path assignments validate-config",
+            "python -m classdock --assignment-root /nonexistent/path assignments validate-config",
             cwd=tmp_path)
 
         # Should fail gracefully with clear error message
@@ -354,7 +354,7 @@ BATCH_SIZE=5
         empty_dir.mkdir()
 
         success, stdout, stderr = run_cli_command(
-            f"python -m classroom_pilot --assignment-root {empty_dir} assignments validate-config",
+            f"python -m classdock --assignment-root {empty_dir} assignments validate-config",
             cwd=tmp_path)  # Run from tmp_path so it doesn't fall back to current dir
 
         # Should fail with clear message about missing config file
@@ -376,7 +376,7 @@ BATCH_SIZE=5
                     parent_dir / "assignment.conf")
 
         success, stdout, stderr = run_cli_command(
-            f"python -m classroom_pilot --assignment-root {relative_path} assignments validate-config",
+            f"python -m classdock --assignment-root {relative_path} assignments validate-config",
             cwd=parent_dir)
 
         assert success, f"Assignment root with relative path failed: {stderr}"
@@ -388,7 +388,7 @@ BATCH_SIZE=5
     def test_assignment_root_with_repos_command(self, temp_assignment_dir):
         """Test --assignment-root option with repos subcommand."""
         success, stdout, stderr = run_cli_command(
-            f"python -m classroom_pilot --assignment-root {temp_assignment_dir} repos --help")
+            f"python -m classdock --assignment-root {temp_assignment_dir} repos --help")
 
         # Should succeed and show repos help (doesn't need config for help)
         assert success, f"Assignment root with repos command failed: {stderr}"
@@ -416,7 +416,7 @@ STUDENT_FILES=assignment.ipynb
                     other_dir / "assignment.conf")
 
         success, stdout, stderr = run_cli_command(
-            f"python -m classroom_pilot --assignment-root {temp_assignment_dir} assignments validate-config",
+            f"python -m classdock --assignment-root {temp_assignment_dir} assignments validate-config",
             cwd=other_dir)
 
         assert success, f"Assignment root precedence test failed: {stderr}"
@@ -427,7 +427,7 @@ STUDENT_FILES=assignment.ipynb
     def test_assignment_root_with_repos_command(self, temp_assignment_dir):
         """Test --assignment-root option with repos subcommand."""
         success, stdout, stderr = run_cli_command(
-            f"python -m classroom_pilot --assignment-root {temp_assignment_dir} repos --help")
+            f"python -m classdock --assignment-root {temp_assignment_dir} repos --help")
 
         # Should succeed and show repos help (doesn't need config for help)
         assert success, f"Assignment root with repos command failed: {stderr}"
@@ -450,7 +450,7 @@ STUDENT_FILES=assignment.ipynb
 
         # Run from other_dir but specify temp_assignment_dir as assignment-root
         success, stdout, stderr = run_cli_command(
-            f"python -m classroom_pilot --assignment-root {temp_assignment_dir} assignments validate-config",
+            f"python -m classdock --assignment-root {temp_assignment_dir} assignments validate-config",
             cwd=other_dir)
 
         assert success, f"Assignment root precedence test failed: {stderr}"
@@ -472,7 +472,7 @@ STUDENT_FILES=assignment.ipynb
         custom_config.write_text(custom_content)
 
         success, stdout, stderr = run_cli_command(
-            f"python -m classroom_pilot --assignment-root {temp_assignment_dir} --config custom.conf assignments validate-config")
+            f"python -m classdock --assignment-root {temp_assignment_dir} --config custom.conf assignments validate-config")
 
         assert success, f"Assignment root with custom config failed: {stderr}"
         # Should show that it loaded the custom config from the assignment root

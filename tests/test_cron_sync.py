@@ -10,11 +10,11 @@ from unittest.mock import Mock, patch
 from pathlib import Path
 from datetime import datetime
 
-from classroom_pilot.automation.cron_sync import (
+from classdock.automation.cron_sync import (
     CronSyncManager, WorkflowStep, CronSyncResult, StepResult,
     CronSyncExecutionResult
 )
-from classroom_pilot.config import GlobalConfig
+from classdock.config import GlobalConfig
 
 
 class TestWorkflowStep:
@@ -120,7 +120,7 @@ class TestCronSyncManager:
 
     def test_init_without_config(self):
         """Test CronSyncManager initialization without config."""
-        with patch('classroom_pilot.automation.cron_sync.GlobalConfig') as mock_global_config:
+        with patch('classdock.automation.cron_sync.GlobalConfig') as mock_global_config:
             manager = CronSyncManager()
             mock_global_config.assert_called_once()
             assert manager.assignment_root == Path.cwd()
@@ -436,13 +436,13 @@ class TestWorkflowStepExecution:
         manager.log_dir.mkdir(parents=True, exist_ok=True)
         return manager
 
-    @patch('classroom_pilot.automation.cron_sync.time.time')
+    @patch('classdock.automation.cron_sync.time.time')
     def test_execute_workflow_step_success(self, mock_time, cron_manager):
         """Test successful workflow step execution."""
         # Mock time progression
         mock_time.side_effect = [1000.0, 1002.5]  # 2.5 seconds execution
 
-        with patch('classroom_pilot.assignments.orchestrator.AssignmentOrchestrator') as mock_orchestrator_class:
+        with patch('classdock.assignments.orchestrator.AssignmentOrchestrator') as mock_orchestrator_class:
             mock_orchestrator = Mock()
             mock_orchestrator.execute_step.return_value = (
                 True, "Step completed successfully")
@@ -456,12 +456,12 @@ class TestWorkflowStepExecution:
         assert result.message == "Step completed successfully"
         assert result.execution_time == 2.5
 
-    @patch('classroom_pilot.automation.cron_sync.time.time')
+    @patch('classdock.automation.cron_sync.time.time')
     def test_execute_workflow_step_failure(self, mock_time, cron_manager):
         """Test workflow step execution failure."""
         mock_time.side_effect = [1000.0, 1001.0]  # 1 second execution
 
-        with patch('classroom_pilot.assignments.orchestrator.AssignmentOrchestrator') as mock_orchestrator_class:
+        with patch('classdock.assignments.orchestrator.AssignmentOrchestrator') as mock_orchestrator_class:
             mock_orchestrator = Mock()
             mock_orchestrator.execute_step.return_value = (
                 False, "Step failed")
@@ -475,12 +475,12 @@ class TestWorkflowStepExecution:
         assert result.message == "Step failed"
         assert result.execution_time == 1.0
 
-    @patch('classroom_pilot.automation.cron_sync.time.time')
+    @patch('classdock.automation.cron_sync.time.time')
     def test_execute_workflow_step_exception(self, mock_time, cron_manager):
         """Test workflow step execution with exception."""
         mock_time.side_effect = [1000.0, 1000.5]  # 0.5 seconds execution
 
-        with patch('classroom_pilot.assignments.orchestrator.AssignmentOrchestrator') as mock_orchestrator_class:
+        with patch('classdock.assignments.orchestrator.AssignmentOrchestrator') as mock_orchestrator_class:
             mock_orchestrator_class.side_effect = Exception("Import error")
 
             result = cron_manager.execute_workflow_step(WorkflowStep.CYCLE)
@@ -505,7 +505,7 @@ class TestCronSyncExecution:
         manager.log_dir.mkdir(parents=True, exist_ok=True)
         return manager
 
-    @patch('classroom_pilot.automation.cron_sync.time.time')
+    @patch('classdock.automation.cron_sync.time.time')
     def test_execute_cron_sync_success_all_steps(self, mock_time, cron_manager):
         """Test successful execution of all steps."""
         mock_time.side_effect = [1000.0, 1010.0]  # 10 seconds total
@@ -524,7 +524,7 @@ class TestCronSyncExecution:
         assert result.total_execution_time == 10.0
         assert result.error_summary is None
 
-    @patch('classroom_pilot.automation.cron_sync.time.time')
+    @patch('classdock.automation.cron_sync.time.time')
     def test_execute_cron_sync_partial_failure(self, mock_time, cron_manager):
         """Test execution with some step failures."""
         mock_time.side_effect = [1000.0, 1008.0]  # 8 seconds total
@@ -544,7 +544,7 @@ class TestCronSyncExecution:
         assert len(result.steps_executed) == 3
         assert "Failed steps: ['secrets']" in result.error_summary
 
-    @patch('classroom_pilot.automation.cron_sync.time.time')
+    @patch('classdock.automation.cron_sync.time.time')
     def test_execute_cron_sync_complete_failure(self, mock_time, cron_manager):
         """Test execution with all step failures."""
         mock_time.side_effect = [1000.0, 1005.0]  # 5 seconds total
@@ -581,7 +581,7 @@ class TestCronSyncExecution:
         assert len(result.steps_executed) == 0
         assert "Invalid step names" in result.error_summary
 
-    @patch('classroom_pilot.automation.cron_sync.time.time')
+    @patch('classdock.automation.cron_sync.time.time')
     def test_execute_cron_sync_stop_on_failure(self, mock_time, cron_manager):
         """Test execution with stop on failure enabled."""
         mock_time.side_effect = [1000.0, 1003.0]  # 3 seconds total
@@ -600,7 +600,7 @@ class TestCronSyncExecution:
         assert len(result.steps_executed) == 1  # Only first step executed
         assert mock_execute.call_count == 1
 
-    @patch('classroom_pilot.automation.cron_sync.time.time')
+    @patch('classdock.automation.cron_sync.time.time')
     def test_execute_cron_sync_default_step(self, mock_time, cron_manager):
         """Test execution with empty steps list defaults to sync."""
         mock_time.side_effect = [1000.0, 1002.0]  # 2 seconds total

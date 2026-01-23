@@ -3,8 +3,8 @@ requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
 
 [project]
-name = "classroom-pilot"
-version = "3.1.1b2"
+name = "classdock"
+version = "0.1.0"
 description = "Modern Python CLI for automating GitHub Classroom assignment management"
 authors = [
     {name = "Hugo Valle", email = "hugovalle1@weber.edu"}
@@ -39,14 +39,14 @@ dependencies = [
 ]
 
 [project.urls]
-Homepage = "https://github.com/hugo-valle/classroom-pilot"
-Repository = "https://github.com/hugo-valle/classroom-pilot"
-Documentation = "https://github.com/hugo-valle/classroom-pilot#readme"
-"Bug Reports" = "https://github.com/hugo-valle/classroom-pilot/issues"
-"Feature Requests" = "https://github.com/hugo-valle/classroom-pilot/issues"
+Homepage = "https://github.com/hugo-valle/classdock"
+Repository = "https://github.com/hugo-valle/classdock"
+Documentation = "https://github.com/hugo-valle/classdock#readme"
+"Bug Reports" = "https://github.com/hugo-valle/classdock/issues"
+"Feature Requests" = "https://github.com/hugo-valle/classdock/issues"
 
 [project.scripts]
-classroom-pilot = "classroom_pilot.cli:app"
+classdock = "classdock.cli:app"
 
 [project.optional-dependencies]
 dev = [
@@ -63,13 +63,13 @@ dev = [
 ]
 
 [tool.poetry]
-packages = [{include = "classroom_pilot"}]
+packages = [{include = "classdock"}]
 exclude = ["tests"]
 include = [
-    "classroom_pilot/scripts_legacy/*.sh",
-    "classroom_pilot/utils/*.sh", 
-    "classroom_pilot/docs/*.md",
-    "classroom_pilot/docs/*.yml",
+    "classdock/scripts_legacy/*.sh",
+    "classdock/utils/*.sh",
+    "classdock/docs/*.md",
+    "classdock/docs/*.yml",
     "*.conf",
 ]
 
@@ -110,7 +110,7 @@ extend-exclude = '''
 profile = "black"
 multi_line_output = 3
 line_length = 88
-known_first_party = ["classroom_pilot"]
+known_first_party = ["classdock"]
 
 [tool.mypy]
 python_version = "3.8"
@@ -142,7 +142,7 @@ python_classes = ["Test*"]
 python_functions = ["test_*"]
 
 [tool.coverage.run]
-source = ["classroom_pilot"]
+source = ["classdock"]
 omit = [
     "*/tests/*",
     "*/test_*",

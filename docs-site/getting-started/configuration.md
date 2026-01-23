@@ -1,10 +1,10 @@
 # Configuration Guide
 
-This guide covers how to configure Classroom Pilot for your GitHub Classroom environment.
+This guide covers how to configure ClassDock for your GitHub Classroom environment.
 
 ## Configuration Overview
 
-Classroom Pilot uses a hierarchical configuration system that supports:
+ClassDock uses a hierarchical configuration system that supports:
 
 - **Configuration files** (YAML/JSON)
 - **Environment variables** 
@@ -24,7 +24,7 @@ Configuration is loaded in order of precedence (highest to lowest):
 Create a configuration file in YAML format:
 
 ```yaml
-# classroom-pilot.yaml
+# classdock.yaml
 classroom:
   url: "https://classroom.github.com/classrooms/123456"
   assignment_prefix: "assignment-"
@@ -107,7 +107,7 @@ automation:
 logging:
   level: "info"
   format: "json"
-  file: "./logs/classroom-pilot.log"
+  file: "./logs/classdock.log"
   max_size: "100MB"
   backup_count: 5
 ```
@@ -152,34 +152,34 @@ export WEBHOOK_URL="https://hooks.slack.com/your-webhook"
 
 # Logging configuration
 export LOG_LEVEL="info"
-export LOG_FILE="./logs/classroom-pilot.log"
+export LOG_FILE="./logs/classdock.log"
 ```
 
 ## Configuration File Locations
 
-Classroom Pilot looks for configuration files in the following order:
+ClassDock looks for configuration files in the following order:
 
 1. File specified with `--config` option
-2. `./classroom-pilot.yaml` (current directory)
-3. `./classroom-pilot.yml`
-4. `~/.config/classroom-pilot/config.yaml` (user config)
-5. `/etc/classroom-pilot/config.yaml` (system config)
+2. `./classdock.yaml` (current directory)
+3. `./classdock.yml`
+4. `~/.config/classdock/config.yaml` (user config)
+5. `/etc/classdock/config.yaml` (system config)
 
 ### Creating User Configuration
 
 ```bash
 # Create user configuration directory
-mkdir -p ~/.config/classroom-pilot
+mkdir -p ~/.config/classdock
 
 # Create user configuration file
-cat > ~/.config/classroom-pilot/config.yaml << EOF
+cat > ~/.config/classdock/config.yaml << EOF
 github:
   token: "${GITHUB_TOKEN}"
   organization: "my-default-org"
 
 logging:
   level: "info"
-  file: "~/.local/share/classroom-pilot/logs/app.log"
+  file: "~/.local/share/classdock/logs/app.log"
 EOF
 ```
 
@@ -230,28 +230,28 @@ grading:
 
 ```bash
 # Validate current configuration
-classroom-pilot config validate
+classdock config validate
 
 # Validate specific configuration file
-classroom-pilot config validate --file ./custom-config.yaml
+classdock config validate --file ./custom-config.yaml
 
 # Validate with detailed output
-classroom-pilot config validate --detailed
+classdock config validate --detailed
 
 # Check configuration and show resolved values
-classroom-pilot config show --resolved
+classdock config show --resolved
 ```
 
 ### Configuration Schema
 
-Classroom Pilot validates configuration against a JSON schema:
+ClassDock validates configuration against a JSON schema:
 
 ```bash
 # Generate configuration schema
-classroom-pilot config schema > config-schema.json
+classdock config schema > config-schema.json
 
 # Validate against schema
-classroom-pilot config validate --schema config-schema.json
+classdock config validate --schema config-schema.json
 ```
 
 ## Common Configuration Patterns
@@ -286,7 +286,7 @@ github:
   retry_count: 5
 
 assignments:
-  base_directory: "/var/classroom-pilot/assignments"
+  base_directory: "/var/classdock/assignments"
   parallel_operations: 20
 
 automation:
@@ -296,7 +296,7 @@ automation:
 
 logging:
   level: "info"
-  file: "/var/log/classroom-pilot/app.log"
+  file: "/var/log/classdock/app.log"
   format: "json"
 ```
 
@@ -317,7 +317,7 @@ classes:
     assignments:
       base_directory: "./cs201"
 
-# Use with: classroom-pilot --class cs101 assignments setup
+# Use with: classdock --class cs101 assignments setup
 ```
 
 ## Security Configuration
@@ -368,12 +368,12 @@ git init classroom-config
 cd classroom-config
 
 # Add configuration files
-cp ~/.config/classroom-pilot/config.yaml .
+cp ~/.config/classdock/config.yaml .
 git add config.yaml
 git commit -m "Initial configuration"
 
 # Use versioned configuration
-classroom-pilot --config ./classroom-config/config.yaml
+classdock --config ./classroom-config/config.yaml
 ```
 
 ### Configuration Templates
@@ -398,38 +398,38 @@ envsubst < template-config.yaml > resolved-config.yaml
 **Invalid Configuration:**
 ```bash
 # Check configuration syntax
-classroom-pilot config validate --file config.yaml
+classdock config validate --file config.yaml
 
 # Show resolved configuration
-classroom-pilot config show --resolved
+classdock config show --resolved
 ```
 
 **Missing Environment Variables:**
 ```bash
 # Check required variables
-classroom-pilot config check-env
+classdock config check-env
 
 # Show environment variables used
-classroom-pilot config show --env-only
+classdock config show --env-only
 ```
 
 **Permission Issues:**
 ```bash
 # Test GitHub token permissions
-classroom-pilot auth check
+classdock auth check
 
 # Verify organization access
-classroom-pilot auth check --org my-classroom-org
+classdock auth check --org my-classroom-org
 ```
 
 ### Debug Configuration Loading
 
 ```bash
 # Show configuration sources
-classroom-pilot --verbose config show
+classdock --verbose config show
 
 # Debug configuration resolution
-classroom-pilot --debug config validate
+classdock --debug config validate
 ```
 
 ## Configuration Best Practices

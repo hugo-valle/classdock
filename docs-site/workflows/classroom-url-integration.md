@@ -2,16 +2,16 @@
 
 ## 🎯 Overview
 
-Classroom Pilot provides seamless integration with GitHub Classroom URLs, making it convenient to manage classroom assignments directly from the GitHub Classroom interface.
+ClassDock provides seamless integration with GitHub Classroom URLs, making it convenient to manage classroom assignments directly from the GitHub Classroom interface.
 
 ## 📦 Installation
 
 ```bash
 # Install from PyPI
-pip install classroom-pilot
+pip install classdock
 
 # Verify installation
-classroom-pilot --help
+classdock --help
 ```
 
 ## 🚀 Classroom URL Integration
@@ -41,7 +41,7 @@ The CLI automatically extracts assignment information from classroom URLs:
 
 ```bash
 # Fetch repositories using classroom URL
-classroom-pilot repos fetch --config assignment.conf
+classdock repos fetch --config assignment.conf
 
 # The CLI automatically:
 # 1. Parses the CLASSROOM_URL from configuration
@@ -53,7 +53,7 @@ classroom-pilot repos fetch --config assignment.conf
 
 ```bash
 # Interactive setup with classroom URL
-classroom-pilot assignments setup
+classdock assignments setup
 
 # The wizard will prompt for:
 # - GitHub Classroom URL
@@ -66,7 +66,7 @@ classroom-pilot assignments setup
 
 ```bash
 # Run complete workflow with classroom URL integration
-classroom-pilot assignments orchestrate --config assignment.conf
+classdock assignments orchestrate --config assignment.conf
 
 # This automatically:
 # 1. Validates classroom URL format
@@ -101,7 +101,7 @@ TEMPLATE_REPO_URL="https://github.com/instructor/homework2-template"
 
 # Process multiple assignments
 for config in assignment-*.conf; do
-    classroom-pilot assignments orchestrate --config "$config"
+    classdock assignments orchestrate --config "$config"
 done
 ```
 
@@ -127,10 +127,10 @@ The CLI performs comprehensive URL validation:
 # https://github.enterprise.com/classrooms/{id}/assignments/{name}
 
 # Automatic validation during setup
-classroom-pilot assignments setup
+classdock assignments setup
 
 # Manual validation
-classroom-pilot --dry-run repos fetch --config assignment.conf
+classdock --dry-run repos fetch --config assignment.conf
 ```
 
 ### Assignment Name Extraction
@@ -167,14 +167,14 @@ different-assignment-student1      # ❌ No match
 
 ```bash
 # 1. Setup assignment with classroom URL
-classroom-pilot assignments setup
+classdock assignments setup
 # Enter classroom URL when prompted
 
 # 2. Validate configuration
-classroom-pilot --dry-run assignments orchestrate --config assignment.conf
+classdock --dry-run assignments orchestrate --config assignment.conf
 
 # 3. Execute complete workflow
-classroom-pilot assignments orchestrate --config assignment.conf
+classdock assignments orchestrate --config assignment.conf
 ```
 
 ### Batch Classroom Management
@@ -201,7 +201,7 @@ GITHUB_TOKEN_FILE="github_token.txt"
 EOF
 
     # Process assignment
-    classroom-pilot assignments orchestrate --config temp-config.conf
+    classdock assignments orchestrate --config temp-config.conf
     
     # Cleanup
     rm temp-config.conf
@@ -214,7 +214,7 @@ done
 
 ```bash
 # Check URL format
-classroom-pilot --verbose repos fetch --config assignment.conf
+classdock --verbose repos fetch --config assignment.conf
 
 # Common issues:
 # ❌ Missing /assignments/ in URL
@@ -227,7 +227,7 @@ classroom-pilot --verbose repos fetch --config assignment.conf
 
 ```bash
 # Debug repository discovery
-classroom-pilot --dry-run --verbose repos fetch --config assignment.conf
+classdock --dry-run --verbose repos fetch --config assignment.conf
 
 # Check:
 # 1. Assignment name extraction
@@ -240,7 +240,7 @@ classroom-pilot --dry-run --verbose repos fetch --config assignment.conf
 
 ```bash
 # Verify GitHub authentication
-classroom-pilot --verbose assignments orchestrate --config assignment.conf
+classdock --verbose assignments orchestrate --config assignment.conf
 
 # Check:
 # 1. Token permissions

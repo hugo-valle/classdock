@@ -1,6 +1,6 @@
 from unittest.mock import patch, Mock
 
-from classroom_pilot.services.repos_service import ReposService
+from classdock.services.repos_service import ReposService
 
 
 
@@ -12,7 +12,7 @@ def test_fetch_success(monkeypatch):
     mock_fetcher = Mock()
     mock_fetcher.fetch_all_repositories.return_value = True
 
-    with patch('classroom_pilot.repos.fetch.RepositoryFetcher', return_value=mock_fetcher):
+    with patch('classdock.repos.fetch.RepositoryFetcher', return_value=mock_fetcher):
         ok, message = service.fetch(config_file='assignment.conf')
 
     assert ok is True
@@ -25,7 +25,7 @@ def test_fetch_failure(monkeypatch):
     mock_fetcher = Mock()
     mock_fetcher.fetch_all_repositories.return_value = False
 
-    with patch('classroom_pilot.repos.fetch.RepositoryFetcher', return_value=mock_fetcher):
+    with patch('classdock.repos.fetch.RepositoryFetcher', return_value=mock_fetcher):
         ok, message = service.fetch(config_file='assignment.conf')
 
     assert ok is False
@@ -36,12 +36,12 @@ def test_push_success():
     service = ReposService(dry_run=False, verbose=False)
 
     mock_manager = Mock()
-    from classroom_pilot.assignments.push_manager import PushResult
+    from classdock.assignments.push_manager import PushResult
 
     mock_manager.execute_push_workflow.return_value = (
         PushResult.SUCCESS, 'pushed')
 
-    with patch('classroom_pilot.assignments.push_manager.ClassroomPushManager', return_value=mock_manager):
+    with patch('classdock.assignments.push_manager.ClassroomPushManager', return_value=mock_manager):
         ok, message = service.push(config_file='assignment.conf')
 
     assert ok is True
@@ -52,12 +52,12 @@ def test_push_up_to_date():
     service = ReposService(dry_run=False, verbose=False)
 
     mock_manager = Mock()
-    from classroom_pilot.assignments.push_manager import PushResult
+    from classdock.assignments.push_manager import PushResult
 
     mock_manager.execute_push_workflow.return_value = (
         PushResult.UP_TO_DATE, 'up-to-date')
 
-    with patch('classroom_pilot.assignments.push_manager.ClassroomPushManager', return_value=mock_manager):
+    with patch('classdock.assignments.push_manager.ClassroomPushManager', return_value=mock_manager):
         ok, message = service.push(config_file='assignment.conf')
 
     assert ok is True
@@ -73,7 +73,7 @@ def test_cycle_list(monkeypatch):
         {'login': 'student2', 'permission': 'read'}
     ]
 
-    with patch('classroom_pilot.assignments.cycle_collaborator.CycleCollaboratorManager', return_value=mock_manager):
+    with patch('classdock.assignments.cycle_collaborator.CycleCollaboratorManager', return_value=mock_manager):
         ok, message = service.cycle_collaborator(
             assignment_prefix='hw1', username='student1', organization='org', list_collaborators=True)
 
@@ -87,7 +87,7 @@ def test_cycle_single(monkeypatch):
     mock_manager = Mock()
     mock_manager.cycle_single_repository.return_value = (True, 'cycled')
 
-    with patch('classroom_pilot.assignments.cycle_collaborator.CycleCollaboratorManager', return_value=mock_manager):
+    with patch('classdock.assignments.cycle_collaborator.CycleCollaboratorManager', return_value=mock_manager):
         ok, message = service.cycle_collaborator(
             assignment_prefix='hw1', username='student1', organization='org', list_collaborators=False)
 

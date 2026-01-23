@@ -290,7 +290,7 @@ Any follow-up tasks or future improvements identified.
 
 **Quality Assurance:**
 - [ ] All tests pass (`poetry run pytest tests/ -v`)
-- [ ] CLI works locally (`poetry run classroom-pilot --help`)
+- [ ] CLI works locally (`poetry run classdock --help`)
 - [ ] Code formatting (`poetry run black --check`)
 - [ ] Import sorting (`poetry run isort --check-only`)
 - [ ] Type checking (`poetry run mypy`)
@@ -311,4 +311,4 @@ Any follow-up tasks or future improvements identified.
 
 ---
 
-*Thank you for helping maintain Classroom Pilot! These tasks keep the project healthy and sustainable.*
+*Thank you for helping maintain ClassDock! These tasks keep the project healthy and sustainable.*

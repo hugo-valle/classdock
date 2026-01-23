@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to Classroom Pilot are documented in this file.
+All notable changes to ClassDock are documented in this file.
 
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html) with [PEP 440](https://peps.python.org/pep-0440/) compliant version identifiers.
@@ -130,8 +130,8 @@ The major change in version 3.x is the migration from bash scripts to a Python C
 
 **New (3.x):**
 ```bash
-classroom-pilot assignments setup
-classroom-pilot repos fetch
+classdock assignments setup
+classdock repos fetch
 ```
 
 ### Configuration Changes
@@ -157,18 +157,18 @@ automation:
 
 | Legacy Script | New CLI Command |
 |---------------|-----------------|
-| `setup-assignment.sh` | `classroom-pilot assignments setup` |
-| `fetch-student-repos.sh` | `classroom-pilot repos fetch` |
-| `assignment-orchestrator.sh` | `classroom-pilot assignments orchestrate` |
-| `add-secrets-to-students.sh` | `classroom-pilot secrets add` |
-| `cycle-collaborator.sh` | `classroom-pilot repos collaborator cycle` |
-| `manage-cron.sh` | `classroom-pilot automation schedule` |
+| `setup-assignment.sh` | `classdock assignments setup` |
+| `fetch-student-repos.sh` | `classdock repos fetch` |
+| `assignment-orchestrator.sh` | `classdock assignments orchestrate` |
+| `add-secrets-to-students.sh` | `classdock secrets add` |
+| `cycle-collaborator.sh` | `classdock repos collaborator cycle` |
+| `manage-cron.sh` | `classdock automation schedule` |
 
 ## Development History
 
 ### Vision and Goals
 
-Classroom Pilot was created to solve the challenges of managing GitHub Classroom assignments at scale:
+ClassDock was created to solve the challenges of managing GitHub Classroom assignments at scale:
 
 - **Automation**: Reduce manual work in assignment management
 - **Consistency**: Ensure consistent setup across all assignments
@@ -236,8 +236,8 @@ We welcome contributions! See our [Contributing Guide](../development/contributi
 - **MkDocs**: Documentation site
 
 ### Community
-Special thanks to educators and developers who have provided feedback, bug reports, and feature requests that have shaped Classroom Pilot's development.
+Special thanks to educators and developers who have provided feedback, bug reports, and feature requests that have shaped ClassDock's development.
 
 ## License
 
-Classroom Pilot is released under the MIT License. See [LICENSE](https://github.com/hugo-valle/classroom-pilot/blob/main/LICENSE) for details.
+ClassDock is released under the MIT License. See [LICENSE](https://github.com/hugo-valle/classdock/blob/main/LICENSE) for details.

@@ -84,15 +84,15 @@ jobs:
           print_message "step" "Validating Python CLI syntax"
 
           # Test Python syntax and imports
-          poetry run python -m py_compile classroom_pilot/__main__.py
-          poetry run python -m py_compile classroom_pilot/cli.py
+          poetry run python -m py_compile classdock/__main__.py
+          poetry run python -m py_compile classdock/cli.py
 
           # Test CLI help commands
-          poetry run python -m classroom_pilot --help
-          poetry run python -m classroom_pilot assignments --help
-          poetry run python -m classroom_pilot repos --help
-          poetry run python -m classroom_pilot secrets --help
-          poetry run python -m classroom_pilot automation --help
+          poetry run python -m classdock --help
+          poetry run python -m classdock assignments --help
+          poetry run python -m classdock repos --help
+          poetry run python -m classdock secrets --help
+          poetry run python -m classdock automation --help
 
           print_message "success" "Python CLI validation completed"
 
@@ -107,11 +107,11 @@ jobs:
 
           # Test Python CLI help commands
           print_message "info" "Testing Python CLI help commands"
-          poetry run python -m classroom_pilot --help > /dev/null
-          poetry run python -m classroom_pilot assignments --help > /dev/null
-          poetry run python -m classroom_pilot repos --help > /dev/null
-          poetry run python -m classroom_pilot secrets --help > /dev/null
-          poetry run python -m classroom_pilot automation --help > /dev/null
+          poetry run python -m classdock --help > /dev/null
+          poetry run python -m classdock assignments --help > /dev/null
+          poetry run python -m classdock repos --help > /dev/null
+          poetry run python -m classdock secrets --help > /dev/null
+          poetry run python -m classdock automation --help > /dev/null
 
           print_message "success" "All Python CLI help commands working"
 
@@ -129,7 +129,7 @@ jobs:
             --tb=short \
             --strict-markers \
             --disable-warnings \
-            --cov=classroom_pilot \
+            --cov=classdock \
             --cov-branch \
             --cov-report=term-missing:skip-covered \
             --cov-report=xml:test-results/python${{ matrix.python-version }}/coverage.xml \
@@ -222,15 +222,15 @@ jobs:
 
           # Check Python syntax
           log_info "Checking Python syntax..."
-          poetry run python -m py_compile classroom_pilot/*.py
+          poetry run python -m py_compile classdock/*.py
 
           # Test imports
           log_info "Testing module imports..."
-          poetry run python -c "import classroom_pilot; print('✅ Package imports successfully')"
+          poetry run python -c "import classdock; print('✅ Package imports successfully')"
 
           # Test CLI functionality
           log_info "Testing CLI functionality..."
-          poetry run python -m classroom_pilot --help > /dev/null
+          poetry run python -m classdock --help > /dev/null
 
           print_message "success" "Python code quality checks passed"
 

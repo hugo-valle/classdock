@@ -8,25 +8,25 @@ Automation features enable scheduled execution of classroom operations, batch pr
 
 ## Commands
 
-### `classroom-pilot automation schedule`
+### `classdock automation schedule`
 
 Schedule classroom operations using cron-like syntax.
 
 ```bash
 # Schedule daily assignment orchestration
-classroom-pilot automation schedule \
+classdock automation schedule \
   --command "assignments orchestrate" \
   --cron "0 6 * * *" \
   --name "daily-orchestration"
 
 # Schedule weekly repository sync
-classroom-pilot automation schedule \
+classdock automation schedule \
   --command "repos sync" \
   --cron "0 0 * * 0" \
   --assignment "ongoing-project"
 
 # Schedule secret rotation
-classroom-pilot automation schedule \
+classdock automation schedule \
   --command "secrets rotate" \
   --cron "0 2 1 * *" \
   --name "monthly-rotation"
@@ -52,22 +52,22 @@ classroom-pilot automation schedule \
 * * * * *
 ```
 
-### `classroom-pilot automation list`
+### `classdock automation list`
 
 List scheduled tasks and their status.
 
 ```bash
 # List all scheduled tasks
-classroom-pilot automation list
+classdock automation list
 
 # List with execution history
-classroom-pilot automation list --history
+classdock automation list --history
 
 # List specific assignment schedules
-classroom-pilot automation list --assignment "homework-series"
+classdock automation list --assignment "homework-series"
 
 # Export schedule configuration
-classroom-pilot automation list --export schedules.yaml
+classdock automation list --export schedules.yaml
 ```
 
 **Options:**
@@ -77,24 +77,24 @@ classroom-pilot automation list --export schedules.yaml
 - `--export FILE`: Export configuration
 - `--format FORMAT`: Output format (table, json, yaml)
 
-### `classroom-pilot automation run`
+### `classdock automation run`
 
 Execute scheduled tasks manually or run batch operations.
 
 ```bash
 # Run specific scheduled task
-classroom-pilot automation run --name "daily-orchestration"
+classdock automation run --name "daily-orchestration"
 
 # Run batch operation
-classroom-pilot automation run --batch assignments-batch.yaml
+classdock automation run --batch assignments-batch.yaml
 
 # Run with override parameters
-classroom-pilot automation run \
+classdock automation run \
   --name "repo-sync" \
   --override assignment="special-project"
 
 # Run in background
-classroom-pilot automation run \
+classdock automation run \
   --name "long-operation" \
   --background
 ```
@@ -107,22 +107,22 @@ classroom-pilot automation run \
 - `--wait`: Wait for completion
 - `--verbose`: Detailed output
 
-### `classroom-pilot automation status`
+### `classdock automation status`
 
 Check status of automation tasks and system health.
 
 ```bash
 # Check all automation status
-classroom-pilot automation status
+classdock automation status
 
 # Check specific task
-classroom-pilot automation status --name "daily-orchestration"
+classdock automation status --name "daily-orchestration"
 
 # System health check
-classroom-pilot automation status --health-check
+classdock automation status --health-check
 
 # Generate status report
-classroom-pilot automation status --report automation-report.html
+classdock automation status --report automation-report.html
 ```
 
 **Options:**
@@ -132,22 +132,22 @@ classroom-pilot automation status --report automation-report.html
 - `--format FORMAT`: Output format
 - `--real-time`: Real-time status updates
 
-### `classroom-pilot automation stop`
+### `classdock automation stop`
 
 Stop running tasks or disable schedules.
 
 ```bash
 # Stop running task
-classroom-pilot automation stop --name "running-task"
+classdock automation stop --name "running-task"
 
 # Disable schedule
-classroom-pilot automation stop --name "daily-task" --disable
+classdock automation stop --name "daily-task" --disable
 
 # Emergency stop all tasks
-classroom-pilot automation stop --all --emergency
+classdock automation stop --all --emergency
 
 # Stop with graceful shutdown
-classroom-pilot automation stop --name "task" --graceful
+classdock automation stop --name "task" --graceful
 ```
 
 **Options:**
@@ -158,22 +158,22 @@ classroom-pilot automation stop --name "task" --graceful
 - `--graceful`: Allow task completion
 - `--timeout SECONDS`: Stop timeout
 
-### `classroom-pilot automation logs`
+### `classdock automation logs`
 
 View automation task logs and execution history.
 
 ```bash
 # View logs for specific task
-classroom-pilot automation logs --name "daily-orchestration"
+classdock automation logs --name "daily-orchestration"
 
 # View recent logs
-classroom-pilot automation logs --recent --lines 100
+classdock automation logs --recent --lines 100
 
 # Follow logs in real-time
-classroom-pilot automation logs --name "task" --follow
+classdock automation logs --name "task" --follow
 
 # Export logs
-classroom-pilot automation logs --export logs-backup.tar.gz
+classdock automation logs --export logs-backup.tar.gz
 ```
 
 **Options:**
@@ -268,15 +268,15 @@ batch:
 
 ```bash
 # Execute batch operation
-classroom-pilot automation run --batch assignments-batch.yaml
+classdock automation run --batch assignments-batch.yaml
 
 # Execute with variable substitution
-classroom-pilot automation run \
+classdock automation run \
   --batch assignments-batch.yaml \
   --override week_number=5
 
 # Schedule batch operation
-classroom-pilot automation schedule \
+classdock automation schedule \
   --batch assignments-batch.yaml \
   --cron "0 8 * * 1" \
   --name "weekly-batch"
@@ -296,28 +296,28 @@ Automation integrates with all other command groups:
 
 ```bash
 # 1. Setup daily assignment orchestration
-classroom-pilot automation schedule \
+classdock automation schedule \
   --command "assignments orchestrate" \
   --cron "0 6 * * *" \
   --name "daily-orchestration" \
   --timeout 7200
 
 # 2. Setup weekly repository sync
-classroom-pilot automation schedule \
+classdock automation schedule \
   --command "repos sync" \
   --cron "0 0 * * 0" \
   --name "weekly-sync" \
   --assignment "semester-project"
 
 # 3. Setup monthly secret rotation
-classroom-pilot automation schedule \
+classdock automation schedule \
   --command "secrets rotate" \
   --cron "0 2 1 * *" \
   --name "monthly-rotation" \
   --retry-count 3
 
 # 4. Monitor automation health
-classroom-pilot automation status --health-check
+classdock automation status --health-check
 ```
 
 ### Batch Assignment Processing
@@ -341,10 +341,10 @@ batch:
 EOF
 
 # Execute batch operation
-classroom-pilot automation run --batch new-assignment-batch.yaml
+classdock automation run --batch new-assignment-batch.yaml
 
 # Schedule for future assignments
-classroom-pilot automation schedule \
+classdock automation schedule \
   --batch new-assignment-batch.yaml \
   --cron "0 9 * * 1" \
   --name "weekly-assignment-setup"
@@ -354,22 +354,22 @@ classroom-pilot automation schedule \
 
 ```bash
 # Check automation system health
-classroom-pilot automation status \
+classdock automation status \
   --health-check \
   --report health-report.html
 
 # View execution logs
-classroom-pilot automation logs \
+classdock automation logs \
   --recent \
   --lines 200 \
   --level warning
 
 # Export automation configuration
-classroom-pilot automation list \
+classdock automation list \
   --export automation-backup.yaml
 
 # Clean up completed tasks
-classroom-pilot automation cleanup \
+classdock automation cleanup \
   --older-than "30 days" \
   --status completed
 ```
@@ -397,7 +397,7 @@ batch:
 
 ```bash
 # Run multiple assignments in parallel
-classroom-pilot automation run \
+classdock automation run \
   --batch parallel-assignments.yaml \
   --parallel 3 \
   --max-concurrent 5
@@ -425,13 +425,13 @@ batch:
 **Scheduling Problems:**
 ```bash
 # Check scheduler status
-classroom-pilot automation status --health-check
+classdock automation status --health-check
 
 # Verify cron expressions
-classroom-pilot automation validate --cron "0 6 * * *"
+classdock automation validate --cron "0 6 * * *"
 
 # Debug scheduling
-classroom-pilot automation logs \
+classdock automation logs \
   --name "scheduler" \
   --level debug
 ```
@@ -439,17 +439,17 @@ classroom-pilot automation logs \
 **Execution Failures:**
 ```bash
 # Check task logs
-classroom-pilot automation logs \
+classdock automation logs \
   --name "failed-task" \
   --level error
 
 # Retry failed task
-classroom-pilot automation run \
+classdock automation run \
   --name "failed-task" \
   --retry
 
 # Check system resources
-classroom-pilot automation status \
+classdock automation status \
   --health-check \
   --detailed
 ```
@@ -457,14 +457,14 @@ classroom-pilot automation status \
 **Performance Issues:**
 ```bash
 # Monitor concurrent executions
-classroom-pilot automation status --real-time
+classdock automation status --real-time
 
 # Adjust concurrency limits
-classroom-pilot automation configure \
+classdock automation configure \
   --max-concurrent 3
 
 # Check resource usage
-classroom-pilot automation logs \
+classdock automation logs \
   --name "performance" \
   --metrics
 ```

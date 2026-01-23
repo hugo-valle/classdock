@@ -97,7 +97,7 @@
 $ poetry run pytest tests/critical/ -v
 # Key tests must pass ✅
 
-$ classroom-pilot --version
+$ classdock --version
 # Basic functionality check
 ```
 
@@ -112,7 +112,7 @@ $ classroom-pilot --version
 **Critical Failure (Before):**
 ```bash
 # Failing command/scenario
-classroom-pilot critical-operation
+classdock critical-operation
 # Error that was blocking users
 FATAL ERROR: System failure
 ```
@@ -120,7 +120,7 @@ FATAL ERROR: System failure
 **Fixed Behavior (After):**
 ```bash
 # Same operation now working
-classroom-pilot critical-operation
+classdock critical-operation
 # Expected successful output
 Operation completed successfully
 ```
@@ -174,7 +174,7 @@ Operation completed successfully
 # Essential quality gates
 $ poetry run pytest tests/critical/ -v  ✅
 $ poetry run black --check (critical files)  ✅
-$ classroom-pilot --help  ✅
+$ classdock --help  ✅
 ```
 
 ## 📚 Documentation
@@ -192,7 +192,7 @@ $ classroom-pilot --help  ✅
 
 Critical issue fixed: [brief description]
 Action required: Update immediately
-Command: pip install --upgrade classroom-pilot
+Command: pip install --upgrade classdock
 ```
 
 ## 🔄 Post-Hotfix Actions

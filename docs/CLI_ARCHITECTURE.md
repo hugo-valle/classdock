@@ -1,8 +1,8 @@
-# Classroom Pilot v3.1 - Enhanced CLI Architecture
+# ClassDock v3.1 - Enhanced CLI Architecture
 
 ## 🎯 Overview
 
-Classroom Pilot v3.1 introduces a **comprehensive enterprise-grade CLI architecture** built on Typer with advanced error handling, professional user experience, and production-ready reliability. The new structure provides modular organization, backward compatibility, and enterprise features including centralized error management and intelligent retry logic.
+ClassDock v3.1 introduces a **comprehensive enterprise-grade CLI architecture** built on Typer with advanced error handling, professional user experience, and production-ready reliability. The new structure provides modular organization, backward compatibility, and enterprise features including centralized error management and intelligent retry logic.
 
 ### Key Improvements in v3.1
 
@@ -17,8 +17,8 @@ Classroom Pilot v3.1 introduces a **comprehensive enterprise-grade CLI architect
 
 ```bash
 # Clone the repository
-git clone https://github.com/hugo-valle/classroom-pilot.git
-cd classroom-pilot
+git clone https://github.com/hugo-valle/classdock.git
+cd classdock
 
 # Install with Poetry (recommended)
 poetry install
@@ -28,7 +28,7 @@ pip install -r requirements.txt
 pip install -e .
 
 # Verify installation
-python -m classroom_pilot --help
+python -m classdock --help
 ```
 
 ## 🏗️ Enhanced CLI Structure
@@ -39,33 +39,33 @@ The CLI is organized into logical subcommands with improved user experience and 
 
 ```bash
 # Main help with rich formatting and examples
-python -m classroom_pilot --help
+python -m classdock --help
 
 # Version information with detailed build info
-python -m classroom_pilot version
+python -m classdock version
 
 # Health check with system validation
-python -m classroom_pilot health-check
+python -m classdock health-check
 ```
 
 ### Assignment Management (Enhanced)
 
 ```bash
 # Interactive setup wizard with validation and error recovery
-python -m classroom_pilot assignments setup
+python -m classdock assignments setup
   --config-file assignment.conf    # Custom config file path
   --validate                       # Validate configuration only
   --verbose                        # Detailed progress output
 
 # Complete workflow orchestration with comprehensive error handling
-python -m classroom_pilot assignments orchestrate
+python -m classdock assignments orchestrate
   --dry-run                        # Preview operations without execution
   --verbose                        # Rich progress and error information
   --max-retries 5                  # Configure retry attempts
   --parallel                       # Enable parallel processing
 
 # Assignment lifecycle management with rollback support
-python -m classroom_pilot assignments manage
+python -m classdock assignments manage
   --operation [create|update|archive]  # Lifecycle operations
   --rollback                       # Rollback failed operations
 ```
@@ -74,7 +74,7 @@ python -m classroom_pilot assignments manage
 
 ```bash
 # Enhanced repository discovery with intelligent retry
-python -m classroom_pilot repos fetch
+python -m classdock repos fetch
   --assignment-prefix PREFIX      # Repository prefix pattern
   --organization ORG_NAME         # GitHub organization
   --method [api|url]              # Discovery method selection
@@ -82,20 +82,20 @@ python -m classroom_pilot repos fetch
   --output-format [json|table]    # Output formatting options
 
 # Repository updates with batch processing and error recovery
-python -m classroom_pilot repos update
+python -m classdock repos update
   --batch-size 10                 # Concurrent operation limit
   --continue-on-error             # Skip failed repos, continue processing
   --rollback-on-failure           # Automatic rollback support
   --progress-bar                  # Visual progress indicator
 
 # Template synchronization with rate limit handling
-python -m classroom_pilot repos push
+python -m classdock repos push
   --target [classroom|template]   # Push destination
   --rate-limit-respect            # Honor GitHub rate limits
   --conflict-resolution [merge|overwrite|skip]
 
 # Advanced collaborator management with permission cycling
-python -m classroom_pilot repos cycle-collaborator
+python -m classdock repos cycle-collaborator
   --force                         # Force permission reset
   --verify-access                 # Verify permissions after cycling
   --batch-mode                    # Process multiple repositories
@@ -105,14 +105,14 @@ python -m classroom_pilot repos cycle-collaborator
 
 ```bash
 # Secure secret distribution with validation
-python -m classroom_pilot secrets add
+python -m classdock secrets add
   --secret-file secrets.yaml      # Bulk secret configuration
   --verify-deployment             # Verify secrets were set correctly
   --encryption-key KEY            # Optional secret encryption
   --audit-log                     # Log all secret operations
 
 # Advanced secret lifecycle management
-python -m classroom_pilot secrets manage
+python -m classdock secrets manage
   --operation [create|update|rotate|delete]
   --repositories REPO_LIST        # Target specific repositories
   --secret-names NAME_LIST        # Manage specific secrets
@@ -122,20 +122,20 @@ python -m classroom_pilot secrets manage
 
 ```bash
 # Comprehensive cron job management
-python -m classroom_pilot automation cron
+python -m classdock automation cron
   --action [status|install|remove|list]
   --schedule "0 */6 * * *"        # Custom cron schedule
   --notification-email EMAIL     # Email notifications for failures
 
 # Advanced synchronization with monitoring
-python -m classroom_pilot automation sync
+python -m classdock automation sync
   --full-sync                     # Complete synchronization
   --incremental                   # Only sync changes
   --health-check                  # Verify system health before sync
   --metrics-collection            # Collect operation metrics
 
 # Batch processing with enterprise monitoring
-python -m classroom_pilot automation batch
+python -m classdock automation batch
   --operation-config CONFIG      # Batch operation configuration
   --parallel-jobs 5               # Concurrent job limit
   --failure-threshold 10%         # Acceptable failure rate
@@ -146,12 +146,12 @@ python -m classroom_pilot automation batch
 
 ```bash
 # Legacy commands with automatic migration warnings
-python -m classroom_pilot setup          # → assignments setup
-python -m classroom_pilot run            # → assignments orchestrate
+python -m classdock setup          # → assignments setup
+python -m classdock run            # → assignments orchestrate
 
 # Migration assistance commands
-python -m classroom_pilot migrate-config # Upgrade legacy configurations
-python -m classroom_pilot check-legacy   # Identify deprecated usage
+python -m classdock migrate-config # Upgrade legacy configurations
+python -m classdock check-legacy   # Identify deprecated usage
 ```
 
 ## 🏗️ Enterprise Package Architecture
@@ -159,7 +159,7 @@ python -m classroom_pilot check-legacy   # Identify deprecated usage
 ### Enhanced Modular Structure with Error Handling
 
 ```
-classroom_pilot/
+classdock/
 ├── __init__.py                  # Main package exports with version info
 ├── __main__.py                  # Module entry point with rich CLI
 ├── cli.py                       # Main Typer-based CLI interface
@@ -206,7 +206,7 @@ from typing import Optional
 from enum import Enum
 
 app = Typer(
-    name="classroom-pilot",
+    name="classdock",
     help="Enterprise GitHub Classroom Assignment Management",
     rich_markup_mode="rich"
 )
@@ -227,7 +227,7 @@ app.add_typer(automation_app, name="automation")
 #### 2. Enhanced Command Definitions with Error Handling
 
 ```python
-from classroom_pilot.utils.github_exceptions import github_api_retry, GitHubAPIError
+from classdock.utils.github_exceptions import github_api_retry, GitHubAPIError
 
 @assignments_app.command()
 @github_api_retry(max_attempts=3, base_delay=1.0)
@@ -245,9 +245,9 @@ def orchestrate(
     automatic retry logic, and detailed progress reporting.
     
     Examples:
-        classroom-pilot assignments orchestrate --dry-run
-        classroom-pilot assignments orchestrate --verbose --max-retries 5
-        classroom-pilot assignments orchestrate --config custom.conf --parallel
+        classdock assignments orchestrate --dry-run
+        classdock assignments orchestrate --verbose --max-retries 5
+        classdock assignments orchestrate --config custom.conf --parallel
     """
     try:
         with console.status("[bold green]Orchestrating assignment workflow..."):
@@ -335,7 +335,7 @@ def show_progress_with_error_handling(operation_name: str, items: List[Any]):
 
 ```python
 # All GitHub operations use centralized error handling
-from classroom_pilot.utils.github_exceptions import (
+from classdock.utils.github_exceptions import (
     github_api_retry,
     github_api_context,
     GitHubAPIError,
@@ -434,11 +434,11 @@ def setup():
 
 | v1.x Command | v2.x Equivalent |
 |--------------|-----------------|
-| `python -m classroom_pilot setup` | `python -m classroom_pilot assignments setup` |
-| `python -m classroom_pilot run` | `python -m classroom_pilot assignments orchestrate` |
-| No direct equivalent | `python -m classroom_pilot repos fetch` |
-| No direct equivalent | `python -m classroom_pilot secrets add` |
-| No direct equivalent | `python -m classroom_pilot automation cron` |
+| `python -m classdock setup` | `python -m classdock assignments setup` |
+| `python -m classdock run` | `python -m classdock assignments orchestrate` |
+| No direct equivalent | `python -m classdock repos fetch` |
+| No direct equivalent | `python -m classdock secrets add` |
+| No direct equivalent | `python -m classdock automation cron` |
 
 ### Configuration Files
 
@@ -481,8 +481,8 @@ All existing bash scripts continue to work through the bash wrapper system. Pyth
 
 ```bash
 # Clone and setup development environment
-git clone https://github.com/hugo-valle/classroom-pilot.git
-cd classroom-pilot
+git clone https://github.com/hugo-valle/classdock.git
+cd classdock
 
 # Create development environment
 python -m venv venv
@@ -515,7 +515,7 @@ python -m pytest tests/
 
 For questions, issues, or contributions:
 
-- **GitHub Issues**: https://github.com/hugo-valle/classroom-pilot/issues
+- **GitHub Issues**: https://github.com/hugo-valle/classdock/issues
 - **Documentation**: See `docs/` directory for detailed documentation
 - **Legacy Documentation**: See `docs/README_LEGACY.md` for v1.x documentation
 

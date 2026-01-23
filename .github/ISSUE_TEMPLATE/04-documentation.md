@@ -135,7 +135,7 @@ Describe or draft the content you'd like to see.
 **Examples/Use Cases:**
 ```bash
 # Example commands or code snippets
-classroom-pilot example --help
+classdock example --help
 ```
 
 **Visual Elements:**
@@ -274,4 +274,4 @@ Any user feedback or questions that prompted this documentation need?
 
 ---
 
-*Thank you for helping improve Classroom Pilot's documentation! Good docs make the tool accessible to everyone.*
+*Thank you for helping improve ClassDock's documentation! Good docs make the tool accessible to everyone.*

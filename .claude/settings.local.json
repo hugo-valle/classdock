@@ -1,0 +1,28 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(poetry show:*)",
+      "Bash(tree:*)",
+      "Bash(wc:*)",
+      "Bash(poetry run pytest:*)",
+      "Bash(python -m pytest:*)",
+      "Bash(make test:*)",
+      "Bash(make test-unit:*)",
+      "Bash(make lint:*)",
+      "Bash(make format:*)",
+      "Bash(poetry run black:*)",
+      "Bash(git -C /home/hvalle/classroom-pilot status)",
+      "Bash(git -C /home/hvalle/classroom-pilot diff)",
+      "Bash(git -C /home/hvalle/classroom-pilot push)",
+      "Bash(gh pr create:*)",
+      "Bash(find:*)",
+      "Bash(grep:*)",
+      "Bash(poetry build:*)",
+      "Bash(tar:*)",
+      "Bash(python:*)",
+      "Bash(python -c:*)",
+      "Bash(pytest tests/ -v --tb=short 2>&1:*)",
+      "Bash(git checkout:*)"
+    ]
+  }
+}

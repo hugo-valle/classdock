@@ -106,8 +106,8 @@
 **Examples Added:**
 ```bash
 # New command examples
-classroom-pilot assignments orchestrate --config example.conf
-classroom-pilot repos fetch --organization myorg
+classdock assignments orchestrate --config example.conf
+classdock repos fetch --organization myorg
 ```
 
 ```yaml
@@ -135,12 +135,12 @@ assignment:
 **Testing Performed:**
 ```bash
 # Commands tested
-$ classroom-pilot --help
-$ classroom-pilot command --example
+$ classdock --help
+$ classdock command --example
 
 # Examples validated
 $ poetry install
-$ poetry run classroom-pilot documented-feature
+$ poetry run classdock documented-feature
 ```
 
 ## 📖 Style & Formatting
@@ -315,4 +315,4 @@ $ poetry run classroom-pilot documented-feature
 **Ready for Review:** <!-- ✅ or ❌ -->
 **Ready for Merge:** <!-- ✅ or ❌ -->
 
-*Thank you for improving Classroom Pilot's documentation! Good docs make the tool accessible and useful for everyone.*
+*Thank you for improving ClassDock's documentation! Good docs make the tool accessible and useful for everyone.*

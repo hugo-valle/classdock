@@ -1,15 +1,15 @@
 # Installation
 
-Get Classroom Pilot up and running in minutes.
+Get ClassDock up and running in minutes.
 
 ## 📦 Install from PyPI (Recommended)
 
 ```bash
 # Install the latest version
-pip install classroom-pilot
+pip install classdock
 
 # Verify installation
-classroom-pilot --help
+classdock --help
 ```
 
 ## 🔧 Development Installation
@@ -18,29 +18,29 @@ classroom-pilot --help
 
 ```bash
 # Clone repository
-git clone https://github.com/hugo-valle/classroom-pilot.git
-cd classroom-pilot
+git clone https://github.com/hugo-valle/classdock.git
+cd classdock
 
 # Install with Poetry
 poetry install
 poetry shell
 
 # Verify installation
-classroom-pilot --help
+classdock --help
 ```
 
 ### Using pip (Development Mode)
 
 ```bash
 # Clone repository
-git clone https://github.com/hugo-valle/classroom-pilot.git
-cd classroom-pilot
+git clone https://github.com/hugo-valle/classdock.git
+cd classdock
 
 # Install in editable mode
 pip install -e .
 
 # Verify installation
-classroom-pilot --help
+classdock --help
 ```
 
 ## ⚙️ Requirements
@@ -53,7 +53,7 @@ classroom-pilot --help
 
 ### GitHub Token
 
-Create a GitHub personal access token for classroom-pilot:
+Create a GitHub personal access token for classdock:
 
 1. Go to [GitHub Settings → Personal Access Tokens](https://github.com/settings/tokens)
 2. Generate a new token with these scopes:
@@ -64,8 +64,8 @@ Create a GitHub personal access token for classroom-pilot:
 
 ```bash
 # Create centralized token config
-mkdir -p ~/.config/classroom-pilot
-cat > ~/.config/classroom-pilot/token_config.json << 'EOF'
+mkdir -p ~/.config/classdock
+cat > ~/.config/classdock/token_config.json << 'EOF'
 {
     "github_token": "ghp_your_token_here",
     "username": "your_username",
@@ -73,7 +73,7 @@ cat > ~/.config/classroom-pilot/token_config.json << 'EOF'
     "expires_at": null
 }
 EOF
-chmod 600 ~/.config/classroom-pilot/token_config.json
+chmod 600 ~/.config/classdock/token_config.json
 
 # Or set as environment variable for CI/automation
 export GITHUB_TOKEN="ghp_your_token_here"
@@ -102,16 +102,16 @@ gh auth login
 
 ```bash
 # Check version
-classroom-pilot version
+classdock version
 
 # Test basic functionality
-classroom-pilot --help
+classdock --help
 
 # Test command groups
-classroom-pilot assignments --help
-classroom-pilot repos --help
-classroom-pilot secrets --help
-classroom-pilot automation --help
+classdock assignments --help
+classdock repos --help
+classdock secrets --help
+classdock automation --help
 ```
 
 ## 🚀 Next Steps

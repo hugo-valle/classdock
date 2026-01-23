@@ -1,13 +1,13 @@
 # CLI Overview
 
-Classroom Pilot provides a comprehensive command-line interface organized into logical command groups.
+ClassDock provides a comprehensive command-line interface organized into logical command groups.
 
 ## 🏗️ Command Structure
 
 The CLI is organized into four main command groups:
 
 ```bash
-classroom-pilot [GLOBAL_OPTIONS] COMMAND [ARGS]...
+classdock [GLOBAL_OPTIONS] COMMAND [ARGS]...
 ```
 
 ### Command Groups
@@ -35,10 +35,10 @@ Global options apply to all commands:
 
 | Option | Short | Description | Example |
 |--------|-------|-------------|---------|
-| `--dry-run` | | Preview actions without executing | `classroom-pilot --dry-run assignments orchestrate` |
-| `--verbose` | | Enable detailed logging | `classroom-pilot --verbose repos fetch` |
-| `--config FILE` | | Use custom configuration file | `classroom-pilot --config my.conf secrets add` |
-| `--help` | | Show help information | `classroom-pilot --help` |
+| `--dry-run` | | Preview actions without executing | `classdock --dry-run assignments orchestrate` |
+| `--verbose` | | Enable detailed logging | `classdock --verbose repos fetch` |
+| `--config FILE` | | Use custom configuration file | `classdock --config my.conf secrets add` |
+| `--help` | | Show help information | `classdock --help` |
 
 ## 📋 Quick Reference
 
@@ -46,52 +46,52 @@ Global options apply to all commands:
 
 ```bash
 # Interactive setup
-classroom-pilot assignments setup
+classdock assignments setup
 
 # Run complete workflow
-classroom-pilot assignments orchestrate [--config FILE]
+classdock assignments orchestrate [--config FILE]
 
 # Manage templates
-classroom-pilot assignments manage [--config FILE]
+classdock assignments manage [--config FILE]
 ```
 
 ### Repository Operations
 
 ```bash
 # Discover student repositories
-classroom-pilot repos fetch [--config FILE]
+classdock repos fetch [--config FILE]
 
 # Add collaborators
-classroom-pilot repos collaborator add [--config FILE]
+classdock repos collaborator add [--config FILE]
 
 # Remove collaborators
-classroom-pilot repos collaborator remove [--config FILE]
+classdock repos collaborator remove [--config FILE]
 ```
 
 ### Secret Management
 
 ```bash
 # Add secrets to repositories
-classroom-pilot secrets add [--config FILE] [--secrets LIST]
+classdock secrets add [--config FILE] [--secrets LIST]
 
 # Remove secrets
-classroom-pilot secrets remove [--config FILE] [--secrets LIST]
+classdock secrets remove [--config FILE] [--secrets LIST]
 
 # List existing secrets
-classroom-pilot secrets list [--config FILE]
+classdock secrets list [--config FILE]
 ```
 
 ### Automation & Scheduling
 
 ```bash
 # Setup automated scheduling
-classroom-pilot automation scheduler setup [--config FILE]
+classdock automation scheduler setup [--config FILE]
 
 # Check scheduler status
-classroom-pilot automation scheduler status
+classdock automation scheduler status
 
 # Run batch operations
-classroom-pilot automation batch [--config FILE]
+classdock automation batch [--config FILE]
 ```
 
 ## 🔧 Configuration
@@ -121,7 +121,7 @@ export GITHUB_TOKEN="ghp_your_token"
 export ASSIGNMENT_FILE="main.cpp"
 
 # Run commands
-classroom-pilot assignments orchestrate
+classdock assignments orchestrate
 ```
 
 ## 💡 Usage Patterns
@@ -130,27 +130,27 @@ classroom-pilot assignments orchestrate
 
 ```bash
 # Always preview first
-classroom-pilot --dry-run assignments orchestrate --config assignment.conf
+classdock --dry-run assignments orchestrate --config assignment.conf
 
 # Use verbose for debugging
-classroom-pilot --verbose repos fetch --config assignment.conf
+classdock --verbose repos fetch --config assignment.conf
 
 # Test with single repository
-classroom-pilot --dry-run secrets add --config assignment.conf
+classdock --dry-run secrets add --config assignment.conf
 ```
 
 ### Production Workflows
 
 ```bash
 # Complete assignment setup
-classroom-pilot assignments setup
+classdock assignments setup
 
 # Daily orchestration
-classroom-pilot assignments orchestrate --config assignment.conf
+classdock assignments orchestrate --config assignment.conf
 
 # Emergency secret rotation
-classroom-pilot secrets remove --config assignment.conf --secrets "OLD_TOKEN"
-NEW_TOKEN="value" classroom-pilot secrets add --config assignment.conf --secrets "NEW_TOKEN"
+classdock secrets remove --config assignment.conf --secrets "OLD_TOKEN"
+NEW_TOKEN="value" classdock secrets add --config assignment.conf --secrets "NEW_TOKEN"
 ```
 
 ### Batch Operations
@@ -158,13 +158,13 @@ NEW_TOKEN="value" classroom-pilot secrets add --config assignment.conf --secrets
 ```bash
 # Multiple assignments
 for config in assignment-*.conf; do
-    classroom-pilot assignments orchestrate --config "$config"
+    classdock assignments orchestrate --config "$config"
 done
 
 # Specific operations across assignments
-classroom-pilot secrets add --config hw1.conf
-classroom-pilot secrets add --config hw2.conf
-classroom-pilot secrets add --config midterm.conf
+classdock secrets add --config hw1.conf
+classdock secrets add --config hw2.conf
+classdock secrets add --config midterm.conf
 ```
 
 ## 🆘 Help System
@@ -173,17 +173,17 @@ classroom-pilot secrets add --config midterm.conf
 
 ```bash
 # Main help
-classroom-pilot --help
+classdock --help
 
 # Command group help
-classroom-pilot assignments --help
-classroom-pilot repos --help
-classroom-pilot secrets --help
-classroom-pilot automation --help
+classdock assignments --help
+classdock repos --help
+classdock secrets --help
+classdock automation --help
 
 # Specific command help
-classroom-pilot assignments orchestrate --help
-classroom-pilot secrets add --help
+classdock assignments orchestrate --help
+classdock secrets add --help
 ```
 
 ### Error Messages
@@ -203,10 +203,10 @@ Enable detailed logging for troubleshooting:
 
 ```bash
 # Verbose output
-classroom-pilot --verbose assignments orchestrate --config assignment.conf
+classdock --verbose assignments orchestrate --config assignment.conf
 
 # Combine with dry-run for detailed preview
-classroom-pilot --dry-run --verbose assignments orchestrate --config assignment.conf
+classdock --dry-run --verbose assignments orchestrate --config assignment.conf
 ```
 
 ### Log Information

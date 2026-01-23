@@ -42,7 +42,7 @@ class TestAssignmentSetupCLI:
     def test_setup_help_shows_options(self):
         """Test that --help shows all available options."""
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot assignments setup --help")
+            "python -m classdock assignments setup --help")
 
         assert success, f"Setup help failed: {stderr}"
 
@@ -60,7 +60,7 @@ class TestAssignmentSetupCLI:
     def test_setup_dry_run_basic(self):
         """Test basic setup in dry-run mode."""
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot assignments --dry-run setup")
+            "python -m classdock assignments --dry-run setup")
 
         assert success, f"Basic setup dry-run failed: {stderr}"
         assert "DRY RUN" in stderr, "Dry run message not found"
@@ -70,7 +70,7 @@ class TestAssignmentSetupCLI:
         """Test setup with --url option in dry-run mode."""
         test_url = "https://classroom.github.com/classrooms/12345/assignments/test-assignment"
         success, stdout, stderr = run_cli_command(
-            f'python -m classroom_pilot assignments --dry-run setup --url "{test_url}"')
+            f'python -m classdock assignments --dry-run setup --url "{test_url}"')
 
         assert success, f"URL setup dry-run failed: {stderr}"
         assert "DRY RUN" in stderr, "Dry run message not found"
@@ -83,7 +83,7 @@ class TestAssignmentSetupCLI:
     def test_setup_dry_run_with_simplified(self):
         """Test setup with --simplified option in dry-run mode."""
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot assignments --dry-run setup --simplified")
+            "python -m classdock assignments --dry-run setup --simplified")
 
         # Simplified mode is not implemented yet, so it returns False
         assert not success, f"Simplified setup should fail: {stderr}"
@@ -99,7 +99,7 @@ class TestAssignmentSetupCLI:
         # - Assert completion message instead of error
         # - Test that simplified setup completes faster/with fewer prompts
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot assignments setup --simplified")
+            "python -m classdock assignments setup --simplified")
 
         assert not success, "Simplified setup should fail when not implemented"
         assert "Simplified setup mode not yet implemented" in stderr, "Implementation error message not found"
@@ -108,7 +108,7 @@ class TestAssignmentSetupCLI:
         """Test setup with both --url and --simplified options."""
         test_url = "https://classroom.github.com/classrooms/12345/assignments/test-assignment"
         success, stdout, stderr = run_cli_command(
-            f'python -m classroom_pilot assignments --dry-run setup --url "{test_url}" --simplified')
+            f'python -m classdock assignments --dry-run setup --url "{test_url}" --simplified')
 
         # When simplified is specified, it's checked first and returns "not implemented"
         # even if URL is also provided
@@ -121,7 +121,7 @@ class TestAssignmentSetupCLI:
         # Test with invalid URL
         invalid_url = "not-a-valid-url"
         success, stdout, stderr = run_cli_command(
-            f'python -m classroom_pilot assignments --dry-run setup --url "{invalid_url}"')
+            f'python -m classdock assignments --dry-run setup --url "{invalid_url}"')
 
         # Should still succeed in dry-run mode, but may show validation warnings
         # This test is for future URL validation implementation
@@ -130,7 +130,7 @@ class TestAssignmentSetupCLI:
     def test_setup_verbose_output(self):
         """Test setup with verbose output."""
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot assignments --dry-run --verbose setup")
+            "python -m classdock assignments --dry-run --verbose setup")
 
         assert success, f"Verbose setup failed: {stderr}"
         assert "DRY RUN" in stderr, "Dry run message not found"
@@ -145,7 +145,7 @@ class TestAssignmentSetupCLI:
     def test_setup_various_urls(self, url):
         """Test setup with various valid GitHub Classroom URLs."""
         success, stdout, stderr = run_cli_command(
-            f'python -m classroom_pilot assignments --dry-run setup --url "{url}"')
+            f'python -m classdock assignments --dry-run setup --url "{url}"')
 
         assert success, f"Setup with URL {url} failed: {stderr}"
         assert "DRY RUN" in stderr, "Dry run message not found"
@@ -156,7 +156,7 @@ class TestAssignmentSetupService:
 
     def test_service_setup_basic(self):
         """Test basic service setup."""
-        from classroom_pilot.services.assignment_service import AssignmentService
+        from classdock.services.assignment_service import AssignmentService
 
         service = AssignmentService(dry_run=True)
         success, message = service.setup()
@@ -166,7 +166,7 @@ class TestAssignmentSetupService:
 
     def test_service_setup_parameters(self):
         """Test that service setup method needs to accept URL and simplified parameters."""
-        from classroom_pilot.services.assignment_service import AssignmentService
+        from classdock.services.assignment_service import AssignmentService
 
         service = AssignmentService(dry_run=True)
 
@@ -176,8 +176,8 @@ class TestAssignmentSetupService:
         success, message = service.setup()
         assert success is True
 
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_service_setup_with_mocked_wizard(self, mock_assignment_setup, mock_token_manager):
         """Test service setup with mocked wizard."""
         # Mock the token manager to return a valid token
@@ -191,7 +191,7 @@ class TestAssignmentSetupService:
         mock_wizard.run_wizard.return_value = True
         mock_assignment_setup.return_value = mock_wizard
 
-        from classroom_pilot.services.assignment_service import AssignmentService
+        from classdock.services.assignment_service import AssignmentService
         service = AssignmentService(dry_run=False)
         success, message = service.setup()
 
@@ -207,7 +207,7 @@ class TestAssignmentSetupIntegration:
     def test_setup_command_integration(self):
         """Test the complete setup command flow in dry-run mode."""
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot assignments --dry-run --verbose setup")
+            "python -m classdock assignments --dry-run --verbose setup")
 
         assert success, f"Integration test failed: {stderr}"
 
@@ -219,7 +219,7 @@ class TestAssignmentSetupIntegration:
         """Test setup when assignment.conf already exists."""
         # This test should verify behavior when config file exists
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot assignments --dry-run setup")
+            "python -m classdock assignments --dry-run setup")
 
         assert success, f"Setup with existing config failed: {stderr}"
 
@@ -227,7 +227,7 @@ class TestAssignmentSetupIntegration:
         """Test setup error handling scenarios."""
         # Test with invalid configuration path
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot --assignment-root /nonexistent/path assignments --dry-run setup")
+            "python -m classdock --assignment-root /nonexistent/path assignments --dry-run setup")
 
         # Should handle gracefully in dry-run mode
         # May show warnings but should not fail completely
@@ -238,26 +238,26 @@ class TestAssignmentSetupExamples:
     """Test real-world usage examples from help documentation."""
 
     def test_example_basic_setup(self):
-        """Test: classroom-pilot assignments setup"""
+        """Test: classdock assignments setup"""
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot assignments --dry-run setup")
+            "python -m classdock assignments --dry-run setup")
 
         assert success, f"Basic example failed: {stderr}"
 
     def test_example_simplified_setup(self):
-        """Test: classroom-pilot assignments setup --simplified"""
+        """Test: classdock assignments setup --simplified"""
         success, stdout, stderr = run_cli_command(
-            "python -m classroom_pilot assignments --dry-run setup --simplified")
+            "python -m classdock assignments --dry-run setup --simplified")
 
         # Simplified mode is not implemented yet
         assert not success, f"Simplified example should fail: {stderr}"
         assert "Simplified setup mode not yet implemented" in stderr
 
     def test_example_url_setup(self):
-        """Test: classroom-pilot assignments setup --url "https://classroom.github.com/..."""""
+        """Test: classdock assignments setup --url "https://classroom.github.com/..."""""
         test_url = "https://classroom.github.com/classrooms/225080578-soc-cs3550-f25/assignments/project3"
         success, stdout, stderr = run_cli_command(
-            f'python -m classroom_pilot assignments --dry-run setup --url "{test_url}"')
+            f'python -m classdock assignments --dry-run setup --url "{test_url}"')
 
         assert success, f"URL example failed: {stderr}"
 

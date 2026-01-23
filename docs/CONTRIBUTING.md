@@ -1,10 +1,10 @@
-# Contributing to Classroom Pilot
+# Contributing to ClassDock
 
-Thank you for your interest in contributing to Classroom Pilot! This guide will help you set up your development environment and understand our contribution process.
+Thank you for your interest in contributing to ClassDock! This guide will help you set up your development environment and understand our contribution process.
 
 ## 🎯 Project Overview
 
-Classroom Pilot is a modern Python CLI tool for GitHub Classroom automation, built with:
+ClassDock is a modern Python CLI tool for GitHub Classroom automation, built with:
 
 - **Python 3.10+** with type hints and modern syntax
 - **Typer** for CLI interface with universal options (`--help`, `--verbose`, `--dry-run`)
@@ -18,11 +18,11 @@ Classroom Pilot is a modern Python CLI tool for GitHub Classroom automation, bui
 
 ```bash
 # Fork the repository on GitHub, then clone your fork
-git clone https://github.com/<your-username>/classroom-pilot.git
-cd classroom-pilot
+git clone https://github.com/<your-username>/classdock.git
+cd classdock
 
 # Add upstream remote
-git remote add upstream https://github.com/hugo-valle/classroom-pilot.git
+git remote add upstream https://github.com/hugo-valle/classdock.git
 ```
 
 ### 2. Development Environment
@@ -38,9 +38,9 @@ poetry install
 poetry shell
 
 # Verify installation and universal options
-classroom-pilot --help
-classroom-pilot assignments --help --verbose
-classroom-pilot repos --help --dry-run
+classdock --help
+classdock assignments --help --verbose
+classdock repos --help --dry-run
 ```
 
 ### 3. Run Tests
@@ -50,7 +50,7 @@ classroom-pilot repos --help --dry-run
 poetry run pytest tests/ -v
 
 # Run tests with coverage
-poetry run pytest tests/ --cov=classroom_pilot
+poetry run pytest tests/ --cov=classdock
 
 # Run specific test categories
 poetry run pytest tests/test_cli.py -v
@@ -84,16 +84,16 @@ git checkout -b feature/your-feature-name
 poetry run pytest tests/ -v
 
 # Test CLI locally with universal options
-poetry run classroom-pilot --help
-poetry run classroom-pilot assignments --help
-poetry run classroom-pilot repos --verbose --dry-run list
+poetry run classdock --help
+poetry run classdock assignments --help
+poetry run classdock repos --verbose --dry-run list
 
 # Check code formatting
-poetry run black classroom_pilot/ --check
-poetry run isort classroom_pilot/ --check-only
+poetry run black classdock/ --check
+poetry run isort classdock/ --check-only
 
 # Type checking
-poetry run mypy classroom_pilot/
+poetry run mypy classdock/
 ```
 
 ### 4. Commit and Push
@@ -141,7 +141,7 @@ git push origin feature/your-feature-name
 ### Project Structure
 
 ```
-classroom_pilot/
+classdock/
 ├── __init__.py              # Package initialization
 ├── cli.py                  # Main CLI interface
 ├── assignments/            # Assignment management commands
@@ -157,7 +157,7 @@ classroom_pilot/
 ```python
 # Test file example: tests/test_new_feature.py
 import pytest
-from classroom_pilot.new_module import NewClass
+from classdock.new_module import NewClass
 
 class TestNewClass:
     def test_method_success(self, mock_config):
@@ -210,7 +210,7 @@ poetry run pytest tests/ -v
 poetry run pytest tests/test_assignments.py -v
 
 # With coverage report
-poetry run pytest tests/ --cov=classroom_pilot --cov-report=html
+poetry run pytest tests/ --cov=classdock --cov-report=html
 
 # Watch mode for development
 poetry run pytest-watch tests/
@@ -232,8 +232,8 @@ We follow semantic versioning: `MAJOR.MINOR.PATCH-prerelease`
 When your changes require a version bump:
 
 1. Update `pyproject.toml` version
-2. Update `classroom_pilot/__init__.py` `__version__`
-3. Update `classroom_pilot/cli.py` version command
+2. Update `classdock/__init__.py` `__version__`
+3. Update `classdock/cli.py` version command
 4. Update `CHANGELOG.md` with changes
 
 ## 🚀 Release Process
@@ -272,16 +272,16 @@ poetry run pytest tests/ -v -s
 
 ```bash
 # Test CLI installation
-poetry run pip show classroom-pilot
+poetry run pip show classdock
 
 # Test entry point
-poetry run python -m classroom_pilot --help
+poetry run python -m classdock --help
 ```
 
 ## 💬 Getting Help
 
-- **Issues**: [GitHub Issues](https://github.com/hugo-valle/classroom-pilot/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/hugo-valle/classroom-pilot/discussions)
+- **Issues**: [GitHub Issues](https://github.com/hugo-valle/classdock/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/hugo-valle/classdock/discussions)
 - **Documentation**: [Project Docs](README.md)
 
 ## 📝 Issue Templates
@@ -301,4 +301,4 @@ poetry run python -m classroom_pilot --help
 
 ---
 
-Thank you for contributing to Classroom Pilot! Your help makes this tool better for educators everywhere.
+Thank you for contributing to ClassDock! Your help makes this tool better for educators everywhere.

@@ -52,7 +52,7 @@ def mock_push_success():
 
     def mock_execute_push_workflow(self, force: bool = False, interactive: bool = False):
         """Mock successful push workflow execution."""
-        from classroom_pilot.assignments.push_manager import PushResult
+        from classdock.assignments.push_manager import PushResult
         return (PushResult.SUCCESS, "Push completed successfully")
 
     return mock_execute_push_workflow
@@ -63,7 +63,7 @@ def mock_push_failure():
 
     def mock_execute_push_workflow(self, force: bool = False, interactive: bool = False):
         """Mock failed push workflow execution."""
-        from classroom_pilot.assignments.push_manager import PushResult
+        from classdock.assignments.push_manager import PushResult
         return (PushResult.FAILED, "Push failed: Missing classroom repository")
 
     return mock_execute_push_workflow
@@ -84,7 +84,7 @@ def run_cli_with_mocks(command: str, scenario: str):
     cli_args = sys.argv[1:]
 
     # Import CLI after path is set
-    from classroom_pilot.cli import app
+    from classdock.cli import app
     import typer.testing
 
     runner = typer.testing.CliRunner()
@@ -93,11 +93,11 @@ def run_cli_with_mocks(command: str, scenario: str):
     if command == "update":
         if scenario == "success":
             mock_func = mock_update_success()
-            with patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.execute_update_workflow', mock_func):
+            with patch('classdock.assignments.student_helper.StudentUpdateHelper.execute_update_workflow', mock_func):
                 result = runner.invoke(app, ["repos", "update"] + cli_args)
         elif scenario == "failure":
             mock_func = mock_update_failure()
-            with patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.execute_update_workflow', mock_func):
+            with patch('classdock.assignments.student_helper.StudentUpdateHelper.execute_update_workflow', mock_func):
                 result = runner.invoke(app, ["repos", "update"] + cli_args)
         else:
             print(
@@ -107,11 +107,11 @@ def run_cli_with_mocks(command: str, scenario: str):
     elif command == "push":
         if scenario == "success":
             mock_func = mock_push_success()
-            with patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.execute_push_workflow', mock_func):
+            with patch('classdock.assignments.push_manager.ClassroomPushManager.execute_push_workflow', mock_func):
                 result = runner.invoke(app, ["repos", "push"] + cli_args)
         elif scenario == "failure":
             mock_func = mock_push_failure()
-            with patch('classroom_pilot.assignments.push_manager.ClassroomPushManager.execute_push_workflow', mock_func):
+            with patch('classdock.assignments.push_manager.ClassroomPushManager.execute_push_workflow', mock_func):
                 result = runner.invoke(app, ["repos", "push"] + cli_args)
         else:
             print(

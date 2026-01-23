@@ -16,14 +16,14 @@ from unittest.mock import Mock, patch
 
 import pytest
 
-from classroom_pilot.assignments.student_helper import (
+from classdock.assignments.student_helper import (
     StudentUpdateHelper,
     OperationResult,
     UpdateResult,
     StudentStatus,
     BatchSummary
 )
-from classroom_pilot.config.global_config import GlobalConfig
+from classdock.config.global_config import GlobalConfig
 
 
 @pytest.fixture
@@ -41,7 +41,7 @@ def mock_config():
 @pytest.fixture
 def student_helper(mock_config):
     """Student helper instance with mocked config."""
-    with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+    with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
         helper = StudentUpdateHelper(auto_confirm=True)
         return helper
 
@@ -79,7 +79,7 @@ class TestStudentUpdateHelper:
 
     def test_validate_configuration_missing_config(self):
         """Test configuration validation with missing config."""
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=None):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=None):
             helper = StudentUpdateHelper()
             assert helper.validate_configuration() is False
 
@@ -111,7 +111,7 @@ class TestStudentUpdateHelper:
 
     def test_confirm_action_manual_confirm(self, mock_config):
         """Test action confirmation with manual confirmation."""
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
             helper = StudentUpdateHelper(auto_confirm=False)
 
             with patch('typer.confirm', return_value=True):
@@ -161,8 +161,8 @@ class TestStudentUpdateHelper:
             "https://github.com/test-org/nonexistent")
         assert result is None
 
-    @patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.check_repo_access')
-    @patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.get_remote_commit')
+    @patch('classdock.assignments.student_helper.StudentUpdateHelper.check_repo_access')
+    @patch('classdock.assignments.student_helper.StudentUpdateHelper.get_remote_commit')
     def test_check_student_status_accessible(self, mock_get_commit, mock_check_access, student_helper):
         """Test student status check for accessible repository."""
         mock_check_access.return_value = True
@@ -179,7 +179,7 @@ class TestStudentUpdateHelper:
         assert status.classroom_commit == "classroom789"
         assert status.needs_update is True  # Different commits
 
-    @patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.check_repo_access')
+    @patch('classdock.assignments.student_helper.StudentUpdateHelper.check_repo_access')
     def test_check_student_status_not_accessible(self, mock_check_access, student_helper):
         """Test student status check for inaccessible repository."""
         mock_check_access.return_value = False
@@ -192,8 +192,8 @@ class TestStudentUpdateHelper:
         assert status.needs_update is False
         assert "Cannot access" in status.error_message
 
-    @patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.check_repo_access')
-    @patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.get_remote_commit')
+    @patch('classdock.assignments.student_helper.StudentUpdateHelper.check_repo_access')
+    @patch('classdock.assignments.student_helper.StudentUpdateHelper.get_remote_commit')
     def test_check_student_status_up_to_date(self, mock_get_commit, mock_check_access, student_helper):
         """Test student status check for up-to-date repository."""
         mock_check_access.return_value = True
@@ -206,19 +206,19 @@ class TestStudentUpdateHelper:
         assert status.accessible is True
         assert status.needs_update is False
 
-    @patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.check_repo_access')
+    @patch('classdock.assignments.student_helper.StudentUpdateHelper.check_repo_access')
     def test_check_classroom_ready_success(self, mock_check_access, student_helper):
         """Test successful classroom readiness check."""
         mock_check_access.return_value = True
 
-        with patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.get_remote_commit') as mock_get_commit:
+        with patch('classdock.assignments.student_helper.StudentUpdateHelper.get_remote_commit') as mock_get_commit:
             mock_get_commit.side_effect = [
                 "same123", "same123"]  # Same commits
 
             result = student_helper.check_classroom_ready()
             assert result is True
 
-    @patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.check_repo_access')
+    @patch('classdock.assignments.student_helper.StudentUpdateHelper.check_repo_access')
     def test_check_classroom_ready_not_accessible(self, mock_check_access, student_helper):
         """Test classroom readiness check with inaccessible repository."""
         mock_check_access.return_value = False
@@ -228,7 +228,7 @@ class TestStudentUpdateHelper:
 
     def test_check_classroom_ready_no_config(self):
         """Test classroom readiness check with no configuration."""
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=None):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=None):
             helper = StudentUpdateHelper()
             result = helper.check_classroom_ready()
             assert result is False
@@ -253,7 +253,7 @@ class TestStudentUpdateHelper:
             Mock(returncode=0),  # git push origin backup
         ]
 
-        with patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.check_student_status') as mock_status:
+        with patch('classdock.assignments.student_helper.StudentUpdateHelper.check_student_status') as mock_status:
             mock_status.return_value = StudentStatus(
                 student_name="student123",
                 repo_url="https://github.com/test-org/test-assignment-student123",
@@ -261,7 +261,7 @@ class TestStudentUpdateHelper:
                 needs_update=True
             )
 
-            with patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.validate_repo_url', return_value=True):
+            with patch('classdock.assignments.student_helper.StudentUpdateHelper.validate_repo_url', return_value=True):
                 repo_url = "https://github.com/test-org/test-assignment-student123"
                 result = student_helper.help_single_student(repo_url)
 
@@ -269,7 +269,7 @@ class TestStudentUpdateHelper:
                 assert result.result == OperationResult.SUCCESS
                 assert "successfully" in result.message.lower()
 
-    @patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.check_student_status')
+    @patch('classdock.assignments.student_helper.StudentUpdateHelper.check_student_status')
     def test_help_single_student_up_to_date(self, mock_status, student_helper):
         """Test single student help when already up to date."""
         mock_status.return_value = StudentStatus(
@@ -279,13 +279,13 @@ class TestStudentUpdateHelper:
             needs_update=False
         )
 
-        with patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.validate_repo_url', return_value=True):
+        with patch('classdock.assignments.student_helper.StudentUpdateHelper.validate_repo_url', return_value=True):
             repo_url = "https://github.com/test-org/test-assignment-student123"
             result = student_helper.help_single_student(repo_url)
 
             assert result.result == OperationResult.UP_TO_DATE
 
-    @patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.check_student_status')
+    @patch('classdock.assignments.student_helper.StudentUpdateHelper.check_student_status')
     def test_help_single_student_not_accessible(self, mock_status, student_helper):
         """Test single student help when repository is not accessible."""
         mock_status.return_value = StudentStatus(
@@ -296,7 +296,7 @@ class TestStudentUpdateHelper:
             error_message="Access denied"
         )
 
-        with patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.validate_repo_url', return_value=True):
+        with patch('classdock.assignments.student_helper.StudentUpdateHelper.validate_repo_url', return_value=True):
             repo_url = "https://github.com/test-org/test-assignment-student123"
             result = student_helper.help_single_student(repo_url)
 
@@ -323,8 +323,8 @@ class TestStudentUpdateHelper:
         finally:
             temp_file.unlink()
 
-    @patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.help_single_student')
-    @patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.check_student_status')
+    @patch('classdock.assignments.student_helper.StudentUpdateHelper.help_single_student')
+    @patch('classdock.assignments.student_helper.StudentUpdateHelper.check_student_status')
     def test_batch_help_students_success(self, mock_status, mock_help, student_helper, temp_repo_file):
         """Test successful batch processing."""
         # Mock status checks
@@ -416,7 +416,7 @@ class TestStudentUpdateHelperIntegration:
 
     def test_end_to_end_workflow_simulation(self, mock_config):
         """Test end-to-end workflow simulation."""
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
             helper = StudentUpdateHelper(auto_confirm=True)
 
             # Test configuration validation
@@ -434,16 +434,16 @@ class TestStudentUpdateHelperIntegration:
             instructions = helper.generate_student_instructions(repo_url)
             assert "alice" in instructions
 
-    @patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.check_repo_access')
+    @patch('classdock.assignments.student_helper.StudentUpdateHelper.check_repo_access')
     def test_status_check_workflow(self, mock_check_access, mock_config):
         """Test status checking workflow."""
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
             helper = StudentUpdateHelper()
 
             # Mock accessible repository
             mock_check_access.return_value = True
 
-            with patch('classroom_pilot.assignments.student_helper.StudentUpdateHelper.get_remote_commit') as mock_get_commit:
+            with patch('classdock.assignments.student_helper.StudentUpdateHelper.get_remote_commit') as mock_get_commit:
                 mock_get_commit.side_effect = [
                     "abc123", "abc123", "abc123"]  # Same commits
 
@@ -455,7 +455,7 @@ class TestStudentUpdateHelperIntegration:
 
     def test_error_handling(self, mock_config):
         """Test error handling in various scenarios."""
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
             helper = StudentUpdateHelper()
 
             # Test with invalid URL
@@ -467,7 +467,7 @@ class TestStudentUpdateHelperIntegration:
             incomplete_config.github_organization = "test-org"
             # Missing assignment_name and template_repo_url
 
-            with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=incomplete_config):
+            with patch('classdock.assignments.student_helper.get_global_config', return_value=incomplete_config):
                 helper_incomplete = StudentUpdateHelper()
                 assert helper_incomplete.validate_configuration() is False
 
@@ -496,7 +496,7 @@ class TestStudentUpdateHelperExecuteUpdateWorkflow:
         - Checks classroom readiness
         - Returns True with success message
         """
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
             helper = StudentUpdateHelper(auto_confirm=False)
 
             with patch.object(helper, 'validate_configuration', return_value=True), \
@@ -516,7 +516,7 @@ class TestStudentUpdateHelperExecuteUpdateWorkflow:
         This test verifies that the auto_confirm parameter is properly
         applied to the helper instance.
         """
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
             helper = StudentUpdateHelper(auto_confirm=False)
 
             with patch.object(helper, 'validate_configuration', return_value=True), \
@@ -535,7 +535,7 @@ class TestStudentUpdateHelperExecuteUpdateWorkflow:
         This test verifies that execute_update_workflow returns False with
         appropriate error message when configuration validation fails.
         """
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
             helper = StudentUpdateHelper(auto_confirm=True)
 
             with patch.object(helper, 'validate_configuration', return_value=False):
@@ -552,7 +552,7 @@ class TestStudentUpdateHelperExecuteUpdateWorkflow:
         This test verifies that execute_update_workflow returns False with
         appropriate error message when classroom is not ready.
         """
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
             helper = StudentUpdateHelper(auto_confirm=True)
 
             with patch.object(helper, 'validate_configuration', return_value=True), \
@@ -571,7 +571,7 @@ class TestStudentUpdateHelperExecuteUpdateWorkflow:
         This test verifies that execute_update_workflow gracefully handles
         exceptions and returns False with error message.
         """
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
             helper = StudentUpdateHelper(auto_confirm=True)
 
             with patch.object(helper, 'validate_configuration', side_effect=Exception("Unexpected error")):
@@ -588,7 +588,7 @@ class TestStudentUpdateHelperExecuteUpdateWorkflow:
         This test verifies that the verbose parameter is accepted and
         doesn't affect the workflow logic.
         """
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
             helper = StudentUpdateHelper(auto_confirm=True)
 
             with patch.object(helper, 'validate_configuration', return_value=True), \
@@ -608,7 +608,7 @@ class TestStudentUpdateHelperExecuteUpdateWorkflow:
         existing helper setting is preserved (not overwritten) since the
         implementation only updates auto_confirm when it's truthy.
         """
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
             helper = StudentUpdateHelper(auto_confirm=True)
             original_auto_confirm = helper.auto_confirm
 
@@ -629,7 +629,7 @@ class TestStudentUpdateHelperExecuteUpdateWorkflow:
         This test verifies that execute_update_workflow always returns
         a tuple of (bool, str).
         """
-        with patch('classroom_pilot.assignments.student_helper.get_global_config', return_value=mock_config):
+        with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
             helper = StudentUpdateHelper(auto_confirm=True)
 
             with patch.object(helper, 'validate_configuration', return_value=True), \

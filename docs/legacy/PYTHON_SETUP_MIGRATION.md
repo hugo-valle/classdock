@@ -137,8 +137,8 @@ TEMPLATE_REPO_URL="{self.config_values['TEMPLATE_REPO_URL']}"
 ## CLI Command Structure
 
 ### New Commands
-- `python -m classroom_pilot setup` - **Default**: New Python interactive wizard
-- `python -m classroom_pilot setup-bash` - **Legacy**: Original bash script via wrapper
+- `python -m classdock setup` - **Default**: New Python interactive wizard
+- `python -m classdock setup-bash` - **Legacy**: Original bash script via wrapper
 
 ### Backward Compatibility
 - All existing bash functionality remains available through `setup-bash`
@@ -166,7 +166,7 @@ def test_validation_functions():
 ```python
 def test_setup_command_help():
     """Test the new Python setup command help."""
-    success, stdout, stderr = run_cli_command("python -m classroom_pilot setup --help")
+    success, stdout, stderr = run_cli_command("python -m classdock setup --help")
     assert success
     assert "Interactive Python wizard" in stdout
 ```

@@ -9,8 +9,8 @@ import pytest
 from unittest.mock import patch, MagicMock, mock_open
 from pathlib import Path
 
-from classroom_pilot.secrets.manager import SecretsManager
-from classroom_pilot.config.global_config import SecretsConfig
+from classdock.secrets.manager import SecretsManager
+from classdock.config.global_config import SecretsConfig
 
 
 class TestSecretsManagerCentralizedTokens:
@@ -20,7 +20,7 @@ class TestSecretsManagerCentralizedTokens:
         """Set up test fixtures."""
         self.manager = SecretsManager()
 
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     def test_get_secret_token_value_centralized_token(self, mock_token_manager_class):
         """Test getting token value from centralized token manager."""
         # Mock the GitHubTokenManager
@@ -80,7 +80,7 @@ class TestSecretsManagerCentralizedTokens:
         with pytest.raises(FileNotFoundError, match="Token file not found"):
             self.manager.get_secret_token_value(secret_config)
 
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     def test_get_secret_token_value_centralized_token_error(self, mock_token_manager_class):
         """Test error handling when centralized token retrieval fails."""
         # Mock the GitHubTokenManager to raise an exception
@@ -100,8 +100,8 @@ class TestSecretsManagerCentralizedTokens:
         with pytest.raises(Exception, match="Token retrieval failed"):
             self.manager.get_secret_token_value(secret_config)
 
-    @patch('classroom_pilot.secrets.manager.SecretsManager.get_secret_token_value')
-    @patch('classroom_pilot.config.global_config.get_global_config')
+    @patch('classdock.secrets.manager.SecretsManager.get_secret_token_value')
+    @patch('classdock.config.global_config.get_global_config')
     def test_add_secrets_from_global_config_centralized_tokens(self, mock_get_global_config, mock_get_token_value):
         """Test adding secrets from global config with centralized tokens."""
         # Mock global config
@@ -139,7 +139,7 @@ class TestSecretsManagerCentralizedTokens:
                 # Verify token retrieval was called for each secret
                 assert mock_get_token_value.call_count == 2
 
-    @patch('classroom_pilot.config.global_config.get_global_config')
+    @patch('classdock.config.global_config.get_global_config')
     def test_add_secrets_from_global_config_no_secrets(self, mock_get_global_config):
         """Test behavior when no secrets are configured."""
         # Mock global config with no secrets
@@ -152,7 +152,7 @@ class TestSecretsManagerCentralizedTokens:
         # Should return False when no secrets are configured
         assert result is False
 
-    @patch('classroom_pilot.config.global_config.get_global_config')
+    @patch('classdock.config.global_config.get_global_config')
     def test_add_secrets_from_global_config_no_global_config(self, mock_get_global_config):
         """Test behavior when global config is not available."""
         mock_get_global_config.return_value = None
@@ -162,8 +162,8 @@ class TestSecretsManagerCentralizedTokens:
         # Should return False when global config is not available
         assert result is False
 
-    @patch('classroom_pilot.secrets.manager.SecretsManager.get_secret_token_value')
-    @patch('classroom_pilot.config.global_config.get_global_config')
+    @patch('classdock.secrets.manager.SecretsManager.get_secret_token_value')
+    @patch('classdock.config.global_config.get_global_config')
     def test_add_secrets_from_global_config_token_retrieval_failure(self, mock_get_global_config, mock_get_token_value):
         """Test handling of token retrieval failure."""
         # Mock global config
@@ -209,7 +209,7 @@ class TestSecretsManagerCentralizedTokens:
         )
         assert file_based_config.uses_centralized_token() is False
 
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     def test_integration_new_vs_old_format_token_retrieval(self, mock_token_manager_class):
         """Test that new and old format configs use appropriate token retrieval methods."""
         # Setup mock

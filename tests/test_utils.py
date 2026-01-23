@@ -9,12 +9,12 @@ import os
 import subprocess
 from unittest.mock import patch, MagicMock
 
-from classroom_pilot.utils.logger import setup_logging, get_logger
-from classroom_pilot.utils.git import GitManager
-from classroom_pilot.utils.paths import PathManager
-from classroom_pilot.utils.ui_components import Colors, print_colored, print_error, print_success
-from classroom_pilot.utils.input_handlers import InputHandler, Validators, URLParser
-from classroom_pilot.utils.file_operations import FileManager
+from classdock.utils.logger import setup_logging, get_logger
+from classdock.utils.git import GitManager
+from classdock.utils.paths import PathManager
+from classdock.utils.ui_components import Colors, print_colored, print_error, print_success
+from classdock.utils.input_handlers import InputHandler, Validators, URLParser
+from classdock.utils.file_operations import FileManager
 
 
 class TestLogger:
@@ -26,7 +26,7 @@ class TestLogger:
         setup_logging(verbose=False)
         logger = get_logger("test")
         assert logger is not None
-        assert logger.name == "classroom_pilot.test"
+        assert logger.name == "classdock.test"
 
     def test_verbose_logging(self):
         """Test verbose logging setup."""
@@ -39,8 +39,8 @@ class TestLogger:
         logger1 = get_logger("module1")
         logger2 = get_logger("module2")
 
-        assert logger1.name == "classroom_pilot.module1"
-        assert logger2.name == "classroom_pilot.module2"
+        assert logger1.name == "classdock.module1"
+        assert logger2.name == "classdock.module2"
         assert logger1 != logger2
 
 

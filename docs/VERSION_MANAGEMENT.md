@@ -5,7 +5,7 @@
 **Before**: Version was hardcoded in 3 places → maintenance nightmare
 - `pyproject.toml` → `version = "3.1.0b1"`
 - `__init__.py` → `__version__ = "3.1.0b1"`  
-- `cli.py` → `"Classroom Pilot v3.1.0b1"`
+- `cli.py` → `"ClassDock v3.1.0b1"`
 
 **After**: Version defined in ONE place → `pyproject.toml` only ✅
 
@@ -24,7 +24,7 @@ __version__ = get_version()
 
 # cli.py  
 from . import __version__
-typer.echo(f"Classroom Pilot v{__version__}")
+typer.echo(f"ClassDock v{__version__}")
 ```
 
 ### **3. Smart Fallback System**
@@ -55,14 +55,14 @@ version = "3.2.0"  # ← Change ONLY here
 
 ### **Access Version Programmatically**
 ```python
-from classroom_pilot import __version__
+from classdock import __version__
 print(__version__)  # → "3.2.0"
 ```
 
 ### **CLI Version Command**
 ```bash
-classroom-pilot --version
-# Output: Classroom Pilot v3.2.0
+classdock --version
+# Output: ClassDock v3.2.0
 ```
 
 ## 🔧 **Technical Implementation**
@@ -72,7 +72,7 @@ classroom-pilot --version
 def get_version() -> str:
     try:
         # Try installed package metadata first
-        return metadata.version("classroom-pilot")
+        return metadata.version("classdock")
     except metadata.PackageNotFoundError:
         # Fallback to pyproject.toml for development
         return _read_version_from_pyproject()
@@ -119,11 +119,11 @@ sed -i 's/version = "3.1.0b2"/version = "3.2.0"/' pyproject.toml
 poetry install
 
 # 3. All version references updated automatically
-poetry run python -c "from classroom_pilot import __version__; print(__version__)"
+poetry run python -c "from classdock import __version__; print(__version__)"
 # → "3.2.0"
 
-poetry run classroom-pilot --version  
-# → "Classroom Pilot v3.2.0"
+poetry run classdock --version  
+# → "ClassDock v3.2.0"
 ```
 
 ### **Scenario 2: Development Mode**
@@ -132,8 +132,8 @@ poetry run classroom-pilot --version
 cd /tmp
 python -c "
 import sys
-sys.path.insert(0, '/path/to/classroom_pilot')
-from classroom_pilot import __version__
+sys.path.insert(0, '/path/to/classdock')
+from classdock import __version__
 print(__version__)
 "
 # → "3.2.0.dev"

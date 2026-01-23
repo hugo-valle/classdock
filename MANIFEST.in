@@ -5,12 +5,12 @@ include *.md
 include requirements.txt
 include requirements-dev.txt
 
-recursive-include classroom_pilot *.py
+recursive-include classdock *.py
 # Include shell scripts (legacy)
-recursive-include classroom_pilot/scripts_legacy *.sh
-recursive-include classroom_pilot/utils *.sh
-recursive-include classroom_pilot/docs *.md
-recursive-include classroom_pilot/docs *.yml
+recursive-include classdock/scripts_legacy *.sh
+recursive-include classdock/utils *.sh
+recursive-include classdock/docs *.md
+recursive-include classdock/docs *.yml
 
 exclude .gitignore
 exclude .github/*

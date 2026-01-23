@@ -73,10 +73,10 @@ from .assignments.setup import AssignmentSetup
 **In test files:**
 ```python
 # Before:
-from classroom_pilot.scripts.setup_assignment import SetupWizard
+from classdock.scripts.setup_assignment import SetupWizard
 
 # After:  
-from classroom_pilot.assignments.setup import AssignmentSetup
+from classdock.assignments.setup import AssignmentSetup
 ```
 
 ### 5. Package Structure Updates ✅
@@ -116,7 +116,7 @@ from ..utils.ui_components import print_header, print_success
 
 ### Clean Package Organization
 ```
-classroom_pilot/
+classdock/
 ├── __init__.py
 ├── __main__.py
 ├── cli.py               # Main CLI interface
@@ -186,10 +186,10 @@ docs/
 
 ### CLI Tests
 ```bash
-✅ Main CLI: python -m classroom_pilot --help
-✅ Assignments: python -m classroom_pilot assignments --help
+✅ Main CLI: python -m classdock --help
+✅ Assignments: python -m classdock assignments --help
 ✅ Legacy compatibility: Old commands still redirect properly
-✅ Version info: python -m classroom_pilot version
+✅ Version info: python -m classdock version
 ```
 
 ## Benefits Achieved

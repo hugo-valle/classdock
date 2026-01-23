@@ -109,7 +109,7 @@ jobs:
         
     - name: 📊 Test coverage report
       run: |
-        poetry run pytest tests/ --cov=classroom_pilot --cov-report=xml --cov-report=term
+        poetry run pytest tests/ --cov=classdock --cov-report=xml --cov-report=term
         
     - name: 📤 Upload coverage to Codecov
       if: matrix.python-version == '3.12'
@@ -131,7 +131,7 @@ jobs:
     
     # environment:
     #   name: pypi
-    #   url: https://pypi.org/project/classroom-pilot/
+    #   url: https://pypi.org/project/classdock/
       
     permissions:
       id-token: write  # For trusted publishing
@@ -198,7 +198,7 @@ jobs:
           
           # Check if version already exists on PyPI
           echo "🔍 Checking if version $VERSION already exists on PyPI..."
-          if pip index versions classroom-pilot 2>/dev/null | grep -q "classroom-pilot ($VERSION)"; then
+          if pip index versions classdock 2>/dev/null | grep -q "classdock ($VERSION)"; then
             echo "⚠️ Version $VERSION already exists on PyPI. Skipping publication."
             echo "should-publish=false" >> $GITHUB_OUTPUT
           else
@@ -241,7 +241,7 @@ jobs:
         
         📦 Package Information
         - Version: $VERSION
-        - PyPI: https://pypi.org/project/classroom-pilot/$VERSION/
+        - PyPI: https://pypi.org/project/classdock/$VERSION/
         - Repository: ${{ github.server_url }}/${{ github.repository }}
         
         🤖 Automation
@@ -368,11 +368,11 @@ jobs:
       id: release_notes
       run: |
         cat > release_notes.md << 'EOF'
-        ## 🎉 classroom-pilot v${{ steps.version.outputs.version }}
+        ## 🎉 classdock v${{ steps.version.outputs.version }}
         
         ### 📦 Installation
         ```bash
-        pip install classroom-pilot==${{ steps.version.outputs.version }}
+        pip install classdock==${{ steps.version.outputs.version }}
         ```
         
         ### 🚀 What's New
@@ -386,9 +386,9 @@ jobs:
         - **Python Support**: 3.10, 3.11, 3.12
         
         ### 📚 Documentation
-        - [PyPI Package](https://pypi.org/project/classroom-pilot/)
-        - [GitHub Repository](https://github.com/hugo-valle/classroom-pilot)
-        - [Installation Guide](https://github.com/hugo-valle/classroom-pilot#installation)
+        - [PyPI Package](https://pypi.org/project/classdock/)
+        - [GitHub Repository](https://github.com/hugo-valle/classdock)
+        - [Installation Guide](https://github.com/hugo-valle/classdock#installation)
         
         ---
         *Automated release created by GitHub Actions*
@@ -399,7 +399,7 @@ jobs:
       uses: softprops/action-gh-release@v2
       with:
         tag_name: ${{ steps.version.outputs.version }}
-        name: 🎉 classroom-pilot v${{ steps.version.outputs.version }}
+        name: 🎉 classdock v${{ steps.version.outputs.version }}
         body_path: release_notes.md
         draft: false
         prerelease: ${{ contains(steps.version.outputs.version, 'a') || contains(steps.version.outputs.version, 'b') || contains(steps.version.outputs.version, 'rc') }}
@@ -414,13 +414,13 @@ jobs:
         for i in {1..5}; do
           echo "Attempt $i/5..."
           # Check if the specific version is available
-          if pip install classroom-pilot==${{ steps.version.outputs.version }} --dry-run --quiet 2>/dev/null; then
+          if pip install classdock==${{ steps.version.outputs.version }} --dry-run --quiet 2>/dev/null; then
             echo "✅ Package version ${{ steps.version.outputs.version }} found on PyPI!"
             break
           elif [ $i -eq 5 ]; then
             echo "⚠️ Package not yet available on PyPI, but publication likely succeeded"
             echo "Note: PyPI propagation can take several minutes"
-            echo "Check manually: https://pypi.org/project/classroom-pilot/${{ steps.version.outputs.version }}/"
+            echo "Check manually: https://pypi.org/project/classdock/${{ steps.version.outputs.version }}/"
           else
             echo "Waiting 30 seconds before retry..."
             sleep 30
@@ -428,13 +428,13 @@ jobs:
         done
         
         echo "✅ Publication process completed!"
-        echo "📦 Package: https://pypi.org/project/classroom-pilot/${{ steps.version.outputs.version }}/"
+        echo "📦 Package: https://pypi.org/project/classdock/${{ steps.version.outputs.version }}/"
         
     - name: 💬 Notify on failure
       if: failure() && !cancelled()
       run: |
         source .github/scripts/workflow_utils.sh
-        log_error "❌ Publication failed for classroom-pilot v${VERSION:-unknown}"
+        log_error "❌ Publication failed for classdock v${VERSION:-unknown}"
         
   # Job 3: Update documentation
   update-docs:
@@ -471,7 +471,7 @@ jobs:
         BRANCH=docs/update-publication-history-v$VERSION-$(date +%s)
 
         # Update PYPI_PUBLICATION.md
-        sed -i "/### Future Releases/i ### v$VERSION ($DATE)\n- **Status**: ✅ Published via GitHub Actions\n- **Features**: Automated release workflow\n- **PyPI**: https://pypi.org/project/classroom-pilot/$VERSION/\n" docs/PYPI_PUBLICATION.md
+        sed -i "/### Future Releases/i ### v$VERSION ($DATE)\n- **Status**: ✅ Published via GitHub Actions\n- **Features**: Automated release workflow\n- **PyPI**: https://pypi.org/project/classdock/$VERSION/\n" docs/PYPI_PUBLICATION.md
 
         # Create a new branch
         git checkout -b "$BRANCH"

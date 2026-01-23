@@ -7,7 +7,7 @@ logic introduced in the secrets management upgrade.
 """
 
 
-from classroom_pilot.config.global_config import SecretsConfig, ConfigurationManager
+from classdock.config.global_config import SecretsConfig, ConfigurationManager
 
 
 class TestSecretsConfigParsing:

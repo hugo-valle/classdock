@@ -1,7 +1,7 @@
 # Test Coverage Summary for Centralized Token Migration
 
 ## Overview
-This document summarizes the test coverage for the centralized token management migration changes made to the classroom-pilot project.
+This document summarizes the test coverage for the centralized token management migration changes made to the classdock project.
 
 ## Test Files Created/Modified
 
@@ -27,8 +27,8 @@ This document summarizes the test coverage for the centralized token management 
 **Key Test Patterns**:
 ```python
 # Test centralized token config exists
-@patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
-@patch('classroom_pilot.assignments.setup.AssignmentSetup')
+@patch('classdock.utils.token_manager.GitHubTokenManager')
+@patch('classdock.assignments.setup.AssignmentSetup')
 def test_setup_with_existing_config_token(...)
 
 # Test environment token import flow
@@ -134,22 +134,22 @@ def test_show_completion_with_secrets_enabled(mock_stdout):
 
 ## Test Coverage by Module
 
-### `classroom_pilot/services/assignment_service.py`
+### `classdock/services/assignment_service.py`
 - ✅ Token pre-check logic: **14 dedicated tests** (new)
 - ✅ Setup orchestration: **existing tests** (passing)
 - ✅ Dry-run behavior: **covered in both**
 
-### `classroom_pilot/utils/ui_components.py`
+### `classdock/utils/ui_components.py`
 - ✅ `show_completion()`: **7 dedicated tests** (new)
 - ✅ `show_help()`: **8 dedicated tests** (new)
 - ✅ `show_version()`: **2 tests** (new)
 - ✅ Integration tests: **1 test** (new)
 
-### `classroom_pilot/secrets/github_secrets.py`
+### `classdock/secrets/github_secrets.py`
 - ✅ Centralized token usage: **covered by test_secrets_centralized_tokens.py**
 - ⚠️ New signature changes: **needs specific tests for process_single_repo/process_batch_repos**
 
-### `classroom_pilot/assignments/setup.py`
+### `classdock/assignments/setup.py`
 - ✅ Token file removal: **implicitly tested via assignment_service tests**
 - ⚠️ Direct testing: **could add dedicated tests for _configure_tokens() and _create_files()**
 
@@ -242,7 +242,7 @@ poetry run pytest tests/test_secrets_centralized_tokens.py -v
 
 3. **Run full test suite**:
    ```bash
-   poetry run pytest tests/ -v --cov=classroom_pilot
+   poetry run pytest tests/ -v --cov=classdock
    ```
 
 4. **Verify all tests pass**:

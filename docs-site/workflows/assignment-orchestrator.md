@@ -16,10 +16,10 @@ The orchestrator automates the complete assignment lifecycle through a single co
 
 ```bash
 # Install from PyPI
-pip install classroom-pilot
+pip install classdock
 
 # Verify installation
-classroom-pilot --help
+classdock --help
 ```
 
 ## 🚀 Quick Start
@@ -30,7 +30,7 @@ Create assignment configuration interactively:
 
 ```bash
 # Run interactive setup wizard
-classroom-pilot assignments setup
+classdock assignments setup
 
 # This creates an assignment.conf file with your settings
 ```
@@ -39,13 +39,13 @@ classroom-pilot assignments setup
 
 ```bash
 # Run complete orchestrated workflow
-classroom-pilot assignments orchestrate --config assignment.conf
+classdock assignments orchestrate --config assignment.conf
 
 # Preview what would be done (dry-run)
-classroom-pilot --dry-run assignments orchestrate --config assignment.conf
+classdock --dry-run assignments orchestrate --config assignment.conf
 
 # Run with verbose output for debugging
-classroom-pilot --verbose assignments orchestrate --config assignment.conf
+classdock --verbose assignments orchestrate --config assignment.conf
 ```
 
 ## ⚙️ Configuration
@@ -83,7 +83,7 @@ export GITHUB_HOSTS="github.enterprise.com"
 export GITHUB_TOKEN="ghp_your_token_here"
 
 # Run orchestrator
-classroom-pilot assignments orchestrate
+classdock assignments orchestrate
 ```
 
 ## 🔧 Command Options
@@ -92,16 +92,16 @@ classroom-pilot assignments orchestrate
 
 ```bash
 # Interactive orchestration with prompts
-classroom-pilot assignments orchestrate
+classdock assignments orchestrate
 
 # Use specific configuration file
-classroom-pilot assignments orchestrate --config my-assignment.conf
+classdock assignments orchestrate --config my-assignment.conf
 
 # Preview without executing changes
-classroom-pilot --dry-run assignments orchestrate
+classdock --dry-run assignments orchestrate
 
 # Enable detailed logging
-classroom-pilot --verbose assignments orchestrate
+classdock --verbose assignments orchestrate
 ```
 
 ### Workflow Components
@@ -120,37 +120,37 @@ The orchestrator runs these components in sequence:
 
 ```bash
 # Create new assignment configuration
-classroom-pilot assignments setup
+classdock assignments setup
 
 # Or manage existing assignment
-classroom-pilot assignments manage --config assignment.conf
+classdock assignments manage --config assignment.conf
 ```
 
 ### Step 2: Repository Operations
 
 ```bash
 # Fetch student repositories
-classroom-pilot repos fetch --config assignment.conf
+classdock repos fetch --config assignment.conf
 
 # Manage collaborators
-classroom-pilot repos collaborator add --config assignment.conf
+classdock repos collaborator add --config assignment.conf
 ```
 
 ### Step 3: Secret Management
 
 ```bash
 # Add secrets to all repositories
-classroom-pilot secrets add --config assignment.conf
+classdock secrets add --config assignment.conf
 
 # List existing secrets
-classroom-pilot secrets list --config assignment.conf
+classdock secrets list --config assignment.conf
 ```
 
 ### Step 4: Complete Orchestration
 
 ```bash
 # Run all steps together
-classroom-pilot assignments orchestrate --config assignment.conf
+classdock assignments orchestrate --config assignment.conf
 ```
 
 ## 🎯 Advanced Features
@@ -162,7 +162,7 @@ Process multiple assignments with different configurations:
 ```bash
 # Process multiple assignments
 for config in assignment-*.conf; do
-    classroom-pilot --verbose assignments orchestrate --config "$config"
+    classdock --verbose assignments orchestrate --config "$config"
 done
 ```
 
@@ -172,10 +172,10 @@ Integrate with scheduling systems:
 
 ```bash
 # Setup automated scheduling
-classroom-pilot automation scheduler setup --config assignment.conf
+classdock automation scheduler setup --config assignment.conf
 
 # Run batch operations
-classroom-pilot automation batch --config assignment.conf
+classdock automation batch --config assignment.conf
 ```
 
 ### Enterprise GitHub Support
@@ -188,7 +188,7 @@ GITHUB_HOSTS="github.enterprise.com,git.company.internal"
 
 # Or via environment variable
 export GITHUB_HOSTS="github.enterprise.com"
-classroom-pilot assignments orchestrate
+classdock assignments orchestrate
 ```
 
 ## 🛡️ Security & Best Practices
@@ -215,7 +215,7 @@ chmod 600 assignment.conf
 
 # Use environment variables for sensitive data
 export GITHUB_TOKEN="$(cat secure_token.txt)"
-classroom-pilot assignments orchestrate --config assignment.conf
+classdock assignments orchestrate --config assignment.conf
 ```
 
 ## 🔍 Troubleshooting
@@ -225,19 +225,19 @@ classroom-pilot assignments orchestrate --config assignment.conf
 1. **Authentication Errors**:
    ```bash
    # Verify token permissions
-   classroom-pilot --verbose assignments orchestrate
+   classdock --verbose assignments orchestrate
    ```
 
 2. **Repository Not Found**:
    ```bash
    # Check URL format and access
-   classroom-pilot repos fetch --config assignment.conf --verbose
+   classdock repos fetch --config assignment.conf --verbose
    ```
 
 3. **Secret Distribution Failures**:
    ```bash
    # Test with single repository first
-   classroom-pilot --dry-run secrets add --config assignment.conf
+   classdock --dry-run secrets add --config assignment.conf
    ```
 
 ### Debug Mode
@@ -246,10 +246,10 @@ Enable comprehensive logging for troubleshooting:
 
 ```bash
 # Maximum verbosity
-classroom-pilot --verbose assignments orchestrate --config assignment.conf
+classdock --verbose assignments orchestrate --config assignment.conf
 
 # Dry-run with detailed output
-classroom-pilot --dry-run --verbose assignments orchestrate --config assignment.conf
+classdock --dry-run --verbose assignments orchestrate --config assignment.conf
 ```
 
 ## 📚 Related Documentation

@@ -1,6 +1,6 @@
 # Versioning Strategy
 
-Classroom Pilot follows [Semantic Versioning](https://semver.org/) with [PEP 440](https://peps.python.org/pep-0440/) compliant version identifiers for Python package compatibility.
+ClassDock follows [Semantic Versioning](https://semver.org/) with [PEP 440](https://peps.python.org/pep-0440/) compliant version identifiers for Python package compatibility.
 
 ## Version Format
 
@@ -158,10 +158,10 @@ Our GitHub Actions workflows automatically:
 poetry version
 
 # Via CLI
-classroom-pilot --version
+classdock --version
 
 # Via Python
-python -c "import classroom_pilot; print(classroom_pilot.__version__)"
+python -c "import classdock; print(classdock.__version__)"
 ```
 
 ### Update Version
@@ -194,9 +194,9 @@ poetry version major
 ```
 
 ### PyPI Package URLs
-- Stable: `https://pypi.org/project/classroom-pilot/3.1.0/`
-- Alpha: `https://pypi.org/project/classroom-pilot/3.1.0a1/`
-- Beta: `https://pypi.org/project/classroom-pilot/3.1.0b1/`
+- Stable: `https://pypi.org/project/classdock/3.1.0/`
+- Alpha: `https://pypi.org/project/classdock/3.1.0a1/`
+- Beta: `https://pypi.org/project/classdock/3.1.0b1/`
 
 ## Migration Notes
 

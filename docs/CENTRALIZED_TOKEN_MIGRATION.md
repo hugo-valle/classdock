@@ -14,7 +14,7 @@ Completed: 2024
 
 ## Changes Made
 
-### 1. Service Layer (`classroom_pilot/services/assignment_service.py`)
+### 1. Service Layer (`classdock/services/assignment_service.py`)
 **Purpose**: Pre-check token availability before launching setup wizard
 
 **Changes**:
@@ -26,16 +26,16 @@ Completed: 2024
 
 **Code Added**:
 ```python
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 import os
 
 # Token pre-check logic before AssignmentSetup() instantiation
 token_manager = GitHubTokenManager()
-config_path = Path.home() / ".config" / "classroom-pilot" / "token_config.json"
+config_path = Path.home() / ".config" / "classdock" / "token_config.json"
 # ... validation and import flow ...
 ```
 
-### 2. Secrets Management (`classroom_pilot/secrets/github_secrets.py`)
+### 2. Secrets Management (`classdock/secrets/github_secrets.py`)
 **Purpose**: Use centralized token instead of reading token files
 
 **Changes**:
@@ -62,7 +62,7 @@ def process_single_repo(
     # ... rest of implementation
 ```
 
-### 3. Assignment Setup Wizard (`classroom_pilot/assignments/setup.py`)
+### 3. Assignment Setup Wizard (`classdock/assignments/setup.py`)
 **Purpose**: Remove token file creation from setup flow
 
 **Changes in `_configure_tokens()`**:
@@ -89,7 +89,7 @@ file_manager.create_token_files(token_files, config_values)
 print("\n✓ Using centralized GitHub token from configuration")
 ```
 
-### 4. UI Components (`classroom_pilot/utils/ui_components.py`)
+### 4. UI Components (`classdock/utils/ui_components.py`)
 **Purpose**: Update completion and help messages to reflect new architecture
 
 **Changes in `show_completion()`**:
@@ -100,7 +100,7 @@ print("\n✓ Using centralized GitHub token from configuration")
 
 **Changes in `show_help()`**:
 - Updated FEATURES section to mention "Centralized token management"
-- Updated REQUIREMENTS to reference "GitHub token configured via ~/.config/classroom-pilot/"
+- Updated REQUIREMENTS to reference "GitHub token configured via ~/.config/classdock/"
 - Updated GENERATED FILES to remove token file references
 - Added TOKEN MANAGEMENT section explaining centralized approach
 
@@ -119,14 +119,14 @@ GENERATED FILES:
     • .gitignore - Updated to protect sensitive files
 
 TOKEN MANAGEMENT:
-    • Centralized: ~/.config/classroom-pilot/token_config.json
+    • Centralized: ~/.config/classdock/token_config.json
     • Environment: GITHUB_TOKEN variable
     • No token files stored in repository
 ```
 
 ## Token Lookup Priority (Unchanged)
 The `GitHubTokenManager` maintains this priority order:
-1. **Config file**: `~/.config/classroom-pilot/token_config.json`
+1. **Config file**: `~/.config/classdock/token_config.json`
 2. **System keychain**: macOS Keychain (platform-specific)
 3. **Environment variable**: `GITHUB_TOKEN`
 4. **Interactive setup**: Prompts user if none found
@@ -138,16 +138,16 @@ Legacy configs that specify explicit token file paths are still supported:
 - This ensures existing assignments continue to work
 
 ## Files Modified
-1. `classroom_pilot/services/assignment_service.py` - Token pre-check
-2. `classroom_pilot/secrets/github_secrets.py` - Centralized token usage
-3. `classroom_pilot/assignments/setup.py` - Removed token file creation
-4. `classroom_pilot/utils/ui_components.py` - Updated UI messages
-5. `classroom_pilot/utils/token_manager.py` - Fixed datetime import bug
+1. `classdock/services/assignment_service.py` - Token pre-check
+2. `classdock/secrets/github_secrets.py` - Centralized token usage
+3. `classdock/assignments/setup.py` - Removed token file creation
+4. `classdock/utils/ui_components.py` - Updated UI messages
+5. `classdock/utils/token_manager.py` - Fixed datetime import bug
 
 ## Files NOT Modified (Intentionally)
-1. `classroom_pilot/utils/file_operations.py` - .gitignore template still protects token files (backward compatibility)
-2. `classroom_pilot/config/global_config.py` - Legacy config support maintained
-3. `classroom_pilot/config/generator.py` - Template includes legacy token options
+1. `classdock/utils/file_operations.py` - .gitignore template still protects token files (backward compatibility)
+2. `classdock/config/global_config.py` - Legacy config support maintained
+3. `classdock/config/generator.py` - Template includes legacy token options
 4. `scripts_legacy/` - Legacy bash scripts unchanged
 
 ## Testing Performed
@@ -158,8 +158,8 @@ Legacy configs that specify explicit token file paths are still supported:
 ✅ Dry-run setup execution
 
 ## Remaining Work
-- [ ] End-to-end test: Run full `classroom-pilot assignments setup` in test directory
-- [ ] End-to-end test: Run `classroom-pilot secrets add` with centralized token
+- [ ] End-to-end test: Run full `classdock assignments setup` in test directory
+- [ ] End-to-end test: Run `classdock secrets add` with centralized token
 - [ ] Integration test: Verify no `instructor_token.txt` created during setup
 - [ ] Integration test: Verify secrets deployment works with centralized token
 
@@ -179,7 +179,7 @@ Your existing token files will continue to work:
 - Consider migrating to centralized token for better security
 
 ### To Migrate Existing Setup
-1. Run: `classroom-pilot tokens setup` (if available) OR
+1. Run: `classdock tokens setup` (if available) OR
 2. Export your token: `export GITHUB_TOKEN="ghp_your_token_here"`
 3. Run setup in new assignment directory
 4. Setup will detect env var and offer to import to centralized config

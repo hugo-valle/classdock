@@ -10,14 +10,14 @@ from unittest.mock import Mock, patch, MagicMock, PropertyMock
 from pathlib import Path
 import os
 
-from classroom_pilot.services.assignment_service import AssignmentService
+from classdock.services.assignment_service import AssignmentService
 
 
 class TestAssignmentServiceTokenPreCheck:
     """Test token pre-check functionality in AssignmentService.setup()."""
 
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_with_existing_config_token(self, mock_assignment_setup, mock_token_manager_class):
         """Test setup when centralized token config file exists."""
         # Mock token manager
@@ -45,8 +45,8 @@ class TestAssignmentServiceTokenPreCheck:
         mock_token_manager.get_github_token.assert_called_once()
         mock_wizard.run_wizard.assert_called_once()
 
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_with_keychain_token(self, mock_assignment_setup, mock_token_manager_class):
         """Test setup when token exists in system keychain."""
         # Mock token manager
@@ -75,9 +75,9 @@ class TestAssignmentServiceTokenPreCheck:
         mock_wizard.run_wizard.assert_called_once()
 
     @patch.dict(os.environ, {'GITHUB_TOKEN': 'env_token_value'}, clear=True)
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     @patch('typer.confirm')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_with_env_token_import_accepted(self, mock_assignment_setup, mock_confirm, mock_token_manager_class):
         """Test setup when env token exists and user accepts import."""
         # Mock token manager
@@ -120,7 +120,7 @@ class TestAssignmentServiceTokenPreCheck:
         mock_wizard.run_wizard.assert_called_once()
 
     @patch.dict(os.environ, {'GITHUB_TOKEN': 'env_token_value'}, clear=True)
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     @patch('typer.confirm')
     def test_setup_with_env_token_import_declined_no_interactive(self, mock_confirm, mock_token_manager_class):
         """Test setup when env token exists, import declined, no interactive setup."""
@@ -147,9 +147,9 @@ class TestAssignmentServiceTokenPreCheck:
         assert mock_confirm.call_count == 2
 
     @patch.dict(os.environ, {'GITHUB_TOKEN': 'env_token_value'}, clear=True)
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     @patch('typer.confirm')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_with_env_token_import_declined_with_interactive(self, mock_assignment_setup, mock_confirm, mock_token_manager_class):
         """Test setup when env token exists, import declined, but interactive setup accepted."""
         # Mock token manager
@@ -182,9 +182,9 @@ class TestAssignmentServiceTokenPreCheck:
         mock_wizard.run_wizard.assert_called_once()
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     @patch('typer.confirm')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_no_token_interactive_creation_accepted(self, mock_assignment_setup, mock_confirm, mock_token_manager_class):
         """Test setup when no token exists and user accepts interactive creation."""
         # Mock token manager
@@ -217,7 +217,7 @@ class TestAssignmentServiceTokenPreCheck:
         mock_wizard.run_wizard.assert_called_once()
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     @patch('typer.confirm')
     def test_setup_no_token_interactive_creation_declined(self, mock_confirm, mock_token_manager_class):
         """Test setup when no token exists and user declines interactive creation."""
@@ -244,7 +244,7 @@ class TestAssignmentServiceTokenPreCheck:
         assert "configured" in message.lower()
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     def test_setup_dry_run_no_token(self, mock_token_manager_class):
         """Test setup in dry-run mode when no token exists."""
         # Mock token manager (not actually called in dry-run mode)
@@ -267,7 +267,7 @@ class TestAssignmentServiceTokenPreCheck:
         assert "assignment setup wizard" in message
 
     @patch.dict(os.environ, {'GITHUB_TOKEN': 'env_token_value'}, clear=True)
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     def test_setup_dry_run_with_env_token_only(self, mock_token_manager_class):
         """Test setup in dry-run mode when only env token exists."""
         # Mock token manager (not actually called in dry-run mode)
@@ -290,9 +290,9 @@ class TestAssignmentServiceTokenPreCheck:
         assert "assignment setup wizard" in message
 
     @patch.dict(os.environ, {'GITHUB_TOKEN': 'invalid_token'}, clear=True)
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     @patch('typer.confirm')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_env_token_verification_fails_interactive_fallback(self, mock_assignment_setup, mock_confirm, mock_token_manager_class):
         """Test setup when env token verification fails and fallback to interactive."""
         # Mock token manager
@@ -327,7 +327,7 @@ class TestAssignmentServiceTokenPreCheck:
         mock_wizard.run_wizard.assert_called_once()
 
     @patch.dict(os.environ, {'GITHUB_TOKEN': 'invalid_token'}, clear=True)
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     @patch('typer.confirm')
     def test_setup_env_token_verification_fails_interactive_declined(self, mock_confirm, mock_token_manager_class):
         """Test setup when env token verification fails and interactive declined."""
@@ -355,7 +355,7 @@ class TestAssignmentServiceTokenPreCheck:
         mock_token_manager._verify_and_get_token_info.assert_called_once()
 
     @patch.dict(os.environ, {'GITHUB_TOKEN': 'env_token_value'}, clear=True)
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     @patch('typer.confirm')
     def test_setup_env_token_import_storage_error(self, mock_confirm, mock_token_manager_class):
         """Test setup when env token storage fails."""
@@ -392,8 +392,8 @@ class TestAssignmentServiceTokenPreCheck:
 class TestAssignmentServiceTokenPreCheckWithURL:
     """Test token pre-check functionality with URL parameter."""
 
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
-    @patch('classroom_pilot.assignments.setup.AssignmentSetup')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.assignments.setup.AssignmentSetup')
     def test_setup_with_url_and_existing_token(self, mock_assignment_setup, mock_token_manager_class):
         """Test setup with URL when token exists."""
         # Mock token manager
@@ -422,7 +422,7 @@ class TestAssignmentServiceTokenPreCheckWithURL:
         mock_wizard.run_wizard_with_url.assert_called_once_with(url)
 
     @patch.dict(os.environ, {}, clear=True)
-    @patch('classroom_pilot.utils.token_manager.GitHubTokenManager')
+    @patch('classdock.utils.token_manager.GitHubTokenManager')
     @patch('typer.confirm')
     def test_setup_with_url_no_token_declined(self, mock_confirm, mock_token_manager_class):
         """Test setup with URL when no token and user declines creation."""

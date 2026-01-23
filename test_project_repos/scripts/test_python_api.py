@@ -80,12 +80,12 @@ def test_package_imports(results: TestResult) -> None:
 
     # Test main package import
     try:
-        import classroom_pilot
+        import classdock
         results.mark_passed("Main package import")
 
         # Check version
         if hasattr(classroom_pilot, '__version__'):
-            log_info(f"Package version: {classroom_pilot.__version__}")
+            log_info(f"Package version: {classdock.__version__}")
             results.mark_passed("Version attribute available")
         else:
             results.mark_failed("Version attribute missing")
@@ -96,35 +96,35 @@ def test_package_imports(results: TestResult) -> None:
 
     # Test core utility imports
     try:
-        from classroom_pilot import ConfigLoader, ConfigValidator, BashWrapper
+        from classdock import ConfigLoader, ConfigValidator, BashWrapper
         results.mark_passed("Core utilities import")
     except ImportError as e:
         results.mark_failed("Core utilities import", str(e))
 
     # Test service layer imports
     try:
-        from classroom_pilot import AssignmentService, ReposService, SecretsService, AutomationService
+        from classdock import AssignmentService, ReposService, SecretsService, AutomationService
         results.mark_passed("Service layer import")
     except ImportError as e:
         results.mark_failed("Service layer import", str(e))
 
     # Test logging imports
     try:
-        from classroom_pilot import setup_logging, get_logger
+        from classdock import setup_logging, get_logger
         results.mark_passed("Logging utilities import")
     except ImportError as e:
         results.mark_failed("Logging utilities import", str(e))
 
     # Test assignment imports
     try:
-        from classroom_pilot.assignments.setup import AssignmentSetup
+        from classdock.assignments.setup import AssignmentSetup
         results.mark_passed("Assignment setup import")
     except ImportError as e:
         results.mark_failed("Assignment setup import", str(e))
 
     # Test CLI imports
     try:
-        from classroom_pilot import cli
+        from classdock import cli
         results.mark_passed("CLI module import")
     except ImportError as e:
         results.mark_failed("CLI module import", str(e))
@@ -135,7 +135,7 @@ def test_configuration_system(results: TestResult) -> None:
     log_info("Testing configuration system")
 
     try:
-        from classroom_pilot import ConfigLoader, ConfigValidator
+        from classdock import ConfigLoader, ConfigValidator
 
         # Test ConfigLoader instantiation
         try:
@@ -182,7 +182,7 @@ def test_logging_system(results: TestResult) -> None:
     log_info("Testing logging system")
 
     try:
-        from classroom_pilot import setup_logging, get_logger
+        from classdock import setup_logging, get_logger
 
         # Test logging setup
         try:
@@ -219,7 +219,7 @@ def test_bash_wrapper(results: TestResult) -> None:
     log_info("Testing BashWrapper")
 
     try:
-        from classroom_pilot import BashWrapper
+        from classdock import BashWrapper
 
         # Test BashWrapper instantiation
         try:
@@ -251,7 +251,7 @@ def test_assignment_setup(results: TestResult) -> None:
     log_info("Testing AssignmentSetup")
 
     try:
-        from classroom_pilot.assignments.setup import AssignmentSetup
+        from classdock.assignments.setup import AssignmentSetup
 
         # Create temporary directory for testing
         with tempfile.TemporaryDirectory() as temp_dir:
@@ -293,7 +293,7 @@ def test_cli_module(results: TestResult) -> None:
     log_info("Testing CLI module")
 
     try:
-        from classroom_pilot import cli
+        from classdock import cli
 
         # Test CLI app creation
         try:
@@ -325,7 +325,7 @@ def test_service_layer(results: TestResult) -> None:
     log_info("Testing service layer")
 
     try:
-        from classroom_pilot import AssignmentService, ReposService, SecretsService, AutomationService
+        from classdock import AssignmentService, ReposService, SecretsService, AutomationService
 
         # Test AssignmentService instantiation
         try:
@@ -364,7 +364,7 @@ def test_error_handling(results: TestResult) -> None:
     log_info("Testing error handling")
 
     try:
-        from classroom_pilot import ConfigValidator
+        from classdock import ConfigValidator
 
         # Test with invalid configuration
         try:
@@ -403,8 +403,8 @@ def test_memory_usage(results: TestResult) -> None:
         initial_memory = process.memory_info().rss
 
         # Import and use package
-        import classroom_pilot
-        from classroom_pilot import ConfigLoader, setup_logging
+        import classdock
+        from classdock import ConfigLoader, setup_logging
 
         # Perform some operations
         setup_logging(verbose=False)

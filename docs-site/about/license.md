@@ -24,7 +24,7 @@ SOFTWARE.
 
 ## Third-Party Licenses
 
-Classroom Pilot depends on several open-source packages. Below are their respective licenses:
+ClassDock depends on several open-source packages. Below are their respective licenses:
 
 ### Direct Dependencies
 
@@ -77,7 +77,7 @@ The documentation site uses the Material theme for MkDocs:
 
 ## Disclaimer
 
-Classroom Pilot is an independent project and is not affiliated with, endorsed by, or sponsored by GitHub, Inc. GitHub and GitHub Classroom are trademarks of GitHub, Inc.
+ClassDock is an independent project and is not affiliated with, endorsed by, or sponsored by GitHub, Inc. GitHub and GitHub Classroom are trademarks of GitHub, Inc.
 
 The use of GitHub's API and services is subject to GitHub's Terms of Service and API Terms of Use.
 
@@ -105,9 +105,9 @@ The only requirement is that you include the original copyright notice and licen
 This software is provided "as is" without warranty of any kind. The authors and contributors are not liable for any damages or issues that may arise from using this software.
 
 For support, please refer to:
-- [GitHub Issues](https://github.com/hugo-valle/classroom-pilot/issues) for bug reports
-- [GitHub Discussions](https://github.com/hugo-valle/classroom-pilot/discussions) for questions
-- [Documentation](https://classroom-pilot.readthedocs.io/) for usage guides
+- [GitHub Issues](https://github.com/hugo-valle/classdock/issues) for bug reports
+- [GitHub Discussions](https://github.com/hugo-valle/classdock/discussions) for questions
+- [Documentation](https://classdock.readthedocs.io/) for usage guides
 
 ## Version History
 
@@ -116,4 +116,4 @@ License information for different versions:
 - **v2.x**: MIT License
 - **v1.x**: MIT License
 
-All versions of Classroom Pilot have been released under the MIT License.
+All versions of ClassDock have been released under the MIT License.
