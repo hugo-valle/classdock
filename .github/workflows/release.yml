@@ -8,6 +8,7 @@ on:
   push:
     tags:
       - 'v*.*.*'          # Matches v1.0.0, v1.0.0-alpha.1, v1.0.0-beta.1, etc.
+      - '[0-9]+.[0-9]+.[0-9]+'  # Also matches 1.0.0, 1.0.0a1, etc. without v prefix
 
 env:
   GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
@@ -55,12 +56,14 @@ jobs:
       - name: Validate tag format
         run: |
           TAG_NAME=${GITHUB_REF#refs/tags/}
-          if [[ ! "$TAG_NAME" =~ ^[0-9]+\.[0-9]+\.[0-9]+(a[0-9]+|b[0-9]+|rc[0-9]+)?$ ]]; then
+          # Strip 'v' prefix if present for validation
+          VERSION=${TAG_NAME#v}
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+(a[0-9]+|b[0-9]+|rc[0-9]+)?$ ]]; then
             echo "❌ Invalid tag format: $TAG_NAME"
-            echo "Expected format: 1.0.0, 1.0.0a1, 1.0.0b1, 1.0.0rc1"
+            echo "Expected format: v1.0.0 or 1.0.0 (with optional a1, b1, rc1 suffix)"
             exit 1
           fi
-          echo "✅ Valid tag format: $TAG_NAME"
+          echo "✅ Valid tag format: $TAG_NAME (version: $VERSION)"
 
   test:
     name: 🧪 Run Tests
