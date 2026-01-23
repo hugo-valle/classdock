@@ -64,14 +64,11 @@ jobs:
         with:
           path: .venv
           key: venv-test-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ env.CACHE_VERSION }}
-          restore-keys: |
-            venv-test-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}-
-            venv-test-${{ runner.os }}-${{ matrix.python-version }}-
 
       - name: �📚 Install dependencies
         run: |
           source .github/scripts/workflow_utils.sh
-          poetry install --sync
+          poetry install
 
       - name: ✅ Validate environment
         run: |
@@ -206,9 +203,6 @@ jobs:
         with:
           path: .venv
           key: venv-lint-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}-${{ env.CACHE_VERSION }}
-          restore-keys: |
-            venv-lint-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}-
-            venv-lint-${{ runner.os }}-3.11-
 
       - name: 📚 Install dependencies
         run: |
@@ -291,9 +285,6 @@ jobs:
             ~/.cache/trivy
             ~/.cache/pip
           key: security-tools-${{ runner.os }}-${{ hashFiles('.github/scripts/security_utils.sh') }}-${{ env.CACHE_VERSION }}
-          restore-keys: |
-            security-tools-${{ runner.os }}-${{ hashFiles('.github/scripts/security_utils.sh') }}-
-            security-tools-${{ runner.os }}-
 
       - name: 📦 Load workflow utilities
         run: |
