@@ -23,6 +23,26 @@ from .config.global_config import load_global_config, get_global_config
 logger = get_logger("cli")
 
 
+def get_global_options(ctx: typer.Context) -> tuple[bool, bool]:
+    """
+    Helper to get verbose and dry_run from context.
+
+    Accesses options from root context to work regardless of where
+    --verbose and --dry-run were specified in the command.
+
+    Args:
+        ctx: Typer context
+
+    Returns:
+        tuple: (verbose: bool, dry_run: bool)
+    """
+    root_ctx = ctx.find_root()
+    return (
+        root_ctx.obj.get('verbose', False) if root_ctx.obj else False,
+        root_ctx.obj.get('dry_run', False) if root_ctx.obj else False
+    )
+
+
 def load_student_repos(file_path: str = "student-repos.txt") -> List[str]:
     """
     Load student repository URLs from file.
@@ -112,6 +132,11 @@ def version_callback(value: bool):
 
 
 # Create the main Typer application
+# NOTE: We define --verbose and --dry-run at both the main level AND in each subcommand callback.
+# This allows flexible positioning - options work in BOTH positions:
+#   - BEFORE subcommands: classdock --verbose assignments orchestrate
+#   - AFTER subcommands: classdock assignments --verbose orchestrate
+# Each callback merges options so they work from either position.
 app = typer.Typer(
     help="ClassDock - Comprehensive automation suite for managing GitHub Classroom assignments.",
     no_args_is_help=True
@@ -136,6 +161,16 @@ def main(
         None,
         "--assignment-root",
         help="Root directory containing assignment.conf file"
+    ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose", "-v",
+        help="Enable verbose output"
+    ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Show what would be done without executing"
     )
 ):
     """
@@ -144,23 +179,28 @@ def main(
     This tool automatically loads configuration from assignment.conf file and makes
     all configuration variables globally available to all commands.
     """
-    # Set up logging first
-    setup_logging()
+    # Set up logging first with verbose flag
+    setup_logging(verbose=verbose)
 
-    # Skip configuration loading if we're just showing help
-    # Check multiple ways to detect help mode:
-    # 1. sys.argv for terminal usage
-    # 2. context args for CliRunner usage
-    # 3. Resilient parsing mode
-    if '--help' in sys.argv or '-h' in sys.argv:
-        return
+    # Store global options in context for all commands
+    ctx.ensure_object(dict)
+    ctx.obj['verbose'] = verbose
+    ctx.obj['dry_run'] = dry_run
+    ctx.obj['config_file'] = config_file
+    ctx.obj['assignment_root'] = assignment_root
 
-    # Check context args (works with CliRunner for main command help)
-    if '--help' in ctx.args or '-h' in ctx.args:
-        return
-
-    # Also skip if this is resilient parsing mode
+    # Skip configuration loading in resilient parsing mode (used internally by Click)
     if ctx.resilient_parsing:
+        return
+
+    # Skip configuration loading if showing main command help only
+    # Check if this is main help (no subcommand) vs subcommand help
+    subcommands = ['assignments', 'repos', 'secrets', 'automation', 'config']
+    has_subcommand = any(cmd in sys.argv for cmd in subcommands)
+    is_help_request = '--help' in sys.argv or '-h' in sys.argv
+
+    # Only skip config loading for main command help (no subcommand specified)
+    if is_help_request and not has_subcommand:
         return
 
     # Try to load global configuration (don't fail if not found, some commands create it)
@@ -192,84 +232,114 @@ config_app = typer.Typer(
     help="Configuration and token management commands")
 
 
-# Universal options callback for assignments commands
+# Callback for config commands with global options
+@config_app.callback()
+def config_callback(
+    ctx: typer.Context,
+    verbose: bool = typer.Option(
+        False,
+        "--verbose", "-v",
+        help="Enable verbose output"
+    ),
+    dry_run: bool = typer.Option(
+        False,
+        "--dry-run",
+        help="Show what would be done without executing"
+    )
+):
+    """Configuration and token management commands."""
+    # Store options in context for subcommands to access
+    ctx.ensure_object(dict)
+    ctx.obj['verbose'] = verbose or ctx.obj.get('verbose', False)
+    ctx.obj['dry_run'] = dry_run or ctx.obj.get('dry_run', False)
+
+
+# Callback for assignments commands with global options
 @assignments_app.callback()
 def assignments_callback(
     ctx: typer.Context,
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
+        False,
+        "--verbose", "-v",
+        help="Enable verbose output"
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Show what would be done without executing"
+        False,
+        "--dry-run",
+        help="Show what would be done without executing"
     )
 ):
     """Assignment setup, orchestration, and management commands."""
-    if verbose:
-        setup_logging(verbose=True)
-    # Store options in context for child commands to access
+    # Store options in context for subcommands to access
     ctx.ensure_object(dict)
-    ctx.obj['verbose'] = verbose
-    ctx.obj['dry_run'] = dry_run
+    ctx.obj['verbose'] = verbose or ctx.obj.get('verbose', False)
+    ctx.obj['dry_run'] = dry_run or ctx.obj.get('dry_run', False)
 
 
-# Universal options callback for repos commands
+# Callback for repos commands with global options
 @repos_app.callback()
 def repos_callback(
     ctx: typer.Context,
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
+        False,
+        "--verbose", "-v",
+        help="Enable verbose output"
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Show what would be done without executing"
+        False,
+        "--dry-run",
+        help="Show what would be done without executing"
     )
 ):
     """Repository operations and collaborator management commands."""
-    if verbose:
-        setup_logging(verbose=True)
-    # Store options in context for child commands to access
+    # Store options in context for subcommands to access
     ctx.ensure_object(dict)
-    ctx.obj['verbose'] = verbose
-    ctx.obj['dry_run'] = dry_run
+    ctx.obj['verbose'] = verbose or ctx.obj.get('verbose', False)
+    ctx.obj['dry_run'] = dry_run or ctx.obj.get('dry_run', False)
 
 
-# Universal options callback for secrets commands
+# Callback for secrets commands with global options
 @secrets_app.callback()
 def secrets_callback(
     ctx: typer.Context,
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
+        False,
+        "--verbose", "-v",
+        help="Enable verbose output"
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Show what would be done without executing"
+        False,
+        "--dry-run",
+        help="Show what would be done without executing"
     )
 ):
     """Secret and token management commands."""
-    if verbose:
-        setup_logging(verbose=True)
-    # Store options in context for child commands to access
+    # Store options in context for subcommands to access
     ctx.ensure_object(dict)
-    ctx.obj['verbose'] = verbose
-    ctx.obj['dry_run'] = dry_run
+    ctx.obj['verbose'] = verbose or ctx.obj.get('verbose', False)
+    ctx.obj['dry_run'] = dry_run or ctx.obj.get('dry_run', False)
 
 
-# Universal options callback for automation commands
+# Callback for automation commands with global options
 @automation_app.callback()
 def automation_callback(
     ctx: typer.Context,
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"
+        False,
+        "--verbose", "-v",
+        help="Enable verbose output"
     ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Show what would be done without executing"
+        False,
+        "--dry-run",
+        help="Show what would be done without executing"
     )
 ):
     """Automation, scheduling, and batch processing commands."""
-    if verbose:
-        setup_logging(verbose=True)
-    # Store options in context for child commands to access
+    # Store options in context for subcommands to access
     ctx.ensure_object(dict)
-    ctx.obj['verbose'] = verbose
-    ctx.obj['dry_run'] = dry_run
+    ctx.obj['verbose'] = verbose or ctx.obj.get('verbose', False)
+    ctx.obj['dry_run'] = dry_run or ctx.obj.get('dry_run', False)
 
 
 # Add subcommand groups to main app
@@ -306,9 +376,8 @@ def assignment_setup(
         $ classdock assignments setup --simplified
         $ classdock assignments setup --url "https://classroom.github.com/..."
     """
-    # Access universal options from context
-    verbose = ctx.obj.get('verbose', False)
-    dry_run = ctx.obj.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
     setup_logging(verbose)
 
@@ -344,9 +413,8 @@ def assignment_validate_config(
         $ classdock assignments validate-config
         $ classdock assignments validate-config --config-file custom.conf
     """
-    # Access universal options from context
-    verbose = ctx.obj.get('verbose', False)
-    dry_run = ctx.obj.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
     setup_logging(verbose)
 
@@ -407,11 +475,10 @@ def assignment_orchestrate(
         $ classdock assignments orchestrate --skip sync,assist
         $ classdock assignments orchestrate --config my-assignment.conf
     """
-    # Get universal options from context
-    dry_run = ctx.obj.get('dry_run', False)
-    verbose = ctx.obj.get('verbose', False)
+    # Get universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
-    setup_logging(verbose)
+    setup_logging(verbose=verbose)
     logger.info("Starting assignment orchestration")
 
     # Delegate to AssignmentService
@@ -462,9 +529,8 @@ def help_student(
         $ classdock assignments help-student https://github.com/org/assignment-student123
         $ classdock assignments help-student --one-student https://github.com/org/assignment-student123
     """
-    # Access universal options from context
-    verbose = ctx.obj.get('verbose', False)
-    dry_run = ctx.obj.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
     setup_logging(verbose)
 
@@ -536,9 +602,8 @@ def help_students(
         $ classdock assignments help-students --yes
         $ classdock assignments help-students --file custom-repos.txt
     """
-    # Access universal options from context
-    verbose = ctx.obj.get('verbose', False)
-    dry_run = ctx.obj.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
     setup_logging(verbose)
 
@@ -597,9 +662,8 @@ def check_student(
         $ classdock assignments check-student
         $ classdock assignments check-student https://github.com/org/assignment-student123
     """
-    # Access universal options from context
-    verbose = ctx.obj.get('verbose', False)
-    dry_run = ctx.obj.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
     setup_logging(verbose)
 
@@ -650,6 +714,7 @@ def check_student(
 
 @assignments_app.command("student-instructions")
 def student_instructions(
+    ctx: typer.Context,
     repo_url: Optional[str] = typer.Argument(
         None, help="Student repository URL (or leave empty to select from student-repos.txt)"),
     output_file: Optional[str] = typer.Option(
@@ -680,7 +745,17 @@ def student_instructions(
         $ classdock assignments student-instructions https://github.com/org/assignment-student123
         $ classdock assignments student-instructions https://github.com/org/assignment-student123 -o instructions.txt
     """
-    setup_logging()
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
+    setup_logging(verbose=verbose)
+
+    if dry_run:
+        logger.info("DRY RUN: Would generate student instructions")
+        if repo_url:
+            logger.info(f"DRY RUN: Repository: {repo_url}")
+        if output_file:
+            logger.info(f"DRY RUN: Would save to: {output_file}")
+        return
 
     # If no repo_url provided, load from file and allow selection
     if not repo_url:
@@ -732,8 +807,7 @@ def student_instructions(
 
 @assignments_app.command("check-classroom")
 def check_classroom(
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"),
+    ctx: typer.Context,
     config_file: str = typer.Option(
         "assignment.conf", "--config", "-c", help="Configuration file path")
 ):
@@ -745,13 +819,19 @@ def check_classroom(
     for student assistance operations.
 
     Args:
-        verbose: Enable detailed logging
         config_file: Path to configuration file
 
     Example:
         $ classdock assignments check-classroom
     """
-    setup_logging(verbose)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
+    setup_logging(verbose=verbose)
+
+    if dry_run:
+        logger.info("DRY RUN: Would check classroom repository status")
+        return
+
     logger.info("Checking classroom repository status")
 
     try:
@@ -822,14 +902,10 @@ def cycle_single_collaborator(
         $ classdock assignments cycle-collaborator https://github.com/org/repo-student123
         $ classdock assignments cycle-collaborator https://github.com/org/repo student123 --force
     """
-    # Access universal options from parent context
-    verbose = ctx.parent.params.get('verbose', False)
-    dry_run = ctx.parent.params.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
-    if verbose:
-        setup_logging(verbose=True)
-    else:
-        setup_logging()
+    setup_logging(verbose=verbose)
 
     logger.info("Cycling single repository collaborator permissions")
 
@@ -958,11 +1034,10 @@ def cycle_multiple_collaborators(
         $ classdock assignments cycle-collaborators --repo-urls
         $ classdock assignments cycle-collaborators custom-repos.txt --repo-urls --force
     """
-    # Access universal options from parent context
-    verbose = ctx.parent.params.get('verbose', False)
-    dry_run = ctx.parent.params.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
-    setup_logging(verbose)
+    setup_logging(verbose=verbose)
     logger.info("Cycling multiple repository collaborator permissions")
 
     try:
@@ -1020,12 +1095,11 @@ def cycle_multiple_collaborators(
 
 @assignments_app.command("check-repository-access")
 def check_repository_access(
+    ctx: typer.Context,
     repo_url: Optional[str] = typer.Argument(
         None, help="Repository URL to check access for (or leave empty to select from student-repos.txt)"),
     username: Optional[str] = typer.Argument(
         None, help="Username to check access for (auto-extracted from URL if not provided)"),
-    verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"),
     repo_file: str = typer.Option(
         "student-repos.txt", "--file", "-f",
         help="File containing student repository URLs for interactive selection"),
@@ -1045,7 +1119,6 @@ def check_repository_access(
     Args:
         repo_url: URL of the repository to check
         username: Username to check access for (auto-extracted if not provided)
-        verbose: Enable detailed logging
         repo_file: File containing student repository URLs for interactive selection
         config_file: Path to configuration file
 
@@ -1054,7 +1127,18 @@ def check_repository_access(
         $ classdock assignments check-repository-access https://github.com/org/assignment-student123
         $ classdock assignments check-repository-access https://github.com/org/assignment-student123 student123
     """
-    setup_logging(verbose)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
+    setup_logging(verbose=verbose)
+
+    if dry_run:
+        logger.info("DRY RUN: Would check repository access status")
+        if repo_url:
+            logger.info(f"DRY RUN: Repository: {repo_url}")
+        if username:
+            logger.info(f"DRY RUN: Username: {username}")
+        return
+
     logger.info("Checking repository access status")
 
     # If no repo_url provided, load from file and allow selection
@@ -1173,15 +1257,14 @@ def push_to_classroom(
         # Non-interactive mode for automation
         classdock assignments push-to-classroom --non-interactive --force
     """
-    # Access universal options from context
-    verbose = ctx.obj.get('verbose', False)
-    dry_run = ctx.obj.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
     try:
         from .assignments.push_manager import ClassroomPushManager, PushResult
 
         # Set up logging
-        setup_logging(verbose)
+        setup_logging(verbose=verbose)
         logger.info("🚀 Starting classroom repository push workflow")
 
         if dry_run:
@@ -1280,9 +1363,8 @@ def repos_fetch(
         $ classdock repos fetch
         $ classdock repos fetch --config custom.conf --verbose --dry-run
     """
-    # Access universal options from context
-    verbose = ctx.obj.get('verbose', False)
-    dry_run = ctx.obj.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
     if verbose:
         logger.debug(
@@ -1349,9 +1431,8 @@ def secrets_add(
         $ classdock secrets add --force  # Force update all secrets
     """
 
-    # Access universal options from context
-    verbose = ctx.obj.get('verbose', False)
-    dry_run = ctx.obj.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
     if verbose:
         logger.debug("Verbose mode enabled for secrets add")
@@ -1429,15 +1510,12 @@ def secrets_manage(ctx: typer.Context):
         $ classdock secrets manage
         $ classdock secrets manage --verbose --dry-run
     """
-    # Access universal options from parent context
-    verbose = ctx.parent.params.get('verbose', False)
-    dry_run = ctx.parent.params.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
+    setup_logging(verbose=verbose)
     if verbose:
-        setup_logging(verbose=True)
         logger.debug("Verbose mode enabled for secrets management")
-    else:
-        setup_logging()
 
     if dry_run:
         logger.info("DRY RUN: Would start secret management interface")
@@ -1473,9 +1551,8 @@ def automation_cron_install(
         classdock automation cron-install secrets --schedule "0 2 * * *" --verbose
         classdock automation cron-install sync secrets cycle --dry-run
     """
-    # Access universal options from context
-    verbose = ctx.obj.get('verbose', False)
-    dry_run = ctx.obj.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
     if verbose:
         logger.debug(f"Verbose mode enabled for cron installation: {steps}")
@@ -1520,9 +1597,8 @@ def automation_cron_remove(
         classdock automation cron-remove all
         classdock automation cron-remove secrets cycle
     """
-    # Access universal options from context
-    verbose = ctx.obj.get('verbose', False)
-    dry_run = ctx.obj.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
     setup_logging(verbose)
 
@@ -1567,9 +1643,8 @@ def automation_cron_status(
         classdock automation cron-status
         classdock automation --verbose --dry-run cron-status
     """
-    # Access universal options from context
-    verbose = ctx.obj.get('verbose', False)
-    dry_run = ctx.obj.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
     if verbose:
         logger.debug("Verbose mode enabled for cron status check")
@@ -1744,9 +1819,8 @@ def automation_cron_sync(
         # Verbose execution for debugging
         classdock automation cron-sync --verbose sync
     """
-    # Access universal options from context
-    verbose = ctx.obj.get('verbose', False)
-    dry_run = ctx.obj.get('dry_run', False)
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
 
     try:
         from .services.automation_service import AutomationService
@@ -2000,7 +2074,7 @@ def config_set_token(
 
 
 @config_app.command("check-token")
-def config_check_token():
+def config_check_token(ctx: typer.Context):
     """
     Check the current GitHub token status, expiration, and scopes.
 
@@ -2014,7 +2088,13 @@ def config_check_token():
     Example:
         classdock config check-token
     """
-    setup_logging()
+    # Access universal options from root context
+    verbose, dry_run = get_global_options(ctx)
+    setup_logging(verbose=verbose)
+
+    if dry_run:
+        logger.info("DRY RUN: Would check GitHub token status")
+        return
 
     try:
         from .utils.token_manager import GitHubTokenManager
