@@ -37,6 +37,7 @@ class WorkflowStep(Enum):
     """Available workflow steps."""
     SYNC = "sync"
     DISCOVER = "discover"
+    SYNC_ROSTER = "sync_roster"
     SECRETS = "secrets"
     ASSIST = "assist"
     CYCLE = "cycle"
@@ -147,6 +148,8 @@ class AssignmentOrchestrator:
             enabled_steps.append("✓ Sync Template")
         if getattr(self.global_config, 'step_discover_repos', True):
             enabled_steps.append("✓ Discover Repos")
+        if getattr(self.global_config, 'step_sync_roster', False):
+            enabled_steps.append("✓ Sync Roster")
         if getattr(self.global_config, 'step_manage_secrets', True):
             enabled_steps.append("✓ Manage Secrets")
         if getattr(self.global_config, 'step_assist_students', False):
@@ -288,6 +291,99 @@ class AssignmentOrchestrator:
                 step=WorkflowStep.DISCOVER,
                 success=False,
                 message=f"Repository discovery failed: {e}",
+                duration=duration
+            )
+
+    def step_sync_roster(self, dry_run: bool = False) -> StepResult:
+        """Step 2.5: Sync discovered repositories with roster database."""
+        start_time = time.time()
+
+        # Check if roster sync is enabled (optional step)
+        if not getattr(self.global_config, 'step_sync_roster', False):
+            return StepResult(
+                step=WorkflowStep.SYNC_ROSTER,
+                success=True,
+                message="Skipped (disabled in config)",
+                duration=0.0
+            )
+
+        try:
+            # Check if roster database exists
+            from ..utils.database import DatabaseManager
+            db = DatabaseManager()
+            if not db.database_exists():
+                self.logger.warning(
+                    "Roster database not initialized. Run 'classdock roster init' first."
+                )
+                return StepResult(
+                    step=WorkflowStep.SYNC_ROSTER,
+                    success=True,
+                    message="Skipped (roster database not initialized)",
+                    duration=0.0
+                )
+
+            if dry_run:
+                self.logger.info(
+                    "DRY RUN: Would sync repositories with roster")
+                message = f"DRY RUN: Would sync {len(self.discovered_repos)} repositories with roster"
+            else:
+                if not self.discovered_repos:
+                    message = "No repositories to sync"
+                    self.logger.info(message)
+                else:
+                    from ..services.roster_service import RosterService
+
+                    self.logger.info("Syncing repositories with roster...")
+                    roster_service = RosterService()
+
+                    # Parse repository URLs to extract student identifiers
+                    repos_data = []
+                    for repo_url in self.discovered_repos:
+                        # Extract repo name and student identifier
+                        # URL format: https://github.com/org/assignment-name-username
+                        if '/' in repo_url:
+                            repo_name = repo_url.split('/')[-1]
+                            # Extract student identifier (part after last dash)
+                            if '-' in repo_name:
+                                parts = repo_name.split('-')
+                                student_identifier = parts[-1]
+                                repos_data.append((repo_name, repo_url, student_identifier))
+
+                    if repos_data:
+                        result = roster_service.sync_repositories(
+                            self.global_config.assignment_name,
+                            self.global_config.github_organization,
+                            repos_data
+                        )
+
+                        message = (
+                            f"Synced {result.linked_count}/{result.total_repos} repositories "
+                            f"({result.success_rate:.1f}% success rate)"
+                        )
+
+                        if result.unlinked_count > 0:
+                            self.logger.warning(
+                                f"{result.unlinked_count} repositories could not be linked to roster"
+                            )
+                    else:
+                        message = "No valid repositories to sync"
+
+            duration = time.time() - start_time
+            return StepResult(
+                step=WorkflowStep.SYNC_ROSTER,
+                success=True,
+                message=message,
+                duration=duration
+            )
+
+        except Exception as e:
+            duration = time.time() - start_time
+            self.logger.error(f"Roster sync failed: {e}")
+            # Don't fail the workflow if roster sync fails
+            return StepResult(
+                step=WorkflowStep.SYNC_ROSTER,
+                success=True,
+                message=f"Roster sync skipped: {e}",
                 duration=duration
             )
 
@@ -459,6 +555,7 @@ class AssignmentOrchestrator:
         step_methods = {
             WorkflowStep.SYNC: self.step_sync_template,
             WorkflowStep.DISCOVER: self.step_discover_repos,
+            WorkflowStep.SYNC_ROSTER: self.step_sync_roster,
             WorkflowStep.SECRETS: self.step_manage_secrets,
             WorkflowStep.ASSIST: self.step_assist_students,
             WorkflowStep.CYCLE: self.step_cycle_collaborators,
@@ -493,6 +590,7 @@ class AssignmentOrchestrator:
             steps_to_run = [
                 (WorkflowStep.SYNC, self.step_sync_template),
                 (WorkflowStep.DISCOVER, self.step_discover_repos),
+                (WorkflowStep.SYNC_ROSTER, self.step_sync_roster),
                 (WorkflowStep.SECRETS, self.step_manage_secrets),
                 (WorkflowStep.ASSIST, self.step_assist_students),
                 (WorkflowStep.CYCLE, self.step_cycle_collaborators),
@@ -522,7 +620,7 @@ class AssignmentOrchestrator:
                         repos_discovered = True
 
                     # Skip repository-dependent steps if no repos were discovered
-                    if not repos_discovered and step_enum in [WorkflowStep.SECRETS, WorkflowStep.ASSIST, WorkflowStep.CYCLE]:
+                    if not repos_discovered and step_enum in [WorkflowStep.SYNC_ROSTER, WorkflowStep.SECRETS, WorkflowStep.ASSIST, WorkflowStep.CYCLE]:
                         if not workflow_config.dry_run:
                             self.logger.warning(
                                 f"Skipping {step_enum.value} (no repositories discovered)")
