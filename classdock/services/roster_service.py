@@ -14,7 +14,8 @@ from rich.panel import Panel
 from ..utils.database import DatabaseManager
 from ..roster.manager import RosterManager
 from ..roster.importer import RosterImporter
-from ..roster.models import Student, Assignment
+from ..roster.sync import RosterSynchronizer
+from ..roster.models import Student, Assignment, SyncResult
 from ..utils.logger import get_logger
 
 logger = get_logger("roster_service")
@@ -39,6 +40,7 @@ class RosterService:
         self.db = DatabaseManager(db_path=db_path)
         self.manager = RosterManager(self.db)
         self.importer = RosterImporter(self.manager)
+        self.synchronizer = RosterSynchronizer(self.manager)
 
     def initialize_database(self) -> bool:
         """
@@ -397,3 +399,34 @@ Database:
         except Exception as e:
             console.print(f"❌ Failed to show status: {e}", style="red bold")
             logger.error(f"Failed to show status: {e}")
+
+    def sync_repositories(
+        self,
+        assignment_name: str,
+        github_organization: str,
+        repos: List[tuple]
+    ) -> SyncResult:
+        """
+        Synchronize discovered repositories with roster.
+
+        Args:
+            assignment_name: Assignment name
+            github_organization: GitHub organization
+            repos: List of (repo_name, repo_url, student_identifier) tuples
+
+        Returns:
+            SyncResult with synchronization statistics
+        """
+        try:
+            return self.synchronizer.sync_repositories(
+                assignment_name,
+                github_organization,
+                repos
+            )
+        except Exception as e:
+            console.print(f"❌ Sync failed: {e}", style="red bold")
+            logger.error(f"Sync failed: {e}")
+            # Return empty result on failure
+            result = SyncResult(sync_type="repositories", total_repos=len(repos))
+            result.add_error(str(e))
+            return result

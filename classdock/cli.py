@@ -2523,5 +2523,115 @@ def roster_status(
     service.show_status(org)
 
 
+@roster_app.command("sync")
+def roster_sync(
+    ctx: typer.Context,
+    assignment: str = typer.Option(..., "--assignment", help="Assignment name"),
+    org: str = typer.Option(..., "--org", help="GitHub organization"),
+    repos_file: str = typer.Option("student-repos.txt", "--repos-file",
+                                     help="File containing discovered repository URLs")
+):
+    """
+    Synchronize discovered repositories with roster.
+
+    Links student repositories to roster entries by matching GitHub usernames.
+    Run 'classdock repos fetch' first to discover repositories.
+
+    Example:
+      classdock repos fetch
+      classdock roster sync --assignment=python-basics --org=soc-cs3550-f25
+    """
+    from .services.roster_service import RosterService
+    from rich.console import Console
+
+    verbose, dry_run = get_global_options(ctx)
+    setup_logging(verbose=verbose)
+
+    if dry_run:
+        logger.info(f"🔍 DRY RUN: Would sync {assignment} repos from {repos_file}")
+        return
+
+    console = Console()
+    service = RosterService()
+
+    # Read repository URLs from file
+    repos_path = Path(repos_file)
+    if not repos_path.exists():
+        logger.error(f"❌ Repository file not found: {repos_file}")
+        logger.info("Run 'classdock repos fetch' first to discover repositories")
+        raise typer.Exit(1)
+
+    # Parse repository URLs
+    repos = []
+    try:
+        with open(repos_path, 'r') as f:
+            for line in f:
+                line = line.strip()
+                if line and not line.startswith('#'):
+                    # Extract repo name and student identifier
+                    # URL format: https://github.com/org/assignment-name-username
+                    if '/' in line:
+                        repo_name = line.split('/')[-1]
+                        # Extract student identifier (part after assignment name)
+                        if '-' in repo_name:
+                            parts = repo_name.split('-')
+                            # Assume last part is username
+                            student_identifier = parts[-1]
+                            repos.append((repo_name, line, student_identifier))
+    except Exception as e:
+        logger.error(f"❌ Failed to read repository file: {e}")
+        raise typer.Exit(1)
+
+    if not repos:
+        logger.warning("⚠️  No repositories found in file")
+        raise typer.Exit(1)
+
+    # Perform sync
+    console.print(f"\n🔄 Synchronizing {len(repos)} repositories...\n", style="bold")
+
+    result = service.sync_repositories(assignment, org, repos)
+
+    # Display results
+    from rich.table import Table
+    table = Table(title="Sync Results", show_header=True)
+    table.add_column("Metric", style="cyan")
+    table.add_column("Count", justify="right", style="magenta")
+
+    table.add_row("Total Repositories", str(result.total_repos))
+    table.add_row("✅ Linked", str(result.linked_count))
+    table.add_row("❌ Unlinked", str(result.unlinked_count))
+    table.add_row("Success Rate", f"{result.success_rate:.1f}%")
+
+    console.print(table)
+
+    # Show unlinked repos
+    if result.unlinked_repos:
+        console.print("\n⚠️  Unlinked Repositories:", style="yellow bold")
+        for repo_url in result.unlinked_repos[:10]:
+            console.print(f"   • {repo_url}", style="yellow")
+        if len(result.unlinked_repos) > 10:
+            console.print(
+                f"   ... and {len(result.unlinked_repos) - 10} more",
+                style="yellow dim"
+            )
+
+    # Show errors
+    if result.errors:
+        console.print("\n❌ Errors:", style="red bold")
+        for error in result.errors[:10]:
+            console.print(f"   • {error}", style="red")
+        if len(result.errors) > 10:
+            console.print(
+                f"   ... and {len(result.errors) - 10} more errors",
+                style="red dim"
+            )
+
+    if result.linked_count > 0:
+        console.print(f"\n✅ Successfully linked {result.linked_count} repositories\n", style="green bold")
+        raise typer.Exit(0)
+    else:
+        raise typer.Exit(1)
+
+
 if __name__ == "__main__":
     app()

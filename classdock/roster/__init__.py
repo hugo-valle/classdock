@@ -12,6 +12,7 @@ This module provides SQLite-based roster management capabilities including:
 from .models import Student, Assignment, StudentAssignment
 from .manager import RosterManager
 from .importer import RosterImporter
+from .sync import RosterSynchronizer
 
 __all__ = [
     'Student',
@@ -19,4 +20,5 @@ __all__ = [
     'StudentAssignment',
     'RosterManager',
     'RosterImporter',
+    'RosterSynchronizer',
 ]
