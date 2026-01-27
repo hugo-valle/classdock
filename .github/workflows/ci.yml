@@ -15,7 +15,7 @@ permissions:
 env:
   # Performance monitoring
   CI_START_TIME: ${{ github.event.head_commit.timestamp }}
-  CACHE_VERSION: v2
+  CACHE_VERSION: v3
   # Python testing environment
   PYTHONDONTWRITEBYTECODE: 1
   PYTHONUNBUFFERED: 1
@@ -64,9 +64,6 @@ jobs:
         with:
           path: .venv
           key: venv-test-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ env.CACHE_VERSION }}
-          restore-keys: |
-            venv-test-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}-
-            venv-test-${{ runner.os }}-${{ matrix.python-version }}-
 
       - name: �📚 Install dependencies
         run: |
@@ -206,9 +203,6 @@ jobs:
         with:
           path: .venv
           key: venv-lint-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}-${{ env.CACHE_VERSION }}
-          restore-keys: |
-            venv-lint-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}-
-            venv-lint-${{ runner.os }}-3.11-
 
       - name: 📚 Install dependencies
         run: |
@@ -291,9 +285,6 @@ jobs:
             ~/.cache/trivy
             ~/.cache/pip
           key: security-tools-${{ runner.os }}-${{ hashFiles('.github/scripts/security_utils.sh') }}-${{ env.CACHE_VERSION }}
-          restore-keys: |
-            security-tools-${{ runner.os }}-${{ hashFiles('.github/scripts/security_utils.sh') }}-
-            security-tools-${{ runner.os }}-
 
       - name: 📦 Load workflow utilities
         run: |

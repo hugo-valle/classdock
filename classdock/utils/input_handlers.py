@@ -127,6 +127,7 @@ class InputHandler:
 
         response = InputHandler.prompt_input(
             f"{prompt} ({default_text})",
+            default="",
             allow_quit=allow_quit
         )
 

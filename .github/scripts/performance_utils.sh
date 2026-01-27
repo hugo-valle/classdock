@@ -2,7 +2,7 @@
 
 # Performance Utilities Script for GitHub Actions Workflows
 # Extends workflow_utils.sh with performance-specific functionality
-# Created for classroom-pilot project
+# Created for classdock project
 
 set -euo pipefail
 
