@@ -2,19 +2,28 @@
 
 **5-Minute Test to Verify Roster Functionality**
 
+> **Note**: Poetry 2.0+ removed `poetry shell`. Use manual activation or `poetry run` prefix.
+
 ## Step 1: Build and Install (2 min)
 
 ```bash
 cd /Users/hugovalle/classdock
 git checkout feature/34-sqlite-roster-management
-poetry install && poetry shell
-classdock roster --help  # Verify commands available
+poetry install
+
+# Activate virtual environment (to use from any directory)
+source $(poetry env info --path)/bin/activate
+
+# Verify installation
+classdock roster --help  # Now works from any directory!
 ```
+
+**Alternative**: Use `poetry run classdock` from the project directory if not activating.
 
 ## Step 2: Initialize and Import (1 min)
 
 ```bash
-# Initialize database
+# Initialize database (works from any directory once activated)
 classdock roster init
 
 # Create quick test CSV
@@ -68,12 +77,13 @@ classdock roster status --org=YOUR_GITHUB_ORG
 
 ## Quick Verification Checklist
 
+- [ ] Virtual environment activated successfully
 - [ ] `classdock roster init` creates database
 - [ ] `classdock roster import` imports CSV successfully
 - [ ] `classdock roster list` shows students in table
 - [ ] `classdock roster status` shows statistics
 - [ ] `classdock roster sync` links repos to students
-- [ ] All commands complete without errors
+- [ ] All commands work from any directory
 - [ ] Database file exists at `~/.config/classdock/roster.db`
 
 ---
@@ -104,6 +114,9 @@ rm ~/.config/classdock/roster.db
 
 # Re-initialize
 classdock roster init
+
+# When done testing, deactivate environment
+deactivate
 ```
 
 ---
@@ -112,10 +125,11 @@ classdock roster init
 
 | Issue | Solution |
 |-------|----------|
-| Command not found | Run `poetry shell` to activate environment |
+| Command not found | Activate virtualenv: `source $(cd /Users/hugovalle/classdock && poetry env info --path)/bin/activate` |
 | Database not initialized | Run `classdock roster init` |
 | Students not linking | Check GitHub usernames match repo names |
 | Duplicate error | Use `--skip-duplicates` flag |
+| Need to deactivate | Run `deactivate` |
 
 ---
 
@@ -126,10 +140,16 @@ For comprehensive testing, see `docs/ROSTER_TESTING_GUIDE.md`
 ## Quick Demo
 
 ```bash
+# Activate environment first (one-time per terminal session)
+source $(cd /Users/hugovalle/classdock && poetry env info --path)/bin/activate
+
 # Complete workflow in 1 minute
 classdock roster init
 echo -e "email,name,github_username\ntest@example.com,Test User,testuser" > /tmp/demo.csv
 classdock roster import /tmp/demo.csv --org=demo-org
 classdock roster list --org=demo-org
 classdock roster status --org=demo-org
+
+# Cleanup
+deactivate
 ```

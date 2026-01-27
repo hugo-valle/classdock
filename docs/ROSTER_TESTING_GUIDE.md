@@ -25,15 +25,52 @@ git pull origin feature/34-sqlite-roster-management
 # Install dependencies and build
 poetry install
 
-# Activate virtual environment
-poetry shell
+# Activate virtual environment (Poetry 2.0+)
+source $(poetry env info --path)/bin/activate
 
-# Verify installation
+# Verify installation (now works from any directory!)
 classdock --version
 classdock roster --help
 ```
 
-### 3. Run Tests (Optional)
+> **Note**: Poetry 2.0+ removed the `shell` command. Activate manually using the command above.
+> Once activated, `classdock` commands work from any directory.
+
+### 3. Using ClassDock from Any Directory
+
+After activating the virtual environment, you can use `classdock` from any directory:
+
+```bash
+# Activate once per terminal session
+source $(cd /Users/hugovalle/classdock && poetry env info --path)/bin/activate
+
+# Now test from anywhere
+cd ~/test-assignment
+classdock roster init
+classdock repos fetch
+
+cd ~/another-assignment
+classdock roster sync --assignment=test --org=YOUR_ORG
+
+# When done
+deactivate
+```
+
+**Alternative Options:**
+
+```bash
+# Option 1: Quick one-liner for each new terminal
+source $(cd /Users/hugovalle/classdock && poetry env info --path)/bin/activate
+
+# Option 2: From project directory only (no activation needed)
+cd /Users/hugovalle/classdock
+poetry run classdock roster init
+
+# Option 3: Create shell alias (add to ~/.zshrc)
+alias classdock-dev='source $(cd /Users/hugovalle/classdock && poetry env info --path)/bin/activate'
+```
+
+### 4. Run Tests (Optional)
 
 ```bash
 # Run all roster tests
