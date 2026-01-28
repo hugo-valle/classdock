@@ -1,38 +1,286 @@
 # ClassDock
 
-A comprehensive Python CLI tool for automating GitHub Classroom assignment management with modular workflow orchestration, repository operations, and secret management.
+> Automate GitHub Classroom assignment management with a modern Python CLI
 
 [![PyPI version](https://badge.fury.io/py/classdock.svg)](https://badge.fury.io/py/classdock)
 [![Python Support](https://img.shields.io/pypi/pyversions/classdock.svg)](https://pypi.org/project/classdock/)
 [![Tests](https://github.com/hugo-valle/classdock/workflows/Tests/badge.svg)](https://github.com/hugo-valle/classdock/actions)
 
-## 🎯 Overview
+## What is ClassDock?
 
-ClassDock provides instructors with a powerful, modern CLI to automate GitHub Classroom workflows:
+ClassDock is a command-line tool that helps instructors manage GitHub Classroom assignments efficiently. Instead of manually managing hundreds of student repositories, ClassDock automates common workflows like:
 
-- **🐍 Modern Python CLI** - Type-safe, intuitive commands with rich help and output
-- **📦 PyPI Package** - Simple installation: `pip install classdock`
-- **🔧 Modular Architecture** - Organized command structure for different workflow areas
-- **🔍 Smart Repository Discovery** - Automated filtering and batch operations
-- **🔐 Secret Management** - Secure distribution of tokens and credentials
-- **⚙️ Configuration-Driven** - Flexible, reusable assignment setups
-- **🛡️ Enterprise Support** - Custom GitHub hosts and internal Git systems
-- **🎯 Instructor-Focused** - Excludes instructor repos from batch operations automatically
-- **🛡️ Robust Error Handling** - Centralized GitHub API error management with retry logic
-- **🔄 Fault Tolerance** - Automatic retry mechanisms with exponential backoff
-- **📊 Comprehensive Testing** - 70+ tests with 100% pass rate and extensive coverage
-- **📚 Production Ready** - Professional documentation and type-safe implementations
+- **Discovering student repositories** from GitHub Classroom
+- **Managing student rosters** with CSV imports from Google Forms
+- **Distributing secrets and tokens** to all student repos at once
+- **Tracking assignment acceptance** rates and student progress
+- **Managing collaborators** across multiple repositories
+- **Automating repetitive tasks** with scheduled workflows
 
-## 📦 Installation
+**Perfect for:** Computer science instructors managing GitHub Classroom assignments for classes of any size.
 
-### Quick Install (Recommended)
+## Quick Start
+
+### Installation
+
+```bash
+# Install from PyPI (recommended)
+pip install classdock
+
+# Verify installation
+classdock --version
+```
+
+**Requirements:** Python 3.10+ and Git
+
+### Your First Workflow
+
+```bash
+# 1. Navigate to your assignment directory
+cd ~/my-assignment
+
+# 2. Discover all student repositories from GitHub Classroom
+classdock repos fetch
+
+# 3. Import your student roster (from Google Forms CSV)
+classdock roster init
+classdock roster import students.csv --org=your-github-org
+
+# 4. Check which students accepted the assignment
+classdock roster status --org=your-github-org
+
+# 5. Add secrets to all student repositories
+classdock secrets add
+```
+
+That's it! You've automated what would normally take hours of manual work.
+
+## Core Features
+
+### 📋 Roster Management (New in 0.2.0!)
+
+Track student enrollment and assignment acceptance with SQLite database:
+
+```bash
+# Initialize roster database
+classdock roster init
+
+# Import students from Google Forms CSV
+classdock roster import students.csv --org=cs101-fall2025
+
+# View roster and acceptance rates
+classdock roster status --org=cs101-fall2025
+
+# List all students
+classdock roster list --org=cs101-fall2025
+
+# Export roster data
+classdock roster export roster-backup.csv --org=cs101-fall2025
+```
+
+**Features:**
+- Import student rosters from CSV (Google Forms compatible)
+- Track assignment acceptance rates
+- Identify students who haven't started
+- Multi-organization support for multiple classes
+- Automatic sync with discovered repositories
+
+**[📚 Roster Documentation](docs/ROSTER_MIGRATION.md)** | **[🚀 Quick Test Guide](docs/ROSTER_QUICK_TEST.md)**
+
+### 🔍 Repository Discovery
+
+Automatically find all student repositories for an assignment:
+
+```bash
+# Discover repositories from GitHub Classroom
+classdock repos fetch
+
+# Repositories are saved to student-repos.txt
+# Automatically excludes instructor and template repos
+```
+
+### 🔐 Secret Management
+
+Distribute tokens, API keys, and credentials to all student repos:
+
+```bash
+# Add secrets to all discovered repositories
+classdock secrets add
+
+# Remove secrets when assignment is complete
+classdock secrets remove
+
+# List current secrets
+classdock secrets list
+```
+
+### 👥 Collaborator Management
+
+Add or remove collaborators (TAs, graders) across all repositories:
+
+```bash
+# Add a TA to all student repos
+classdock repos collaborator add --username ta-github-username
+
+# Remove a collaborator
+classdock repos collaborator remove --username ta-github-username
+```
+
+### ⚙️ Workflow Orchestration
+
+Run complete workflows with a single command:
+
+```bash
+# Run the complete assignment setup workflow
+classdock assignments orchestrate
+
+# Preview what would happen (dry run)
+classdock --dry-run assignments orchestrate
+```
+
+## Command Reference
+
+### Roster Commands
+
+```bash
+classdock roster init                           # Initialize database
+classdock roster import <csv> --org=<org>       # Import students
+classdock roster list [--org=<org>]             # List students
+classdock roster status [--org=<org>]           # Show statistics
+classdock roster sync --assignment=<name>       # Sync repos with roster
+classdock roster export <output> [--org=<org>]  # Export roster
+classdock roster add --email=<email> --name=<name> --org=<org>  # Add student
+classdock roster link --email=<email> --github=<username>        # Link GitHub
+```
+
+### Repository Commands
+
+```bash
+classdock repos fetch                           # Discover student repos
+classdock repos collaborator add --username=<user>  # Add collaborator
+classdock repos collaborator remove --username=<user>  # Remove collaborator
+```
+
+### Secret Commands
+
+```bash
+classdock secrets add                           # Add secrets to repos
+classdock secrets remove                        # Remove secrets
+classdock secrets list                          # List current secrets
+```
+
+### Assignment Commands
+
+```bash
+classdock assignments setup                     # Interactive setup wizard
+classdock assignments orchestrate               # Run complete workflow
+classdock assignments manage                    # Manage templates
+```
+
+### Global Options
+
+```bash
+--dry-run          # Preview actions without executing
+--verbose          # Show detailed output
+--config FILE      # Use specific configuration file
+--help             # Show help for any command
+```
+
+## Configuration
+
+ClassDock uses an `assignment.conf` file in your assignment directory:
+
+```bash
+# Minimal configuration
+classroom_url="https://classroom.github.com/classrooms/123/assignments/456"
+template_repo_url="https://github.com/your-org/assignment-template"
+github_organization="your-github-org"
+assignment_name="homework-1"
+
+# Optional: Token configuration (uses ~/.config/classdock/token_config.json by default)
+token_name="GITHUB_TOKEN"
+
+# Optional: Secrets to distribute
+secrets_list="API_KEY,DATABASE_URL"
+
+# Optional: Enable roster sync in orchestrator
+step_sync_roster=true
+```
+
+### Configuration File Generation
+
+```bash
+# Interactive setup creates assignment.conf for you
+classdock assignments setup
+```
+
+## Common Workflows
+
+### Workflow 1: New Assignment Setup
+
+```bash
+# 1. Create assignment directory
+mkdir homework-1 && cd homework-1
+
+# 2. Run interactive setup
+classdock assignments setup
+
+# 3. Discover student repositories
+classdock repos fetch
+
+# 4. (Optional) Sync with roster
+classdock roster sync --assignment=homework-1 --org=cs101
+
+# 5. Add required secrets
+classdock secrets add
+```
+
+### Workflow 2: Mid-Semester Roster Tracking
+
+```bash
+# 1. Initialize roster (one-time)
+classdock roster init
+
+# 2. Import your student list
+classdock roster import students.csv --org=cs101-fall2025
+
+# 3. For each assignment, sync repos
+cd assignment-1
+classdock repos fetch
+classdock roster sync --assignment=assignment-1 --org=cs101-fall2025
+
+# 4. Check acceptance rates
+classdock roster status --org=cs101-fall2025
+```
+
+### Workflow 3: Complete Automation
+
+```bash
+# Enable roster sync in assignment.conf
+echo "step_sync_roster=true" >> assignment.conf
+
+# Run complete orchestrated workflow
+classdock assignments orchestrate
+
+# This will:
+# 1. Sync template repository
+# 2. Discover student repositories
+# 3. Sync with roster (if enabled)
+# 4. Manage secrets
+# 5. (Optional) Assist students
+# 6. (Optional) Cycle collaborators
+```
+
+## Installation Options
+
+### Production Use (Recommended)
 
 ```bash
 # Install from PyPI
 pip install classdock
 
-# Verify installation
-classdock --help
+# Upgrade to latest version
+pip install --upgrade classdock
 ```
 
 ### Development Installation
@@ -44,390 +292,148 @@ cd classdock
 
 # Install with Poetry
 poetry install
-poetry shell
 
-# Or install in development mode
-pip install -e .
+# Activate virtual environment
+source $(poetry env info --path)/bin/activate
+
+# Verify installation
+classdock --help
 ```
 
-### Requirements
+## Documentation
 
-- **Python 3.10+** (3.11+ recommended)
-- **Git** for repository operations
-- **GitHub CLI** (optional, for enhanced authentication)
+### User Guides
 
-## �️ Enterprise Features
+- **[Roster Migration Guide](docs/ROSTER_MIGRATION.md)** - Adopt roster management for existing workflows
+- **[Roster Sync Integration](docs/ROSTER_SYNC.md)** - Integrate roster sync with orchestrator
+- **[Roster Testing Guide](docs/ROSTER_TESTING_GUIDE.md)** - Test roster features with real data
+- **[CLI Architecture](docs/CLI_ARCHITECTURE.md)** - Command structure and design
 
-### Centralized Error Handling
+### Technical Documentation
 
-ClassDock includes a comprehensive error handling system for reliable GitHub operations:
+- **[Error Handling Guide](docs/ERROR_HANDLING.md)** - GitHub API resilience and retry patterns
+- **[CI/CD Workflow](docs/CICD_WORKFLOW.md)** - Automated testing and publishing
+- **[PyPI Publication](docs/PYPI_PUBLICATION.md)** - Release process
 
-- **🔄 Automatic Retry Logic** - Intelligent retry with exponential backoff for transient failures
-- **⏱️ Rate Limit Management** - Automatic handling of GitHub API rate limits
-- **🛠️ Fallback Mechanisms** - CLI fallback when GitHub API is unavailable
-- **📊 Detailed Error Context** - Comprehensive error reporting with context and suggestions
-- **🏗️ Resilient Operations** - Fault-tolerant batch operations with individual error isolation
+### Developer Resources
 
-```python
-# Example: Automatic retry with error context
-from classdock.utils.github_exceptions import github_api_retry
+- **[Contributing Guide](docs/CONTRIBUTING.md)** - Development workflow and guidelines
+- **[Branching Strategy](docs/branching_strategy.md)** - Git workflow and branch management
+- **[CLAUDE.md](CLAUDE.md)** - AI assistant development guidelines
 
-@github_api_retry(max_attempts=3, base_delay=1.0)
-def discover_repositories():
-    # Automatic retry for GitHub API failures
-    # Handles rate limits, network issues, and transient errors
-    pass
+## Requirements
+
+- **Python:** 3.10 or higher (3.11+ recommended)
+- **Git:** For repository operations
+- **GitHub Account:** With appropriate permissions for your classroom organization
+
+### Optional Dependencies
+
+- **GitHub CLI** (`gh`) - For enhanced authentication and PR management
+- **Poetry** - For development installation
+
+## Architecture
+
 ```
-
-### Enhanced CLI Architecture
-
-- **📋 Modular Commands** - Organized subcommand structure (`assignments`, `repos`, `secrets`, `automation`)
-- **🔗 Legacy Compatibility** - Backward compatibility with deprecation warnings
-- **🎯 Rich Output** - Beautiful terminal output with progress indicators
-- **⚙️ Flexible Configuration** - Multiple configuration sources with precedence handling
-- **🔍 Comprehensive Help** - Context-aware help system with examples
-
-### Production Quality
-
-- **🧪 Comprehensive Testing** - 70+ tests covering all functionality with 100% pass rate
-- **📚 Professional Documentation** - Complete docstrings following Python standards
-- **🏗️ Type Safety** - Full type hints and mypy compatibility
-- **🔒 Security First** - Secure credential handling and validation
-- **📦 CI/CD Integration** - Automated testing and publishing pipeline
-
-## �🚀 Quick Start
-
-### 1. Basic Configuration
-
-Create an assignment configuration file:
-
-```bash
-# Create assignment.conf
-cat > assignment.conf << 'EOF'
-# GitHub Classroom Configuration
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/456"
-TEMPLATE_REPO_URL="https://github.com/instructor/assignment-template"
-ASSIGNMENT_FILE="homework.py"
-
-# Authentication
-GITHUB_TOKEN_FILE="github_token.txt"
-
-# Optional: Secrets to distribute
-SECRETS_LIST="API_KEY,DATABASE_URL"
-EOF
-```
-
-### 2. Command Structure
-
-ClassDock uses a modular command structure:
-
-```bash
-# Main command groups
-classdock assignments    # Assignment setup and orchestration
-classdock repos         # Repository operations and collaboration
-classdock secrets       # Secret and token management
-classdock automation    # Scheduling and batch processing
-
-# Legacy commands (for backward compatibility)
-classdock setup         # Interactive assignment setup
-classdock run           # Complete workflow execution
-```
-
-### 3. Common Workflows
-
-```bash
-# Setup a new assignment (interactive)
-classdock assignments setup
-
-# Discover student repositories
-classdock repos fetch --config assignment.conf
-
-# Add secrets to all student repos
-classdock secrets add --config assignment.conf
-
-# Run orchestrated workflow
-classdock assignments orchestrate --config assignment.conf
-
-# Check what would happen (dry-run)
-classdock --dry-run assignments orchestrate
-```
-
-## 🔧 Command Reference
-
-### Assignment Management
-
-```bash
-# Setup new assignment configuration
-classdock assignments setup
-
-# Orchestrate complete assignment workflow
-classdock assignments orchestrate [--config FILE] [--dry-run]
-
-# Manage assignment templates
-classdock assignments manage [--config FILE]
-```
-
-### Repository Operations
-
-```bash
-# Fetch student repositories
-classdock repos fetch [--config FILE]
-
-# Manage collaborators
-classdock repos collaborator add|remove [--config FILE]
-```
-
-### Secret Management
-
-```bash
-# Add secrets to repositories
-classdock secrets add [--config FILE] [--secrets LIST]
-
-# Remove secrets from repositories  
-classdock secrets remove [--config FILE] [--secrets LIST]
-
-# List existing secrets
-classdock secrets list [--config FILE]
-```
-
-### Automation & Scheduling
-
-```bash
-# Setup cron jobs for automation
-classdock automation scheduler setup [--config FILE]
-
-# Run batch operations
-classdock automation batch [--config FILE]
-```
-
-### Global Options
-
-| Option | Description | Example |
-|--------|-------------|---------|
-| `--dry-run` | Preview actions without executing | `classdock --dry-run assignments orchestrate` |
-| `--verbose` | Enable detailed logging | `classdock --verbose repos fetch` |
-| `--config FILE` | Use custom configuration file | `classdock --config my.conf assignments setup` |
-| `--help` | Show help for any command | `classdock assignments --help` |
-
-## ⚙️ Configuration
-
-### Assignment Configuration File
-
-The `assignment.conf` file contains all settings for your assignment:
-
-```bash
-# Required: GitHub Classroom assignment URL
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/456"
-
-# Required: Template repository URL
-TEMPLATE_REPO_URL="https://github.com/instructor/assignment-template"
-
-# Required: Assignment file to validate
-ASSIGNMENT_FILE="homework.py"
-
-# Optional: GitHub Enterprise support
-GITHUB_HOSTS="github.enterprise.com,git.company.internal"
-
-# Optional: Authentication
-# Prefer centralized token manager (~/.config/classdock/token_config.json) or set GITHUB_TOKEN
-# Example (CI): export GITHUB_TOKEN="ghp_your_token_here"
-
-# Optional: Secrets management
-SECRETS_LIST="API_KEY,DATABASE_URL,SECRET_TOKEN"
-
-# Optional: Repository filtering
-EXCLUDE_REPOS="template,example,demo"
-INSTRUCTOR_REPOS="instructor-solution"
-```
-
-### Environment Variables
-
-Override configuration with environment variables:
-
-```bash
-# Custom GitHub hosts
-export GITHUB_HOSTS="git.company.internal,github.enterprise.com"
-
-# GitHub token
-export GITHUB_TOKEN="ghp_your_token_here"
-
-# Custom assignment file
-export ASSIGNMENT_FILE="main.cpp"
-
-# Run with overrides
-classdock assignments orchestrate
-```
-
-## 💡 Best Practices
-
-### Workflow Recommendations
-
-- **Always test with `--dry-run`** before making changes
-- **Use `--verbose`** for debugging configuration issues
-- **Keep configuration files in version control** with your assignment
-- **Use environment variables** for sensitive information
-- **Test with single student first** using filtered configuration
-
-### Security Guidelines
-
-- **Store GitHub tokens securely** using the centralized token manager or OS keychain; avoid placing token files in the repository root.
-- **Use environment variables** for sensitive configuration
-- **Review `--dry-run` output** before executing changes
-- **Limit repository access** with proper filtering
-- **Audit secret distribution** using verbose logging
-
-### Configuration Management
-
-- **Separate configs per assignment** for better organization
-- **Use descriptive filenames** like `midterm-exam.conf`
-- **Document custom GitHub hosts** in your assignment README
-- **Validate URLs** before running batch operations
-
-## 🛠️ Development
-
-### Project Architecture
-
-```text
 classdock/
-├── __init__.py              # Package initialization
-├── __main__.py             # CLI entry point
-├── cli.py                  # Main Typer CLI interface
-├── config.py               # Configuration management
-├── bash_wrapper.py         # Legacy script wrapper
-├── utils.py                # Utility functions
-├── utils/                  # Enhanced utilities
-│   └── github_exceptions.py # Centralized error handling system
-├── assignments/            # Assignment management
-│   ├── setup.py           # Interactive setup
-│   ├── orchestrator.py    # Workflow orchestration
-│   └── manage.py          # Template management
-├── repos/                  # Repository operations
-│   ├── fetch.py           # Repository discovery (enhanced with error handling)
-│   └── collaborator.py    # Collaborator management (with retry logic)
-├── secrets/                # Secret management
-│   ├── manager.py         # Secret distribution (fault-tolerant)
-│   ├── add.py             # Secret distribution
-│   ├── remove.py          # Secret removal
-│   └── list.py            # Secret listing
-├── automation/             # Automation & scheduling
-│   ├── scheduler.py       # Cron job management
-│   └── batch.py           # Batch processing
-└── config/                 # Configuration system
-    ├── loader.py          # Configuration loading
-    ├── validator.py       # Validation logic
-    └── generator.py       # Config generation
+├── cli.py                    # Main CLI interface (Typer)
+├── assignments/              # Assignment management
+│   ├── setup.py             # Interactive setup wizard
+│   ├── orchestrator.py      # Workflow orchestration
+│   └── manage.py            # Template management
+├── repos/                    # Repository operations
+│   ├── fetch.py             # Repository discovery
+│   └── collaborator.py      # Collaborator management
+├── secrets/                  # Secret management
+│   ├── manager.py           # Secret operations
+│   └── github_secrets.py    # GitHub API integration
+├── roster/                   # Roster management (NEW in 0.2.0)
+│   ├── models.py            # Data models
+│   ├── manager.py           # CRUD operations
+│   ├── importer.py          # CSV/JSON import/export
+│   └── sync.py              # GitHub sync integration
+├── automation/               # Scheduling and automation
+├── config/                   # Configuration management
+├── services/                 # Service layer
+└── utils/                    # Utilities and helpers
 ```
 
-### Contributing
+## Testing
 
-```bash
-# Clone and setup development environment
-git clone https://github.com/hugo-valle/classdock.git
-cd classdock
-
-# Install with Poetry
-poetry install
-poetry shell
-
-# Run tests
-poetry run pytest tests/ -v
-
-# Test CLI functionality
-poetry run classdock --help
-
-# Format code
-poetry run black classdock/
-poetry run isort classdock/
-
-# Type checking
-poetry run mypy classdock/
-
-# Create feature branch
-git checkout -b feature/new-feature
-```
-
-### Testing
-
-The project includes comprehensive testing with professional-grade coverage:
-
-- **70+ tests** across all modules with 100% pass rate
-- **Unit tests** for individual components with proper mocking
-- **Integration tests** for workflow validation and API interactions
-- **CLI tests** for command-line interface with legacy compatibility
-- **Error handling tests** for GitHub API resilience and retry logic
-- **Comprehensive mocking** for reliable test execution without external dependencies
+ClassDock has comprehensive test coverage:
 
 ```bash
 # Run all tests
 poetry run pytest tests/ -v
 
-# Run specific test categories
-poetry run pytest tests/test_assignments.py -v
-poetry run pytest tests/test_cli.py -v
-poetry run pytest tests/test_github_exceptions.py -v  # New error handling tests
+# Run specific test suite
+poetry run pytest tests/test_roster*.py -v
 
-# Test with coverage
+# Run with coverage
 poetry run pytest tests/ --cov=classdock
 
-# Test error handling specifically
-poetry run pytest tests/test_github_exceptions.py -v --tb=short
+# Quick functionality test
+make test
 ```
 
-#### Test Categories
+**Test Coverage:**
+- 118+ tests for roster management
+- 70+ tests for core functionality
+- 100% pass rate
+- Integration and unit tests
 
-- **Module Tests** (44 tests) - Core functionality across all components
-- **Error Handling Tests** (26 tests) - GitHub API resilience and retry mechanisms
-- **CLI Tests** (16 tests) - Command-line interface and backward compatibility
-- **Integration Tests** - End-to-end workflow validation
+## Version History
 
-## 📚 Documentation
+### Version 0.2.0 (Upcoming)
 
-### Key Resources
+**New Features:**
+- 🎉 **SQLite Roster Management** - Track student enrollment and assignment acceptance
+- 📊 **CSV Import** - Import rosters from Google Forms with flexible column mapping
+- 🔄 **Repository Sync** - Link discovered repos to student roster
+- 📈 **Acceptance Tracking** - Monitor which students accepted assignments
+- 🏢 **Multi-Organization** - Manage rosters for multiple classes
 
-- **[PyPI Package](https://pypi.org/project/classdock/)** - Official package page
-- **[GitHub Repository](https://github.com/hugo-valle/classdock)** - Source code and issues
-- **[CLI Architecture](docs/CLI_ARCHITECTURE.md)** - Modular command structure and design
-- **[Error Handling Guide](docs/ERROR_HANDLING.md)** - GitHub API resilience and retry patterns
-- **[CI/CD Documentation](docs/CICD_WORKFLOW.md)** - Automated publishing workflow
-- **[PyPI Publication Guide](docs/PYPI_PUBLICATION.md)** - Release process documentation
+**Improvements:**
+- Flexible CSV column name mapping (case-insensitive)
+- Support for Google Forms exported column names
+- Orchestrator integration with optional roster sync
 
-### Technical Documentation
+**Documentation:**
+- Complete roster management guides
+- Migration guide for existing users
+- Testing documentation
 
-- **Error Handling System** - Comprehensive GitHub API error management with retry logic
-- **CLI Design Patterns** - Modular architecture with backward compatibility
-- **Testing Framework** - Professional test suite with mocking and coverage
-- **Configuration Management** - Flexible, hierarchical configuration system
-- **Security Practices** - Secure credential handling and validation patterns
+### Version 0.1.1 (Current)
 
-### Version Information
+- Core GitHub Classroom automation
+- Repository discovery and management
+- Secret distribution
+- Collaborator management
+- Workflow orchestration
 
-- **Current Version**: 3.1.1b0 (Beta release with GitHub API integration and comprehensive testing)
-- **Python Support**: 3.10, 3.11, 3.12
-- **Package Distribution**: PyPI with automated CI/CD
-- **Release Cycle**: Semantic versioning with [PEP 440](https://peps.python.org/pep-0440/) compliant identifiers
-- **Versioning Strategy**: [Development Documentation](docs-site/development/versioning.md)
+## Support
 
-#### Recent Improvements (v3.1.1b0)
+- **Issues:** [GitHub Issues](https://github.com/hugo-valle/classdock/issues)
+- **Discussions:** [GitHub Discussions](https://github.com/hugo-valle/classdock/discussions)
+- **Package:** [PyPI Package](https://pypi.org/project/classdock/)
+- **Source:** [GitHub Repository](https://github.com/hugo-valle/classdock)
 
-- **🎯 Universal CLI Options** - All commands support `--help`, `--verbose`, `--dry-run`
-- **🏗️ CLI Modernization** - Complete Typer-based architecture with consistent UX
-- **📁 Legacy Preservation** - Scripts moved to `scripts_legacy/` for backward compatibility
-- **🔄 Workflow Consolidation** - Eliminated duplicate testing, enhanced CI/CD pipeline
-- **🧪 Enhanced Testing** - 496+ comprehensive tests with consolidated coverage reporting
-- **📚 Documentation Updates** - Complete modernization documentation across all resources
-- **� Beta Release** - Ready for broader community testing and feedback
+## Contributing
 
-## 🆘 Support
+Contributions are welcome! Please see our [Contributing Guide](docs/CONTRIBUTING.md) for details on:
 
-- **Documentation**: [GitHub Repository](https://github.com/hugo-valle/classdock)
-- **Issues**: [GitHub Issues](https://github.com/hugo-valle/classdock/issues)
-- **Package**: [PyPI Package](https://pypi.org/project/classdock/)
-- **Discussions**: [GitHub Discussions](https://github.com/hugo-valle/classdock/discussions)
+- Development workflow
+- Branching strategy
+- Testing requirements
+- Code style guidelines
+- Pull request process
 
-## 📜 License
+## License
 
 MIT License - see [LICENSE](LICENSE) file for details.
 
 ---
 
-**ClassDock** - Modern Python automation for GitHub Classroom assignment management.
+**ClassDock** - Simplifying GitHub Classroom management, one command at a time.
+
+Made with ❤️ for computer science educators.

@@ -152,6 +152,16 @@ If issues are found:
 - **Features**: Automated release workflow
 - **PyPI**: https://pypi.org/project/classdock/3.1.1b2/
 
+### v0.1.1 (January 27, 2026)
+- **Status**: ✅ Published via GitHub Actions
+- **Features**: Automated release workflow
+- **PyPI**: https://pypi.org/project/classdock/0.1.1/
+
+### v0.2.0 (January 28, 2026)
+- **Status**: ✅ Published via GitHub Actions
+- **Features**: Automated release workflow
+- **PyPI**: https://pypi.org/project/classdock/0.2.0/
+
 ### Future Releases
 - `v3.0.0-alpha.2`: API improvements and additional testing
 - `v3.0.0-beta.1`: Feature complete, stability testing
