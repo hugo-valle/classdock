@@ -248,6 +248,49 @@ class TestCSVImport:
         assert result.successful == 1  # Only the valid row
         assert result.failed == 2
 
+    def test_import_google_forms_columns(self, importer, roster_manager, tmp_path):
+        """Test import with Google Forms style column names."""
+        google_forms_csv = tmp_path / "google_forms.csv"
+        google_forms_csv.write_text(
+            "Email Address,Enter your name,Enter your GitHub user name\n"
+            "student1@example.com,Student One,student1\n"
+            "student2@example.com,Student Two,student2\n"
+        )
+
+        result = importer.import_from_csv(
+            google_forms_csv,
+            github_organization='test-org'
+        )
+
+        assert result.successful == 2
+        assert result.failed == 0
+
+        # Verify students were imported correctly
+        students = roster_manager.list_students(github_organization='test-org')
+        assert len(students) == 2
+        assert students[0].email == 'student1@example.com'
+        assert students[0].name == 'Student One'
+        assert students[0].github_username == 'student1'
+
+    def test_import_mixed_case_columns(self, importer, roster_manager, tmp_path):
+        """Test import with mixed case column names."""
+        mixed_case_csv = tmp_path / "mixed_case.csv"
+        mixed_case_csv.write_text(
+            "EMAIL,Name,GitHub Username\n"
+            "test1@example.com,Test User,testuser\n"
+        )
+
+        result = importer.import_from_csv(
+            mixed_case_csv,
+            github_organization='test-org'
+        )
+
+        assert result.successful == 1
+        student = roster_manager.list_students(github_organization='test-org')[0]
+        assert student.email == 'test1@example.com'
+        assert student.name == 'Test User'
+        assert student.github_username == 'testuser'
+
 
 class TestCSVExport:
     """Tests for CSV export functionality."""

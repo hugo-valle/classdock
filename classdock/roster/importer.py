@@ -28,12 +28,29 @@ class RosterImporter:
     - github_username: GitHub username (optional)
 
     The GitHub organization is provided via parameter, not in CSV.
+
+    Supports common column name variations (case-insensitive):
+    - email: "email", "email address", "student email"
+    - name: "name", "student name", "full name", "enter your name"
+    - github_username: "github_username", "github username", "github user name",
+                       "github", "enter your github user name"
     """
 
     # Expected CSV columns
     REQUIRED_COLUMNS = {'email', 'name'}
     OPTIONAL_COLUMNS = {'github_username'}
     ALL_COLUMNS = REQUIRED_COLUMNS | OPTIONAL_COLUMNS
+
+    # Column name mappings (case-insensitive)
+    COLUMN_MAPPINGS = {
+        'email': ['email', 'email address', 'student email', 'e-mail'],
+        'name': ['name', 'student name', 'full name', 'enter your name', 'your name'],
+        'github_username': [
+            'github_username', 'github username', 'github user name',
+            'github', 'enter your github user name', 'enter your github username',
+            'github account', 'git username'
+        ]
+    }
 
     def __init__(self, roster_manager: RosterManager):
         """
@@ -43,6 +60,27 @@ class RosterImporter:
             roster_manager: RosterManager instance
         """
         self.roster = roster_manager
+
+    def _normalize_column_names(self, row: Dict[str, str]) -> Dict[str, str]:
+        """
+        Normalize CSV column names to expected format.
+
+        Args:
+            row: Dictionary with original column names
+
+        Returns:
+            Dictionary with normalized column names
+        """
+        normalized = {}
+
+        for standard_name, variations in self.COLUMN_MAPPINGS.items():
+            # Try to find matching column (case-insensitive)
+            for original_col in row.keys():
+                if original_col.lower().strip() in variations:
+                    normalized[standard_name] = row[original_col]
+                    break
+
+        return normalized
 
     def validate_csv_format(
         self,
@@ -71,24 +109,26 @@ class RosterImporter:
                 if reader.fieldnames is None:
                     return False, "CSV file is empty or has no headers"
 
-                actual_columns = set(reader.fieldnames)
+                # Check if we can map required columns
+                # Create a dummy row with all columns present to test mapping
+                dummy_row = {col: 'dummy' for col in reader.fieldnames}
+                normalized = self._normalize_column_names(dummy_row)
 
-                # Check for required columns
-                missing_columns = self.REQUIRED_COLUMNS - actual_columns
+                # Check for required columns in normalized names
+                missing_columns = []
+                for required_col in self.REQUIRED_COLUMNS:
+                    if required_col not in normalized:
+                        missing_columns.append(required_col)
+
                 if missing_columns:
                     return False, (
                         f"Missing required columns: {', '.join(missing_columns)}. "
-                        f"Expected: email, name"
+                        f"Expected columns (case-insensitive): "
+                        f"'email' or 'Email Address', 'name' or 'Enter your name'. "
+                        f"Found columns: {', '.join(reader.fieldnames)}"
                     )
 
-                # Warn about unexpected columns (but don't fail)
-                unexpected = actual_columns - self.ALL_COLUMNS
-                if unexpected:
-                    logger.warning(
-                        f"Unexpected columns will be ignored: {', '.join(unexpected)}"
-                    )
-
-                # Check if file has at least one row
+                # Check if file has at least one data row
                 try:
                     next(reader)
                 except StopIteration:
@@ -138,10 +178,13 @@ class RosterImporter:
                     result.total_rows += 1
 
                     try:
+                        # Normalize column names
+                        normalized = self._normalize_column_names(row)
+
                         # Extract and validate fields
-                        email = row.get('email', '').strip()
-                        name = row.get('name', '').strip()
-                        github_username = row.get('github_username', '').strip() or None
+                        email = normalized.get('email', '').strip()
+                        name = normalized.get('name', '').strip()
+                        github_username = normalized.get('github_username', '').strip() or None
 
                         if not email or not name:
                             result.add_error(
