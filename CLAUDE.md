@@ -326,6 +326,7 @@ classdock
 ├── repos         # Fetch, collaborate, push operations
 ├── secrets       # Add, remove, list, manage secrets
 ├── automation    # Cron scheduling, batch processing
+├── roster        # Student roster management, CSV import/export
 └── Legacy        # Backward compatibility commands
 ```
 
@@ -338,8 +339,14 @@ classdock/
 ├── repos/                  # Repository operations (fetch, collaborator)
 ├── secrets/                # Secret management (manager, github_secrets)
 ├── automation/             # Scheduling (cron_manager, scheduler)
-├── services/               # Service layer (assignment, repos, secrets, automation)
+├── roster/                 # Student roster management (SQLite-based)
+│   ├── models.py           # Student, Assignment, StudentAssignment dataclasses
+│   ├── manager.py          # RosterManager - CRUD operations
+│   ├── importer.py         # CSV/JSON import and export
+│   └── sync.py             # GitHub repository synchronization
+├── services/               # Service layer (assignment, repos, secrets, automation, roster)
 ├── utils/
+│   ├── database.py         # SQLite database manager
 │   ├── github_exceptions.py    # Centralized GitHub API error handling
 │   ├── github_api_client.py    # GitHub API client
 │   ├── token_manager.py        # Centralized token management
@@ -374,9 +381,64 @@ typer = ">=0.12.0"            # Latest stable
 - Use pytest with mocking for GitHub API calls
 - Run `poetry run pytest tests/ -v` before submitting changes
 
+## Roster Management (Issue #34)
+
+ClassDock includes a SQLite-based roster management system for tracking student enrollment and assignment acceptance.
+
+### Quick Start
+
+```bash
+# Initialize roster database (one-time)
+classdock roster init
+
+# Import students from CSV (Google Forms format)
+classdock roster import students.csv --org=soc-cs3550-f25
+
+# List students
+classdock roster list --org=soc-cs3550-f25
+
+# Sync discovered repos with roster
+classdock repos fetch
+classdock roster sync --assignment=python-basics --org=soc-cs3550-f25
+
+# Check status
+classdock roster status --org=soc-cs3550-f25
+```
+
+### Roster Commands
+
+```bash
+classdock roster init                  # Initialize global roster database
+classdock roster import FILE --org=ORG # Import students from CSV
+classdock roster list [--org=ORG]      # List students
+classdock roster add                   # Add single student
+classdock roster link                  # Link GitHub username to student
+classdock roster export FILE           # Export roster to CSV/JSON
+classdock roster sync                  # Sync repos with roster
+classdock roster status [--org=ORG]    # Show roster statistics
+```
+
+### Database Location
+
+- **Global database**: `~/.config/classdock/roster.db`
+- Supports multiple GitHub organizations
+- Tracks students, assignments, and repository links
+
+### Orchestrator Integration
+
+Enable roster sync in `assignment.conf`:
+```bash
+step_sync_roster=true
+```
+
+Then run: `classdock assignments orchestrate`
+
+See `docs/ROSTER_SYNC.md` for complete documentation.
+
 ## Key Documentation
 
 - `.github/copilot-instructions.md` - Detailed development patterns and GitHub API integration methodology
 - `docs/CLI_ARCHITECTURE.md` - Typer-based command structure
 - `docs/ERROR_HANDLING.md` - Error handling system
 - `docs/TESTING.md` - Testing framework and patterns
+- `docs/ROSTER_SYNC.md` - Roster management and sync integration guide
