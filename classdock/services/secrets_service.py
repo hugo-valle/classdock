@@ -13,9 +13,18 @@ class SecretsService:
     secrets from the CLI interface. It is intentionally small and testable.
     """
 
-    def __init__(self, dry_run: bool = False, verbose: bool = False):
+    def __init__(self, dry_run: bool = False, verbose: bool = False, secrets_manager_factory=None):
+        """
+        Args:
+            dry_run: If True, skip real API calls.
+            verbose: Enable verbose logging.
+            secrets_manager_factory: Optional callable ``(dry_run) ->
+                GitHubSecretsManager``. Injecting a factory keeps this service
+                testable without mocking deep import paths.
+        """
         self.dry_run = dry_run
         self.verbose = verbose
+        self._secrets_manager_factory = secrets_manager_factory
 
     def add_secrets(self, repo_urls: Optional[List[str]] = None, force_update: bool = False) -> Tuple[bool, str]:
         """
@@ -47,10 +56,11 @@ class SecretsService:
         target_repos = repo_urls
 
         try:
-            # Import here to avoid heavy imports at module load time
-            from ..secrets.github_secrets import GitHubSecretsManager
-
-            secrets_manager = GitHubSecretsManager(dry_run=self.dry_run)
+            if self._secrets_manager_factory is not None:
+                secrets_manager = self._secrets_manager_factory(self.dry_run)
+            else:
+                from ..secrets.github_secrets import GitHubSecretsManager
+                secrets_manager = GitHubSecretsManager(dry_run=self.dry_run)
             # The GitHubSecretsManager implementation expects the argument
             # name `repo_urls` (not `repository_urls`) — pass the value
             # using the correct keyword to avoid TypeError.

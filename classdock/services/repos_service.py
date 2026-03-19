@@ -14,16 +14,36 @@ class ReposService:
     manager classes under `classdock.repos` and `classdock.assignments`.
     """
 
-    def __init__(self, dry_run: bool = False, verbose: bool = False):
+    def __init__(
+        self,
+        dry_run: bool = False,
+        verbose: bool = False,
+        fetcher_factory=None,
+        push_manager_factory=None,
+        cycle_manager_factory=None,
+    ):
+        """
+        Args:
+            dry_run: If True, skip real API calls.
+            verbose: Enable verbose logging.
+            fetcher_factory: Optional callable ``(config_path) -> RepositoryFetcher``.
+            push_manager_factory: Optional callable ``() -> ClassroomPushManager``.
+            cycle_manager_factory: Optional callable ``(config_path) -> CycleCollaboratorManager``.
+        """
         self.dry_run = dry_run
         self.verbose = verbose
+        self._fetcher_factory = fetcher_factory
+        self._push_manager_factory = push_manager_factory
+        self._cycle_manager_factory = cycle_manager_factory
 
     def fetch(self, config_file: Optional[str] = None) -> Tuple[bool, str]:
         try:
-            from ..repos.fetch import RepositoryFetcher
-
             config_path = Path(config_file) if config_file else None
-            fetcher = RepositoryFetcher(config_path)
+            if self._fetcher_factory is not None:
+                fetcher = self._fetcher_factory(config_path)
+            else:
+                from ..repos.fetch import RepositoryFetcher
+                fetcher = RepositoryFetcher(config_path)
 
             success = fetcher.fetch_all_repositories(verbose=self.verbose)
             if not success:
@@ -52,9 +72,12 @@ class ReposService:
 
     def push(self, config_file: Optional[str] = None) -> Tuple[bool, str]:
         try:
-            from ..assignments.push_manager import ClassroomPushManager, PushResult
-
-            manager = ClassroomPushManager(assignment_root=Path.cwd())
+            from ..assignments.push_manager import PushResult
+            if self._push_manager_factory is not None:
+                manager = self._push_manager_factory()
+            else:
+                from ..assignments.push_manager import ClassroomPushManager
+                manager = ClassroomPushManager(assignment_root=Path.cwd())
 
             result, message = manager.execute_push_workflow(
                 force=False, interactive=False)
@@ -78,10 +101,12 @@ class ReposService:
         config_file: Optional[str] = None,
     ) -> Tuple[bool, str]:
         try:
-            from ..assignments.cycle_collaborator import CycleCollaboratorManager
-
             config_path = Path(config_file) if config_file else None
-            manager = CycleCollaboratorManager(config_path)
+            if self._cycle_manager_factory is not None:
+                manager = self._cycle_manager_factory(config_path)
+            else:
+                from ..assignments.cycle_collaborator import CycleCollaboratorManager
+                manager = CycleCollaboratorManager(config_path)
 
             repo_url = None
             if assignment_prefix and username and organization:

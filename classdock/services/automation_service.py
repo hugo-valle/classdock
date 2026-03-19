@@ -7,15 +7,29 @@ logger = get_logger("services.automation")
 class AutomationService:
     """Service layer for automation-related CLI commands."""
 
-    def __init__(self, dry_run: bool = False, verbose: bool = False):
+    def __init__(self, dry_run: bool = False, verbose: bool = False, cron_manager_factory=None):
+        """
+        Args:
+            dry_run: If True, skip real cron operations.
+            verbose: Enable verbose logging.
+            cron_manager_factory: Optional callable ``() -> CronManager``.
+                Injecting a factory keeps cron logic testable without touching
+                the real crontab.
+        """
         self.dry_run = dry_run
         self.verbose = verbose
+        self._cron_manager_factory = cron_manager_factory
+
+    def _make_cron_manager(self):
+        """Create or return an injected CronManager instance."""
+        if self._cron_manager_factory is not None:
+            return self._cron_manager_factory()
+        from ..automation import CronManager
+        return CronManager()
 
     def cron_install(self, steps: List[str], schedule: Optional[str], config_file: str) -> Tuple[bool, str]:
         try:
-            from ..automation import CronManager
-
-            cron_manager = CronManager()
+            cron_manager = self._make_cron_manager()
             result, message = cron_manager.install_cron_job(steps, schedule)
 
             if result.value == "success":
@@ -30,9 +44,7 @@ class AutomationService:
 
     def cron_remove(self, steps, config_file: str) -> Tuple[bool, str]:
         try:
-            from ..automation import CronManager
-
-            cron_manager = CronManager()
+            cron_manager = self._make_cron_manager()
 
             # Normalize steps
             if not steps:
@@ -54,9 +66,7 @@ class AutomationService:
 
     def cron_status(self, config_file: str):
         try:
-            from ..automation import CronManager
-
-            cron_manager = CronManager()
+            cron_manager = self._make_cron_manager()
             status = cron_manager.get_cron_status()
             return True, status
         except Exception as e:
@@ -65,9 +75,7 @@ class AutomationService:
 
     def cron_logs(self, lines: int = 30):
         try:
-            from ..automation import CronManager
-
-            cron_manager = CronManager()
+            cron_manager = self._make_cron_manager()
             success, output = cron_manager.show_logs(lines)
             return success, output
         except Exception as e:
@@ -76,9 +84,7 @@ class AutomationService:
 
     def cron_schedules(self):
         try:
-            from ..automation import CronManager
-
-            cron_manager = CronManager()
+            cron_manager = self._make_cron_manager()
             output = cron_manager.list_default_schedules()
             return True, output
         except Exception as e:

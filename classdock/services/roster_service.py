@@ -30,17 +30,31 @@ class RosterService:
     with rich console output.
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(
+        self,
+        db_path: Optional[Path] = None,
+        db: Optional[DatabaseManager] = None,
+        manager: Optional[RosterManager] = None,
+        importer: Optional[RosterImporter] = None,
+        synchronizer: Optional[RosterSynchronizer] = None,
+    ):
         """
         Initialize roster service.
 
         Args:
-            db_path: Optional database path (defaults to global database)
+            db_path: Optional database path (defaults to global database).
+                Ignored when ``db`` is provided.
+            db: Pre-built :class:`DatabaseManager`. When provided, ``db_path``
+                is ignored and no new ``DatabaseManager`` is constructed.
+            manager: Pre-built :class:`RosterManager`. When provided, the
+                default one built from ``db`` is not constructed.
+            importer: Pre-built :class:`RosterImporter`.
+            synchronizer: Pre-built :class:`RosterSynchronizer`.
         """
-        self.db = DatabaseManager(db_path=db_path)
-        self.manager = RosterManager(self.db)
-        self.importer = RosterImporter(self.manager)
-        self.synchronizer = RosterSynchronizer(self.manager)
+        self.db = db if db is not None else DatabaseManager(db_path=db_path)
+        self.manager = manager if manager is not None else RosterManager(self.db)
+        self.importer = importer if importer is not None else RosterImporter(self.manager)
+        self.synchronizer = synchronizer if synchronizer is not None else RosterSynchronizer(self.manager)
 
     def initialize_database(self) -> bool:
         """

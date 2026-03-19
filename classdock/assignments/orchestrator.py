@@ -76,19 +76,31 @@ class AssignmentOrchestrator:
     using the Python implementations we've already created.
     """
 
-    def __init__(self, config_file: Optional[Path] = None):
-        """Initialize the orchestrator with configuration."""
+    def __init__(self, config_file: Optional[Path] = None, global_config=None):
+        """Initialize the orchestrator with configuration.
+
+        Args:
+            config_file: Path to assignment configuration file.
+            global_config: Pre-loaded GlobalConfig instance. When provided,
+                ``load_global_config`` is not called, which removes the hidden
+                module-level side-effect and makes the class easier to test.
+        """
         self.logger = get_logger(__name__)
         self.console = Console()
 
-        # Load global configuration
-        if config_file:
-            try:
-                load_global_config(str(config_file))
-            except FileNotFoundError:
-                self.logger.warning(
-                    f"Configuration file not found: {config_file}")
-        self.global_config = get_global_config()
+        if global_config is not None:
+            # Injected config — skip file I/O entirely
+            self.global_config = global_config
+        else:
+            # Load global configuration from file (original behaviour)
+            if config_file:
+                try:
+                    load_global_config(str(config_file))
+                except FileNotFoundError:
+                    self.logger.warning(
+                        f"Configuration file not found: {config_file}")
+            self.global_config = get_global_config()
+
         self.config_file = config_file or Path.cwd() / "assignment.conf"
 
         # Workflow state

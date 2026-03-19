@@ -22,16 +22,26 @@ logger = get_logger("services.assignment")
 class AssignmentService:
     """Service for assignment orchestration and workflow management."""
 
-    def __init__(self, dry_run: bool = False, verbose: bool = False):
+    def __init__(
+        self,
+        dry_run: bool = False,
+        verbose: bool = False,
+        orchestrator_factory=None,
+    ):
         """
         Initialize assignment service.
 
         Args:
-            dry_run: If True, show what would be done without executing
-            verbose: Enable verbose logging
+            dry_run: If True, show what would be done without executing.
+            verbose: Enable verbose logging.
+            orchestrator_factory: Optional callable ``(config_path) ->
+                AssignmentOrchestrator``. When provided it is used instead of
+                constructing ``AssignmentOrchestrator`` directly, which keeps
+                the service testable without touching the filesystem or GitHub.
         """
         self.dry_run = dry_run
         self.verbose = verbose
+        self._orchestrator_factory = orchestrator_factory
         self.orchestrator = None
 
     def orchestrate(
@@ -60,7 +70,10 @@ class AssignmentService:
 
             # Initialize orchestrator with configuration
             config_path = Path(config_file) if config_file else None
-            self.orchestrator = AssignmentOrchestrator(config_path)
+            if self._orchestrator_factory is not None:
+                self.orchestrator = self._orchestrator_factory(config_path)
+            else:
+                self.orchestrator = AssignmentOrchestrator(config_path)
 
             # Validate configuration (even in dry-run mode to catch errors early)
             if not self.orchestrator.validate_configuration():
