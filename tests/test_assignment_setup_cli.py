@@ -20,6 +20,7 @@ def run_cli_command(cmd: str, cwd: Path | None = None) -> tuple[bool, str, str]:
 
         import os
         env = os.environ.copy()
+        env.setdefault("COLUMNS", "200")
 
         result = subprocess.run(
             cmd_list,

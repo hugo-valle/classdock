@@ -50,15 +50,16 @@ class RosterService:
             True if initialization successful
         """
         try:
-            if self.db.database_exists():
-                console.print(
-                    f"✅ Database already exists at: {self.db.db_path}",
-                    style="yellow"
-                )
-            else:
-                self.db.initialize_database()
+            existed = self.db.database_exists()
+            self.db.initialize_database()
+            if existed:
                 console.print(
                     f"✅ Database initialized at: {self.db.db_path}",
+                    style="green bold"
+                )
+            else:
+                console.print(
+                    f"✅ Database created at: {self.db.db_path}",
                     style="green bold"
                 )
             return True

@@ -10,6 +10,7 @@ from getpass import getpass
 from typing import Optional, Callable
 
 from .ui_components import print_error, print_colored, Colors
+from . import prompt as _prompt
 
 
 class InputHandler:
@@ -91,6 +92,25 @@ class InputHandler:
         if help_text:
             print_colored(f"💡 {help_text}", Colors.BLUE)
 
+        # Delegate to questionary when in an interactive terminal
+        if sys.stdin.isatty():
+            result = _prompt.prompt_password(prompt)
+            if result is None:
+                if allow_quit:
+                    print_colored(
+                        "\n👋 Exiting setup wizard. You can restart anytime with: classdock assignments setup",
+                        Colors.CYAN,
+                    )
+                    sys.exit(0)
+                return ""
+            if allow_quit and result.lower().strip() in ['q', 'quit', 'exit']:
+                print_colored(
+                    "👋 Exiting setup wizard. You can restart anytime with: classdock assignments setup",
+                    Colors.CYAN,
+                )
+                sys.exit(0)
+            return result
+
         if allow_quit:
             print_colored("💡 Type 'q' or 'quit' to exit", Colors.CYAN)
 
@@ -98,21 +118,21 @@ class InputHandler:
         print_colored(f"{prompt}{quit_hint}: ", Colors.GREEN, end="")
 
         try:
-            if sys.stdin.isatty():
-                value = getpass("")
-            else:
-                value = input()  # Fallback for non-interactive mode
+            value = input()  # Fallback for non-interactive mode
         except (EOFError, KeyboardInterrupt):
             if allow_quit:
                 print_colored(
-                    "\n👋 Exiting setup wizard. You can restart anytime with: classdock assignments setup", Colors.CYAN)
+                    "\n👋 Exiting setup wizard. You can restart anytime with: classdock assignments setup",
+                    Colors.CYAN,
+                )
                 sys.exit(0)
             value = ""
 
-        # Handle quit commands
         if allow_quit and value.lower().strip() in ['q', 'quit', 'exit']:
             print_colored(
-                "👋 Exiting setup wizard. You can restart anytime with: classdock assignments setup", Colors.CYAN)
+                "👋 Exiting setup wizard. You can restart anytime with: classdock assignments setup",
+                Colors.CYAN,
+            )
             sys.exit(0)
 
         return value
