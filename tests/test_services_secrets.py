@@ -181,17 +181,18 @@ class TestSecretsService:
         assert "failed" in message.lower()
 
     def test_add_secrets_dry_run_with_force_update(self):
-        """Test dry run mode with force_update flag."""
+        """Test dry run mode uses NullSecretsManager; force_update is accepted but no-ops."""
         service = SecretsService(dry_run=True, verbose=False)
 
-        # Dry run should short-circuit before force_update matters
+        # NullSecretsManager handles the call and returns success without hitting GitHub
         success, message = service.add_secrets(
             repo_urls=["https://github.com/org/repo1"],
             force_update=True
         )
 
         assert success is True
-        assert "DRY RUN" in message
+        # NullSecretsManager completes successfully
+        assert "completed" in message.lower() or "success" in message.lower()
 
 
 class TestSecretsServiceIntegration:

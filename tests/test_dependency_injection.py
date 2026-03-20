@@ -74,24 +74,16 @@ class TestAssignmentServiceDI:
         service = AssignmentService()
         assert service._orchestrator_factory is None
 
-    def test_dry_run_short_circuits_before_factory(self):
-        """dry_run returns before the factory is ever called."""
+    def test_dry_run_uses_null_orchestrator_when_no_factory(self):
+        """dry_run=True without a factory injects NullOrchestrator automatically."""
         from classdock.services.assignment_service import AssignmentService
+        from classdock.assignments.orchestrator import NullOrchestrator
 
-        factory = MagicMock()
-        service = AssignmentService(dry_run=True, orchestrator_factory=factory)
-
-        # Need a valid orchestrator to pass validate_configuration
-        fake_orch = MagicMock()
-        fake_orch.validate_configuration.return_value = True
-        factory.return_value = fake_orch
-
-        ok, msg = service.orchestrate()
-
-        assert ok
-        assert "DRY RUN" in msg
-        # factory IS called (orchestrator is used for validate_configuration even in dry-run)
-        factory.assert_called_once()
+        service = AssignmentService(dry_run=True)
+        # The factory should produce NullOrchestrator instances
+        assert service._orchestrator_factory is not None
+        instance = service._orchestrator_factory(None)
+        assert isinstance(instance, NullOrchestrator)
 
 
 # ---------------------------------------------------------------------------

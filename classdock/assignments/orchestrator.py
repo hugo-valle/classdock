@@ -733,3 +733,90 @@ class AssignmentOrchestrator:
         """Legacy method - use step_assist_students instead."""
         logger.info("Assisting students")
         return self.step_assist_students(dry_run=False)
+
+
+class NullOrchestrator:
+    """
+    Null Object implementation of AssignmentOrchestrator for dry-run mode.
+
+    Every step method immediately returns a successful StepResult with a
+    ``DRY RUN:`` message without touching GitHub, the filesystem, or any
+    external service.  This eliminates the scattered ``if dry_run: return``
+    guards that previously littered the service and orchestrator layers.
+    """
+
+    def __init__(self, config_file=None, global_config=None):
+        self.global_config = global_config
+        self.config_file = config_file or Path.cwd() / "assignment.conf"
+        self.results: List[StepResult] = []
+        self.start_time: Optional[float] = None
+        self.discovered_repos: List[str] = []
+
+    def _dry_step(self, step: WorkflowStep, description: str) -> StepResult:
+        return StepResult(
+            step=step,
+            success=True,
+            message=f"DRY RUN: {description}",
+            duration=0.0,
+        )
+
+    def validate_configuration(self) -> bool:
+        return True
+
+    def show_configuration_summary(self) -> None:
+        pass
+
+    def confirm_execution(self, workflow_config) -> bool:
+        return True
+
+    def step_sync_template(self, dry_run: bool = False) -> StepResult:
+        return self._dry_step(WorkflowStep.SYNC, "Would synchronize template with classroom")
+
+    def step_discover_repos(self, dry_run: bool = False) -> StepResult:
+        return self._dry_step(WorkflowStep.DISCOVER, "Would discover student repositories")
+
+    def step_sync_roster(self, dry_run: bool = False) -> StepResult:
+        return self._dry_step(WorkflowStep.SYNC_ROSTER, "Would sync repositories with roster")
+
+    def step_manage_secrets(self, dry_run: bool = False) -> StepResult:
+        return self._dry_step(WorkflowStep.SECRETS, "Would manage secrets for student repositories")
+
+    def step_assist_students(self, dry_run: bool = False) -> StepResult:
+        return self._dry_step(WorkflowStep.ASSIST, "Would run student assistance tools")
+
+    def step_cycle_collaborators(self, dry_run: bool = False) -> StepResult:
+        return self._dry_step(WorkflowStep.CYCLE, "Would cycle collaborator access")
+
+    def execute_single_step(self, step: WorkflowStep, dry_run: bool = False) -> StepResult:
+        step_methods = {
+            WorkflowStep.SYNC: self.step_sync_template,
+            WorkflowStep.DISCOVER: self.step_discover_repos,
+            WorkflowStep.SYNC_ROSTER: self.step_sync_roster,
+            WorkflowStep.SECRETS: self.step_manage_secrets,
+            WorkflowStep.ASSIST: self.step_assist_students,
+            WorkflowStep.CYCLE: self.step_cycle_collaborators,
+        }
+        return step_methods[step](dry_run)
+
+    def execute_workflow(self, workflow_config) -> List[StepResult]:
+        _log = get_logger(__name__)
+        _log.info("DRY RUN: Workflow execution simulated — no changes made")
+        self.start_time = time.time()
+        steps = [
+            WorkflowStep.SYNC, WorkflowStep.DISCOVER, WorkflowStep.SYNC_ROSTER,
+            WorkflowStep.SECRETS, WorkflowStep.ASSIST, WorkflowStep.CYCLE,
+        ]
+        if workflow_config.step_override:
+            self.results = [self.execute_single_step(workflow_config.step_override)]
+        else:
+            self.results = [
+                self.execute_single_step(s)
+                for s in steps
+                if s in workflow_config.enabled_steps and s not in workflow_config.skip_steps
+            ]
+        for r in self.results:
+            _log.info(f"  {r.step.value}: {r.message}")
+        return self.results
+
+    def generate_workflow_report(self) -> Dict:
+        return {"dry_run": True, "results": []}

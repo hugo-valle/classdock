@@ -41,8 +41,18 @@ class AssignmentService:
         """
         self.dry_run = dry_run
         self.verbose = verbose
-        self._orchestrator_factory = orchestrator_factory
         self.orchestrator = None
+
+        # When dry_run is True and no factory was supplied, use NullOrchestrator
+        # so individual service methods don't need scattered if self.dry_run guards.
+        if orchestrator_factory is not None:
+            self._orchestrator_factory = orchestrator_factory
+        elif dry_run:
+            from ..assignments.orchestrator import NullOrchestrator
+            self._orchestrator_factory = lambda config_path: NullOrchestrator(
+                config_file=config_path)
+        else:
+            self._orchestrator_factory = None
 
     def orchestrate(
         self,
@@ -79,16 +89,7 @@ class AssignmentService:
             if not self.orchestrator.validate_configuration():
                 return False, "Configuration validation failed"
 
-            # In dry-run mode, report what would happen after validation
-            if self.dry_run:
-                msg = f"DRY RUN: Would orchestrate assignment workflow using {config_file}"
-                if step:
-                    msg += f" (single step: {step})"
-                if skip_steps:
-                    msg += f" (skipping: {skip_steps})"
-                return True, msg
-
-            # Show configuration summary
+            # Show configuration summary (NullOrchestrator is a no-op here)
             self.orchestrator.show_configuration_summary()
 
             # Parse workflow configuration

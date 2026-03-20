@@ -724,3 +724,25 @@ def add_secrets_to_students(
     except Exception as e:
         logger.error(f"Failed to process secrets: {e}")
         return False
+
+
+class NullSecretsManager:
+    """
+    Null Object implementation of GitHubSecretsManager for dry-run mode.
+
+    All methods log what would happen and return success without making any
+    real API calls.  This removes the ``if self.dry_run`` branches that
+    previously duplicated logic inside the real manager.
+    """
+
+    def __init__(self, dry_run: bool = False):
+        self.dry_run = dry_run
+
+    def add_secrets_from_global_config(
+        self,
+        repo_urls=None,
+        force_update: bool = False,
+    ) -> bool:
+        target = f"{len(repo_urls)} repos" if repo_urls else "auto-discovered repos"
+        logger.info(f"DRY RUN: Would add secrets to {target} (force={force_update})")
+        return True
