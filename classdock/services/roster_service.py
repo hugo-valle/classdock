@@ -16,6 +16,7 @@ from ..roster.manager import RosterManager
 from ..roster.importer import RosterImporter
 from ..roster.sync import RosterSynchronizer
 from ..roster.models import Student, Assignment, SyncResult
+from ..roster.repositories import SqliteStudentRepository, StudentRepository
 from ..utils.logger import get_logger
 
 logger = get_logger("roster_service")
@@ -37,6 +38,7 @@ class RosterService:
         manager: Optional[RosterManager] = None,
         importer: Optional[RosterImporter] = None,
         synchronizer: Optional[RosterSynchronizer] = None,
+        student_repository: Optional[StudentRepository] = None,
     ):
         """
         Initialize roster service.
@@ -50,11 +52,19 @@ class RosterService:
                 default one built from ``db`` is not constructed.
             importer: Pre-built :class:`RosterImporter`.
             synchronizer: Pre-built :class:`RosterSynchronizer`.
+            student_repository: :class:`StudentRepository` implementation.
+                Defaults to :class:`SqliteStudentRepository` wrapping *manager*.
+                Inject an :class:`InMemoryStudentRepository` in tests to avoid
+                real database calls.
         """
         self.db = db if db is not None else DatabaseManager(db_path=db_path)
         self.manager = manager if manager is not None else RosterManager(self.db)
         self.importer = importer if importer is not None else RosterImporter(self.manager)
         self.synchronizer = synchronizer if synchronizer is not None else RosterSynchronizer(self.manager)
+        self.student_repository: StudentRepository = (
+            student_repository if student_repository is not None
+            else SqliteStudentRepository(self.manager)
+        )
 
     def initialize_database(self) -> bool:
         """
@@ -166,9 +176,9 @@ class RosterService:
             True if students were listed successfully
         """
         try:
-            students = self.manager.list_students(
+            students = self.student_repository.list_all(
                 github_organization=github_organization,
-                status=status
+                status=status,
             )
 
             if not students:
@@ -317,7 +327,7 @@ class RosterService:
                 github_organization=github_organization
             )
 
-            student_id = self.manager.add_student(student)
+            student_id = self.student_repository.add(student)
             console.print(
                 f"✅ Added student: [cyan]{email}[/cyan] (ID: {student_id})",
                 style="green bold"
@@ -347,7 +357,7 @@ class RosterService:
             True if link was successful
         """
         try:
-            student = self.manager.get_student_by_email(email, github_organization)
+            student = self.student_repository.find_by_email(email, github_organization)
             if not student:
                 console.print(
                     f"❌ Student not found: {email} in {github_organization}",
@@ -355,7 +365,7 @@ class RosterService:
                 )
                 return False
 
-            success = self.manager.link_github_username(student.id, github_username)
+            success = self.student_repository.link_github_username(student.id, github_username)
             if success:
                 console.print(
                     f"✅ Linked [cyan]{email}[/cyan] to GitHub: [yellow]{github_username}[/yellow]",
@@ -378,12 +388,12 @@ class RosterService:
         """
         try:
             # Get statistics
-            total_students = self.manager.count_students(github_organization)
+            total_students = self.student_repository.count(github_organization)
             total_assignments = self.manager.count_assignments(github_organization)
 
-            students = self.manager.list_students(
+            students = self.student_repository.list_all(
                 github_organization=github_organization,
-                status="active"
+                status="active",
             )
 
             students_with_github = sum(
