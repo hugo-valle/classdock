@@ -9,7 +9,7 @@ assignments and arrays.
 import os
 import re
 from pathlib import Path
-from typing import Dict, List, Optional, Any
+from typing import Any, Dict, List, Optional
 from urllib.parse import urlparse
 
 from .utils import logger, validate_github_url
@@ -17,7 +17,7 @@ from .utils import logger, validate_github_url
 
 class Configuration:
     """
-    Configuration class that validates required fields and provides 
+    Configuration class that validates required fields and provides
     backward compatibility with existing bash configuration format.
     """
 
@@ -27,7 +27,7 @@ class Configuration:
         self._validate_configuration()
 
     @classmethod
-    def load(cls, config_file: Optional[Path] = None) -> 'Configuration':
+    def load(cls, config_file: Optional[Path] = None) -> "Configuration":
         """
         Load configuration from file or default location.
 
@@ -52,8 +52,7 @@ class Configuration:
             config_file = Path(config_file)
 
         if not config_file.exists():
-            raise FileNotFoundError(
-                f"Configuration file not found: {config_file}")
+            raise FileNotFoundError(f"Configuration file not found: {config_file}")
 
         logger.debug(f"Loading configuration from: {config_file}")
 
@@ -73,26 +72,26 @@ class Configuration:
         """
         config_data = {}
 
-        with open(config_file, 'r', encoding='utf-8') as f:
+        with open(config_file, "r", encoding="utf-8") as f:
             content = f.read()
 
         # Remove comments
         lines = []
-        for line in content.split('\n'):
+        for line in content.split("\n"):
             # Remove inline comments but preserve URLs with # in them
-            if '#' in line and not re.search(r'https?://[^\s]*#', line):
-                line = line.split('#')[0]
+            if "#" in line and not re.search(r"https?://[^\s]*#", line):
+                line = line.split("#")[0]
             lines.append(line.strip())
 
-        content = '\n'.join(lines)
+        content = "\n".join(lines)
 
         # Parse variable assignments (including multi-line arrays)
-        var_pattern = r'^([A-Z_][A-Z0-9_]*)\s*=\s*(.*)$'
+        var_pattern = r"^([A-Z_][A-Z0-9_]*)\s*=\s*(.*)$"
 
         i = 0
         while i < len(lines):
             line = lines[i]
-            if not line or line.startswith('#'):
+            if not line or line.startswith("#"):
                 i += 1
                 continue
 
@@ -101,21 +100,23 @@ class Configuration:
                 var_name, var_value = match.groups()
 
                 # Check if this is the start of a multi-line array
-                if var_value.strip().startswith('(') and not var_value.strip().endswith(')'):
+                if var_value.strip().startswith("(") and not var_value.strip().endswith(
+                    ")"
+                ):
                     # Multi-line array - collect all lines until closing )
                     array_lines = [var_value]
                     i += 1
                     while i < len(lines):
                         array_lines.append(lines[i])
-                        if lines[i].strip().endswith(')'):
+                        if lines[i].strip().endswith(")"):
                             break
                         i += 1
 
                     # Join the array lines and parse as single array
-                    var_value = ' '.join(array_lines)
+                    var_value = " ".join(array_lines)
 
                 # Handle array values (both single-line and multi-line)
-                array_pattern = r'^\s*\(\s*(.*?)\s*\)\s*$'
+                array_pattern = r"^\s*\(\s*(.*?)\s*\)\s*$"
                 array_match = re.match(array_pattern, var_value, re.DOTALL)
                 if array_match:
                     # Parse array elements using combined regex approach
@@ -126,28 +127,27 @@ class Configuration:
                     # - "quoted strings" with potential escapes
                     # - 'single quoted strings'
                     # - unquoted_words (no spaces, until next quote or end)
-                    element_pattern = r'''
+                    element_pattern = r"""
                         (?:
                             "([^"\\]*(?:\\.[^"\\]*)*)"    # Double quoted strings with escape support
                             |'([^']*)'                     # Single quoted strings
                             |([^\s"']+)                    # Unquoted words (no spaces)
                         )
-                    '''
+                    """
 
                     # Find all matches and flatten the groups
-                    matches = re.findall(
-                        element_pattern, array_content, re.VERBOSE)
+                    matches = re.findall(element_pattern, array_content, re.VERBOSE)
                     elements = []
 
                     for match_groups in matches:
                         # Each match returns a tuple of groups, flatten to get the actual value
-                        element = next(
-                            (group for group in match_groups if group), '')
+                        element = next((group for group in match_groups if group), "")
                         if element:
                             # Handle escape sequences in double-quoted strings
                             if match_groups[0]:  # Double quoted
-                                element = element.replace(
-                                    '\\"', '"').replace('\\\\', '\\')
+                                element = element.replace('\\"', '"').replace(
+                                    "\\\\", "\\"
+                                )
                             elements.append(element)
 
                     config_data[var_name] = elements
@@ -176,9 +176,9 @@ class Configuration:
             ValueError: If required fields are missing or invalid
         """
         required_fields = [
-            'CLASSROOM_URL',
-            'TEMPLATE_REPO_URL',
-            'GITHUB_ORGANIZATION',
+            "CLASSROOM_URL",
+            "TEMPLATE_REPO_URL",
+            "GITHUB_ORGANIZATION",
         ]
 
         missing_fields = []
@@ -187,17 +187,16 @@ class Configuration:
                 missing_fields.append(field)
 
         if missing_fields:
-            raise ValueError(
-                f"Missing required configuration fields: {missing_fields}")
+            raise ValueError(f"Missing required configuration fields: {missing_fields}")
 
         # Validate URLs (pass config to support custom GitHub hosts)
-        if not validate_github_url(self.data['CLASSROOM_URL'], config=self.data):
-            raise ValueError(
-                f"Invalid CLASSROOM_URL: {self.data['CLASSROOM_URL']}")
+        if not validate_github_url(self.data["CLASSROOM_URL"], config=self.data):
+            raise ValueError(f"Invalid CLASSROOM_URL: {self.data['CLASSROOM_URL']}")
 
-        if not validate_github_url(self.data['TEMPLATE_REPO_URL'], config=self.data):
+        if not validate_github_url(self.data["TEMPLATE_REPO_URL"], config=self.data):
             raise ValueError(
-                f"Invalid TEMPLATE_REPO_URL: {self.data['TEMPLATE_REPO_URL']}")
+                f"Invalid TEMPLATE_REPO_URL: {self.data['TEMPLATE_REPO_URL']}"
+            )
 
     def get(self, key: str, default: Any = None) -> Any:
         """Get configuration value with optional default."""
@@ -210,43 +209,43 @@ class Configuration:
     @property
     def classroom_url(self) -> str:
         """Get classroom URL."""
-        return self.data['CLASSROOM_URL']
+        return self.data["CLASSROOM_URL"]
 
     @property
     def template_repo_url(self) -> str:
         """Get template repository URL."""
-        return self.data['TEMPLATE_REPO_URL']
+        return self.data["TEMPLATE_REPO_URL"]
 
     @property
     def github_organization(self) -> str:
         """Get GitHub organization."""
-        return self.data['GITHUB_ORGANIZATION']
+        return self.data["GITHUB_ORGANIZATION"]
 
     @property
     def secrets(self) -> List[str]:
         """Get list of secrets to manage."""
-        return self.data.get('SECRETS', [])
+        return self.data.get("SECRETS", [])
 
     @property
     def assignment_name(self) -> str:
         """Extract assignment name from classroom URL."""
-        if hasattr(self, '_assignment_name'):
+        if hasattr(self, "_assignment_name"):
             return self._assignment_name
 
         # Extract from URL pattern: https://classroom.github.com/a/assignment-name
         parsed = urlparse(self.classroom_url)
-        path_parts = parsed.path.strip('/').split('/')
+        path_parts = parsed.path.strip("/").split("/")
 
-        if len(path_parts) >= 2 and path_parts[0] == 'a':
+        if len(path_parts) >= 2 and path_parts[0] == "a":
             self._assignment_name = path_parts[1]
         else:
             # Fallback to extracting from template repo URL
             repo_parsed = urlparse(self.template_repo_url)
-            repo_parts = repo_parsed.path.strip('/').split('/')
+            repo_parts = repo_parsed.path.strip("/").split("/")
             if len(repo_parts) >= 2:
-                self._assignment_name = repo_parts[1].replace('.git', '')
+                self._assignment_name = repo_parts[1].replace(".git", "")
             else:
-                self._assignment_name = 'assignment'
+                self._assignment_name = "assignment"
 
         return self._assignment_name
 
@@ -262,12 +261,12 @@ class Configuration:
         for key, value in self.data.items():
             if isinstance(value, list):
                 # Convert arrays to bash array format
-                env_dict[key] = ' '.join(f'"{item}"' for item in value)
+                env_dict[key] = " ".join(f'"{item}"' for item in value)
             else:
                 env_dict[key] = str(value)
 
         # Add derived values
-        env_dict['ASSIGNMENT_NAME'] = self.assignment_name
+        env_dict["ASSIGNMENT_NAME"] = self.assignment_name
 
         return env_dict
 

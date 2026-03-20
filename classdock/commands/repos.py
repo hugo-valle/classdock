@@ -2,31 +2,38 @@
 
 import typer
 
-from ..utils import setup_logging, get_logger
+from ..utils import get_logger, setup_logging
 from ._helpers import get_global_options
 
 logger = get_logger("cli")
 
-repos_app = typer.Typer(help="Repository operations and collaborator management commands")
+repos_app = typer.Typer(
+    help="Repository operations and collaborator management commands"
+)
 
 
 @repos_app.callback()
 def repos_callback(
     ctx: typer.Context,
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose output"),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would be done without executing"),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Show what would be done without executing"
+    ),
 ):
     """Repository operations and collaborator management commands."""
     ctx.ensure_object(dict)
-    ctx.obj['verbose'] = verbose or ctx.obj.get('verbose', False)
-    ctx.obj['dry_run'] = dry_run or ctx.obj.get('dry_run', False)
+    ctx.obj["verbose"] = verbose or ctx.obj.get("verbose", False)
+    ctx.obj["dry_run"] = dry_run or ctx.obj.get("dry_run", False)
 
 
 @repos_app.command("fetch")
 def repos_fetch(
     ctx: typer.Context,
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Discover and fetch student repositories from GitHub Classroom.
@@ -49,7 +56,9 @@ def repos_fetch(
     logger.info("Fetching student repositories")
 
     if dry_run:
-        logger.info(f"DRY RUN: Would fetch student repositories using config: {config_file}")
+        logger.info(
+            f"DRY RUN: Would fetch student repositories using config: {config_file}"
+        )
         return
 
     try:

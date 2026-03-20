@@ -9,24 +9,26 @@ This module handles:
 - Authentication and error handling for GitHub operations
 """
 
-from pathlib import Path
-from typing import List, Dict, Optional
-import subprocess
 import os
+import subprocess
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Optional
 
 try:
     from github import Github, GithubException
+
     GITHUB_AVAILABLE = True
 except ImportError:
     GITHUB_AVAILABLE = False
 
-from ..utils import get_logger, GitManager, PathManager
-from ..utils.github_exceptions import (
-    GitHubAuthenticationError, GitHubDiscoveryError,
-    github_api_retry
-)
 from ..config import ConfigLoader
+from ..utils import GitManager, PathManager, get_logger
+from ..utils.github_exceptions import (
+    GitHubAuthenticationError,
+    GitHubDiscoveryError,
+    github_api_retry,
+)
 
 logger = get_logger("repos.fetch")
 
@@ -34,6 +36,7 @@ logger = get_logger("repos.fetch")
 @dataclass
 class RepositoryInfo:
     """Information about a discovered repository."""
+
     name: str
     url: str
     clone_url: str
@@ -45,6 +48,7 @@ class RepositoryInfo:
 @dataclass
 class FetchResult:
     """Result of repository fetch operation."""
+
     repository: RepositoryInfo
     success: bool
     local_path: Optional[Path] = None
@@ -108,15 +112,14 @@ class RepositoryFetcher:
         self.config = self.config_loader.load()
         self.git_manager = GitManager()
         self.path_manager = PathManager()
-        self.github_client: Optional['Github'] = None
+        self.github_client: Optional["Github"] = None
 
         # Initialize GitHub client if possible
         try:
             self.authenticate_github()
         except GitHubAuthenticationError as e:
             logger.warning(f"GitHub API authentication failed: {e}")
-            logger.info(
-                "Will fall back to command-line operations when needed")
+            logger.info("Will fall back to command-line operations when needed")
 
     def authenticate_github(self) -> bool:
         """
@@ -134,14 +137,15 @@ class RepositoryFetcher:
         """
         if not GITHUB_AVAILABLE:
             raise GitHubAuthenticationError(
-                "PyGithub library not available. Install with: pip install PyGithub")
+                "PyGithub library not available. Install with: pip install PyGithub"
+            )
 
         # Try multiple token sources
         token_sources = [
-            os.getenv('GITHUB_TOKEN'),
-            os.getenv('GITHUB_ACCESS_TOKEN'),
-            self.config.get('GITHUB_TOKEN'),
-            self.config.get('GITHUB_ACCESS_TOKEN')
+            os.getenv("GITHUB_TOKEN"),
+            os.getenv("GITHUB_ACCESS_TOKEN"),
+            self.config.get("GITHUB_TOKEN"),
+            self.config.get("GITHUB_ACCESS_TOKEN"),
         ]
 
         for token in token_sources:
@@ -151,17 +155,20 @@ class RepositoryFetcher:
                     # Test authentication by getting user info
                     user = self.github_client.get_user()
                     logger.info(
-                        f"Successfully authenticated as GitHub user: {user.login}")
+                        f"Successfully authenticated as GitHub user: {user.login}"
+                    )
                     return True
                 except GithubException as e:
-                    logger.warning(
-                        f"GitHub authentication failed with token: {e}")
+                    logger.warning(f"GitHub authentication failed with token: {e}")
                     continue
 
         raise GitHubAuthenticationError(
-            "No valid GitHub token found in environment or configuration")
+            "No valid GitHub token found in environment or configuration"
+        )
 
-    def discover_repositories(self, assignment_prefix: str = None, organization: str = None) -> List[RepositoryInfo]:
+    def discover_repositories(
+        self, assignment_prefix: str = None, organization: str = None
+    ) -> List[RepositoryInfo]:
         """
         Discover student repositories from GitHub organization using API or CLI fallback.
 
@@ -189,27 +196,31 @@ class RepositoryFetcher:
         """
         # Get parameters from config if not provided
         if not assignment_prefix:
-            assignment_prefix = self.config.get('ASSIGNMENT_NAME')
+            assignment_prefix = self.config.get("ASSIGNMENT_NAME")
             if not assignment_prefix:
                 # Try to extract from template repo URL
-                template_url = self.config.get('TEMPLATE_REPO_URL')
+                template_url = self.config.get("TEMPLATE_REPO_URL")
                 if template_url:
-                    assignment_prefix = template_url.split(
-                        '/')[-1].replace('.git', '').replace('-template', '')
+                    assignment_prefix = (
+                        template_url.split("/")[-1]
+                        .replace(".git", "")
+                        .replace("-template", "")
+                    )
 
         if not organization:
-            organization = self.config.get('GITHUB_ORGANIZATION')
+            organization = self.config.get("GITHUB_ORGANIZATION")
 
         if not assignment_prefix or not organization:
             raise GitHubDiscoveryError(
                 f"Missing required parameters: assignment_prefix='{assignment_prefix}', "
                 f"organization='{organization}'. Check configuration.",
                 assignment_prefix=assignment_prefix,
-                organization=organization
+                organization=organization,
             )
 
         logger.info(
-            f"Discovering repositories with prefix '{assignment_prefix}' in organization '{organization}'")
+            f"Discovering repositories with prefix '{assignment_prefix}' in organization '{organization}'"
+        )
 
         try:
             if self.github_client:
@@ -222,11 +233,13 @@ class RepositoryFetcher:
                 f"Failed to discover repositories: {e}",
                 assignment_prefix=assignment_prefix,
                 organization=organization,
-                original_error=e
+                original_error=e,
             )
 
     @github_api_retry(max_attempts=2, base_delay=1.0)
-    def _discover_via_api(self, assignment_prefix: str, organization: str) -> List[RepositoryInfo]:
+    def _discover_via_api(
+        self, assignment_prefix: str, organization: str
+    ) -> List[RepositoryInfo]:
         """Discover repositories using GitHub API."""
         logger.info("Using GitHub API for repository discovery")
 
@@ -241,11 +254,13 @@ class RepositoryFetcher:
                         name=repo.name,
                         url=repo.html_url,
                         clone_url=repo.clone_url,
-                        is_template=repo.name.endswith('-template'),
+                        is_template=repo.name.endswith("-template"),
                         is_student_repo=self._is_student_repository(
-                            repo.name, assignment_prefix),
+                            repo.name, assignment_prefix
+                        ),
                         student_identifier=self._extract_student_identifier(
-                            repo.name, assignment_prefix)
+                            repo.name, assignment_prefix
+                        ),
                     )
                     repositories.append(repo_info)
                     logger.debug(f"Found repository: {repo.name}")
@@ -259,41 +274,44 @@ class RepositoryFetcher:
                 f"GitHub API error: {e}",
                 assignment_prefix=assignment_prefix,
                 organization=organization,
-                original_error=e
+                original_error=e,
             )
 
-    def _discover_via_cli(self, assignment_prefix: str, organization: str) -> List[RepositoryInfo]:
+    def _discover_via_cli(
+        self, assignment_prefix: str, organization: str
+    ) -> List[RepositoryInfo]:
         """Discover repositories using GitHub CLI fallback."""
         logger.info("Using GitHub CLI for repository discovery")
 
         try:
             # Use gh CLI to list repositories
-            cmd = ['gh', 'repo', 'list', organization, '--limit', '1000']
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, check=True)
+            cmd = ["gh", "repo", "list", organization, "--limit", "1000"]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
             repositories = []
-            for line in result.stdout.strip().split('\n'):
+            for line in result.stdout.strip().split("\n"):
                 if not line or assignment_prefix not in line:
                     continue
 
                 # Parse gh output: "org/repo-name   description   visibility"
-                parts = line.split('\t')
+                parts = line.split("\t")
                 if len(parts) < 1:
                     continue
 
                 repo_full_name = parts[0]
-                repo_name = repo_full_name.split('/')[-1]
+                repo_name = repo_full_name.split("/")[-1]
 
                 repo_info = RepositoryInfo(
                     name=repo_name,
                     url=f"https://github.com/{repo_full_name}",
                     clone_url=f"https://github.com/{repo_full_name}.git",
-                    is_template=repo_name.endswith('-template'),
+                    is_template=repo_name.endswith("-template"),
                     is_student_repo=self._is_student_repository(
-                        repo_name, assignment_prefix),
+                        repo_name, assignment_prefix
+                    ),
                     student_identifier=self._extract_student_identifier(
-                        repo_name, assignment_prefix)
+                        repo_name, assignment_prefix
+                    ),
                 )
                 repositories.append(repo_info)
                 logger.debug(f"Found repository: {repo_name}")
@@ -307,13 +325,13 @@ class RepositoryFetcher:
                 f"GitHub CLI error: {e}",
                 assignment_prefix=assignment_prefix,
                 organization=organization,
-                original_error=e
+                original_error=e,
             )
         except FileNotFoundError:
             raise GitHubDiscoveryError(
                 "GitHub CLI (gh) not found. Please install GitHub CLI or configure API access.",
                 assignment_prefix=assignment_prefix,
-                organization=organization
+                organization=organization,
             )
 
     def _is_student_repository(self, repo_name: str, assignment_prefix: str) -> bool:
@@ -323,16 +341,18 @@ class RepositoryFetcher:
             return False
 
         # Exclude template and instructor repositories
-        if repo_name.endswith('-template') or 'instructor' in repo_name.lower():
+        if repo_name.endswith("-template") or "instructor" in repo_name.lower():
             return False
 
         # Exclude classroom template copies
-        if 'classroom' in repo_name.lower() and 'template' in repo_name.lower():
+        if "classroom" in repo_name.lower() and "template" in repo_name.lower():
             return False
 
         return True
 
-    def _extract_student_identifier(self, repo_name: str, assignment_prefix: str) -> Optional[str]:
+    def _extract_student_identifier(
+        self, repo_name: str, assignment_prefix: str
+    ) -> Optional[str]:
         """Extract student identifier from repository name."""
         if not self._is_student_repository(repo_name, assignment_prefix):
             return None
@@ -340,12 +360,15 @@ class RepositoryFetcher:
         # Remove assignment prefix and return remainder
         prefix_with_dash = f"{assignment_prefix}-"
         if repo_name.startswith(prefix_with_dash):
-            return repo_name[len(prefix_with_dash):]
+            return repo_name[len(prefix_with_dash) :]
 
         return None
 
-    def fetch_repositories(self, repo_info_list: List[RepositoryInfo],
-                           target_directory: str = "student-repos") -> List[FetchResult]:
+    def fetch_repositories(
+        self,
+        repo_info_list: List[RepositoryInfo],
+        target_directory: str = "student-repos",
+    ) -> List[FetchResult]:
         """
         Fetch multiple repositories with comprehensive progress tracking and error handling.
 
@@ -367,19 +390,16 @@ class RepositoryFetcher:
             >>> successful = [r for r in results if r.success]
             >>> print(f"Successfully fetched {len(successful)}/{len(results)} repositories")
         """
-        logger.info(
-            f"Starting batch fetch of {len(repo_info_list)} repositories")
+        logger.info(f"Starting batch fetch of {len(repo_info_list)} repositories")
 
         results = []
         success_count = 0
 
         for i, repo_info in enumerate(repo_info_list, 1):
-            logger.info(
-                f"[{i}/{len(repo_info_list)}] Processing {repo_info.name}")
+            logger.info(f"[{i}/{len(repo_info_list)}] Processing {repo_info.name}")
 
             try:
-                result = self.fetch_single_repository(
-                    repo_info, target_directory)
+                result = self.fetch_single_repository(repo_info, target_directory)
                 results.append(result)
 
                 if result.success:
@@ -388,22 +408,25 @@ class RepositoryFetcher:
                     logger.info(f"✓ Successfully {status} {repo_info.name}")
                 else:
                     logger.error(
-                        f"✗ Failed to fetch {repo_info.name}: {result.error_message}")
+                        f"✗ Failed to fetch {repo_info.name}: {result.error_message}"
+                    )
 
             except Exception as e:
                 logger.error(f"✗ Exception fetching {repo_info.name}: {e}")
-                results.append(FetchResult(
-                    repository=repo_info,
-                    success=False,
-                    error_message=str(e)
-                ))
+                results.append(
+                    FetchResult(
+                        repository=repo_info, success=False, error_message=str(e)
+                    )
+                )
 
         logger.info(
-            f"Batch fetch completed: {success_count}/{len(repo_info_list)} successful")
+            f"Batch fetch completed: {success_count}/{len(repo_info_list)} successful"
+        )
         return results
 
-    def fetch_single_repository(self, repo_info: RepositoryInfo,
-                                target_directory: str = "student-repos") -> FetchResult:
+    def fetch_single_repository(
+        self, repo_info: RepositoryInfo, target_directory: str = "student-repos"
+    ) -> FetchResult:
         """
         Fetch a single repository with detailed result tracking.
 
@@ -419,7 +442,7 @@ class RepositoryFetcher:
             FetchResult: Detailed result of the fetch operation.
 
         Example:
-            >>> repo = RepositoryInfo(name="python-basics-student1", 
+            >>> repo = RepositoryInfo(name="python-basics-student1",
             ...                      url="https://github.com/org/python-basics-student1",
             ...                      clone_url="https://github.com/org/python-basics-student1.git")
             >>> result = fetcher.fetch_single_repository(repo)
@@ -430,13 +453,14 @@ class RepositoryFetcher:
 
         try:
             # Determine local path
-            local_path = self.path_manager.ensure_output_directory(
-                target_directory) / repo_info.name
+            local_path = (
+                self.path_manager.ensure_output_directory(target_directory)
+                / repo_info.name
+            )
 
             if local_path.exists() and (local_path / ".git").exists():
                 # Repository exists, pull latest changes
-                logger.debug(
-                    f"Repository {repo_info.name} exists, updating...")
+                logger.debug(f"Repository {repo_info.name} exists, updating...")
                 git_manager = GitManager(local_path)
                 success = git_manager.pull_repo()
 
@@ -445,28 +469,25 @@ class RepositoryFetcher:
                     success=success,
                     local_path=local_path,
                     was_updated=success,
-                    error_message=None if success else "Git pull operation failed"
+                    error_message=None if success else "Git pull operation failed",
                 )
             else:
                 # Clone repository
                 logger.debug(f"Cloning repository {repo_info.name}...")
-                success = self.git_manager.clone_repo(
-                    repo_info.clone_url, local_path)
+                success = self.git_manager.clone_repo(repo_info.clone_url, local_path)
 
                 return FetchResult(
                     repository=repo_info,
                     success=success,
                     local_path=local_path if success else None,
                     was_cloned=success,
-                    error_message=None if success else "Git clone operation failed"
+                    error_message=None if success else "Git clone operation failed",
                 )
 
         except Exception as e:
             logger.error(f"Error fetching repository {repo_info.name}: {e}")
             return FetchResult(
-                repository=repo_info,
-                success=False,
-                error_message=str(e)
+                repository=repo_info, success=False, error_message=str(e)
             )
 
     def sync_template_repository(self) -> bool:
@@ -496,14 +517,15 @@ class RepositoryFetcher:
             template_repo_url = self.config.get("TEMPLATE_REPO_URL")
             if not template_repo_url:
                 logger.error(
-                    "No template repository URL configured (TEMPLATE_REPO_URL)")
+                    "No template repository URL configured (TEMPLATE_REPO_URL)"
+                )
                 return False
 
             # Extract template repository name
-            template_name = template_repo_url.split(
-                "/")[-1].replace(".git", "")
-            template_path = self.path_manager.ensure_output_directory(
-                "templates") / template_name
+            template_name = template_repo_url.split("/")[-1].replace(".git", "")
+            template_path = (
+                self.path_manager.ensure_output_directory("templates") / template_name
+            )
 
             # Fetch template repository
             if template_path.exists() and (template_path / ".git").exists():
@@ -511,18 +533,15 @@ class RepositoryFetcher:
                 git_manager = GitManager(template_path)
                 success = git_manager.pull_repo()
                 if success:
-                    logger.info(
-                        f"Template repository updated at: {template_path}")
+                    logger.info(f"Template repository updated at: {template_path}")
                 else:
                     logger.error("Failed to update template repository")
                 return success
             else:
                 # Clone template repository
-                success = self.git_manager.clone_repo(
-                    template_repo_url, template_path)
+                success = self.git_manager.clone_repo(template_repo_url, template_path)
                 if success:
-                    logger.info(
-                        f"Template repository cloned to: {template_path}")
+                    logger.info(f"Template repository cloned to: {template_path}")
                 else:
                     logger.error("Failed to clone template repository")
                 return success
@@ -531,7 +550,9 @@ class RepositoryFetcher:
             logger.error(f"Template sync failed: {e}")
             return False
 
-    def update_repositories(self, target_directory: str = "student-repos") -> Dict[str, bool]:
+    def update_repositories(
+        self, target_directory: str = "student-repos"
+    ) -> Dict[str, bool]:
         """
         Update all local repositories with latest changes from remote.
 
@@ -594,13 +615,17 @@ class RepositoryFetcher:
 
         success_count = sum(1 for success in results.values() if success)
         logger.info(
-            f"Repository updates completed: {success_count}/{len(results)} successful")
+            f"Repository updates completed: {success_count}/{len(results)} successful"
+        )
         return results
 
-    def filter_student_repositories(self, repositories: List[RepositoryInfo],
-                                    assignment_prefix: str,
-                                    include_template: bool = False,
-                                    exclude_instructor: bool = True) -> List[RepositoryInfo]:
+    def filter_student_repositories(
+        self,
+        repositories: List[RepositoryInfo],
+        assignment_prefix: str,
+        include_template: bool = False,
+        exclude_instructor: bool = True,
+    ) -> List[RepositoryInfo]:
         """
         Filter repositories to identify student submissions based on naming patterns.
 
@@ -635,7 +660,7 @@ class RepositoryFetcher:
                 continue
 
             # Exclude instructor repositories if requested
-            if exclude_instructor and 'instructor' in repo.name.lower():
+            if exclude_instructor and "instructor" in repo.name.lower():
                 continue
 
             # Include student repositories
@@ -643,10 +668,13 @@ class RepositoryFetcher:
                 filtered.append(repo)
 
         logger.info(
-            f"Filtered {len(filtered)} repositories from {len(repositories)} total")
+            f"Filtered {len(filtered)} repositories from {len(repositories)} total"
+        )
         return filtered
 
-    def get_repository_summary(self, repositories: List[RepositoryInfo]) -> Dict[str, int]:
+    def get_repository_summary(
+        self, repositories: List[RepositoryInfo]
+    ) -> Dict[str, int]:
         """
         Generate summary statistics for a list of repositories.
 
@@ -657,13 +685,14 @@ class RepositoryFetcher:
             Dict[str, int]: Dictionary containing count statistics.
         """
         summary = {
-            'total': len(repositories),
-            'student_repos': sum(1 for r in repositories if r.is_student_repo),
-            'template_repos': sum(1 for r in repositories if r.is_template),
-            'other_repos': 0
+            "total": len(repositories),
+            "student_repos": sum(1 for r in repositories if r.is_student_repo),
+            "template_repos": sum(1 for r in repositories if r.is_template),
+            "other_repos": 0,
         }
-        summary['other_repos'] = summary['total'] - \
-            summary['student_repos'] - summary['template_repos']
+        summary["other_repos"] = (
+            summary["total"] - summary["student_repos"] - summary["template_repos"]
+        )
         return summary
 
     def fetch_all_repositories(self, verbose: bool = False) -> bool:
@@ -688,20 +717,19 @@ class RepositoryFetcher:
         """
         try:
             # Get assignment prefix and organization from config
-            assignment_prefix = self.config.get('ASSIGNMENT_NAME')
-            organization = self.config.get('GITHUB_ORGANIZATION')
+            assignment_prefix = self.config.get("ASSIGNMENT_NAME")
+            organization = self.config.get("GITHUB_ORGANIZATION")
 
             if not assignment_prefix or not organization:
                 logger.error(
-                    "Missing ASSIGNMENT_NAME or GITHUB_ORGANIZATION in configuration")
+                    "Missing ASSIGNMENT_NAME or GITHUB_ORGANIZATION in configuration"
+                )
                 return False
 
             # Discover repositories
-            logger.info(
-                f"Discovering repositories for assignment: {assignment_prefix}")
+            logger.info(f"Discovering repositories for assignment: {assignment_prefix}")
             all_repositories = self.discover_repositories(
-                assignment_prefix=assignment_prefix,
-                organization=organization
+                assignment_prefix=assignment_prefix, organization=organization
             )
 
             if not all_repositories:
@@ -713,7 +741,7 @@ class RepositoryFetcher:
                 all_repositories,
                 assignment_prefix,
                 include_template=False,
-                exclude_instructor=True
+                exclude_instructor=True,
             )
 
             if not student_repositories:
@@ -736,7 +764,8 @@ class RepositoryFetcher:
                 return False
 
             logger.info(
-                f"Successfully fetched {len(successful)}/{len(results)} repositories")
+                f"Successfully fetched {len(successful)}/{len(results)} repositories"
+            )
 
             # Write repository URLs to student-repos.txt
             self._write_repository_list(student_repositories)
@@ -760,7 +789,7 @@ class RepositoryFetcher:
         try:
             output_file = Path.cwd() / "student-repos.txt"
 
-            with open(output_file, 'w') as f:
+            with open(output_file, "w") as f:
                 for repo in repositories:
                     if repo.is_student_repo:  # Only write student repositories
                         f.write(f"{repo.url}\n")
@@ -782,7 +811,7 @@ class RepositoryFetcher:
             # Read existing .gitignore content
             existing_lines = []
             if gitignore_path.exists():
-                with open(gitignore_path, 'r') as f:
+                with open(gitignore_path, "r") as f:
                     existing_lines = f.read().splitlines()
 
             # Check if entries already exist
@@ -794,20 +823,19 @@ class RepositoryFetcher:
 
             # Add entries if needed
             if entries_to_add:
-                with open(gitignore_path, 'a') as f:
+                with open(gitignore_path, "a") as f:
                     if existing_lines and not existing_lines[-1].strip() == "":
                         # Add blank line if file doesn't end with one
                         f.write("\n")
                     f.write(
-                        "# GitHub Classroom student repositories (auto-generated)\n")
+                        "# GitHub Classroom student repositories (auto-generated)\n"
+                    )
                     for entry in entries_to_add:
                         f.write(f"{entry}\n")
 
-                logger.info(
-                    f"✅ Updated .gitignore with: {', '.join(entries_to_add)}")
+                logger.info(f"✅ Updated .gitignore with: {', '.join(entries_to_add)}")
             else:
-                logger.debug(
-                    ".gitignore already contains student-repos entries")
+                logger.debug(".gitignore already contains student-repos entries")
 
         except Exception as e:
             logger.warning(f"Failed to update .gitignore: {e}")

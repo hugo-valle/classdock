@@ -35,6 +35,7 @@ logger = get_logger("assignments.orchestrator")
 
 class WorkflowStep(Enum):
     """Available workflow steps."""
+
     SYNC = "sync"
     DISCOVER = "discover"
     SYNC_ROSTER = "sync_roster"
@@ -46,6 +47,7 @@ class WorkflowStep(Enum):
 @dataclass
 class StepResult:
     """Result of executing a workflow step."""
+
     step: WorkflowStep
     success: bool
     message: str
@@ -56,6 +58,7 @@ class StepResult:
 @dataclass
 class WorkflowConfig:
     """Configuration for workflow execution."""
+
     enabled_steps: Set[WorkflowStep]
     dry_run: bool = False
     verbose: bool = False
@@ -77,6 +80,7 @@ class WorkflowCommand:
     of that step, enabling dry-run preview and ordered planning without
     coupling the caller to step implementation details.
     """
+
     step: WorkflowStep
     description: str
     _executor: object = None  # callable set by get_workflow_plan
@@ -117,8 +121,7 @@ class AssignmentOrchestrator:
                 try:
                     load_global_config(str(config_file))
                 except FileNotFoundError:
-                    self.logger.warning(
-                        f"Configuration file not found: {config_file}")
+                    self.logger.warning(f"Configuration file not found: {config_file}")
             self.global_config = get_global_config()
 
         self.config_file = config_file or Path.cwd() / "assignment.conf"
@@ -138,16 +141,15 @@ class AssignmentOrchestrator:
 
             # Check required fields
             required_fields = [
-                'classroom_url',
-                'template_repo_url',
-                'github_organization',
-                'assignment_name'
+                "classroom_url",
+                "template_repo_url",
+                "github_organization",
+                "assignment_name",
             ]
 
             for field in required_fields:
                 if not getattr(self.global_config, field, None):
-                    self.logger.error(
-                        f"Required configuration field missing: {field}")
+                    self.logger.error(f"Required configuration field missing: {field}")
                     return False
 
             self.logger.info("Configuration validation passed")
@@ -163,37 +165,40 @@ class AssignmentOrchestrator:
         table.add_column("Setting", style="bold blue")
         table.add_column("Value", style="green")
 
+        table.add_row("Assignment", self.global_config.assignment_name or "Not set")
         table.add_row(
-            "Assignment", self.global_config.assignment_name or "Not set")
-        table.add_row("Organization",
-                      self.global_config.github_organization or "Not set")
-        table.add_row("Template Repository",
-                      self.global_config.template_repo_url or "Not set")
-        table.add_row("Classroom URL",
-                      self.global_config.classroom_url or "Not set")
-        table.add_row("Assignment File",
-                      self.global_config.assignment_file or "assignment.conf")
+            "Organization", self.global_config.github_organization or "Not set"
+        )
+        table.add_row(
+            "Template Repository", self.global_config.template_repo_url or "Not set"
+        )
+        table.add_row("Classroom URL", self.global_config.classroom_url or "Not set")
+        table.add_row(
+            "Assignment File", self.global_config.assignment_file or "assignment.conf"
+        )
 
         # Show enabled workflow steps
         enabled_steps = []
-        if getattr(self.global_config, 'step_sync_template', True):
+        if getattr(self.global_config, "step_sync_template", True):
             enabled_steps.append("✓ Sync Template")
-        if getattr(self.global_config, 'step_discover_repos', True):
+        if getattr(self.global_config, "step_discover_repos", True):
             enabled_steps.append("✓ Discover Repos")
-        if getattr(self.global_config, 'step_sync_roster', False):
+        if getattr(self.global_config, "step_sync_roster", False):
             enabled_steps.append("✓ Sync Roster")
-        if getattr(self.global_config, 'step_manage_secrets', True):
+        if getattr(self.global_config, "step_manage_secrets", True):
             enabled_steps.append("✓ Manage Secrets")
-        if getattr(self.global_config, 'step_assist_students', False):
+        if getattr(self.global_config, "step_assist_students", False):
             enabled_steps.append("✓ Assist Students")
-        if getattr(self.global_config, 'step_cycle_collaborators', False):
+        if getattr(self.global_config, "step_cycle_collaborators", False):
             enabled_steps.append("✓ Cycle Collaborators")
 
         table.add_row("Workflow Steps", "\n".join(enabled_steps))
 
         self.console.print(table)
 
-    def get_workflow_plan(self, workflow_config: "WorkflowConfig") -> "List[WorkflowCommand]":
+    def get_workflow_plan(
+        self, workflow_config: "WorkflowConfig"
+    ) -> "List[WorkflowCommand]":
         """
         Return the ordered list of WorkflowCommands that would run for *workflow_config*
         without executing any of them.
@@ -202,25 +207,46 @@ class AssignmentOrchestrator:
         iterates the plan and logs ``command.description`` without executing.
         """
         all_commands = [
-            WorkflowCommand(WorkflowStep.SYNC, "Synchronize template with classroom",
-                            self.step_sync_template),
-            WorkflowCommand(WorkflowStep.DISCOVER, "Discover student repositories",
-                            self.step_discover_repos),
-            WorkflowCommand(WorkflowStep.SYNC_ROSTER, "Sync repositories with roster",
-                            self.step_sync_roster),
-            WorkflowCommand(WorkflowStep.SECRETS, "Manage secrets for student repositories",
-                            self.step_manage_secrets),
-            WorkflowCommand(WorkflowStep.ASSIST, "Run student assistance tools",
-                            self.step_assist_students),
-            WorkflowCommand(WorkflowStep.CYCLE, "Cycle collaborator access",
-                            self.step_cycle_collaborators),
+            WorkflowCommand(
+                WorkflowStep.SYNC,
+                "Synchronize template with classroom",
+                self.step_sync_template,
+            ),
+            WorkflowCommand(
+                WorkflowStep.DISCOVER,
+                "Discover student repositories",
+                self.step_discover_repos,
+            ),
+            WorkflowCommand(
+                WorkflowStep.SYNC_ROSTER,
+                "Sync repositories with roster",
+                self.step_sync_roster,
+            ),
+            WorkflowCommand(
+                WorkflowStep.SECRETS,
+                "Manage secrets for student repositories",
+                self.step_manage_secrets,
+            ),
+            WorkflowCommand(
+                WorkflowStep.ASSIST,
+                "Run student assistance tools",
+                self.step_assist_students,
+            ),
+            WorkflowCommand(
+                WorkflowStep.CYCLE,
+                "Cycle collaborator access",
+                self.step_cycle_collaborators,
+            ),
         ]
 
         if workflow_config.step_override:
-            return [cmd for cmd in all_commands if cmd.step == workflow_config.step_override]
+            return [
+                cmd for cmd in all_commands if cmd.step == workflow_config.step_override
+            ]
 
         return [
-            cmd for cmd in all_commands
+            cmd
+            for cmd in all_commands
             if cmd.step in workflow_config.enabled_steps
             and cmd.step not in workflow_config.skip_steps
         ]
@@ -303,81 +329,111 @@ class AssignmentOrchestrator:
         implemented in the push manager component.
         For now, we'll provide a placeholder that logs the action.
         """
+
         def body(dry_run: bool) -> Tuple[bool, str, None]:
             if dry_run:
                 self.logger.info("DRY RUN: Would synchronize template with classroom")
-                self.logger.info(f"Template repo: {self.global_config.template_repo_url}")
+                self.logger.info(
+                    f"Template repo: {self.global_config.template_repo_url}"
+                )
                 return True, "DRY RUN: Template sync simulated", None
             self.logger.warning("Template sync requires push manager integration")
             self.logger.info("Use 'classdock repos push' for template synchronization")
             return True, "Template sync available via push manager", None
 
-        return self._run_step(WorkflowStep.SYNC, 'step_sync_template', True, dry_run, body)
+        return self._run_step(
+            WorkflowStep.SYNC, "step_sync_template", True, dry_run, body
+        )
 
     def step_discover_repos(self, dry_run: bool = False) -> StepResult:
         """Step 2: Discover student repositories using GitHub Classroom API."""
+
         def body(dry_run: bool) -> Tuple[bool, str, Optional[Dict]]:
             if dry_run:
                 self.logger.info("DRY RUN: Would discover student repositories")
-                self.logger.info(f"Organization: {self.global_config.github_organization}")
+                self.logger.info(
+                    f"Organization: {self.global_config.github_organization}"
+                )
                 self.logger.info(f"Assignment: {self.global_config.assignment_name}")
-                repos = ["https://github.com/example/student-repo-1",
-                         "https://github.com/example/student-repo-2"]
-                return True, f"DRY RUN: Would discover {len(repos)} repositories", \
-                       {"repositories": None, "count": len(repos)}
+                repos = [
+                    "https://github.com/example/student-repo-1",
+                    "https://github.com/example/student-repo-2",
+                ]
+                return (
+                    True,
+                    f"DRY RUN: Would discover {len(repos)} repositories",
+                    {"repositories": None, "count": len(repos)},
+                )
 
             from ..services.repos_service import ReposService
+
             self.logger.info("Discovering student repositories...")
             repos_service = ReposService(dry_run=False, verbose=self.logger.level <= 10)
-            success, fetch_message = repos_service.fetch(config_file=str(self.config_file))
+            success, fetch_message = repos_service.fetch(
+                config_file=str(self.config_file)
+            )
 
             if not success:
                 return False, f"Repository discovery failed: {fetch_message}", None
 
             student_repos_file = Path("student-repos.txt")
             if student_repos_file.exists():
-                with open(student_repos_file, 'r') as f:
-                    repos = [line.strip() for line in f
-                             if line.strip() and not line.startswith('#')]
+                with open(student_repos_file, "r") as f:
+                    repos = [
+                        line.strip()
+                        for line in f
+                        if line.strip() and not line.startswith("#")
+                    ]
                 self.discovered_repos = repos
-                return True, f"Discovered {len(repos)} student repositories", \
-                       {"repositories": repos, "count": len(repos)}
+                return (
+                    True,
+                    f"Discovered {len(repos)} student repositories",
+                    {"repositories": repos, "count": len(repos)},
+                )
 
             self.discovered_repos = []
             return True, "No repositories discovered", {"repositories": [], "count": 0}
 
-        return self._run_step(WorkflowStep.DISCOVER, 'step_discover_repos', True, dry_run, body)
+        return self._run_step(
+            WorkflowStep.DISCOVER, "step_discover_repos", True, dry_run, body
+        )
 
     def step_sync_roster(self, dry_run: bool = False) -> StepResult:
         """Step 2.5: Sync discovered repositories with roster database."""
+
         def body(dry_run: bool) -> Tuple[bool, str, None]:
             from ..utils.database import DatabaseManager
+
             db = DatabaseManager()
             if not db.database_exists():
                 self.logger.warning(
-                    "Roster database not initialized. Run 'classdock roster init' first.")
+                    "Roster database not initialized. Run 'classdock roster init' first."
+                )
                 return True, "Skipped (roster database not initialized)", None
 
             if dry_run:
                 self.logger.info("DRY RUN: Would sync repositories with roster")
-                return True, \
-                       f"DRY RUN: Would sync {len(self.discovered_repos)} repositories with roster", \
-                       None
+                return (
+                    True,
+                    f"DRY RUN: Would sync {len(self.discovered_repos)} repositories with roster",
+                    None,
+                )
 
             if not self.discovered_repos:
                 self.logger.info("No repositories to sync")
                 return True, "No repositories to sync", None
 
             from ..services.roster_service import RosterService
+
             self.logger.info("Syncing repositories with roster...")
             roster_service = RosterService()
 
             repos_data = []
             for repo_url in self.discovered_repos:
-                if '/' in repo_url:
-                    repo_name = repo_url.split('/')[-1]
-                    if '-' in repo_name:
-                        parts = repo_name.split('-')
+                if "/" in repo_url:
+                    repo_name = repo_url.split("/")[-1]
+                    if "-" in repo_name:
+                        parts = repo_name.split("-")
                         repos_data.append((repo_name, repo_url, parts[-1]))
 
             if not repos_data:
@@ -394,13 +450,15 @@ class AssignmentOrchestrator:
             )
             if result.unlinked_count > 0:
                 self.logger.warning(
-                    f"{result.unlinked_count} repositories could not be linked to roster")
+                    f"{result.unlinked_count} repositories could not be linked to roster"
+                )
             return True, message, None
 
         # Roster sync errors are non-fatal — catch inside and return success
         try:
             return self._run_step(
-                WorkflowStep.SYNC_ROSTER, 'step_sync_roster', False, dry_run, body)
+                WorkflowStep.SYNC_ROSTER, "step_sync_roster", False, dry_run, body
+            )
         except Exception as e:
             self.logger.error(f"Roster sync failed: {e}")
             return StepResult(
@@ -412,30 +470,46 @@ class AssignmentOrchestrator:
 
     def step_manage_secrets(self, dry_run: bool = False) -> StepResult:
         """Step 3: Manage secrets across repositories using our GitHub secrets manager."""
+
         def body(dry_run: bool) -> Tuple[bool, str, Optional[Dict]]:
             if not dry_run and not self.discovered_repos:
                 student_repos_file = Path("student-repos.txt")
                 if student_repos_file.exists():
-                    with open(student_repos_file, 'r') as f:
+                    with open(student_repos_file, "r") as f:
                         self.discovered_repos = [
-                            line.strip() for line in f
-                            if line.strip() and not line.startswith('#')]
+                            line.strip()
+                            for line in f
+                            if line.strip() and not line.startswith("#")
+                        ]
                 else:
-                    return False, "No repositories found. Run discovery step first.", None
+                    return (
+                        False,
+                        "No repositories found. Run discovery step first.",
+                        None,
+                    )
 
             if dry_run:
-                self.logger.info("DRY RUN: Would manage secrets for student repositories")
+                self.logger.info(
+                    "DRY RUN: Would manage secrets for student repositories"
+                )
                 return True, "DRY RUN: Secret management simulated", {}
 
             from ..services.secrets_service import SecretsService
+
             self.logger.info(
-                f"Managing secrets for {len(self.discovered_repos)} repositories...")
-            secrets_service = SecretsService(dry_run=False, verbose=self.logger.level <= 10)
+                f"Managing secrets for {len(self.discovered_repos)} repositories..."
+            )
+            secrets_service = SecretsService(
+                dry_run=False, verbose=self.logger.level <= 10
+            )
             success, message = secrets_service.add_secrets(
-                repo_urls=self.discovered_repos, force_update=False)
+                repo_urls=self.discovered_repos, force_update=False
+            )
             return success, message, {}
 
-        return self._run_step(WorkflowStep.SECRETS, 'step_manage_secrets', True, dry_run, body)
+        return self._run_step(
+            WorkflowStep.SECRETS, "step_manage_secrets", True, dry_run, body
+        )
 
     def step_assist_students(self, dry_run: bool = False) -> StepResult:
         """
@@ -444,15 +518,22 @@ class AssignmentOrchestrator:
         Note: This step requires student update helper functionality that will be
         implemented in the student helper component.
         """
+
         def body(dry_run: bool) -> Tuple[bool, str, None]:
             if dry_run:
                 self.logger.info("DRY RUN: Would run student assistance tools")
                 return True, "DRY RUN: Student assistance simulated", None
-            self.logger.warning("Student assistance requires direct student helper usage")
-            self.logger.info("Use 'classdock assignments student-help' for assistance tools")
+            self.logger.warning(
+                "Student assistance requires direct student helper usage"
+            )
+            self.logger.info(
+                "Use 'classdock assignments student-help' for assistance tools"
+            )
             return True, "Student assistance available via student helper", None
 
-        return self._run_step(WorkflowStep.ASSIST, 'step_assist_students', False, dry_run, body)
+        return self._run_step(
+            WorkflowStep.ASSIST, "step_assist_students", False, dry_run, body
+        )
 
     def step_cycle_collaborators(self, dry_run: bool = False) -> StepResult:
         """
@@ -461,18 +542,26 @@ class AssignmentOrchestrator:
         Note: This step requires collaborator cycling functionality that will be
         implemented in the cycle collaborator component.
         """
+
         def body(dry_run: bool) -> Tuple[bool, str, None]:
             if dry_run:
                 self.logger.info("DRY RUN: Would cycle collaborator access")
                 return True, "DRY RUN: Collaborator cycling simulated", None
-            self.logger.warning("Collaborator cycling requires direct cycle collaborator usage")
-            self.logger.info("Use 'classdock repos cycle-collaborator' for access management")
+            self.logger.warning(
+                "Collaborator cycling requires direct cycle collaborator usage"
+            )
+            self.logger.info(
+                "Use 'classdock repos cycle-collaborator' for access management"
+            )
             return True, "Collaborator cycling available via cycle collaborator", None
 
         return self._run_step(
-            WorkflowStep.CYCLE, 'step_cycle_collaborators', False, dry_run, body)
+            WorkflowStep.CYCLE, "step_cycle_collaborators", False, dry_run, body
+        )
 
-    def execute_single_step(self, step: WorkflowStep, dry_run: bool = False) -> StepResult:
+    def execute_single_step(
+        self, step: WorkflowStep, dry_run: bool = False
+    ) -> StepResult:
         """Execute a single workflow step."""
         self.logger.info(f"Executing single step: {step.value}")
 
@@ -500,13 +589,15 @@ class AssignmentOrchestrator:
         # Show workflow header
         if workflow_config.dry_run:
             self.console.print(
-                Panel("🧪 DRY RUN MODE - No actual changes will be made", style="yellow"))
+                Panel("🧪 DRY RUN MODE - No actual changes will be made", style="yellow")
+            )
 
         try:
             # Execute single step if specified
             if workflow_config.step_override:
                 result = self.execute_single_step(
-                    workflow_config.step_override, workflow_config.dry_run)
+                    workflow_config.step_override, workflow_config.dry_run
+                )
                 self.results.append(result)
                 return self.results
 
@@ -523,19 +614,19 @@ class AssignmentOrchestrator:
             repos_discovered = False
 
             with Progress() as progress:
-                task = progress.add_task(
-                    "Workflow Progress", total=len(steps_to_run))
+                task = progress.add_task("Workflow Progress", total=len(steps_to_run))
 
                 for step_enum, step_method in steps_to_run:
                     # Skip if not in enabled steps or is in skip list
-                    if (workflow_config.enabled_steps and
-                            step_enum not in workflow_config.enabled_steps):
+                    if (
+                        workflow_config.enabled_steps
+                        and step_enum not in workflow_config.enabled_steps
+                    ):
                         continue
                     if step_enum in workflow_config.skip_steps:
                         continue
 
-                    progress.update(
-                        task, description=f"Executing {step_enum.value}...")
+                    progress.update(task, description=f"Executing {step_enum.value}...")
                     result = step_method(workflow_config.dry_run)
                     self.results.append(result)
 
@@ -544,10 +635,16 @@ class AssignmentOrchestrator:
                         repos_discovered = True
 
                     # Skip repository-dependent steps if no repos were discovered
-                    if not repos_discovered and step_enum in [WorkflowStep.SYNC_ROSTER, WorkflowStep.SECRETS, WorkflowStep.ASSIST, WorkflowStep.CYCLE]:
+                    if not repos_discovered and step_enum in [
+                        WorkflowStep.SYNC_ROSTER,
+                        WorkflowStep.SECRETS,
+                        WorkflowStep.ASSIST,
+                        WorkflowStep.CYCLE,
+                    ]:
                         if not workflow_config.dry_run:
                             self.logger.warning(
-                                f"Skipping {step_enum.value} (no repositories discovered)")
+                                f"Skipping {step_enum.value} (no repositories discovered)"
+                            )
                             continue
 
                     progress.advance(task)
@@ -583,19 +680,16 @@ class AssignmentOrchestrator:
                 result.step.value.title(),
                 f"[{status_style}]{status}[/{status_style}]",
                 f"{result.duration:.2f}s",
-                result.message
+                result.message,
             )
 
         self.console.print(table)
 
         # Summary
-        self.console.print(
-            f"\n[bold green]Total Steps:[/] {len(self.results)}")
-        self.console.print(
-            f"[bold green]Successful:[/] {len(successful_steps)}")
+        self.console.print(f"\n[bold green]Total Steps:[/] {len(self.results)}")
+        self.console.print(f"[bold green]Successful:[/] {len(successful_steps)}")
         self.console.print(f"[bold red]Failed:[/] {len(failed_steps)}")
-        self.console.print(
-            f"[bold blue]Total Duration:[/] {total_duration:.2f}s")
+        self.console.print(f"[bold blue]Total Duration:[/] {total_duration:.2f}s")
 
         return {
             "total_steps": len(self.results),
@@ -608,10 +702,10 @@ class AssignmentOrchestrator:
                     "success": r.success,
                     "message": r.message,
                     "duration": r.duration,
-                    "data": r.data
+                    "data": r.data,
                 }
                 for r in self.results
-            ]
+            ],
         }
 
     # Legacy methods for backward compatibility with existing tests
@@ -622,7 +716,7 @@ class AssignmentOrchestrator:
             enabled_steps=set(WorkflowStep),
             dry_run=False,
             verbose=False,
-            force_yes=True
+            force_yes=True,
         )
         return self.execute_workflow(workflow_config)
 
@@ -682,16 +776,24 @@ class NullOrchestrator:
         return True
 
     def step_sync_template(self, dry_run: bool = False) -> StepResult:
-        return self._dry_step(WorkflowStep.SYNC, "Would synchronize template with classroom")
+        return self._dry_step(
+            WorkflowStep.SYNC, "Would synchronize template with classroom"
+        )
 
     def step_discover_repos(self, dry_run: bool = False) -> StepResult:
-        return self._dry_step(WorkflowStep.DISCOVER, "Would discover student repositories")
+        return self._dry_step(
+            WorkflowStep.DISCOVER, "Would discover student repositories"
+        )
 
     def step_sync_roster(self, dry_run: bool = False) -> StepResult:
-        return self._dry_step(WorkflowStep.SYNC_ROSTER, "Would sync repositories with roster")
+        return self._dry_step(
+            WorkflowStep.SYNC_ROSTER, "Would sync repositories with roster"
+        )
 
     def step_manage_secrets(self, dry_run: bool = False) -> StepResult:
-        return self._dry_step(WorkflowStep.SECRETS, "Would manage secrets for student repositories")
+        return self._dry_step(
+            WorkflowStep.SECRETS, "Would manage secrets for student repositories"
+        )
 
     def step_assist_students(self, dry_run: bool = False) -> StepResult:
         return self._dry_step(WorkflowStep.ASSIST, "Would run student assistance tools")
@@ -699,7 +801,9 @@ class NullOrchestrator:
     def step_cycle_collaborators(self, dry_run: bool = False) -> StepResult:
         return self._dry_step(WorkflowStep.CYCLE, "Would cycle collaborator access")
 
-    def execute_single_step(self, step: WorkflowStep, dry_run: bool = False) -> StepResult:
+    def execute_single_step(
+        self, step: WorkflowStep, dry_run: bool = False
+    ) -> StepResult:
         step_methods = {
             WorkflowStep.SYNC: self.step_sync_template,
             WorkflowStep.DISCOVER: self.step_discover_repos,
@@ -715,8 +819,12 @@ class NullOrchestrator:
         _log.info("DRY RUN: Workflow execution simulated — no changes made")
         self.start_time = time.time()
         steps = [
-            WorkflowStep.SYNC, WorkflowStep.DISCOVER, WorkflowStep.SYNC_ROSTER,
-            WorkflowStep.SECRETS, WorkflowStep.ASSIST, WorkflowStep.CYCLE,
+            WorkflowStep.SYNC,
+            WorkflowStep.DISCOVER,
+            WorkflowStep.SYNC_ROSTER,
+            WorkflowStep.SECRETS,
+            WorkflowStep.ASSIST,
+            WorkflowStep.CYCLE,
         ]
         if workflow_config.step_override:
             self.results = [self.execute_single_step(workflow_config.step_override)]
@@ -724,7 +832,8 @@ class NullOrchestrator:
             self.results = [
                 self.execute_single_step(s)
                 for s in steps
-                if s in workflow_config.enabled_steps and s not in workflow_config.skip_steps
+                if s in workflow_config.enabled_steps
+                and s not in workflow_config.skip_steps
             ]
         for r in self.results:
             _log.info(f"  {r.step.value}: {r.message}")

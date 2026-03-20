@@ -4,12 +4,12 @@ Roster manager for CRUD operations on students, assignments, and their relations
 Provides high-level interface for roster management operations.
 """
 
-from typing import Optional, List, Tuple
 from datetime import datetime
+from typing import List, Optional, Tuple
 
-from .models import Student, Assignment, StudentAssignment
 from ..utils.database import DatabaseManager
 from ..utils.logger import get_logger
+from .models import Assignment, Student, StudentAssignment
 
 logger = get_logger("roster_manager")
 
@@ -63,7 +63,7 @@ class RosterManager:
             student.github_organization,
             student.enrolled_date or datetime.now(),
             student.status,
-            student.notes
+            student.notes,
         )
 
         student_id = self.db.execute_update(query, params)
@@ -104,7 +104,7 @@ class RosterManager:
             student.enrolled_date,
             student.status,
             student.notes,
-            student.id
+            student.id,
         )
 
         rows_affected = self.db.execute_update(query, params)
@@ -131,9 +131,7 @@ class RosterManager:
         return None
 
     def get_student_by_email(
-        self,
-        email: str,
-        github_organization: str
+        self, email: str, github_organization: str
     ) -> Optional[Student]:
         """
         Get student by email and organization (composite key).
@@ -150,8 +148,7 @@ class RosterManager:
             WHERE email = ? AND github_organization = ?
         """
         results = self.db.execute_query(
-            query,
-            (email.lower().strip(), github_organization)
+            query, (email.lower().strip(), github_organization)
         )
 
         if results:
@@ -159,9 +156,7 @@ class RosterManager:
         return None
 
     def get_student_by_github(
-        self,
-        github_username: str,
-        github_organization: Optional[str] = None
+        self, github_username: str, github_organization: Optional[str] = None
     ) -> Optional[Student]:
         """
         Get student by GitHub username.
@@ -190,9 +185,7 @@ class RosterManager:
         return None
 
     def list_students(
-        self,
-        github_organization: Optional[str] = None,
-        status: str = "active"
+        self, github_organization: Optional[str] = None, status: str = "active"
     ) -> List[Student]:
         """
         List students with optional filters.
@@ -244,10 +237,7 @@ class RosterManager:
         return False
 
     def link_github_username(
-        self,
-        student_id: int,
-        github_username: str,
-        github_id: Optional[int] = None
+        self, student_id: int, github_username: str, github_id: Optional[int] = None
     ) -> bool:
         """
         Link a GitHub username to a student.
@@ -269,8 +259,7 @@ class RosterManager:
             WHERE id = ?
         """
         rows_affected = self.db.execute_update(
-            query,
-            (github_username, github_id, student_id)
+            query, (github_username, github_id, student_id)
         )
 
         if rows_affected > 0:
@@ -311,7 +300,7 @@ class RosterManager:
             assignment.assignment_type,
             assignment.deadline,
             assignment.points_available,
-            assignment.status
+            assignment.status,
         )
 
         assignment_id = self.db.execute_update(query, params)
@@ -354,7 +343,7 @@ class RosterManager:
             assignment.deadline,
             assignment.points_available,
             assignment.status,
-            assignment.id
+            assignment.id,
         )
 
         rows_affected = self.db.execute_update(query, params)
@@ -398,9 +387,7 @@ class RosterManager:
         return None
 
     def list_assignments(
-        self,
-        github_organization: Optional[str] = None,
-        status: str = "active"
+        self, github_organization: Optional[str] = None, status: str = "active"
     ) -> List[Assignment]:
         """
         List assignments with optional filters.
@@ -459,7 +446,7 @@ class RosterManager:
         assignment_id: int,
         repository_url: Optional[str] = None,
         repository_name: Optional[str] = None,
-        acceptance_status: str = "pending"
+        acceptance_status: str = "pending",
     ) -> int:
         """
         Link a student to an assignment.
@@ -490,7 +477,7 @@ class RosterManager:
             assignment_id,
             repository_url,
             repository_name,
-            acceptance_status
+            acceptance_status,
         )
 
         link_id = self.db.execute_update(query, params)
@@ -500,10 +487,7 @@ class RosterManager:
         )
         return link_id
 
-    def update_student_assignment(
-        self,
-        student_assignment: StudentAssignment
-    ) -> bool:
+    def update_student_assignment(self, student_assignment: StudentAssignment) -> bool:
         """
         Update a student-assignment link.
 
@@ -536,21 +520,17 @@ class RosterManager:
             student_assignment.last_commit_at,
             student_assignment.last_synced_at,
             student_assignment.notes,
-            student_assignment.id
+            student_assignment.id,
         )
 
         rows_affected = self.db.execute_update(query, params)
         if rows_affected > 0:
-            logger.info(
-                f"Updated student_assignment ID: {student_assignment.id}"
-            )
+            logger.info(f"Updated student_assignment ID: {student_assignment.id}")
             return True
         return False
 
     def get_student_assignment(
-        self,
-        student_id: int,
-        assignment_id: int
+        self, student_id: int, assignment_id: int
     ) -> Optional[StudentAssignment]:
         """
         Get student-assignment link.
@@ -573,8 +553,7 @@ class RosterManager:
         return None
 
     def get_assignment_students(
-        self,
-        assignment_id: int
+        self, assignment_id: int
     ) -> List[Tuple[Student, StudentAssignment]]:
         """
         Get all students for an assignment with their assignment status.
@@ -621,32 +600,32 @@ class RosterManager:
         for row in results:
             # Split row data into student and student_assignment fields
             student_data = {
-                'id': row['student_id'],
-                'email': row['email'],
-                'name': row['name'],
-                'github_username': row['github_username'],
-                'github_id': row['github_id'],
-                'github_organization': row['github_organization'],
-                'enrolled_date': row['enrolled_date'],
-                'status': row['student_status'],
-                'notes': row['student_notes'],
-                'created_at': row['student_created_at'],
-                'updated_at': row['student_updated_at']
+                "id": row["student_id"],
+                "email": row["email"],
+                "name": row["name"],
+                "github_username": row["github_username"],
+                "github_id": row["github_id"],
+                "github_organization": row["github_organization"],
+                "enrolled_date": row["enrolled_date"],
+                "status": row["student_status"],
+                "notes": row["student_notes"],
+                "created_at": row["student_created_at"],
+                "updated_at": row["student_updated_at"],
             }
 
             sa_data = {
-                'id': row['sa_id'],
-                'student_id': row['sa_student_id'],
-                'assignment_id': row['assignment_id'],
-                'repository_url': row['repository_url'],
-                'repository_name': row['repository_name'],
-                'acceptance_status': row['acceptance_status'],
-                'accepted_at': row['accepted_at'],
-                'last_commit_at': row['last_commit_at'],
-                'last_synced_at': row['last_synced_at'],
-                'notes': row['sa_notes'],
-                'created_at': row['sa_created_at'],
-                'updated_at': row['sa_updated_at']
+                "id": row["sa_id"],
+                "student_id": row["sa_student_id"],
+                "assignment_id": row["assignment_id"],
+                "repository_url": row["repository_url"],
+                "repository_name": row["repository_name"],
+                "acceptance_status": row["acceptance_status"],
+                "accepted_at": row["accepted_at"],
+                "last_commit_at": row["last_commit_at"],
+                "last_synced_at": row["last_synced_at"],
+                "notes": row["sa_notes"],
+                "created_at": row["sa_created_at"],
+                "updated_at": row["sa_updated_at"],
             }
 
             student = Student.from_dict(student_data)
@@ -656,8 +635,7 @@ class RosterManager:
         return student_assignments
 
     def get_student_assignments(
-        self,
-        student_id: int
+        self, student_id: int
     ) -> List[Tuple[Assignment, StudentAssignment]]:
         """
         Get all assignments for a student with their status.
@@ -705,33 +683,33 @@ class RosterManager:
         for row in results:
             # Split row data into assignment and student_assignment fields
             assignment_data = {
-                'id': row['assignment_id'],
-                'name': row['name'],
-                'classroom_id': row['classroom_id'],
-                'classroom_url': row['classroom_url'],
-                'template_repo_url': row['template_repo_url'],
-                'github_organization': row['github_organization'],
-                'assignment_type': row['assignment_type'],
-                'deadline': row['deadline'],
-                'points_available': row['points_available'],
-                'status': row['assignment_status'],
-                'created_at': row['assignment_created_at'],
-                'updated_at': row['assignment_updated_at']
+                "id": row["assignment_id"],
+                "name": row["name"],
+                "classroom_id": row["classroom_id"],
+                "classroom_url": row["classroom_url"],
+                "template_repo_url": row["template_repo_url"],
+                "github_organization": row["github_organization"],
+                "assignment_type": row["assignment_type"],
+                "deadline": row["deadline"],
+                "points_available": row["points_available"],
+                "status": row["assignment_status"],
+                "created_at": row["assignment_created_at"],
+                "updated_at": row["assignment_updated_at"],
             }
 
             sa_data = {
-                'id': row['sa_id'],
-                'student_id': row['student_id'],
-                'assignment_id': row['sa_assignment_id'],
-                'repository_url': row['repository_url'],
-                'repository_name': row['repository_name'],
-                'acceptance_status': row['acceptance_status'],
-                'accepted_at': row['accepted_at'],
-                'last_commit_at': row['last_commit_at'],
-                'last_synced_at': row['last_synced_at'],
-                'notes': row['sa_notes'],
-                'created_at': row['sa_created_at'],
-                'updated_at': row['sa_updated_at']
+                "id": row["sa_id"],
+                "student_id": row["student_id"],
+                "assignment_id": row["sa_assignment_id"],
+                "repository_url": row["repository_url"],
+                "repository_name": row["repository_name"],
+                "acceptance_status": row["acceptance_status"],
+                "accepted_at": row["accepted_at"],
+                "last_commit_at": row["last_commit_at"],
+                "last_synced_at": row["last_synced_at"],
+                "notes": row["sa_notes"],
+                "created_at": row["sa_created_at"],
+                "updated_at": row["sa_updated_at"],
             }
 
             assignment = Assignment.from_dict(assignment_data)
@@ -761,7 +739,7 @@ class RosterManager:
             params = ()
 
         results = self.db.execute_query(query, params)
-        return results[0]['count'] if results else 0
+        return results[0]["count"] if results else 0
 
     def count_assignments(self, github_organization: Optional[str] = None) -> int:
         """
@@ -784,4 +762,4 @@ class RosterManager:
             params = ()
 
         results = self.db.execute_query(query, params)
-        return results[0]['count'] if results else 0
+        return results[0]["count"] if results else 0

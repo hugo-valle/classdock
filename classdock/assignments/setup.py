@@ -8,13 +8,18 @@ import os
 import sys
 
 from ..config.generator import ConfigGenerator
-from ..utils import get_logger, PathManager
-from ..utils.ui_components import (
-    Colors, print_colored, print_error, print_success, print_status,
-    show_welcome, show_completion
-)
-from ..utils.input_handlers import InputHandler, Validators, URLParser
+from ..utils import PathManager, get_logger
 from ..utils.file_operations import FileManager
+from ..utils.input_handlers import InputHandler, URLParser, Validators
+from ..utils.ui_components import (
+    Colors,
+    print_colored,
+    print_error,
+    print_status,
+    print_success,
+    show_completion,
+    show_welcome,
+)
 
 logger = get_logger("assignments.setup")
 
@@ -62,7 +67,7 @@ class AssignmentSetup:
 
     def __init__(self):
         """
-        Initializes the class by setting up path management, configuration file location, input handling, validation, URL parsing, configuration generation, and file management. 
+        Initializes the class by setting up path management, configuration file location, input handling, validation, URL parsing, configuration generation, and file management.
         Also initializes dictionaries for storing configuration values, token files, and token validation results.
         """
         self.path_manager = PathManager()
@@ -96,8 +101,7 @@ class AssignmentSetup:
             bool: True if setup completed successfully, False otherwise
         """
         try:
-            logger.info(
-                f"Starting assignment setup wizard with URL: {classroom_url}")
+            logger.info(f"Starting assignment setup wizard with URL: {classroom_url}")
 
             # Pre-populate configuration with URL information
             if not self._populate_from_url(classroom_url):
@@ -108,8 +112,7 @@ class AssignmentSetup:
 
             # Skip assignment info collection since we have the URL
             logger.info("Using provided GitHub Classroom URL")
-            print_colored(
-                f"✓ GitHub Classroom URL: {classroom_url}", Colors.GREEN)
+            print_colored(f"✓ GitHub Classroom URL: {classroom_url}", Colors.GREEN)
 
             # Collect repository information (may auto-populate from URL)
             self._collect_repository_info()
@@ -159,59 +162,62 @@ class AssignmentSetup:
                 return False
 
             # Store the classroom URL
-            self.config_values['CLASSROOM_URL'] = classroom_url
+            self.config_values["CLASSROOM_URL"] = classroom_url
 
             # First attempt: URL parsing
             parsed_result = self.url_parser.parse_classroom_url(classroom_url)
-            org_name = parsed_result.get('organization', '')
-            assignment_name = parsed_result.get('assignment_name', '')
+            org_name = parsed_result.get("organization", "")
+            assignment_name = parsed_result.get("assignment_name", "")
 
             logger.info(
-                f"URL parsing result: org='{org_name}', assignment='{assignment_name}'")
+                f"URL parsing result: org='{org_name}', assignment='{assignment_name}'"
+            )
 
             # Determine if we should use API enhancement/validation
             should_use_api = False
-            api_mode = os.getenv('CLASSROOM_API_MODE', 'auto').lower()
+            api_mode = os.getenv("CLASSROOM_API_MODE", "auto").lower()
 
-            if api_mode == 'always':
+            if api_mode == "always":
                 # Always use API for validation/enhancement
                 should_use_api = True
                 logger.info("🔄 API mode set to 'always', will use GitHub API")
-            elif api_mode == 'never':
+            elif api_mode == "never":
                 # Never use API, rely solely on URL parsing
                 should_use_api = False
-                logger.info(
-                    "⚠️ API mode set to 'never', using URL parsing only")
+                logger.info("⚠️ API mode set to 'never', using URL parsing only")
             else:  # api_mode == 'auto' (default)
                 if not (org_name and assignment_name):
                     # URL parsing failed to extract required data
                     should_use_api = True
-                    logger.info(
-                        "🔄 URL parsing incomplete, will use GitHub API")
+                    logger.info("🔄 URL parsing incomplete, will use GitHub API")
                 else:
                     # URL parsing succeeded, but check if organization looks like a classroom name
                     from ..utils.github_api_client import GitHubAPIClient
+
                     if GitHubAPIClient.is_likely_classroom_name(org_name):
                         should_use_api = True
                         logger.info(
-                            f"🔍 Organization '{org_name}' appears to be a classroom name, will validate with GitHub API")
+                            f"🔍 Organization '{org_name}' appears to be a classroom name, will validate with GitHub API"
+                        )
                     else:
                         logger.info(
-                            f"✅ Organization '{org_name}' looks like a real GitHub organization, using URL parsing result")
+                            f"✅ Organization '{org_name}' looks like a real GitHub organization, using URL parsing result"
+                        )
 
             # Use URL parsing result if it looks reliable
             if not should_use_api:
-                self.config_values['GITHUB_ORGANIZATION'] = org_name
-                self.config_values['ASSIGNMENT_NAME'] = assignment_name
+                self.config_values["GITHUB_ORGANIZATION"] = org_name
+                self.config_values["ASSIGNMENT_NAME"] = assignment_name
                 logger.info(
-                    f"✅ Successfully extracted from URL - Organization: {org_name}, Assignment: {assignment_name}")
+                    f"✅ Successfully extracted from URL - Organization: {org_name}, Assignment: {assignment_name}"
+                )
                 return True
 
             # Use GitHub API to extract/validate classroom data
-            logger.info(
-                "🔄 Using GitHub API to extract classroom data...")
+            logger.info("🔄 Using GitHub API to extract classroom data...")
             print_status(
-                "Connecting to GitHub Classroom API to fetch assignment details...")
+                "Connecting to GitHub Classroom API to fetch assignment details..."
+            )
 
             try:
                 from ..utils.github_api_client import GitHubAPIClient
@@ -220,83 +226,80 @@ class AssignmentSetup:
                 api_client = GitHubAPIClient()
                 if not api_client.verify_token():
                     print_error(
-                        "GitHub token verification failed. Please check your GITHUB_TOKEN environment variable.")
+                        "GitHub token verification failed. Please check your GITHUB_TOKEN environment variable."
+                    )
                     return False
 
                 print_status("✅ GitHub token verified successfully")
 
                 # Extract classroom data using API
-                api_result = api_client.extract_classroom_data_from_url(
-                    classroom_url)
+                api_result = api_client.extract_classroom_data_from_url(classroom_url)
 
-                if not api_result['success']:
+                if not api_result["success"]:
                     print_error(
-                        f"Failed to extract classroom data: {api_result['error']}")
+                        f"Failed to extract classroom data: {api_result['error']}"
+                    )
                     # If API fails but we have partial data from URL parsing, use it
                     if org_name or assignment_name:
-                        logger.info(
-                            "Using partial data from URL parsing as fallback")
+                        logger.info("Using partial data from URL parsing as fallback")
                         if org_name:
-                            self.config_values['GITHUB_ORGANIZATION'] = org_name
+                            self.config_values["GITHUB_ORGANIZATION"] = org_name
                         if assignment_name:
-                            self.config_values['ASSIGNMENT_NAME'] = assignment_name
+                            self.config_values["ASSIGNMENT_NAME"] = assignment_name
                         return True
                     return False
 
                 # Use API-extracted data
-                api_org = api_result['organization']
-                api_assignment = api_result['assignment_name']
+                api_org = api_result["organization"]
+                api_assignment = api_result["assignment_name"]
 
                 # Check if API provided useful organization data
                 api_provided_org = bool(api_org and api_org.strip())
 
                 if api_provided_org:
-                    self.config_values['GITHUB_ORGANIZATION'] = api_org
+                    self.config_values["GITHUB_ORGANIZATION"] = api_org
                     logger.info(f"✅ API extracted organization: {api_org}")
                     print_status(f"Found organization: {api_org}")
                 else:
                     # API succeeded but didn't provide organization - need user input
+                    logger.info(f"🔄 API succeeded but no organization data available")
                     logger.info(
-                        f"🔄 API succeeded but no organization data available")
-                    logger.info(
-                        f"URL parsing extracted classroom identifier: {org_name}")
+                        f"URL parsing extracted classroom identifier: {org_name}"
+                    )
 
                     # Since we know this is likely a classroom name, we should ask the user for the real org
                     from ..utils.github_api_client import GitHubAPIClient
+
                     if GitHubAPIClient.is_likely_classroom_name(org_name):
                         print_status(
-                            f"⚠️  '{org_name}' appears to be a classroom identifier, not a GitHub organization")
+                            f"⚠️  '{org_name}' appears to be a classroom identifier, not a GitHub organization"
+                        )
                         print_status(
-                            f"Please provide the actual GitHub organization name where student repositories are created")
+                            f"Please provide the actual GitHub organization name where student repositories are created"
+                        )
                         # Don't pre-populate with classroom name - leave it empty for user to fill
                         # This will be handled in _collect_repository_info
-                        logger.info(
-                            f"Will prompt user for real organization name")
+                        logger.info(f"Will prompt user for real organization name")
                     else:
                         # Use the URL parsing result as it might be valid
-                        self.config_values['GITHUB_ORGANIZATION'] = org_name
-                        print_status(
-                            f"Using organization from URL: {org_name}")
+                        self.config_values["GITHUB_ORGANIZATION"] = org_name
+                        print_status(f"Using organization from URL: {org_name}")
 
                 if api_assignment:
-                    self.config_values['ASSIGNMENT_NAME'] = api_assignment
-                    logger.info(
-                        f"✅ API extracted assignment: {api_assignment}")
+                    self.config_values["ASSIGNMENT_NAME"] = api_assignment
+                    logger.info(f"✅ API extracted assignment: {api_assignment}")
                     print_status(f"Found assignment: {api_assignment}")
                 elif assignment_name:
                     # Fallback to URL parsing assignment name
-                    self.config_values['ASSIGNMENT_NAME'] = assignment_name
-                    logger.info(
-                        f"🔄 Using URL parsing assignment: {assignment_name}")
+                    self.config_values["ASSIGNMENT_NAME"] = assignment_name
+                    logger.info(f"🔄 Using URL parsing assignment: {assignment_name}")
 
                 # Store additional API data if available
-                if api_result.get('classroom_name'):
-                    logger.info(
-                        f"Classroom name: {api_result['classroom_name']}")
+                if api_result.get("classroom_name"):
+                    logger.info(f"Classroom name: {api_result['classroom_name']}")
 
-                if api_result.get('invite_link'):
-                    logger.info(
-                        f"Assignment invite link: {api_result['invite_link']}")
+                if api_result.get("invite_link"):
+                    logger.info(f"Assignment invite link: {api_result['invite_link']}")
 
                 return True
 
@@ -306,17 +309,15 @@ class AssignmentSetup:
                 return False
             except Exception as e:
                 logger.error(f"GitHub API extraction failed: {e}")
-                print_error(
-                    f"Failed to fetch classroom data from GitHub API: {e}")
+                print_error(f"Failed to fetch classroom data from GitHub API: {e}")
 
                 # If API fails but we have partial data from URL parsing, use it
                 if org_name or assignment_name:
-                    logger.info(
-                        "Using partial data from URL parsing as fallback")
+                    logger.info("Using partial data from URL parsing as fallback")
                     if org_name:
-                        self.config_values['GITHUB_ORGANIZATION'] = org_name
+                        self.config_values["GITHUB_ORGANIZATION"] = org_name
                     if assignment_name:
-                        self.config_values['ASSIGNMENT_NAME'] = assignment_name
+                        self.config_values["ASSIGNMENT_NAME"] = assignment_name
                     return True
                 return False
 
@@ -409,9 +410,9 @@ class AssignmentSetup:
             "GitHub Classroom assignment URL",
             "",
             self.validators.validate_url,
-            "Find this in GitHub Classroom when managing your assignment. Example: https://classroom.github.com/classrooms/12345/assignments/assignment-name"
+            "Find this in GitHub Classroom when managing your assignment. Example: https://classroom.github.com/classrooms/12345/assignments/assignment-name",
         )
-        self.config_values['CLASSROOM_URL'] = classroom_url
+        self.config_values["CLASSROOM_URL"] = classroom_url
 
     def _collect_repository_info(self):
         """
@@ -430,57 +431,68 @@ class AssignmentSetup:
         logger.debug("Collecting repository information")
 
         # Use organization that was already extracted during URL parsing, or extract from URL as fallback
-        if 'GITHUB_ORGANIZATION' in self.config_values and self.config_values['GITHUB_ORGANIZATION']:
+        if (
+            "GITHUB_ORGANIZATION" in self.config_values
+            and self.config_values["GITHUB_ORGANIZATION"]
+        ):
             # Use the organization that was already correctly extracted during URL parsing
-            extracted_org = self.config_values['GITHUB_ORGANIZATION']
+            extracted_org = self.config_values["GITHUB_ORGANIZATION"]
         else:
             # No organization in config, check what URL parsing would give us
             parsed_result = self.url_parser.parse_classroom_url(
-                self.config_values['CLASSROOM_URL'])
-            url_org = parsed_result.get('organization', '')
+                self.config_values["CLASSROOM_URL"]
+            )
+            url_org = parsed_result.get("organization", "")
 
             # If the URL organization looks like a classroom name, don't use it as default
             from ..utils.github_api_client import GitHubAPIClient
+
             if url_org and GitHubAPIClient.is_likely_classroom_name(url_org):
                 # Use empty default when we detect classroom name - user should provide real org
-                extracted_org = ''
+                extracted_org = ""
                 logger.info(
-                    f"Detected classroom identifier '{url_org}' - prompting user for real organization")
+                    f"Detected classroom identifier '{url_org}' - prompting user for real organization"
+                )
                 print_status(
-                    f"⚠️  Detected classroom identifier '{url_org}' - please provide the actual GitHub organization name")
+                    f"⚠️  Detected classroom identifier '{url_org}' - please provide the actual GitHub organization name"
+                )
             else:
                 # Use URL extraction result for non-classroom URLs
                 extracted_org = url_org or self.url_parser.extract_org_from_url(
-                    self.config_values['CLASSROOM_URL'])
+                    self.config_values["CLASSROOM_URL"]
+                )
 
         github_org = self.input_handler.prompt_input(
             "GitHub organization name",
             extracted_org,
             self.validators.validate_organization,
-            "The GitHub organization that contains your assignment repositories (not the classroom name)"
+            "The GitHub organization that contains your assignment repositories (not the classroom name)",
         )
-        self.config_values['GITHUB_ORGANIZATION'] = github_org
+        self.config_values["GITHUB_ORGANIZATION"] = github_org
 
         # Extract assignment name
-        if 'ASSIGNMENT_NAME' in self.config_values and self.config_values['ASSIGNMENT_NAME']:
-            extracted_assignment = self.config_values['ASSIGNMENT_NAME']
+        if (
+            "ASSIGNMENT_NAME" in self.config_values
+            and self.config_values["ASSIGNMENT_NAME"]
+        ):
+            extracted_assignment = self.config_values["ASSIGNMENT_NAME"]
         else:
             extracted_assignment = self.url_parser.extract_assignment_from_url(
-                self.config_values['CLASSROOM_URL'])
+                self.config_values["CLASSROOM_URL"]
+            )
 
         template_url = self.input_handler.prompt_input(
             "Template repository URL",
             f"https://github.com/{github_org}/{extracted_assignment}-template.git",
             self.validators.validate_url,
-            "The TEMPLATE repository that students fork from (contains starter code/files). Usually has '-template' suffix."
+            "The TEMPLATE repository that students fork from (contains starter code/files). Usually has '-template' suffix.",
         )
 
         if not template_url:
-            print_error(
-                "The Template repository URL is required for assignment setup.")
+            print_error("The Template repository URL is required for assignment setup.")
             sys.exit(1)
 
-        self.config_values['TEMPLATE_REPO_URL'] = template_url
+        self.config_values["TEMPLATE_REPO_URL"] = template_url
 
         # Prompt for classroom repository URL (optional but recommended for template synchronization)
         # Note: No validator since this is optional - user can press Enter to skip
@@ -488,18 +500,20 @@ class AssignmentSetup:
             "GitHub Classroom repository URL (optional)",
             "",
             None,  # No validator - field is optional
-            "The repository URL created by GitHub Classroom (e.g., https://github.com/org/classroom-semester-assignment). Leave empty if not using template synchronization."
+            "The repository URL created by GitHub Classroom (e.g., https://github.com/org/classroom-semester-assignment). Leave empty if not using template synchronization.",
         )
 
         if classroom_repo_url:
             # Validate the URL if one was provided
             if self.validators.validate_url(classroom_repo_url):
-                self.config_values['CLASSROOM_REPO_URL'] = classroom_repo_url
+                self.config_values["CLASSROOM_REPO_URL"] = classroom_repo_url
             else:
                 print_error(
-                    "Invalid URL provided for Classroom repository. Skipping...")
+                    "Invalid URL provided for Classroom repository. Skipping..."
+                )
                 logger.warning(
-                    f"Invalid CLASSROOM_REPO_URL provided: {classroom_repo_url}")
+                    f"Invalid CLASSROOM_REPO_URL provided: {classroom_repo_url}"
+                )
 
     def _collect_assignment_details(self):
         """
@@ -516,29 +530,33 @@ class AssignmentSetup:
         logger.debug("Collecting assignment details")
 
         # Use assignment name that was already extracted during URL parsing, or extract from URL as fallback
-        if 'ASSIGNMENT_NAME' in self.config_values and self.config_values['ASSIGNMENT_NAME']:
+        if (
+            "ASSIGNMENT_NAME" in self.config_values
+            and self.config_values["ASSIGNMENT_NAME"]
+        ):
             # Use the assignment name that was already correctly extracted during URL parsing
-            extracted_assignment = self.config_values['ASSIGNMENT_NAME']
+            extracted_assignment = self.config_values["ASSIGNMENT_NAME"]
         else:
             # Fallback to URL extraction
             extracted_assignment = self.url_parser.extract_assignment_from_url(
-                self.config_values['CLASSROOM_URL'])
+                self.config_values["CLASSROOM_URL"]
+            )
 
         assignment_name = self.input_handler.prompt_input(
             "Assignment name (optional)",
             extracted_assignment,
             self.validators.validate_assignment_name,
-            "Leave empty to auto-extract from template URL"
+            "Leave empty to auto-extract from template URL",
         )
-        self.config_values['ASSIGNMENT_NAME'] = assignment_name
+        self.config_values["ASSIGNMENT_NAME"] = assignment_name
 
         main_file = self.input_handler.prompt_input(
             "Main assignment file",
             "assignment.ipynb",
             self.validators.validate_file_path,
-            "The primary file students work on (e.g., assignment.ipynb, main.py, homework.cpp)"
+            "The primary file students work on (e.g., assignment.ipynb, main.py, homework.cpp)",
         )
-        self.config_values['MAIN_ASSIGNMENT_FILE'] = main_file
+        self.config_values["MAIN_ASSIGNMENT_FILE"] = main_file
 
     def _configure_secret_management(self):
         """
@@ -554,24 +572,29 @@ class AssignmentSetup:
 
         print_colored("Where are your assignment tests located?", Colors.BLUE)
         print_colored(
-            "   Option 1: Tests are included in the template repository (simpler setup)", Colors.CYAN)
+            "   Option 1: Tests are included in the template repository (simpler setup)",
+            Colors.CYAN,
+        )
         print_colored(
-            "   Option 2: Tests are in a separate private instructor repository (more secure)", Colors.CYAN)
+            "   Option 2: Tests are in a separate private instructor repository (more secure)",
+            Colors.CYAN,
+        )
 
         use_secrets = self.input_handler.prompt_yes_no(
-            "Do you have tests in a separate private instructor repository?",
-            False
+            "Do you have tests in a separate private instructor repository?", False
         )
 
         if use_secrets:
-            self.config_values['USE_SECRETS'] = 'true'
+            self.config_values["USE_SECRETS"] = "true"
             print_success(
-                "✓ Secret management will be enabled for accessing instructor test repository")
+                "✓ Secret management will be enabled for accessing instructor test repository"
+            )
             self._configure_tokens()
         else:
-            self.config_values['USE_SECRETS'] = 'false'
+            self.config_values["USE_SECRETS"] = "false"
             print_success(
-                "✓ Secret management will be disabled (tests in template repository)")
+                "✓ Secret management will be disabled (tests in template repository)"
+            )
 
     def _configure_tokens(self):
         """
@@ -584,9 +607,12 @@ class AssignmentSetup:
         logger.debug("Configuring token settings for secrets")
 
         print_colored(
-            "💡 Secrets will use your centralized GitHub token from GitHubTokenManager", Colors.BLUE)
+            "💡 Secrets will use your centralized GitHub token from GitHubTokenManager",
+            Colors.BLUE,
+        )
         print_colored(
-            "Token is stored in: ~/.config/classdock/token_config.json", Colors.CYAN)
+            "Token is stored in: ~/.config/classdock/token_config.json", Colors.CYAN
+        )
 
         # No longer prompt for token values or create token files
         # The centralized token system handles this automatically
@@ -605,9 +631,7 @@ class AssignmentSetup:
 
         # Create configuration file
         self.config_generator.create_config_file(
-            self.config_values,
-            self.token_files,
-            self.token_validation
+            self.config_values, self.token_files, self.token_validation
         )
 
         # Skip creating token files - we use centralized token management now

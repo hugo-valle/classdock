@@ -4,36 +4,47 @@ from typing import List, Optional
 
 import typer
 
-from ..utils import setup_logging, get_logger
+from ..utils import get_logger, setup_logging
 from ._helpers import get_global_options
 
 logger = get_logger("cli")
 
-automation_app = typer.Typer(help="Automation, scheduling, and batch processing commands")
+automation_app = typer.Typer(
+    help="Automation, scheduling, and batch processing commands"
+)
 
 
 @automation_app.callback()
 def automation_callback(
     ctx: typer.Context,
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose output"),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would be done without executing"),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Show what would be done without executing"
+    ),
 ):
     """Automation, scheduling, and batch processing commands."""
     ctx.ensure_object(dict)
-    ctx.obj['verbose'] = verbose or ctx.obj.get('verbose', False)
-    ctx.obj['dry_run'] = dry_run or ctx.obj.get('dry_run', False)
+    ctx.obj["verbose"] = verbose or ctx.obj.get("verbose", False)
+    ctx.obj["dry_run"] = dry_run or ctx.obj.get("dry_run", False)
 
 
 @automation_app.command("cron-install")
 def automation_cron_install(
     ctx: typer.Context,
     steps: List[str] = typer.Argument(
-        ..., help="Workflow steps to schedule (sync, secrets, cycle, discover, assist)"),
+        ..., help="Workflow steps to schedule (sync, secrets, cycle, discover, assist)"
+    ),
     schedule: Optional[str] = typer.Option(
-        None, "--schedule", "-s",
-        help="Cron schedule (e.g., '0 */4 * * *'). Uses default if not provided"),
+        None,
+        "--schedule",
+        "-s",
+        help="Cron schedule (e.g., '0 */4 * * *'). Uses default if not provided",
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Install cron job for automated workflow steps.
@@ -78,9 +89,12 @@ def automation_cron_install(
 def automation_cron_remove(
     ctx: typer.Context,
     steps: Optional[List[str]] = typer.Argument(
-        None, help="Workflow steps to remove (sync, secrets, cycle, discover, assist) or 'all'"),
+        None,
+        help="Workflow steps to remove (sync, secrets, cycle, discover, assist) or 'all'",
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Remove cron jobs for automated workflow steps.
@@ -102,10 +116,12 @@ def automation_cron_remove(
         service = AutomationService(dry_run=dry_run, verbose=verbose)
 
         if dry_run:
-            if not steps or (len(steps) == 1 and steps[0] == 'all'):
+            if not steps or (len(steps) == 1 and steps[0] == "all"):
                 typer.echo("[DRY RUN] Would remove all assignment cron jobs")
             else:
-                typer.echo(f"[DRY RUN] Would remove cron job for steps: {', '.join(steps)}")
+                typer.echo(
+                    f"[DRY RUN] Would remove cron job for steps: {', '.join(steps)}"
+                )
             return
 
         ok, message = service.cron_remove(steps, config_file)
@@ -122,7 +138,8 @@ def automation_cron_remove(
 def automation_cron_status(
     ctx: typer.Context,
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Show status of installed cron jobs.
@@ -159,7 +176,9 @@ def automation_cron_status(
 
         status = data
         if not status.has_jobs:
-            typer.echo("⚠️  No assignment cron jobs are installed", color=typer.colors.YELLOW)
+            typer.echo(
+                "⚠️  No assignment cron jobs are installed", color=typer.colors.YELLOW
+            )
             typer.echo("\nTo install a cron job, run:")
             typer.echo("  classdock automation cron-install [steps]")
         else:
@@ -171,9 +190,10 @@ def automation_cron_status(
 
             for job in status.installed_jobs:
                 typer.echo(
-                    f"📅 Steps: {', '.join(job.steps) if hasattr(job, 'steps') else job.steps_key}")
+                    f"📅 Steps: {', '.join(job.steps) if hasattr(job, 'steps') else job.steps_key}"
+                )
                 typer.echo(f"   Schedule: {job.schedule}")
-                if hasattr(job, 'command'):
+                if hasattr(job, "command"):
                     typer.echo(f"   Command: {job.command}")
                 typer.echo()
 
@@ -194,10 +214,15 @@ def automation_cron_status(
 
 @automation_app.command("cron-logs")
 def automation_cron_logs(
-    lines: int = typer.Option(30, "--lines", "-n", help="Number of recent log lines to show"),
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose output"),
+    lines: int = typer.Option(
+        30, "--lines", "-n", help="Number of recent log lines to show"
+    ),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Show recent workflow log entries.
@@ -220,8 +245,12 @@ def automation_cron_logs(
         else:
             if "Log file not found" in output or "not found" in output.lower():
                 typer.echo("📋 No logs available yet", color=typer.colors.YELLOW)
-                typer.echo("\nCron jobs may not have run yet, or logging may not be configured.")
-                typer.echo("Once cron jobs start running, their output will appear here.")
+                typer.echo(
+                    "\nCron jobs may not have run yet, or logging may not be configured."
+                )
+                typer.echo(
+                    "Once cron jobs start running, their output will appear here."
+                )
             else:
                 typer.echo(f"❌ {output}", color=typer.colors.RED)
                 raise typer.Exit(code=1)
@@ -261,12 +290,17 @@ def automation_cron_schedules():
 def automation_cron_sync(
     ctx: typer.Context,
     steps: List[str] = typer.Argument(
-        None, help="Workflow steps to execute (sync, discover, secrets, assist, cycle)"),
+        None, help="Workflow steps to execute (sync, discover, secrets, assist, cycle)"
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
     stop_on_failure: bool = typer.Option(
-        False, "--stop-on-failure", help="Stop execution on first step failure"),
-    show_log: bool = typer.Option(False, "--show-log", help="Show log tail after execution"),
+        False, "--stop-on-failure", help="Stop execution on first step failure"
+    ),
+    show_log: bool = typer.Option(
+        False, "--show-log", help="Show log tail after execution"
+    ),
 ):
     """
     Execute automated workflow cron job with specified steps.
@@ -293,7 +327,9 @@ def automation_cron_sync(
         from ..services.automation_service import AutomationService
 
         service = AutomationService(dry_run=dry_run, verbose=verbose)
-        ok, result = service.cron_sync(steps, dry_run, verbose, stop_on_failure, show_log)
+        ok, result = service.cron_sync(
+            steps, dry_run, verbose, stop_on_failure, show_log
+        )
         if not ok:
             logger.error(result)
             raise typer.Exit(code=1)
@@ -303,44 +339,63 @@ def automation_cron_sync(
             for i, step in enumerate(steps or ["sync"], 1):
                 logger.info(f"  {i}. {step}")
             logger.info(
-                f"📂 Log file: {result.get('log_file') if isinstance(result, dict) else 'unknown'}")
+                f"📂 Log file: {result.get('log_file') if isinstance(result, dict) else 'unknown'}"
+            )
             logger.info("✅ Dry run completed - use without --dry-run to execute")
             return
 
         res = result
-        if hasattr(res, 'overall_result') and res.overall_result.name == 'SUCCESS':
+        if hasattr(res, "overall_result") and res.overall_result.name == "SUCCESS":
             logger.info(
                 f"✅ All workflow steps completed successfully in "
                 f"{getattr(res, 'total_execution_time', 0):.2f}s"
             )
-        elif hasattr(res, 'overall_result') and res.overall_result.name == 'PARTIAL_FAILURE':
-            logger.warning(f"⚠️ Some workflow steps failed: {getattr(res, 'error_summary', '')}")
+        elif (
+            hasattr(res, "overall_result")
+            and res.overall_result.name == "PARTIAL_FAILURE"
+        ):
+            logger.warning(
+                f"⚠️ Some workflow steps failed: {getattr(res, 'error_summary', '')}"
+            )
             logger.info(f"📂 Check log file: {getattr(res, 'log_file_path', '')}")
-        elif hasattr(res, 'overall_result') and res.overall_result.name == 'COMPLETE_FAILURE':
-            logger.error(f"❌ All workflow steps failed: {getattr(res, 'error_summary', '')}")
+        elif (
+            hasattr(res, "overall_result")
+            and res.overall_result.name == "COMPLETE_FAILURE"
+        ):
+            logger.error(
+                f"❌ All workflow steps failed: {getattr(res, 'error_summary', '')}"
+            )
             logger.error(f"📂 Check log file: {getattr(res, 'log_file_path', '')}")
 
-        if hasattr(res, 'steps_executed') and res.steps_executed:
+        if hasattr(res, "steps_executed") and res.steps_executed:
             logger.info("📊 Step execution summary:")
             for step_result in res.steps_executed:
                 status = "✅" if step_result.success else "❌"
-                logger.info(f"  {status} {step_result.step.value}: {step_result.message}")
+                logger.info(
+                    f"  {status} {step_result.step.value}: {step_result.message}"
+                )
 
-        if show_log and hasattr(res, 'get_log_tail'):
+        if show_log and hasattr(res, "get_log_tail"):
             logger.info("📋 Recent log entries:")
             for line in res.get_log_tail(20)[-10:]:
                 logger.info(f"  {line}")
 
-        if hasattr(res, 'overall_result') and res.overall_result.name in [
-            'COMPLETE_FAILURE', 'ENVIRONMENT_ERROR', 'CONFIGURATION_ERROR'
+        if hasattr(res, "overall_result") and res.overall_result.name in [
+            "COMPLETE_FAILURE",
+            "ENVIRONMENT_ERROR",
+            "CONFIGURATION_ERROR",
         ]:
             raise typer.Exit(code=1)
-        if hasattr(res, 'overall_result') and res.overall_result.name == 'PARTIAL_FAILURE':
+        if (
+            hasattr(res, "overall_result")
+            and res.overall_result.name == "PARTIAL_FAILURE"
+        ):
             raise typer.Exit(code=2)
 
     except Exception as e:
         logger.error(f"Cron sync workflow failed: {e}")
         if verbose:
             import traceback
+
             logger.error(traceback.format_exc())
         raise typer.Exit(code=1)

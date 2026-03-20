@@ -3,7 +3,8 @@ Workspace paths and configuration discovery utilities.
 """
 
 from pathlib import Path
-from typing import Optional, List
+from typing import List, Optional
+
 from .logger import get_logger
 
 logger = get_logger("paths")
@@ -47,8 +48,7 @@ class PathManager:
 
         while current != current.parent:
             # Check for common workspace indicators
-            indicators = ['.git', 'pyproject.toml',
-                          'assignment.conf', '.gitignore']
+            indicators = [".git", "pyproject.toml", "assignment.conf", ".gitignore"]
 
             if any((current / indicator).exists() for indicator in indicators):
                 logger.debug(f"Found workspace root: {current}")
@@ -57,8 +57,7 @@ class PathManager:
             current = current.parent
 
         # Fallback to current directory
-        logger.debug(
-            f"Using current directory as workspace root: {self.base_path}")
+        logger.debug(f"Using current directory as workspace root: {self.base_path}")
         return self.base_path
 
     def ensure_output_directory(self, output_dir: str = "tools/generated") -> Path:
@@ -88,7 +87,9 @@ class PathManager:
 
         return current / "scripts"
 
-    def list_assignment_files(self, extensions: Optional[List[str]] = None) -> List[Path]:
+    def list_assignment_files(
+        self, extensions: Optional[List[str]] = None
+    ) -> List[Path]:
         """
         List potential assignment files in the workspace.
 
@@ -99,8 +100,17 @@ class PathManager:
             List of paths to potential assignment files
         """
         if extensions is None:
-            extensions = ['.ipynb', '.py', '.cpp', '.java',
-                          '.sql', '.md', '.html', '.js', '.ts']
+            extensions = [
+                ".ipynb",
+                ".py",
+                ".cpp",
+                ".java",
+                ".sql",
+                ".md",
+                ".html",
+                ".js",
+                ".ts",
+            ]
 
         workspace_root = self.get_workspace_root()
         assignment_files = []
@@ -109,8 +119,7 @@ class PathManager:
             assignment_files.extend(workspace_root.glob(f"**/*{ext}"))
 
         # Filter out common non-assignment directories
-        exclude_patterns = ['.git', '__pycache__',
-                            'node_modules', '.venv', 'venv']
+        exclude_patterns = [".git", "__pycache__", "node_modules", ".venv", "venv"]
 
         filtered_files = []
         for file_path in assignment_files:

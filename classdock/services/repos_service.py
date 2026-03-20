@@ -45,6 +45,7 @@ class ReposService:
                 fetcher = self._fetcher_factory(config_path)
             else:
                 from ..repos.fetch import RepositoryFetcher
+
                 fetcher = RepositoryFetcher(config_path)
 
             success = fetcher.fetch_all_repositories(verbose=self.verbose)
@@ -63,7 +64,8 @@ class ReposService:
             helper = StudentUpdateHelper(config_path)
 
             success, message = helper.execute_update_workflow(
-                auto_confirm=True, verbose=self.verbose)
+                auto_confirm=True, verbose=self.verbose
+            )
 
             if not success:
                 return False, message
@@ -75,14 +77,17 @@ class ReposService:
     def push(self, config_file: Optional[str] = None) -> Tuple[bool, str]:
         try:
             from ..assignments.push_manager import PushResult
+
             if self._push_manager_factory is not None:
                 manager = self._push_manager_factory()
             else:
                 from ..assignments.push_manager import ClassroomPushManager
+
                 manager = ClassroomPushManager(assignment_root=Path.cwd())
 
             result, message = manager.execute_push_workflow(
-                force=False, interactive=False)
+                force=False, interactive=False
+            )
 
             if result == PushResult.SUCCESS:
                 return True, message
@@ -108,11 +113,14 @@ class ReposService:
                 manager = self._cycle_manager_factory(config_path)
             else:
                 from ..assignments.cycle_collaborator import CycleCollaboratorManager
+
                 manager = CycleCollaboratorManager(config_path)
 
             repo_url = None
             if assignment_prefix and username and organization:
-                repo_url = f"https://github.com/{organization}/{assignment_prefix}-{username}"
+                repo_url = (
+                    f"https://github.com/{organization}/{assignment_prefix}-{username}"
+                )
 
             if list_collaborators:
                 if not repo_url:
@@ -120,13 +128,16 @@ class ReposService:
                 collaborators = manager.list_repository_collaborators(repo_url)
                 # Return a simple summary string
                 lines = [
-                    f"{c['login']}: {c.get('permission') or c.get('role')}" for c in collaborators]
+                    f"{c['login']}: {c.get('permission') or c.get('role')}"
+                    for c in collaborators
+                ]
                 return True, "\n".join(lines)
             else:
                 if not repo_url:
                     return False, "Repository URL required for cycling collaborators"
                 success, message = manager.cycle_single_repository(
-                    repo_url, force=force)
+                    repo_url, force=force
+                )
                 if not success:
                     return False, message
                 return True, message

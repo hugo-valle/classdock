@@ -17,6 +17,7 @@ _err_console = Console(stderr=True)
 
 class Colors:
     """Color constants (kept for backward compatibility)."""
+
     RED = "red"
     GREEN = "green"
     YELLOW = "yellow"
@@ -89,11 +90,15 @@ def show_welcome() -> None:
     """Show welcome screen."""
     if sys.stdout.isatty():
         import os
-        os.system('clear' if os.name == 'posix' else 'cls')
+
+        os.system("clear" if os.name == "posix" else "cls")
 
     content = Text.assemble(
         ("🚀 GitHub Classroom Assignment Setup Wizard\n\n", "bold magenta"),
-        ("Welcome! This wizard will help you configure your GitHub Classroom\n", "white"),
+        (
+            "Welcome! This wizard will help you configure your GitHub Classroom\n",
+            "white",
+        ),
         ("assignment with automated tools for seamless management.\n\n", "white"),
         ("✨ What this wizard will do:\n", "bold green"),
         ("   • Create assignment configuration file\n", "white"),
@@ -102,7 +107,10 @@ def show_welcome() -> None:
         ("   • Validate GitHub CLI access and permissions\n\n", "white"),
         ("📋 You'll need:\n", "bold blue"),
         ("   • GitHub Classroom assignment URL\n", "white"),
-        ("   • Template repository URL (students fork this - has starter code)\n", "white"),
+        (
+            "   • Template repository URL (students fork this - has starter code)\n",
+            "white",
+        ),
         ("   • Classroom repository URL (optional - for pushing updates)\n", "white"),
         ("   • GitHub personal access token with repo permissions\n", "white"),
     )
@@ -117,18 +125,24 @@ def show_completion(config_values: dict, token_files: dict) -> None:
     """Show completion screen."""
     if sys.stdout.isatty():
         import os
-        os.system('clear' if os.name == 'posix' else 'cls')
+
+        os.system("clear" if os.name == "posix" else "cls")
 
     lines = [
         ("🎉 Assignment Setup Complete!\n\n", "bold magenta"),
-        ("Your GitHub Classroom assignment has been successfully configured\n", "white"),
+        (
+            "Your GitHub Classroom assignment has been successfully configured\n",
+            "white",
+        ),
         ("with automated tools. Here's what was created:\n\n", "white"),
         ("📁 Files Created:\n", "bold cyan"),
         ("   • assignment.conf - Complete assignment configuration\n", "white"),
     ]
 
-    if config_values.get('USE_SECRETS') == 'true':
-        lines.append(("   • Secrets configured (using centralized GitHub token)\n", "white"))
+    if config_values.get("USE_SECRETS") == "true":
+        lines.append(
+            ("   • Secrets configured (using centralized GitHub token)\n", "white")
+        )
 
     lines += [
         ("   • .gitignore - Updated to protect sensitive files\n\n", "white"),
@@ -207,5 +221,6 @@ DOCUMENTATION:
 def show_version():
     """Show version information."""
     from classdock import __version__
+
     _console.print(f"ClassDock v{__version__}")
     _console.print("Part of the GitHub Classroom automation tools suite (Python)")

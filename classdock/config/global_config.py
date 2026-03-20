@@ -5,9 +5,9 @@ This module provides centralized configuration management by parsing assignment.
 once and making all configuration variables globally available to all commands.
 """
 
-from pathlib import Path
-from typing import Dict, Optional, List
 from dataclasses import dataclass
+from pathlib import Path
+from typing import Dict, List, Optional
 
 from ..utils import logger
 
@@ -15,6 +15,7 @@ from ..utils import logger
 @dataclass
 class SecretsConfig:
     """Configuration for a single secret."""
+
     name: str
     description: str
     # Optional - if None, uses centralized token
@@ -102,7 +103,9 @@ class ConfigurationManager:
         self._config: Optional[GlobalConfig] = None
         self._config_file_path: Optional[Path] = None
 
-    def load_config(self, config_file: Optional[str] = None, assignment_root: Optional[Path] = None) -> GlobalConfig:
+    def load_config(
+        self, config_file: Optional[str] = None, assignment_root: Optional[Path] = None
+    ) -> GlobalConfig:
         """
         Load configuration from assignment.conf file.
 
@@ -123,8 +126,7 @@ class ConfigurationManager:
             config_path = Path.cwd() / config_file
 
         if not config_path.exists():
-            raise FileNotFoundError(
-                f"Configuration file not found: {config_path}")
+            raise FileNotFoundError(f"Configuration file not found: {config_path}")
 
         self._config_file_path = config_path
         logger.info(f"Loading configuration from: {config_path}")
@@ -142,7 +144,7 @@ class ConfigurationManager:
         """Parse bash-style configuration file."""
         config = {}
 
-        with open(config_path, 'r') as f:
+        with open(config_path, "r") as f:
             content = f.read()
 
         # Remove comments and empty lines
@@ -150,11 +152,11 @@ class ConfigurationManager:
         multiline_content = []
         multiline_key = None
 
-        for line in content.split('\n'):
+        for line in content.split("\n"):
             line = line.strip()
 
             # Skip empty lines and comments
-            if not line or line.startswith('#'):
+            if not line or line.startswith("#"):
                 continue
 
             # Handle multiline values (like SECRETS_CONFIG)
@@ -169,7 +171,7 @@ class ConfigurationManager:
                 if line.endswith('"'):
                     # End of multiline
                     multiline_content.append(line[:-1])
-                    config[multiline_key] = '\n'.join(multiline_content)
+                    config[multiline_key] = "\n".join(multiline_content)
                     in_multiline = False
                     multiline_content = []
                     multiline_key = None
@@ -178,21 +180,22 @@ class ConfigurationManager:
                 continue
 
             # Handle regular key=value pairs
-            if '=' in line:
-                key, value = line.split('=', 1)
+            if "=" in line:
+                key, value = line.split("=", 1)
                 key = key.strip()
                 value = value.strip()
 
                 # Remove inline comments (handle # in values)
-                if '#' in value:
+                if "#" in value:
                     # Only remove comments if they're not inside quotes
-                    if (value.startswith('"') and value.count('"') >= 2) or \
-                       (value.startswith("'") and value.count("'") >= 2):
+                    if (value.startswith('"') and value.count('"') >= 2) or (
+                        value.startswith("'") and value.count("'") >= 2
+                    ):
                         # Value is quoted, don't remove # inside quotes
                         pass
                     else:
                         # Remove inline comment
-                        value = value.split('#')[0].strip()
+                        value = value.split("#")[0].strip()
 
                 # Remove quotes if present
                 if value.startswith('"') and value.endswith('"'):
@@ -209,13 +212,15 @@ class ConfigurationManager:
 
         # Parse secrets configuration
         secrets_config = self._parse_secrets_config(
-            raw_config.get("SECRETS_CONFIG", ""))
+            raw_config.get("SECRETS_CONFIG", "")
+        )
 
         # Debug logging for boolean parsing
         step_manage_secrets_raw = raw_config.get("STEP_MANAGE_SECRETS", "true")
         step_manage_secrets_parsed = step_manage_secrets_raw.lower() == "true"
         logger.debug(
-            f"STEP_MANAGE_SECRETS: raw='{step_manage_secrets_raw}' -> parsed={step_manage_secrets_parsed}")
+            f"STEP_MANAGE_SECRETS: raw='{step_manage_secrets_raw}' -> parsed={step_manage_secrets_parsed}"
+        )
 
         # Parse student files configuration (supports multiple formats)
         student_files = []
@@ -223,7 +228,8 @@ class ConfigurationManager:
         # Check for new STUDENT_FILES configuration (comma-separated)
         if raw_config.get("STUDENT_FILES"):
             student_files = [
-                f.strip() for f in raw_config["STUDENT_FILES"].split(",") if f.strip()]
+                f.strip() for f in raw_config["STUDENT_FILES"].split(",") if f.strip()
+            ]
 
         # Check for legacy ASSIGNMENT_FILE (for backward compatibility)
         elif raw_config.get("ASSIGNMENT_FILE"):
@@ -242,35 +248,36 @@ class ConfigurationManager:
             assignment_name=raw_config.get("ASSIGNMENT_NAME"),
             assignment_file=raw_config.get("ASSIGNMENT_FILE"),
             student_files=student_files,
-
             # Secret Management
             secrets_config=secrets_config,
             instructor_token_file=raw_config.get(
-                "INSTRUCTOR_TOKEN_FILE", "instructor_token.txt"),
-
+                "INSTRUCTOR_TOKEN_FILE", "instructor_token.txt"
+            ),
             # Workflow Configuration
-            step_sync_template=raw_config.get(
-                "STEP_SYNC_TEMPLATE", "true").lower() == "true",
-            step_discover_repos=raw_config.get(
-                "STEP_DISCOVER_REPOS", "true").lower() == "true",
+            step_sync_template=raw_config.get("STEP_SYNC_TEMPLATE", "true").lower()
+            == "true",
+            step_discover_repos=raw_config.get("STEP_DISCOVER_REPOS", "true").lower()
+            == "true",
             step_manage_secrets=step_manage_secrets_parsed,
-            step_assist_students=raw_config.get(
-                "STEP_ASSIST_STUDENTS", "false").lower() == "true",
-
+            step_assist_students=raw_config.get("STEP_ASSIST_STUDENTS", "false").lower()
+            == "true",
             # Advanced Configuration
             output_dir=raw_config.get("OUTPUT_DIR", "tools/generated"),
             exclude_instructor_repos=raw_config.get(
-                "EXCLUDE_INSTRUCTOR_REPOS", "true").lower() == "true",
+                "EXCLUDE_INSTRUCTOR_REPOS", "true"
+            ).lower()
+            == "true",
             include_template_repo=raw_config.get(
-                "INCLUDE_TEMPLATE_REPO", "false").lower() == "true",
-            default_dry_run=raw_config.get(
-                "DEFAULT_DRY_RUN", "false").lower() == "true",
+                "INCLUDE_TEMPLATE_REPO", "false"
+            ).lower()
+            == "true",
+            default_dry_run=raw_config.get("DEFAULT_DRY_RUN", "false").lower()
+            == "true",
             log_level=raw_config.get("LOG_LEVEL", "INFO"),
-            skip_confirmations=raw_config.get(
-                "SKIP_CONFIRMATIONS", "false").lower() == "true",
-
+            skip_confirmations=raw_config.get("SKIP_CONFIRMATIONS", "false").lower()
+            == "true",
             # Raw configuration for backward compatibility
-            raw_config=raw_config
+            raw_config=raw_config,
         )
 
         return config
@@ -295,14 +302,15 @@ class ConfigurationManager:
             return secrets
 
         # Split by lines and process each secret configuration
-        lines = [line.strip()
-                 for line in secrets_config_str.split('\n') if line.strip()]
+        lines = [
+            line.strip() for line in secrets_config_str.split("\n") if line.strip()
+        ]
 
         for line in lines:
-            if ':' not in line:
+            if ":" not in line:
                 continue
 
-            parts = line.split(':')
+            parts = line.split(":")
             if len(parts) >= 2:
                 name = parts[0].strip()
                 description = parts[1].strip() if len(parts) > 1 else ""
@@ -310,14 +318,14 @@ class ConfigurationManager:
                 # Determine format based on number of parts and content
                 if len(parts) == 3:
                     third_part = parts[2].strip()
-                    if third_part.lower() in ('true', 'false'):
+                    if third_part.lower() in ("true", "false"):
                         # New simplified format: name:description:validate_format
                         secret = SecretsConfig(
                             name=name,
                             description=description,
                             token_file=None,
                             max_age_days=90,
-                            validate_format=third_part.lower() == 'true'
+                            validate_format=third_part.lower() == "true",
                         )
                     else:
                         # Legacy: name:description:token_file
@@ -326,20 +334,23 @@ class ConfigurationManager:
                             description=description,
                             token_file=third_part,
                             max_age_days=90,
-                            validate_format=True
+                            validate_format=True,
                         )
                 elif len(parts) == 4:
                     third_part = parts[2].strip()
                     fourth_part = parts[3].strip()
 
-                    if fourth_part.lower() in ('true', 'false') and third_part.isdigit():
+                    if (
+                        fourth_part.lower() in ("true", "false")
+                        and third_part.isdigit()
+                    ):
                         # New: name:description:max_age_days:validate_format
                         secret = SecretsConfig(
                             name=name,
                             description=description,
                             token_file=None,
                             max_age_days=int(third_part),
-                            validate_format=fourth_part.lower() == 'true'
+                            validate_format=fourth_part.lower() == "true",
                         )
                     else:
                         # Legacy: name:description:token_file:max_age_days
@@ -347,23 +358,28 @@ class ConfigurationManager:
                             name=name,
                             description=description,
                             token_file=third_part,
-                            max_age_days=int(
-                                fourth_part) if fourth_part.isdigit() else 90,
-                            validate_format=True
+                            max_age_days=int(fourth_part)
+                            if fourth_part.isdigit()
+                            else 90,
+                            validate_format=True,
                         )
                 elif len(parts) >= 5:
                     # Full legacy format: name:description:token_file:max_age_days:validate_format
                     token_file = parts[2].strip() if parts[2].strip() else None
-                    max_age = int(parts[3]) if len(
-                        parts) > 3 and parts[3].strip().isdigit() else 90
-                    validate_flag = parts[4].strip().lower(
-                    ) == 'true' if len(parts) > 4 else True
+                    max_age = (
+                        int(parts[3])
+                        if len(parts) > 3 and parts[3].strip().isdigit()
+                        else 90
+                    )
+                    validate_flag = (
+                        parts[4].strip().lower() == "true" if len(parts) > 4 else True
+                    )
                     secret = SecretsConfig(
                         name=name,
                         description=description,
                         token_file=token_file,
                         max_age_days=max_age,
-                        validate_format=validate_flag
+                        validate_format=validate_flag,
                     )
                 else:
                     # Minimal: name:description
@@ -372,7 +388,7 @@ class ConfigurationManager:
                         description=description,
                         token_file=None,
                         max_age_days=90,
-                        validate_format=True
+                        validate_format=True,
                     )
 
                 secrets.append(secret)
@@ -416,7 +432,8 @@ class ConfigurationManager:
 
         if missing_fields:
             logger.error(
-                f"Missing required configuration fields: {', '.join(missing_fields)}")
+                f"Missing required configuration fields: {', '.join(missing_fields)}"
+            )
             return False
 
         return True
@@ -431,7 +448,9 @@ def get_global_config() -> Optional[GlobalConfig]:
     return config_manager.get_config()
 
 
-def load_global_config(config_file: Optional[str] = None, assignment_root: Optional[Path] = None) -> GlobalConfig:
+def load_global_config(
+    config_file: Optional[str] = None, assignment_root: Optional[Path] = None
+) -> GlobalConfig:
     """Load global configuration from file."""
     return config_manager.load_config(config_file, assignment_root)
 

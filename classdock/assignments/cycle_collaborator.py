@@ -31,6 +31,7 @@ logger = get_logger("assignments.cycle_collaborator")
 
 class AccessStatus(Enum):
     """Repository access status enumeration."""
+
     OK = "ok"
     CORRUPTED = "corrupted"
     NOT_FOUND = "not_found"
@@ -40,6 +41,7 @@ class AccessStatus(Enum):
 
 class CycleResult(Enum):
     """Collaborator cycling operation result."""
+
     SUCCESS = "success"
     SKIPPED = "skipped"
     FAILED = "failed"
@@ -48,6 +50,7 @@ class CycleResult(Enum):
 @dataclass
 class RepositoryStatus:
     """Repository access status information."""
+
     repo_url: str
     username: str
     accessible: bool
@@ -61,6 +64,7 @@ class RepositoryStatus:
 @dataclass
 class CycleOperation:
     """Collaborator cycling operation result."""
+
     repo_url: str
     username: str
     result: CycleResult
@@ -72,6 +76,7 @@ class CycleOperation:
 @dataclass
 class BatchSummary:
     """Summary of batch cycling operations."""
+
     total_repositories: int
     successful_operations: int
     skipped_operations: int
@@ -129,10 +134,7 @@ class CycleCollaboratorManager:
         """Check if GitHub CLI is authenticated."""
         try:
             subprocess.run(
-                ['gh', 'auth', 'status'],
-                capture_output=True,
-                text=True,
-                check=True
+                ["gh", "auth", "status"], capture_output=True, text=True, check=True
             )
             return True
         except (subprocess.CalledProcessError, FileNotFoundError):
@@ -149,8 +151,7 @@ class CycleCollaboratorManager:
         Returns:
             RepositoryStatus object with detailed status information
         """
-        logger.info(
-            f"Checking repository status: {repo_url} for user {username}")
+        logger.info(f"Checking repository status: {repo_url} for user {username}")
 
         # Parse repository information
         try:
@@ -164,7 +165,7 @@ class CycleCollaboratorManager:
                 has_pending_invitation=False,
                 access_status=AccessStatus.UNKNOWN_ERROR,
                 needs_cycling=False,
-                error_message=str(e)
+                error_message=str(e),
             )
 
         # Check repository accessibility
@@ -178,16 +179,18 @@ class CycleCollaboratorManager:
                 has_pending_invitation=False,
                 access_status=AccessStatus.NOT_FOUND,
                 needs_cycling=False,
-                error_message="Repository not found or not accessible"
+                error_message="Repository not found or not accessible",
             )
 
         # Check collaborator access
         has_collaborator_access = self._check_collaborator_access(
-            owner, repo_name, username)
+            owner, repo_name, username
+        )
 
         # Check pending invitations
         has_pending_invitation = self._check_pending_invitations(
-            owner, repo_name, username)
+            owner, repo_name, username
+        )
 
         # Determine access status and cycling needs
         if has_collaborator_access:
@@ -207,7 +210,7 @@ class CycleCollaboratorManager:
             has_collaborator_access=has_collaborator_access,
             has_pending_invitation=has_pending_invitation,
             access_status=access_status,
-            needs_cycling=needs_cycling
+            needs_cycling=needs_cycling,
         )
 
     def _parse_repository_url(self, repo_url: str) -> Tuple[str, str]:
@@ -225,8 +228,8 @@ class CycleCollaboratorManager:
         """
         # Handle various GitHub URL formats
         patterns = [
-            r'https://github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$',
-            r'git@github\.com:([^/]+)/([^/]+?)(?:\.git)?$',
+            r"https://github\.com/([^/]+)/([^/]+?)(?:\.git)?/?$",
+            r"git@github\.com:([^/]+)/([^/]+?)(?:\.git)?$",
         ]
 
         for pattern in patterns:
@@ -241,52 +244,52 @@ class CycleCollaboratorManager:
         """Check if repository exists and is accessible."""
         try:
             subprocess.run(
-                ['gh', 'repo', 'view', f'{owner}/{repo_name}'],
+                ["gh", "repo", "view", f"{owner}/{repo_name}"],
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
             return True
         except subprocess.CalledProcessError:
             return False
 
-    def _check_collaborator_access(self, owner: str, repo_name: str, username: str) -> bool:
+    def _check_collaborator_access(
+        self, owner: str, repo_name: str, username: str
+    ) -> bool:
         """Check if user is a collaborator on the repository."""
         try:
             subprocess.run(
-                ['gh', 'api',
-                    f'repos/{owner}/{repo_name}/collaborators/{username}'],
+                ["gh", "api", f"repos/{owner}/{repo_name}/collaborators/{username}"],
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
             return True
         except subprocess.CalledProcessError:
             return False
 
-    def _check_pending_invitations(self, owner: str, repo_name: str, username: str) -> bool:
+    def _check_pending_invitations(
+        self, owner: str, repo_name: str, username: str
+    ) -> bool:
         """Check if user has pending invitations for the repository."""
         try:
             proc = subprocess.run(
-                ['gh', 'api', f'repos/{owner}/{repo_name}/invitations'],
+                ["gh", "api", f"repos/{owner}/{repo_name}/invitations"],
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
 
             invitations = json.loads(proc.stdout)
             for invitation in invitations:
-                if invitation.get('invitee', {}).get('login') == username:
+                if invitation.get("invitee", {}).get("login") == username:
                     return True
             return False
         except (subprocess.CalledProcessError, json.JSONDecodeError):
             return False
 
     def cycle_single_repository(
-        self,
-        repo_url: str,
-        username: str,
-        force: bool = False
+        self, repo_url: str, username: str, force: bool = False
     ) -> CycleOperation:
         """
         Cycle collaborator permissions for a single repository.
@@ -299,8 +302,7 @@ class CycleCollaboratorManager:
         Returns:
             CycleOperation with result details
         """
-        logger.info(
-            f"Cycling collaborator permissions: {repo_url} for {username}")
+        logger.info(f"Cycling collaborator permissions: {repo_url} for {username}")
 
         actions_taken = []
 
@@ -315,7 +317,7 @@ class CycleCollaboratorManager:
                     result=CycleResult.FAILED,
                     message="Repository not accessible",
                     actions_taken=actions_taken,
-                    error=status.error_message
+                    error=status.error_message,
                 )
 
             # Determine if cycling is needed
@@ -325,7 +327,7 @@ class CycleCollaboratorManager:
                     username=username,
                     result=CycleResult.SKIPPED,
                     message="Repository access is already correct - no action needed",
-                    actions_taken=actions_taken
+                    actions_taken=actions_taken,
                 )
 
             # Parse repository info
@@ -335,8 +337,7 @@ class CycleCollaboratorManager:
             if status.has_collaborator_access:
                 success = self._remove_collaborator(owner, repo_name, username)
                 if success:
-                    actions_taken.append(
-                        "Removed existing collaborator access")
+                    actions_taken.append("Removed existing collaborator access")
                 else:
                     return CycleOperation(
                         repo_url=repo_url,
@@ -344,21 +345,19 @@ class CycleCollaboratorManager:
                         result=CycleResult.FAILED,
                         message="Failed to remove existing collaborator access",
                         actions_taken=actions_taken,
-                        error="Remove collaborator operation failed"
+                        error="Remove collaborator operation failed",
                     )
 
             # Add user back as collaborator with write permissions
-            success = self._add_collaborator(
-                owner, repo_name, username, "write")
+            success = self._add_collaborator(owner, repo_name, username, "write")
             if success:
-                actions_taken.append(
-                    "Added user as collaborator with write permission")
+                actions_taken.append("Added user as collaborator with write permission")
                 return CycleOperation(
                     repo_url=repo_url,
                     username=username,
                     result=CycleResult.SUCCESS,
                     message="Successfully cycled collaborator permissions - new invitation sent",
-                    actions_taken=actions_taken
+                    actions_taken=actions_taken,
                 )
             else:
                 return CycleOperation(
@@ -367,7 +366,7 @@ class CycleCollaboratorManager:
                     result=CycleResult.FAILED,
                     message="Failed to add user as collaborator",
                     actions_taken=actions_taken,
-                    error="Add collaborator operation failed"
+                    error="Add collaborator operation failed",
                 )
 
         except Exception as e:
@@ -378,47 +377,60 @@ class CycleCollaboratorManager:
                 result=CycleResult.FAILED,
                 message=f"Unexpected error: {e}",
                 actions_taken=actions_taken,
-                error=str(e)
+                error=str(e),
             )
 
     def _remove_collaborator(self, owner: str, repo_name: str, username: str) -> bool:
         """Remove collaborator from repository."""
         try:
             subprocess.run(
-                ['gh', 'api',
-                    f'repos/{owner}/{repo_name}/collaborators/{username}', '--method', 'DELETE'],
+                [
+                    "gh",
+                    "api",
+                    f"repos/{owner}/{repo_name}/collaborators/{username}",
+                    "--method",
+                    "DELETE",
+                ],
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
-            logger.info(
-                f"Successfully removed {username} from {owner}/{repo_name}")
+            logger.info(f"Successfully removed {username} from {owner}/{repo_name}")
             return True
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to remove collaborator: {e}")
             return False
 
-    def _add_collaborator(self, owner: str, repo_name: str, username: str, permission: str = "write") -> bool:
+    def _add_collaborator(
+        self, owner: str, repo_name: str, username: str, permission: str = "write"
+    ) -> bool:
         """Add collaborator to repository with specified permissions."""
         try:
-            subprocess.run([
-                'gh', 'api', f'repos/{owner}/{repo_name}/collaborators/{username}',
-                '--method', 'PUT',
-                '--field', f'permission={permission}'
-            ], capture_output=True, text=True, check=True)
+            subprocess.run(
+                [
+                    "gh",
+                    "api",
+                    f"repos/{owner}/{repo_name}/collaborators/{username}",
+                    "--method",
+                    "PUT",
+                    "--field",
+                    f"permission={permission}",
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
 
             logger.info(
-                f"Successfully added {username} to {owner}/{repo_name} with {permission} permission")
+                f"Successfully added {username} to {owner}/{repo_name} with {permission} permission"
+            )
             return True
         except subprocess.CalledProcessError as e:
             logger.error(f"Failed to add collaborator: {e}")
             return False
 
     def cycle_multiple_repositories(
-        self,
-        repo_urls: List[str],
-        username: str,
-        force: bool = False
+        self, repo_urls: List[str], username: str, force: bool = False
     ) -> List[CycleOperation]:
         """
         Cycle collaborator permissions for multiple repositories.
@@ -432,13 +444,13 @@ class CycleCollaboratorManager:
             List of CycleOperation results
         """
         logger.info(
-            f"Cycling permissions for {username} across {len(repo_urls)} repositories")
+            f"Cycling permissions for {username} across {len(repo_urls)} repositories"
+        )
 
         results = []
         for repo_url in repo_urls:
             try:
-                result = self.cycle_single_repository(
-                    repo_url, username, force)
+                result = self.cycle_single_repository(repo_url, username, force)
                 results.append(result)
 
                 # Brief delay between operations to avoid rate limiting
@@ -446,22 +458,21 @@ class CycleCollaboratorManager:
 
             except Exception as e:
                 logger.error(f"Failed to process repository {repo_url}: {e}")
-                results.append(CycleOperation(
-                    repo_url=repo_url,
-                    username=username,
-                    result=CycleResult.FAILED,
-                    message=f"Processing failed: {e}",
-                    actions_taken=[],
-                    error=str(e)
-                ))
+                results.append(
+                    CycleOperation(
+                        repo_url=repo_url,
+                        username=username,
+                        result=CycleResult.FAILED,
+                        message=f"Processing failed: {e}",
+                        actions_taken=[],
+                        error=str(e),
+                    )
+                )
 
         return results
 
     def batch_cycle_from_file(
-        self,
-        batch_file_path: Path,
-        repo_url_mode: bool = False,
-        force: bool = False
+        self, batch_file_path: Path, repo_url_mode: bool = False, force: bool = False
     ) -> BatchSummary:
         """
         Process batch cycling operations from a file.
@@ -481,10 +492,10 @@ class CycleCollaboratorManager:
 
         # Read and parse batch file
         lines = []
-        with open(batch_file_path, 'r') as f:
+        with open(batch_file_path, "r") as f:
             for line in f:
                 line = line.strip()
-                if line and not line.startswith('#'):
+                if line and not line.startswith("#"):
                     lines.append(line)
 
         if not lines:
@@ -496,7 +507,7 @@ class CycleCollaboratorManager:
                 failed_operations=0,
                 repositories_fixed=0,
                 repositories_already_ok=0,
-                errors=["No valid entries found in batch file"]
+                errors=["No valid entries found in batch file"],
             )
 
         results = []
@@ -505,38 +516,37 @@ class CycleCollaboratorManager:
         for line in lines:
             try:
                 # Auto-detect if line is a URL or username
-                is_url = line.startswith('https://') or line.startswith('http://')
+                is_url = line.startswith("https://") or line.startswith("http://")
 
                 if is_url or repo_url_mode:
                     # Process as repository URL with extracted username
                     repo_url = line
                     username = self._extract_username_from_repo_url(repo_url)
                     if username:
-                        result = self.cycle_single_repository(
-                            repo_url, username, force)
+                        result = self.cycle_single_repository(repo_url, username, force)
                         results.append(result)
                     else:
                         errors.append(
-                            f"Could not extract username from URL: {repo_url}")
+                            f"Could not extract username from URL: {repo_url}"
+                        )
                 else:
                     # Process as username with assignment prefix
                     if not self.assignment_prefix:
                         errors.append(
-                            "Assignment prefix not configured for username mode")
+                            "Assignment prefix not configured for username mode"
+                        )
                         continue
 
                     username = line
                     repo_url = f"https://github.com/{self.github_organization}/{self.assignment_prefix}-{username}"
-                    result = self.cycle_single_repository(
-                        repo_url, username, force)
+                    result = self.cycle_single_repository(repo_url, username, force)
                     results.append(result)
             except Exception as e:
                 logger.error(f"Failed to process entry {line}: {e}")
                 errors.append(f"Failed to process {line}: {e}")
 
         # Generate summary
-        successful = len(
-            [r for r in results if r.result == CycleResult.SUCCESS])
+        successful = len([r for r in results if r.result == CycleResult.SUCCESS])
         skipped = len([r for r in results if r.result == CycleResult.SKIPPED])
         failed = len([r for r in results if r.result == CycleResult.FAILED])
 
@@ -547,7 +557,7 @@ class CycleCollaboratorManager:
             failed_operations=failed,
             repositories_fixed=successful,
             repositories_already_ok=skipped,
-            errors=errors
+            errors=errors,
         )
 
     def _extract_username_from_repo_url(self, repo_url: str) -> Optional[str]:
@@ -567,13 +577,13 @@ class CycleCollaboratorManager:
             # Common patterns: assignment-username, assignment1-username, etc.
             if self.assignment_prefix and repo_name.startswith(self.assignment_prefix):
                 # Remove assignment prefix and any following dash
-                username = repo_name[len(self.assignment_prefix):].lstrip('-')
+                username = repo_name[len(self.assignment_prefix) :].lstrip("-")
                 if username:
                     return username
 
             # Fallback: use the part after the last dash
-            if '-' in repo_name:
-                return repo_name.split('-')[-1]
+            if "-" in repo_name:
+                return repo_name.split("-")[-1]
 
             return None
 
@@ -589,13 +599,15 @@ class CycleCollaboratorManager:
 
         if status.accessible:
             print(
-                f"Collaborator Access: {'✅ Yes' if status.has_collaborator_access else '❌ No'}")
+                f"Collaborator Access: {'✅ Yes' if status.has_collaborator_access else '❌ No'}"
+            )
             print(
-                f"Pending Invitation: {'⏳ Yes' if status.has_pending_invitation else '✅ No'}")
+                f"Pending Invitation: {'⏳ Yes' if status.has_pending_invitation else '✅ No'}"
+            )
             print(
-                f"Status: {'✅ OK' if status.access_status == AccessStatus.OK else '🚨 CORRUPTED'}")
-            print(
-                f"Needs Cycling: {'🔄 Yes' if status.needs_cycling else '✅ No'}")
+                f"Status: {'✅ OK' if status.access_status == AccessStatus.OK else '🚨 CORRUPTED'}"
+            )
+            print(f"Needs Cycling: {'🔄 Yes' if status.needs_cycling else '✅ No'}")
 
         if status.error_message:
             print(f"Error: {status.error_message}")

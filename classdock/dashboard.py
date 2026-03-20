@@ -8,10 +8,10 @@ token status, discovered repos, roster stats, secrets, and cron jobs.
 from pathlib import Path
 from typing import Optional
 
+from rich import box
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-from rich import box
 
 _console = Console()
 
@@ -46,7 +46,8 @@ def render_dashboard(config_file: str = "assignment.conf") -> None:
     org = "—"
     student_repos_file = "student-repos.txt"
     try:
-        from .config.global_config import load_global_config, get_global_config
+        from .config.global_config import get_global_config, load_global_config
+
         load_global_config(str(conf_path))
         cfg = get_global_config()
         if cfg:
@@ -59,6 +60,7 @@ def render_dashboard(config_file: str = "assignment.conf") -> None:
     token_line = "[dim]not configured[/dim]"
     try:
         from .utils.token_manager import GitHubTokenManager
+
         tm = GitHubTokenManager()
         info = tm.get_token_info()
         if info:
@@ -77,8 +79,10 @@ def render_dashboard(config_file: str = "assignment.conf") -> None:
     if repos_file.exists():
         try:
             import time
+
             count = sum(
-                1 for ln in repos_file.read_text().splitlines()
+                1
+                for ln in repos_file.read_text().splitlines()
                 if ln.strip() and not ln.startswith("#")
             )
             mtime = repos_file.stat().st_mtime
@@ -92,10 +96,13 @@ def render_dashboard(config_file: str = "assignment.conf") -> None:
     roster_line = "[dim]not initialized[/dim]"
     try:
         from .services.roster_service import RosterService
+
         rs = RosterService()
         stats = rs.get_statistics(org if org != "—" else None)
         total = stats.get("total_students", 0)
-        roster_line = f"[cyan]{total}[/cyan] students  ([dim]~/.config/classdock/roster.db[/dim])"
+        roster_line = (
+            f"[cyan]{total}[/cyan] students  ([dim]~/.config/classdock/roster.db[/dim])"
+        )
     except Exception:
         pass
 
@@ -103,6 +110,7 @@ def render_dashboard(config_file: str = "assignment.conf") -> None:
     secrets_line = "[dim]none configured[/dim]"
     try:
         from .services.secrets_service import SecretsService
+
         ss = SecretsService()
         names = ss.list_secret_names()
         if names:
@@ -114,6 +122,7 @@ def render_dashboard(config_file: str = "assignment.conf") -> None:
     cron_table: Optional[Table] = None
     try:
         from .services.automation_service import AutomationService
+
         asvc = AutomationService()
         jobs = asvc.cron_status()
         if jobs:
@@ -147,7 +156,11 @@ def render_dashboard(config_file: str = "assignment.conf") -> None:
 
     content = "\n".join(lines)
     _console.print(
-        Panel(content, title="[bold blue]ClassDock Status[/bold blue]", border_style="blue")
+        Panel(
+            content,
+            title="[bold blue]ClassDock Status[/bold blue]",
+            border_style="blue",
+        )
     )
 
     if cron_table:

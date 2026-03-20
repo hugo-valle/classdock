@@ -6,14 +6,18 @@ synchronization, student repository discovery, secrets deployment, and
 assistance operations.
 """
 
-from ..assignments.orchestrator import (
-    AssignmentOrchestrator, WorkflowConfig, WorkflowStep, StepResult
-)
-from pathlib import Path
-from typing import Optional, Set, List, Tuple
 import os
+from pathlib import Path
+from typing import List, Optional, Set, Tuple
+
 import typer
 
+from ..assignments.orchestrator import (
+    AssignmentOrchestrator,
+    StepResult,
+    WorkflowConfig,
+    WorkflowStep,
+)
 from ..utils.logger import get_logger
 
 logger = get_logger("services.assignment")
@@ -49,8 +53,10 @@ class AssignmentService:
             self._orchestrator_factory = orchestrator_factory
         elif dry_run:
             from ..assignments.orchestrator import NullOrchestrator
+
             self._orchestrator_factory = lambda config_path: NullOrchestrator(
-                config_file=config_path)
+                config_file=config_path
+            )
         else:
             self._orchestrator_factory = None
 
@@ -59,7 +65,7 @@ class AssignmentService:
         config_file: str = "assignment.conf",
         force_yes: bool = False,
         step: Optional[str] = None,
-        skip_steps: Optional[str] = None
+        skip_steps: Optional[str] = None,
     ) -> Tuple[bool, str]:
         """
         Execute complete assignment workflow with comprehensive orchestration.
@@ -75,7 +81,9 @@ class AssignmentService:
         """
         try:
             from ..assignments.orchestrator import (
-                AssignmentOrchestrator, WorkflowConfig, WorkflowStep
+                AssignmentOrchestrator,
+                WorkflowConfig,
+                WorkflowStep,
             )
 
             # Initialize orchestrator with configuration
@@ -101,21 +109,25 @@ class AssignmentService:
             if step:
                 try:
                     step_override = WorkflowStep(step.lower())
-                    logger.info(
-                        f"Executing single step: {step_override.value}")
+                    logger.info(f"Executing single step: {step_override.value}")
                 except ValueError:
                     valid_steps = [s.value for s in WorkflowStep]
-                    return False, f"Invalid step '{step}'. Valid steps: {', '.join(valid_steps)}"
+                    return (
+                        False,
+                        f"Invalid step '{step}'. Valid steps: {', '.join(valid_steps)}",
+                    )
 
             # Handle skip steps
             if skip_steps:
-                for skip_step in skip_steps.split(','):
+                for skip_step in skip_steps.split(","):
                     try:
-                        skip_step_set.add(WorkflowStep(
-                            skip_step.strip().lower()))
+                        skip_step_set.add(WorkflowStep(skip_step.strip().lower()))
                     except ValueError:
                         valid_steps = [s.value for s in WorkflowStep]
-                        return False, f"Invalid skip step '{skip_step}'. Valid steps: {', '.join(valid_steps)}"
+                        return (
+                            False,
+                            f"Invalid skip step '{skip_step}'. Valid steps: {', '.join(valid_steps)}",
+                        )
 
             # Create workflow configuration
             workflow_config = WorkflowConfig(
@@ -124,11 +136,13 @@ class AssignmentService:
                 verbose=self.verbose,
                 force_yes=force_yes,
                 step_override=step_override,
-                skip_steps=skip_step_set
+                skip_steps=skip_step_set,
             )
 
             # Confirm execution (skip confirmation in dry-run mode)
-            if not self.dry_run and not self.orchestrator.confirm_execution(workflow_config):
+            if not self.dry_run and not self.orchestrator.confirm_execution(
+                workflow_config
+            ):
                 return True, "Orchestration cancelled by user"
 
             # Execute workflow
@@ -140,7 +154,10 @@ class AssignmentService:
             # Check for failures
             failed_steps = [r for r in results if not r.success]
             if failed_steps:
-                return False, f"Orchestration completed with {len(failed_steps)} failed steps"
+                return (
+                    False,
+                    f"Orchestration completed with {len(failed_steps)} failed steps",
+                )
 
             return True, "Assignment orchestration completed successfully"
 
@@ -149,7 +166,9 @@ class AssignmentService:
         except Exception as e:
             return False, f"Assignment orchestration failed: {e}"
 
-    def setup(self, url: Optional[str] = None, simplified: bool = False) -> Tuple[bool, str]:
+    def setup(
+        self, url: Optional[str] = None, simplified: bool = False
+    ) -> Tuple[bool, str]:
         """
         Run interactive assignment setup wizard.
 
@@ -188,7 +207,7 @@ class AssignmentService:
             except Exception:
                 keychain_token = None
 
-            env_token = os.getenv('GITHUB_TOKEN') or os.getenv('GH_TOKEN')
+            env_token = os.getenv("GITHUB_TOKEN") or os.getenv("GH_TOKEN")
 
             token = None
             if config_exists or keychain_token:
@@ -200,7 +219,6 @@ class AssignmentService:
 
             # If no centralized token but an env token exists, offer to import it
             if not token and env_token:
-
                 prompt = (
                     "No centralized token found, but GITHUB_TOKEN is set in your environment.\n"
                     "Would you like to import the environment token into ~/.config/classdock/token_config.json for centralized management?"
@@ -208,24 +226,28 @@ class AssignmentService:
                 import_choice = typer.confirm(prompt, default=True)
                 if import_choice:
                     try:
-                        token_info = token_manager._verify_and_get_token_info(
-                            env_token)
+                        token_info = token_manager._verify_and_get_token_info(env_token)
                         if not token_info:
                             # If verification failed, still offer interactive setup
                             create_now = typer.confirm(
                                 "Environment token could not be verified. Create a new token interactively instead?",
-                                default=True
+                                default=True,
                             )
                             if create_now:
                                 new_token = token_manager.setup_new_token()
                                 if not new_token:
-                                    return False, "GitHub token setup was cancelled or failed"
+                                    return (
+                                        False,
+                                        "GitHub token setup was cancelled or failed",
+                                    )
                                 token = new_token
                             else:
-                                return False, "No valid centralized token configured. Aborting setup."
+                                return (
+                                    False,
+                                    "No valid centralized token configured. Aborting setup.",
+                                )
                         else:
-                            token_manager._store_token(
-                                env_token, token_info, 3)
+                            token_manager._store_token(env_token, token_info, 3)
                             token = env_token
                     except Exception as e:
                         return False, f"Failed to import environment token: {e}"
@@ -233,7 +255,7 @@ class AssignmentService:
                     # User declined to import env token - offer interactive creation
                     create_now = typer.confirm(
                         "No centralized token configured. Create one now interactively?",
-                        default=True
+                        default=True,
                     )
                     if create_now:
                         new_token = token_manager.setup_new_token()
@@ -241,13 +263,16 @@ class AssignmentService:
                             return False, "GitHub token setup was cancelled or failed"
                         token = new_token
                     else:
-                        return False, "No GitHub token configured. Set GITHUB_TOKEN or create ~/.config/classdock/token_config.json"
+                        return (
+                            False,
+                            "No GitHub token configured. Set GITHUB_TOKEN or create ~/.config/classdock/token_config.json",
+                        )
 
             # If still no token, prompt interactive creation (no env token present)
             if not token:
                 create_now = typer.confirm(
                     "No GitHub token found in config/keychain/environment. Create one now interactively?",
-                    default=True
+                    default=True,
                 )
                 if create_now:
                     new_token = token_manager.setup_new_token()
@@ -255,7 +280,10 @@ class AssignmentService:
                         return False, "GitHub token setup was cancelled or failed"
                     token = new_token
                 else:
-                    return False, "No GitHub token configured. Set GITHUB_TOKEN or create ~/.config/classdock/token_config.json"
+                    return (
+                        False,
+                        "No GitHub token configured. Set GITHUB_TOKEN or create ~/.config/classdock/token_config.json",
+                    )
 
             from ..assignments.setup import AssignmentSetup
 
@@ -268,7 +296,10 @@ class AssignmentService:
                 success = setup_wizard.run_wizard_with_url(url)
 
                 if success:
-                    return True, "Assignment setup completed successfully with GitHub Classroom URL"
+                    return (
+                        True,
+                        "Assignment setup completed successfully with GitHub Classroom URL",
+                    )
                 else:
                     return False, "Assignment setup was cancelled or failed"
 
@@ -310,7 +341,10 @@ class AssignmentService:
             from ..config import ConfigValidator
 
             if self.dry_run:
-                return True, f"DRY RUN: Would validate configuration file '{config_file}'"
+                return (
+                    True,
+                    f"DRY RUN: Would validate configuration file '{config_file}'",
+                )
 
             validator = ConfigValidator()
             config_path = Path(config_file)
@@ -324,8 +358,7 @@ class AssignmentService:
             if is_valid:
                 return True, f"Configuration file '{config_file}' is valid"
             else:
-                error_msg = f"Configuration validation failed:\n" + \
-                    "\n".join(errors)
+                error_msg = f"Configuration validation failed:\n" + "\n".join(errors)
                 return False, error_msg
 
         except ImportError as e:
@@ -338,7 +371,7 @@ class AssignmentService:
         repo_url: str,
         one_student: bool = False,
         auto_confirm: bool = False,
-        config_file: str = "assignment.conf"
+        config_file: str = "assignment.conf",
     ) -> Tuple[bool, str]:
         """
         Help a specific student with repository updates.
@@ -358,12 +391,14 @@ class AssignmentService:
                 mode = "Template direct" if one_student else "Classroom"
                 return True, f"DRY RUN: Would help student {repo_url} (Mode: {mode})"
 
-            from ..assignments.student_helper import StudentUpdateHelper, OperationResult
+            from ..assignments.student_helper import (
+                OperationResult,
+                StudentUpdateHelper,
+            )
 
             # Initialize helper
             config_path = Path(config_file) if config_file else None
-            helper = StudentUpdateHelper(
-                config_path, auto_confirm=auto_confirm)
+            helper = StudentUpdateHelper(config_path, auto_confirm=auto_confirm)
 
             # Validate configuration
             if not helper.validate_configuration():
@@ -371,7 +406,8 @@ class AssignmentService:
 
             # Help the student
             result = helper.help_single_student(
-                repo_url, use_template_direct=one_student)
+                repo_url, use_template_direct=one_student
+            )
 
             # Handle result
             if result.result == OperationResult.SUCCESS:
@@ -390,7 +426,7 @@ class AssignmentService:
         self,
         repo_file: str,
         auto_confirm: bool = False,
-        config_file: str = "assignment.conf"
+        config_file: str = "assignment.conf",
     ) -> Tuple[bool, str]:
         """
         Help multiple students with repository updates (batch processing).
@@ -412,8 +448,7 @@ class AssignmentService:
 
             # Initialize helper
             config_path = Path(config_file) if config_file else None
-            helper = StudentUpdateHelper(
-                config_path, auto_confirm=auto_confirm)
+            helper = StudentUpdateHelper(config_path, auto_confirm=auto_confirm)
 
             # Validate configuration
             if not helper.validate_configuration():
@@ -440,9 +475,7 @@ class AssignmentService:
             return False, f"Batch student assistance failed: {e}"
 
     def check_student(
-        self,
-        repo_url: str,
-        config_file: str = "assignment.conf"
+        self, repo_url: str, config_file: str = "assignment.conf"
     ) -> Tuple[bool, str]:
         """
         Check the status of a student repository.

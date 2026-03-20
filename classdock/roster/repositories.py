@@ -25,8 +25,8 @@ Test code injects a fake::
 from abc import ABC, abstractmethod
 from typing import Dict, List, Optional
 
-from .models import Student
 from ..utils.logger import get_logger
+from .models import Student
 
 logger = get_logger("roster.repositories")
 
@@ -34,6 +34,7 @@ logger = get_logger("roster.repositories")
 # ========================================================================================
 # Abstract interface
 # ========================================================================================
+
 
 class StudentRepository(ABC):
     """
@@ -98,6 +99,7 @@ class StudentRepository(ABC):
 # SQLite-backed implementation
 # ========================================================================================
 
+
 class SqliteStudentRepository(StudentRepository):
     """
     Production repository backed by ``RosterManager`` (SQLite).
@@ -150,7 +152,9 @@ class SqliteStudentRepository(StudentRepository):
         github_username: str,
         github_id: Optional[int] = None,
     ) -> bool:
-        return self._manager.link_github_username(student_id, github_username, github_id)
+        return self._manager.link_github_username(
+            student_id, github_username, github_id
+        )
 
     def count(self, github_organization: Optional[str] = None) -> int:
         return self._manager.count_students(github_organization)
@@ -159,6 +163,7 @@ class SqliteStudentRepository(StudentRepository):
 # ========================================================================================
 # In-memory implementation (for tests)
 # ========================================================================================
+
 
 class InMemoryStudentRepository(StudentRepository):
     """
@@ -251,7 +256,10 @@ class InMemoryStudentRepository(StudentRepository):
     ) -> Optional[Student]:
         for s in self._store.values():
             if s.github_username == github_username:
-                if github_organization is None or s.github_organization == github_organization:
+                if (
+                    github_organization is None
+                    or s.github_organization == github_organization
+                ):
                     return s
         return None
 
@@ -261,9 +269,13 @@ class InMemoryStudentRepository(StudentRepository):
         status: str = "active",
     ) -> List[Student]:
         results = [
-            s for s in self._store.values()
+            s
+            for s in self._store.values()
             if s.status == status
-            and (github_organization is None or s.github_organization == github_organization)
+            and (
+                github_organization is None
+                or s.github_organization == github_organization
+            )
         ]
         return sorted(results, key=lambda s: s.name)
 
@@ -271,6 +283,7 @@ class InMemoryStudentRepository(StudentRepository):
         if github_organization is None:
             return len(self._store)
         return sum(
-            1 for s in self._store.values()
+            1
+            for s in self._store.values()
             if s.github_organization == github_organization
         )

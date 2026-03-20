@@ -14,12 +14,12 @@ Callers may inject a custom strategy (e.g. in tests) via the module-level
 """
 
 import sys
-from typing import Optional, List, Callable, Any
-
+from typing import Any, Callable, List, Optional
 
 # ========================================================================================
 # Abstract strategy interface
 # ========================================================================================
+
 
 class PromptStrategy:
     """
@@ -57,12 +57,14 @@ class PromptStrategy:
 # Concrete: interactive (questionary)
 # ========================================================================================
 
+
 class InteractivePromptStrategy(PromptStrategy):
     """Prompt strategy backed by questionary (requires a real TTY)."""
 
     def select(self, message: str, choices: List[str]) -> Optional[str]:
         try:
             import questionary
+
             return questionary.select(message, choices=choices).ask()
         except (ImportError, KeyboardInterrupt):
             return None
@@ -70,6 +72,7 @@ class InteractivePromptStrategy(PromptStrategy):
     def fuzzy(self, message: str, choices: List[str]) -> Optional[str]:
         try:
             import questionary
+
             return questionary.autocomplete(message, choices=choices).ask()
         except (ImportError, KeyboardInterrupt):
             return None
@@ -82,6 +85,7 @@ class InteractivePromptStrategy(PromptStrategy):
     ) -> Optional[str]:
         try:
             import questionary
+
             kwargs: dict = {"default": default}
             if validate:
                 kwargs["validate"] = validate
@@ -92,6 +96,7 @@ class InteractivePromptStrategy(PromptStrategy):
     def password(self, message: str) -> Optional[str]:
         try:
             import questionary
+
             return questionary.password(message).ask()
         except (ImportError, KeyboardInterrupt):
             return None
@@ -99,6 +104,7 @@ class InteractivePromptStrategy(PromptStrategy):
     def confirm(self, message: str, default: bool = True) -> Optional[bool]:
         try:
             import questionary
+
             return questionary.confirm(message, default=default).ask()
         except (ImportError, KeyboardInterrupt):
             return None
@@ -106,6 +112,7 @@ class InteractivePromptStrategy(PromptStrategy):
     def checkbox(self, message: str, choices: List[str]) -> Optional[List[str]]:
         try:
             import questionary
+
             return questionary.checkbox(message, choices=choices).ask()
         except (ImportError, KeyboardInterrupt):
             return None
@@ -114,6 +121,7 @@ class InteractivePromptStrategy(PromptStrategy):
 # ========================================================================================
 # Concrete: non-interactive (fallback)
 # ========================================================================================
+
 
 class NonInteractivePromptStrategy(PromptStrategy):
     """
@@ -151,6 +159,7 @@ class NonInteractivePromptStrategy(PromptStrategy):
 # Strategy factory and module-level state
 # ========================================================================================
 
+
 def _is_interactive() -> bool:
     """Return True when stdin is a real terminal."""
     return sys.stdin.isatty()
@@ -158,7 +167,11 @@ def _is_interactive() -> bool:
 
 def get_prompt_strategy() -> PromptStrategy:
     """Return the appropriate strategy based on the current environment."""
-    return InteractivePromptStrategy() if _is_interactive() else NonInteractivePromptStrategy()
+    return (
+        InteractivePromptStrategy()
+        if _is_interactive()
+        else NonInteractivePromptStrategy()
+    )
 
 
 # Module-level active strategy — resolved lazily on first call and replaceable
@@ -186,6 +199,7 @@ def _strategy() -> PromptStrategy:
 # ========================================================================================
 # Public API — thin wrappers that delegate to the active strategy
 # ========================================================================================
+
 
 def prompt_select(message: str, choices: List[str]) -> Optional[str]:
     """Arrow-key selection menu. Returns None in non-TTY environments."""

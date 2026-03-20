@@ -5,34 +5,47 @@ from typing import Optional
 
 import typer
 
-from ..utils import setup_logging, get_logger
-from ._helpers import get_global_options, load_student_repos, select_student_repo_interactive
+from ..utils import get_logger, setup_logging
+from ._helpers import (
+    get_global_options,
+    load_student_repos,
+    select_student_repo_interactive,
+)
 
 logger = get_logger("cli")
 
-assignments_app = typer.Typer(help="Assignment setup, orchestration, and management commands")
+assignments_app = typer.Typer(
+    help="Assignment setup, orchestration, and management commands"
+)
 
 
 @assignments_app.callback()
 def assignments_callback(
     ctx: typer.Context,
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose output"),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would be done without executing"),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Show what would be done without executing"
+    ),
 ):
     """Assignment setup, orchestration, and management commands."""
     ctx.ensure_object(dict)
-    ctx.obj['verbose'] = verbose or ctx.obj.get('verbose', False)
-    ctx.obj['dry_run'] = dry_run or ctx.obj.get('dry_run', False)
+    ctx.obj["verbose"] = verbose or ctx.obj.get("verbose", False)
+    ctx.obj["dry_run"] = dry_run or ctx.obj.get("dry_run", False)
 
 
 @assignments_app.command("setup")
 def assignment_setup(
     ctx: typer.Context,
     url: Optional[str] = typer.Option(
-        None, "--url",
-        help="GitHub Classroom URL for simplified setup (auto-extracts organization and assignment info)"),
+        None,
+        "--url",
+        help="GitHub Classroom URL for simplified setup (auto-extracts organization and assignment info)",
+    ),
     simplified: bool = typer.Option(
-        False, "--simplified", help="Use simplified setup wizard with minimal prompts"),
+        False, "--simplified", help="Use simplified setup wizard with minimal prompts"
+    ),
 ):
     """
     Launch interactive wizard to configure a new assignment.
@@ -66,7 +79,11 @@ def assignment_setup(
 def assignment_validate_config(
     ctx: typer.Context,
     config_file: str = typer.Option(
-        "assignment.conf", "--config-file", "-c", help="Configuration file path to validate"),
+        "assignment.conf",
+        "--config-file",
+        "-c",
+        help="Configuration file path to validate",
+    ),
 ):
     """
     Validate assignment configuration file.
@@ -78,8 +95,11 @@ def assignment_validate_config(
     verbose, dry_run = get_global_options(ctx)
     setup_logging(verbose)
 
-    assignment_root = ctx.parent.parent.params.get(
-        'assignment_root', None) if ctx.parent and ctx.parent.parent else None
+    assignment_root = (
+        ctx.parent.parent.params.get("assignment_root", None)
+        if ctx.parent and ctx.parent.parent
+        else None
+    )
 
     if assignment_root and not Path(config_file).is_absolute():
         config_file = str(Path(assignment_root) / config_file)
@@ -108,15 +128,22 @@ def assignment_validate_config(
 @assignments_app.command("orchestrate")
 def assignment_orchestrate(
     ctx: typer.Context,
-    force_yes: bool = typer.Option(False, "--yes", "-y", help="Automatically confirm all prompts"),
+    force_yes: bool = typer.Option(
+        False, "--yes", "-y", help="Automatically confirm all prompts"
+    ),
     step: Optional[str] = typer.Option(
-        None, "--step",
-        help="Execute only a specific step (sync, discover, secrets, assist, cycle)"),
+        None,
+        "--step",
+        help="Execute only a specific step (sync, discover, secrets, assist, cycle)",
+    ),
     skip_steps: Optional[str] = typer.Option(
-        None, "--skip",
-        help="Skip specific steps (comma-separated: sync,discover,secrets,assist,cycle)"),
+        None,
+        "--skip",
+        help="Skip specific steps (comma-separated: sync,discover,secrets,assist,cycle)",
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Execute complete assignment workflow with comprehensive orchestration.
@@ -157,15 +184,26 @@ def assignment_orchestrate(
 def help_student(
     ctx: typer.Context,
     repo_url: Optional[str] = typer.Argument(
-        None, help="Student repository URL (or leave empty to select from student-repos.txt)"),
+        None,
+        help="Student repository URL (or leave empty to select from student-repos.txt)",
+    ),
     one_student: bool = typer.Option(
-        False, "--one-student", help="Use template directly (bypass classroom repository)"),
-    auto_confirm: bool = typer.Option(False, "--yes", "-y", help="Automatically confirm all prompts"),
+        False,
+        "--one-student",
+        help="Use template directly (bypass classroom repository)",
+    ),
+    auto_confirm: bool = typer.Option(
+        False, "--yes", "-y", help="Automatically confirm all prompts"
+    ),
     repo_file: str = typer.Option(
-        "student-repos.txt", "--file", "-f",
-        help="File containing student repository URLs for interactive selection"),
+        "student-repos.txt",
+        "--file",
+        "-f",
+        help="File containing student repository URLs for interactive selection",
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Help a specific student with repository updates.
@@ -224,11 +262,17 @@ def help_student(
 def help_students(
     ctx: typer.Context,
     repo_file: str = typer.Option(
-        "student-repos.txt", "--file", "-f",
-        help="File containing student repository URLs (default: student-repos.txt)"),
-    auto_confirm: bool = typer.Option(False, "--yes", "-y", help="Automatically confirm all prompts"),
+        "student-repos.txt",
+        "--file",
+        "-f",
+        help="File containing student repository URLs (default: student-repos.txt)",
+    ),
+    auto_confirm: bool = typer.Option(
+        False, "--yes", "-y", help="Automatically confirm all prompts"
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Help multiple students with repository updates (batch processing).
@@ -277,12 +321,18 @@ def help_students(
 def check_student(
     ctx: typer.Context,
     repo_url: Optional[str] = typer.Argument(
-        None, help="Student repository URL (or leave empty to select from student-repos.txt)"),
+        None,
+        help="Student repository URL (or leave empty to select from student-repos.txt)",
+    ),
     repo_file: str = typer.Option(
-        "student-repos.txt", "--file", "-f",
-        help="File containing student repository URLs for interactive selection"),
+        "student-repos.txt",
+        "--file",
+        "-f",
+        help="File containing student repository URLs for interactive selection",
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Check the status of a student repository.
@@ -337,13 +387,21 @@ def check_student(
 def student_instructions(
     ctx: typer.Context,
     repo_url: Optional[str] = typer.Argument(
-        None, help="Student repository URL (or leave empty to select from student-repos.txt)"),
-    output_file: Optional[str] = typer.Option(None, "--output", "-o", help="Save instructions to file"),
+        None,
+        help="Student repository URL (or leave empty to select from student-repos.txt)",
+    ),
+    output_file: Optional[str] = typer.Option(
+        None, "--output", "-o", help="Save instructions to file"
+    ),
     repo_file: str = typer.Option(
-        "student-repos.txt", "--file", "-f",
-        help="File containing student repository URLs for interactive selection"),
+        "student-repos.txt",
+        "--file",
+        "-f",
+        help="File containing student repository URLs for interactive selection",
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Generate update instructions for a student.
@@ -393,7 +451,7 @@ def student_instructions(
         instructions = helper.generate_student_instructions(repo_url)
 
         if output_file:
-            with open(output_file, 'w') as f:
+            with open(output_file, "w") as f:
                 f.write(instructions)
             logger.info(f"Instructions saved to: {output_file}")
         else:
@@ -411,7 +469,8 @@ def student_instructions(
 def check_classroom(
     ctx: typer.Context,
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Check if the classroom repository is ready for student updates.
@@ -460,15 +519,24 @@ def cycle_single_collaborator(
     repo_url: Optional[str] = typer.Argument(
         None,
         help="Repository URL to cycle collaborator permissions for "
-             "(or leave empty to select from student-repos.txt)"),
+        "(or leave empty to select from student-repos.txt)",
+    ),
     username: Optional[str] = typer.Argument(
-        None, help="Username to cycle permissions for (auto-extracted from URL if not provided)"),
-    force: bool = typer.Option(False, "--force", help="Force cycling even when access appears correct"),
+        None,
+        help="Username to cycle permissions for (auto-extracted from URL if not provided)",
+    ),
+    force: bool = typer.Option(
+        False, "--force", help="Force cycling even when access appears correct"
+    ),
     repo_file: str = typer.Option(
-        "student-repos.txt", "--file", "-f",
-        help="File containing student repository URLs for interactive selection"),
+        "student-repos.txt",
+        "--file",
+        "-f",
+        help="File containing student repository URLs for interactive selection",
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Cycle collaborator permissions for a single repository.
@@ -505,22 +573,25 @@ def cycle_single_collaborator(
 
     if not username:
         try:
-            url_parts = repo_url.rstrip('/').split('/')
+            url_parts = repo_url.rstrip("/").split("/")
             repo_name = url_parts[-1]
-            if '-' in repo_name:
-                username = repo_name.split('-')[-1]
+            if "-" in repo_name:
+                username = repo_name.split("-")[-1]
                 logger.info(f"Extracted username from URL: {username}")
             else:
                 logger.error("Could not extract username from repository URL")
                 logger.error(
-                    "Please provide username explicitly: cycle-collaborator <repo_url> <username>")
+                    "Please provide username explicitly: cycle-collaborator <repo_url> <username>"
+                )
                 raise typer.Exit(code=1)
         except (IndexError, AttributeError) as e:
             logger.error(f"Failed to parse repository URL: {e}")
             raise typer.Exit(code=1)
 
     if verbose:
-        logger.debug(f"Verbose mode enabled for cycling collaborator {username} on {repo_url}")
+        logger.debug(
+            f"Verbose mode enabled for cycling collaborator {username} on {repo_url}"
+        )
 
     if dry_run:
         logger.info(f"DRY RUN: Would cycle collaborator {username} on {repo_url}")
@@ -562,13 +633,19 @@ def cycle_multiple_collaborators(
     ctx: typer.Context,
     batch_file: str = typer.Argument(
         "student-repos.txt",
-        help="File containing repository URLs or usernames (default: student-repos.txt)"),
+        help="File containing repository URLs or usernames (default: student-repos.txt)",
+    ),
     repo_url_mode: bool = typer.Option(
-        False, "--repo-urls", help="Treat batch file as repository URLs (extract usernames)"),
+        False,
+        "--repo-urls",
+        help="Treat batch file as repository URLs (extract usernames)",
+    ),
     force: bool = typer.Option(
-        False, "--force", "-f", help="Force cycling even when access appears correct"),
+        False, "--force", "-f", help="Force cycling even when access appears correct"
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Cycle collaborator permissions for multiple repositories (batch processing).
@@ -631,14 +708,21 @@ def check_repository_access(
     repo_url: Optional[str] = typer.Argument(
         None,
         help="Repository URL to check access for "
-             "(or leave empty to select from student-repos.txt)"),
+        "(or leave empty to select from student-repos.txt)",
+    ),
     username: Optional[str] = typer.Argument(
-        None, help="Username to check access for (auto-extracted from URL if not provided)"),
+        None,
+        help="Username to check access for (auto-extracted from URL if not provided)",
+    ),
     repo_file: str = typer.Option(
-        "student-repos.txt", "--file", "-f",
-        help="File containing student repository URLs for interactive selection"),
+        "student-repos.txt",
+        "--file",
+        "-f",
+        help="File containing student repository URLs for interactive selection",
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Check repository access status for a specific user.
@@ -681,16 +765,17 @@ def check_repository_access(
 
     if not username:
         try:
-            url_parts = repo_url.rstrip('/').split('/')
+            url_parts = repo_url.rstrip("/").split("/")
             repo_name = url_parts[-1]
-            if '-' in repo_name:
-                username = repo_name.split('-')[-1]
+            if "-" in repo_name:
+                username = repo_name.split("-")[-1]
                 logger.info(f"Extracted username from URL: {username}")
             else:
                 logger.error("Could not extract username from repository URL")
                 logger.error(
                     "Please provide username explicitly: "
-                    "check-repository-access <repo_url> <username>")
+                    "check-repository-access <repo_url> <username>"
+                )
                 raise typer.Exit(code=1)
         except (IndexError, AttributeError) as e:
             logger.error(f"Failed to parse repository URL: {e}")
@@ -729,12 +814,20 @@ def check_repository_access(
 @assignments_app.command("push-to-classroom")
 def push_to_classroom(
     ctx: typer.Context,
-    force: bool = typer.Option(False, "--force", "-f", help="Force push without confirmation"),
+    force: bool = typer.Option(
+        False, "--force", "-f", help="Force push without confirmation"
+    ),
     interactive: bool = typer.Option(
-        True, "--interactive/--non-interactive", help="Enable interactive mode for confirmations"),
-    branch: str = typer.Option("main", "--branch", "-b", help="Branch to push to classroom repository"),
+        True,
+        "--interactive/--non-interactive",
+        help="Enable interactive mode for confirmations",
+    ),
+    branch: str = typer.Option(
+        "main", "--branch", "-b", help="Branch to push to classroom repository"
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"),
+        "assignment.conf", "--config", "-c", help="Configuration file path"
+    ),
 ):
     """
     Push template repository changes to the classroom repository.
@@ -760,7 +853,9 @@ def push_to_classroom(
 
         global_config = get_global_config()
 
-        manager = ClassroomPushManager(global_config=global_config, assignment_root=Path.cwd())
+        manager = ClassroomPushManager(
+            global_config=global_config, assignment_root=Path.cwd()
+        )
         manager.branch = branch
 
         if dry_run:
@@ -818,5 +913,6 @@ def push_to_classroom(
         logger.error(f"Push workflow failed: {e}")
         if verbose:
             import traceback
+
             logger.error(traceback.format_exc())
         raise typer.Exit(code=1)

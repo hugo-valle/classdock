@@ -15,7 +15,9 @@ _console = Console(stderr=True)
 
 
 def _show(title: str, body: str, border: str = "red") -> None:
-    _console.print(Panel(body, title=f"[bold red]{title}[/bold red]", border_style=border))
+    _console.print(
+        Panel(body, title=f"[bold red]{title}[/bold red]", border_style=border)
+    )
 
 
 def error_token_not_found() -> None:

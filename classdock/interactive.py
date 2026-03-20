@@ -31,9 +31,7 @@ def run_interactive() -> Optional[int]:
 
     Returns the exit code (0 = success, 1 = error, None = clean exit).
     """
-    _console.print(
-        "\n[bold cyan]ClassDock[/bold cyan] — GitHub Classroom automation\n"
-    )
+    _console.print("\n[bold cyan]ClassDock[/bold cyan] — GitHub Classroom automation\n")
 
     choice = prompt_select("What would you like to do?", _MENU_CHOICES)
 
@@ -44,6 +42,7 @@ def run_interactive() -> Optional[int]:
 
     if choice == "Run the full assignment workflow":
         from .services.assignment_service import AssignmentService
+
         service = AssignmentService()
         ok, message = service.orchestrate(config_file="assignment.conf")
         if not ok:
@@ -54,6 +53,7 @@ def run_interactive() -> Optional[int]:
 
     if choice == "Set up a new assignment":
         from .services.assignment_service import AssignmentService
+
         service = AssignmentService()
         ok, message = service.setup()
         if not ok:
@@ -64,11 +64,13 @@ def run_interactive() -> Optional[int]:
 
     if choice == "Check assignment status":
         from .dashboard import render_dashboard
+
         render_dashboard()
         return 0
 
     if choice == "Fetch student repositories":
         from .services.repos_service import ReposService
+
         service = ReposService()
         ok, message = service.fetch()
         if not ok:

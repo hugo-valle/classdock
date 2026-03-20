@@ -16,8 +16,8 @@ def get_global_options(ctx: typer.Context) -> tuple[bool, bool]:
     """Return (verbose, dry_run) from the root context."""
     root_ctx = ctx.find_root()
     return (
-        root_ctx.obj.get('verbose', False) if root_ctx.obj else False,
-        root_ctx.obj.get('dry_run', False) if root_ctx.obj else False,
+        root_ctx.obj.get("verbose", False) if root_ctx.obj else False,
+        root_ctx.obj.get("dry_run", False) if root_ctx.obj else False,
     )
 
 
@@ -28,10 +28,10 @@ def load_student_repos(file_path: str = "student-repos.txt") -> List[str]:
         raise FileNotFoundError(f"Repository file not found: {file_path}")
 
     repos = []
-    with open(repo_file, 'r') as f:
+    with open(repo_file, "r") as f:
         for line in f:
             line = line.strip()
-            if line and not line.startswith('#'):
+            if line and not line.startswith("#"):
                 repos.append(line)
     return repos
 
@@ -45,7 +45,8 @@ def select_student_repo_interactive(repos: List[str]) -> Optional[str]:
 
     if sys.stdin.isatty():
         from ..utils.prompt import prompt_select
-        choices = [repo.split('/')[-1] + "  (" + repo + ")" for repo in repos]
+
+        choices = [repo.split("/")[-1] + "  (" + repo + ")" for repo in repos]
         choices.append("Cancel")
         result = prompt_select("Select a student repository:", choices)
         if result is None or result == "Cancel":
@@ -60,7 +61,7 @@ def select_student_repo_interactive(repos: List[str]) -> Optional[str]:
     # Non-TTY fallback
     print("\n📚 Available student repositories:\n")
     for i, repo in enumerate(repos, 1):
-        student_name = repo.split('/')[-1]
+        student_name = repo.split("/")[-1]
         print(f"  {i}. {student_name}")
         print(f"     {repo}")
     print("  0. Cancel")

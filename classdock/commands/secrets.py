@@ -4,8 +4,8 @@ from typing import Optional
 
 import typer
 
-from ..utils import setup_logging, get_logger
 from ..config.global_config import get_global_config
+from ..utils import get_logger, setup_logging
 from ._helpers import get_global_options
 
 logger = get_logger("cli")
@@ -16,26 +16,37 @@ secrets_app = typer.Typer(help="Secret and token management commands")
 @secrets_app.callback()
 def secrets_callback(
     ctx: typer.Context,
-    verbose: bool = typer.Option(False, "--verbose", "-v", help="Enable verbose output"),
-    dry_run: bool = typer.Option(False, "--dry-run", help="Show what would be done without executing"),
+    verbose: bool = typer.Option(
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
+    dry_run: bool = typer.Option(
+        False, "--dry-run", help="Show what would be done without executing"
+    ),
 ):
     """Secret and token management commands."""
     ctx.ensure_object(dict)
-    ctx.obj['verbose'] = verbose or ctx.obj.get('verbose', False)
-    ctx.obj['dry_run'] = dry_run or ctx.obj.get('dry_run', False)
+    ctx.obj["verbose"] = verbose or ctx.obj.get("verbose", False)
+    ctx.obj["dry_run"] = dry_run or ctx.obj.get("dry_run", False)
 
 
 @secrets_app.command("add")
 def secrets_add(
     ctx: typer.Context,
     assignment_root: Optional[str] = typer.Option(
-        None, "--assignment-root", "-r",
-        help="Path to assignment template repository root directory"),
+        None,
+        "--assignment-root",
+        "-r",
+        help="Path to assignment template repository root directory",
+    ),
     repo_urls: Optional[str] = typer.Option(
-        None, "--repos", help="Comma-separated list of repository URLs to process"),
+        None, "--repos", help="Comma-separated list of repository URLs to process"
+    ),
     force_update: bool = typer.Option(
-        False, "--force", "-f",
-        help="Force update secrets even if they already exist and are up to date"),
+        False,
+        "--force",
+        "-f",
+        help="Force update secrets even if they already exist and are up to date",
+    ),
 ):
     """
     Add or update secrets in student repositories using global configuration.
@@ -61,8 +72,10 @@ def secrets_add(
     if dry_run:
         logger.info("DRY RUN: Would add secrets to student repositories")
         if repo_urls:
-            target_repos = [url.strip() for url in repo_urls.split(',') if url.strip()]
-            logger.info(f"DRY RUN: Would process {len(target_repos)} specified repositories")
+            target_repos = [url.strip() for url in repo_urls.split(",") if url.strip()]
+            logger.info(
+                f"DRY RUN: Would process {len(target_repos)} specified repositories"
+            )
         if assignment_root:
             logger.info(f"DRY RUN: Would use assignment root: {assignment_root}")
         return
@@ -70,7 +83,9 @@ def secrets_add(
     global_config = get_global_config()
     if not global_config:
         logger.error("Global configuration not loaded")
-        logger.error("Please ensure you're running from a directory with assignment.conf")
+        logger.error(
+            "Please ensure you're running from a directory with assignment.conf"
+        )
         logger.error("Or use --assignment-root to specify the assignment directory")
         raise typer.Exit(code=1)
 
@@ -81,14 +96,16 @@ def secrets_add(
 
     target_repos = None
     if repo_urls:
-        target_repos = [url.strip() for url in repo_urls.split(',') if url.strip()]
+        target_repos = [url.strip() for url in repo_urls.split(",") if url.strip()]
         logger.info(f"Processing {len(target_repos)} specified repositories")
 
     try:
         from ..services.secrets_service import SecretsService
 
         service = SecretsService(dry_run=dry_run, verbose=verbose)
-        ok, message = service.add_secrets(repo_urls=target_repos, force_update=force_update)
+        ok, message = service.add_secrets(
+            repo_urls=target_repos, force_update=force_update
+        )
 
         if not ok:
             logger.error(f"Secret management failed: {message}")

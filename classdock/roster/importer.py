@@ -7,13 +7,13 @@ and exporting roster data to CSV/JSON formats.
 
 import csv
 import json
-from pathlib import Path
-from typing import Optional, List, Dict, Any
 from datetime import datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional
 
-from .models import Student, ImportResult
-from .manager import RosterManager
 from ..utils.logger import get_logger
+from .manager import RosterManager
+from .models import ImportResult, Student
 
 logger = get_logger("roster_importer")
 
@@ -37,19 +37,24 @@ class RosterImporter:
     """
 
     # Expected CSV columns
-    REQUIRED_COLUMNS = {'email', 'name'}
-    OPTIONAL_COLUMNS = {'github_username'}
+    REQUIRED_COLUMNS = {"email", "name"}
+    OPTIONAL_COLUMNS = {"github_username"}
     ALL_COLUMNS = REQUIRED_COLUMNS | OPTIONAL_COLUMNS
 
     # Column name mappings (case-insensitive)
     COLUMN_MAPPINGS = {
-        'email': ['email', 'email address', 'student email', 'e-mail'],
-        'name': ['name', 'student name', 'full name', 'enter your name', 'your name'],
-        'github_username': [
-            'github_username', 'github username', 'github user name',
-            'github', 'enter your github user name', 'enter your github username',
-            'github account', 'git username'
-        ]
+        "email": ["email", "email address", "student email", "e-mail"],
+        "name": ["name", "student name", "full name", "enter your name", "your name"],
+        "github_username": [
+            "github_username",
+            "github username",
+            "github user name",
+            "github",
+            "enter your github user name",
+            "enter your github username",
+            "github account",
+            "git username",
+        ],
     }
 
     def __init__(self, roster_manager: RosterManager):
@@ -82,10 +87,7 @@ class RosterImporter:
 
         return normalized
 
-    def validate_csv_format(
-        self,
-        file_path: Path
-    ) -> tuple[bool, str]:
+    def validate_csv_format(self, file_path: Path) -> tuple[bool, str]:
         """
         Validate CSV file format and structure.
 
@@ -98,11 +100,11 @@ class RosterImporter:
         if not file_path.exists():
             return False, f"File not found: {file_path}"
 
-        if not file_path.suffix.lower() == '.csv':
+        if not file_path.suffix.lower() == ".csv":
             return False, f"File must be a CSV file: {file_path}"
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
 
                 # Get actual columns from file
@@ -111,7 +113,7 @@ class RosterImporter:
 
                 # Check if we can map required columns
                 # Create a dummy row with all columns present to test mapping
-                dummy_row = {col: 'dummy' for col in reader.fieldnames}
+                dummy_row = {col: "dummy" for col in reader.fieldnames}
                 normalized = self._normalize_column_names(dummy_row)
 
                 # Check for required columns in normalized names
@@ -146,7 +148,7 @@ class RosterImporter:
         file_path: Path,
         github_organization: str,
         skip_duplicates: bool = True,
-        validate_github: bool = False
+        validate_github: bool = False,
     ) -> ImportResult:
         """
         Import students from CSV file.
@@ -168,13 +170,17 @@ class RosterImporter:
             result.add_error(f"Validation failed: {error_msg}")
             return result
 
-        logger.info(f"Importing students from {file_path} for org: {github_organization}")
+        logger.info(
+            f"Importing students from {file_path} for org: {github_organization}"
+        )
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 reader = csv.DictReader(f)
 
-                for row_num, row in enumerate(reader, start=2):  # Start at 2 (header is 1)
+                for row_num, row in enumerate(
+                    reader, start=2
+                ):  # Start at 2 (header is 1)
                     result.total_rows += 1
 
                     try:
@@ -182,9 +188,11 @@ class RosterImporter:
                         normalized = self._normalize_column_names(row)
 
                         # Extract and validate fields
-                        email = normalized.get('email', '').strip()
-                        name = normalized.get('name', '').strip()
-                        github_username = normalized.get('github_username', '').strip() or None
+                        email = normalized.get("email", "").strip()
+                        name = normalized.get("name", "").strip()
+                        github_username = (
+                            normalized.get("github_username", "").strip() or None
+                        )
 
                         if not email or not name:
                             result.add_error(
@@ -194,8 +202,7 @@ class RosterImporter:
 
                         # Check for duplicate
                         existing = self.roster.get_student_by_email(
-                            email,
-                            github_organization
+                            email, github_organization
                         )
 
                         if existing:
@@ -217,7 +224,7 @@ class RosterImporter:
                             name=name,
                             github_username=github_username,
                             github_organization=github_organization,
-                            enrolled_date=datetime.now()
+                            enrolled_date=datetime.now(),
                         )
 
                         # Add to database
@@ -225,7 +232,9 @@ class RosterImporter:
                         student.id = student_id
                         result.add_success(student)
 
-                        logger.debug(f"Row {row_num}: Imported {email} (ID: {student_id})")
+                        logger.debug(
+                            f"Row {row_num}: Imported {email} (ID: {student_id})"
+                        )
 
                     except ValueError as e:
                         result.add_error(f"Row {row_num}: Validation error: {e}")
@@ -246,7 +255,7 @@ class RosterImporter:
         self,
         output_path: Path,
         github_organization: Optional[str] = None,
-        students: Optional[List[Student]] = None
+        students: Optional[List[Student]] = None,
     ) -> bool:
         """
         Export students to CSV file.
@@ -267,7 +276,9 @@ class RosterImporter:
                 raise ValueError(
                     "Must provide either students list or github_organization"
                 )
-            students = self.roster.list_students(github_organization=github_organization)
+            students = self.roster.list_students(
+                github_organization=github_organization
+            )
 
         if not students:
             logger.warning("No students to export")
@@ -277,21 +288,29 @@ class RosterImporter:
             # Ensure output directory exists
             output_path.parent.mkdir(parents=True, exist_ok=True)
 
-            with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            with open(output_path, "w", newline="", encoding="utf-8") as f:
                 writer = csv.DictWriter(
                     f,
-                    fieldnames=['email', 'name', 'github_username', 'github_organization', 'status']
+                    fieldnames=[
+                        "email",
+                        "name",
+                        "github_username",
+                        "github_organization",
+                        "status",
+                    ],
                 )
                 writer.writeheader()
 
                 for student in students:
-                    writer.writerow({
-                        'email': student.email,
-                        'name': student.name,
-                        'github_username': student.github_username or '',
-                        'github_organization': student.github_organization,
-                        'status': student.status
-                    })
+                    writer.writerow(
+                        {
+                            "email": student.email,
+                            "name": student.name,
+                            "github_username": student.github_username or "",
+                            "github_organization": student.github_organization,
+                            "status": student.status,
+                        }
+                    )
 
             logger.info(f"Exported {len(students)} students to {output_path}")
             return True
@@ -305,7 +324,7 @@ class RosterImporter:
         output_path: Path,
         github_organization: Optional[str] = None,
         students: Optional[List[Student]] = None,
-        pretty: bool = True
+        pretty: bool = True,
     ) -> bool:
         """
         Export students to JSON file.
@@ -327,7 +346,9 @@ class RosterImporter:
                 raise ValueError(
                     "Must provide either students list or github_organization"
                 )
-            students = self.roster.list_students(github_organization=github_organization)
+            students = self.roster.list_students(
+                github_organization=github_organization
+            )
 
         if not students:
             logger.warning("No students to export")
@@ -339,13 +360,13 @@ class RosterImporter:
 
             # Convert students to dictionaries
             data = {
-                'exported_at': datetime.now().isoformat(),
-                'github_organization': github_organization,
-                'total_students': len(students),
-                'students': [student.to_dict() for student in students]
+                "exported_at": datetime.now().isoformat(),
+                "github_organization": github_organization,
+                "total_students": len(students),
+                "students": [student.to_dict() for student in students],
             }
 
-            with open(output_path, 'w', encoding='utf-8') as f:
+            with open(output_path, "w", encoding="utf-8") as f:
                 if pretty:
                     json.dump(data, f, indent=2, ensure_ascii=False)
                 else:
@@ -359,10 +380,7 @@ class RosterImporter:
             raise
 
     def import_from_json(
-        self,
-        file_path: Path,
-        github_organization: str,
-        skip_duplicates: bool = True
+        self, file_path: Path, github_organization: str, skip_duplicates: bool = True
     ) -> ImportResult:
         """
         Import students from JSON file.
@@ -386,13 +404,13 @@ class RosterImporter:
             return result
 
         try:
-            with open(file_path, 'r', encoding='utf-8') as f:
+            with open(file_path, "r", encoding="utf-8") as f:
                 data = json.load(f)
 
             # Handle different JSON formats
-            if isinstance(data, dict) and 'students' in data:
+            if isinstance(data, dict) and "students" in data:
                 # Format from export_to_json
-                students_data = data['students']
+                students_data = data["students"]
             elif isinstance(data, list):
                 # Simple list of student objects
                 students_data = data
@@ -400,32 +418,27 @@ class RosterImporter:
                 result.add_error("Invalid JSON format")
                 return result
 
-            logger.info(
-                f"Importing {len(students_data)} students from {file_path}"
-            )
+            logger.info(f"Importing {len(students_data)} students from {file_path}")
 
             for idx, student_data in enumerate(students_data):
                 result.total_rows += 1
 
                 try:
-                    email = student_data.get('email', '').strip()
-                    name = student_data.get('name', '').strip()
-                    github_username = student_data.get('github_username')
+                    email = student_data.get("email", "").strip()
+                    name = student_data.get("name", "").strip()
+                    github_username = student_data.get("github_username")
                     if github_username:
                         github_username = github_username.strip() or None
                     else:
                         github_username = None
 
                     if not email or not name:
-                        result.add_error(
-                            f"Student {idx + 1}: Missing required fields"
-                        )
+                        result.add_error(f"Student {idx + 1}: Missing required fields")
                         continue
 
                     # Check for duplicate
                     existing = self.roster.get_student_by_email(
-                        email,
-                        github_organization
+                        email, github_organization
                     )
 
                     if existing:
@@ -433,9 +446,7 @@ class RosterImporter:
                             result.add_skip()
                             continue
                         else:
-                            result.add_error(
-                                f"Student {idx + 1}: Duplicate: {email}"
-                            )
+                            result.add_error(f"Student {idx + 1}: Duplicate: {email}")
                             continue
 
                     # Create student
@@ -444,7 +455,7 @@ class RosterImporter:
                         name=name,
                         github_username=github_username,
                         github_organization=github_organization,
-                        enrolled_date=datetime.now()
+                        enrolled_date=datetime.now(),
                     )
 
                     student_id = self.roster.add_student(student)
@@ -483,26 +494,25 @@ class RosterImporter:
 
             sample_data = [
                 {
-                    'email': 'student1@example.com',
-                    'name': 'John Doe',
-                    'github_username': 'johndoe'
+                    "email": "student1@example.com",
+                    "name": "John Doe",
+                    "github_username": "johndoe",
                 },
                 {
-                    'email': 'student2@example.com',
-                    'name': 'Jane Smith',
-                    'github_username': 'janesmith'
+                    "email": "student2@example.com",
+                    "name": "Jane Smith",
+                    "github_username": "janesmith",
                 },
                 {
-                    'email': 'student3@example.com',
-                    'name': 'Bob Johnson',
-                    'github_username': ''  # Optional field
-                }
+                    "email": "student3@example.com",
+                    "name": "Bob Johnson",
+                    "github_username": "",  # Optional field
+                },
             ]
 
-            with open(output_path, 'w', newline='', encoding='utf-8') as f:
+            with open(output_path, "w", newline="", encoding="utf-8") as f:
                 writer = csv.DictWriter(
-                    f,
-                    fieldnames=['email', 'name', 'github_username']
+                    f, fieldnames=["email", "name", "github_username"]
                 )
                 writer.writeheader()
                 writer.writerows(sample_data)
