@@ -4,7 +4,8 @@ Git operations and repository management utilities.
 
 import subprocess
 from pathlib import Path
-from typing import Optional, List, Dict
+from typing import Dict, List, Optional
+
 from .logger import get_logger
 
 logger = get_logger("git")
@@ -20,11 +21,11 @@ class GitManager:
         """Find the git repository root."""
         try:
             result = subprocess.run(
-                ['git', 'rev-parse', '--show-toplevel'],
+                ["git", "rev-parse", "--show-toplevel"],
                 cwd=self.repo_path,
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
             return Path(result.stdout.strip())
         except subprocess.CalledProcessError:
@@ -39,11 +40,11 @@ class GitManager:
         """Get the URL of a git remote."""
         try:
             result = subprocess.run(
-                ['git', 'remote', 'get-url', remote],
+                ["git", "remote", "get-url", remote],
                 cwd=self.repo_path,
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
             return result.stdout.strip()
         except subprocess.CalledProcessError:
@@ -54,11 +55,11 @@ class GitManager:
         """Get the current git branch name."""
         try:
             result = subprocess.run(
-                ['git', 'branch', '--show-current'],
+                ["git", "branch", "--show-current"],
                 cwd=self.repo_path,
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
             return result.stdout.strip()
         except subprocess.CalledProcessError:
@@ -69,49 +70,42 @@ class GitManager:
         """Get git status information."""
         try:
             result = subprocess.run(
-                ['git', 'status', '--porcelain'],
+                ["git", "status", "--porcelain"],
                 cwd=self.repo_path,
                 capture_output=True,
                 text=True,
-                check=True
+                check=True,
             )
 
-            status = {
-                'modified': [],
-                'added': [],
-                'deleted': [],
-                'untracked': []
-            }
+            status = {"modified": [], "added": [], "deleted": [], "untracked": []}
 
-            for line in result.stdout.strip().split('\n'):
+            for line in result.stdout.strip().split("\n"):
                 if not line:
                     continue
 
                 status_code = line[:2]
                 filename = line[3:]
 
-                if status_code.startswith('M'):
-                    status['modified'].append(filename)
-                elif status_code.startswith('A'):
-                    status['added'].append(filename)
-                elif status_code.startswith('D'):
-                    status['deleted'].append(filename)
-                elif status_code.startswith('??'):
-                    status['untracked'].append(filename)
+                if status_code.startswith("M"):
+                    status["modified"].append(filename)
+                elif status_code.startswith("A"):
+                    status["added"].append(filename)
+                elif status_code.startswith("D"):
+                    status["deleted"].append(filename)
+                elif status_code.startswith("??"):
+                    status["untracked"].append(filename)
 
             return status
 
         except subprocess.CalledProcessError:
             logger.error("Failed to get git status")
-            return {'modified': [], 'added': [], 'deleted': [], 'untracked': []}
+            return {"modified": [], "added": [], "deleted": [], "untracked": []}
 
     def clone_repo(self, url: str, destination: Path) -> bool:
         """Clone a repository to the specified destination."""
         try:
             subprocess.run(
-                ['git', 'clone', url, str(destination)],
-                check=True,
-                capture_output=True
+                ["git", "clone", url, str(destination)], check=True, capture_output=True
             )
             logger.info(f"Successfully cloned {url} to {destination}")
             return True
@@ -123,10 +117,7 @@ class GitManager:
         """Pull latest changes from origin."""
         try:
             subprocess.run(
-                ['git', 'pull'],
-                cwd=self.repo_path,
-                check=True,
-                capture_output=True
+                ["git", "pull"], cwd=self.repo_path, check=True, capture_output=True
             )
             logger.info("Successfully pulled latest changes")
             return True

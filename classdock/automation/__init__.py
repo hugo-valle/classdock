@@ -8,7 +8,7 @@ This package handles:
 - Background task coordination
 """
 
-from .scheduler import AutomationScheduler
 from .cron_manager import CronManager
+from .scheduler import AutomationScheduler
 
 __all__ = ["AutomationScheduler", "CronManager"]

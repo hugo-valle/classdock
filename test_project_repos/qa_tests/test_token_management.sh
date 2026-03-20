@@ -2,7 +2,7 @@
 ################################################################################
 # Token Management QA Test Suite
 #
-# Comprehensive testing of classroom-pilot token management functionality
+# Comprehensive testing of classdock token management functionality
 # including storage methods, priority order, token types, verification,
 # expiration tracking, and security practices.
 #
@@ -35,11 +35,11 @@ source "$TEST_ROOT/lib/mock_helpers.sh"
 init_test_tracking
 
 # Test configuration
-TOKEN_CONFIG_DIR="$HOME/.config/classroom-pilot"
+TOKEN_CONFIG_DIR="$HOME/.config/classdock"
 TOKEN_CONFIG_FILE="$TOKEN_CONFIG_DIR/token_config.json"
 TOKEN_FIXTURES_DIR="$TEST_ROOT/fixtures/tokens"
 BACKUP_SUFFIX=".qa_backup_$$"
-KEYCHAIN_SERVICE="classroom-pilot-github-token"  # Comment 2: Correct service name
+KEYCHAIN_SERVICE="classdock-github-token"  # Comment 2: Correct service name
 
 # Cleanup flag
 NEEDS_CLEANUP=false
@@ -97,7 +97,7 @@ setup_test_environment() {
     log_debug "Mock HOME: $MOCK_HOME"
     
     # Update token config paths to use mock HOME
-    TOKEN_CONFIG_DIR="$HOME/.config/classroom-pilot"
+    TOKEN_CONFIG_DIR="$HOME/.config/classdock"
     TOKEN_CONFIG_FILE="$TOKEN_CONFIG_DIR/token_config.json"
     
     # Create config directory in mock HOME
@@ -194,7 +194,7 @@ test_token_from_config_file() {
 import sys
 import json
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Parse expected token from config file
 with open('$TOKEN_CONFIG_FILE', 'r') as f:
@@ -243,7 +243,7 @@ import subprocess
 from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Mock subprocess.run to simulate keychain returning our test token
 def mock_subprocess_run(cmd, **kwargs):
@@ -293,7 +293,7 @@ import sys
 import subprocess
 from unittest.mock import patch, MagicMock
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Mock subprocess.run to fail for keychain (so env is used)
 def mock_subprocess_run(cmd, **kwargs):
@@ -347,7 +347,7 @@ import sys
 import subprocess
 from unittest.mock import patch, MagicMock
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Mock subprocess.run to simulate Linux secret-tool
 def mock_subprocess_run(cmd, **kwargs):
@@ -368,7 +368,7 @@ with patch('subprocess.run', side_effect=mock_subprocess_run):
         # Monkeypatch _get_token_from_keychain to use secret-tool
         original_get_keychain = manager._get_token_from_keychain
         def mock_get_keychain():
-            result = subprocess.run(['secret-tool', 'lookup', 'service', 'classroom-pilot-github-token'],
+            result = subprocess.run(['secret-tool', 'lookup', 'service', 'classdock-github-token'],
                                   capture_output=True, text=True, check=False)
             return result.stdout.strip() if result.returncode == 0 else None
         manager._get_token_from_keychain = mock_get_keychain
@@ -413,7 +413,7 @@ import sys
 import subprocess
 from unittest.mock import patch, MagicMock
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Mock subprocess.run to simulate Windows credential retrieval
 def mock_subprocess_run(cmd, **kwargs):
@@ -434,7 +434,7 @@ with patch('subprocess.run', side_effect=mock_subprocess_run):
         def mock_get_keychain():
             # Simulate PowerShell credential retrieval
             result = subprocess.run(['powershell', '-Command', 
-                                   'Get-StoredCredential -Target classroom-pilot-github-token'],
+                                   'Get-StoredCredential -Target classdock-github-token'],
                                   capture_output=True, text=True, check=False)
             return result.stdout.strip() if result.returncode == 0 else None
         manager._get_token_from_keychain = mock_get_keychain
@@ -478,7 +478,7 @@ import subprocess
 from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Parse expected token from config file
 with open('$TOKEN_CONFIG_FILE', 'r') as f:
@@ -535,7 +535,7 @@ test_priority_config_over_environment() {
 import sys
 import json
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Parse expected token from config file
 with open('$TOKEN_CONFIG_FILE', 'r') as f:
@@ -590,7 +590,7 @@ import subprocess
 from unittest.mock import patch, MagicMock
 
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Mock subprocess.run to simulate keychain returning token
 def mock_subprocess_run(cmd, **kwargs):
@@ -690,7 +690,7 @@ test_valid_token_verification() {
 import sys
 from unittest.mock import patch, MagicMock
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Mock requests.get for successful verification
 def mock_requests_get(url, **kwargs):
@@ -710,7 +710,7 @@ def mock_requests_get(url, **kwargs):
         }
     return mock_response
 
-with patch('classroom_pilot.utils.token_manager.requests.get', side_effect=mock_requests_get):
+with patch('classdock.utils.token_manager.requests.get', side_effect=mock_requests_get):
     manager = GitHubTokenManager()
     test_token = 'ghp_valid_test_token_12345678901234567890'
     token_data = manager._verify_and_get_token_info(test_token)
@@ -753,7 +753,7 @@ test_invalid_token_verification() {
 import sys
 from unittest.mock import patch, MagicMock
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Mock requests.get for 401 response
 def mock_requests_get_401(url, **kwargs):
@@ -796,7 +796,7 @@ test_token_permission_validation() {
 import sys
 from unittest.mock import patch, MagicMock
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Mock requests.get with insufficient scopes
 def mock_requests_get_insufficient(url, **kwargs):
@@ -916,13 +916,13 @@ from datetime import datetime, timedelta
 # Add project to path
 sys.path.insert(0, '$PROJECT_ROOT')
 
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Setup log capture
 log_capture = StringIO()
 handler = logging.StreamHandler(log_capture)
 handler.setLevel(logging.WARNING)
-logger = logging.getLogger('classroom_pilot.utils.token_manager')
+logger = logging.getLogger('classdock.utils.token_manager')
 logger.addHandler(handler)
 logger.setLevel(logging.WARNING)
 
@@ -987,13 +987,13 @@ from datetime import datetime, timedelta
 # Add project to path
 sys.path.insert(0, '$PROJECT_ROOT')
 
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Setup log capture
 log_capture = StringIO()
 handler = logging.StreamHandler(log_capture)
 handler.setLevel(logging.ERROR)
-logger = logging.getLogger('classroom_pilot.utils.token_manager')
+logger = logging.getLogger('classdock.utils.token_manager')
 logger.addHandler(handler)
 logger.setLevel(logging.ERROR)
 
@@ -1056,7 +1056,7 @@ import json
 import stat
 from unittest.mock import patch, MagicMock
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Mock requests.get for API verification
 def mock_requests_get(url, **kwargs):
@@ -1148,7 +1148,7 @@ import sys
 import subprocess
 from unittest.mock import patch, MagicMock
 sys.path.insert(0, '$PROJECT_ROOT')
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Mock requests.get for token verification
 def mock_requests_get(url, **kwargs):
@@ -1184,7 +1184,7 @@ def mock_subprocess_run(cmd, **kwargs):
         mock_result.stdout = ''
     return mock_result
 
-with patch('classroom_pilot.utils.token_manager.requests.get', side_effect=mock_requests_get):
+with patch('classdock.utils.token_manager.requests.get', side_effect=mock_requests_get):
     with patch('subprocess.run', side_effect=mock_subprocess_run):
         manager = GitHubTokenManager()
         
@@ -1335,7 +1335,7 @@ from unittest.mock import patch, MagicMock
 # Add project to path
 sys.path.insert(0, '$PROJECT_ROOT')
 
-from classroom_pilot.utils.token_manager import GitHubTokenManager
+from classdock.utils.token_manager import GitHubTokenManager
 
 # Setup comprehensive log capture for all log levels
 log_capture = StringIO()
@@ -1344,8 +1344,8 @@ handler.setLevel(logging.DEBUG)
 
 # Capture logs from all relevant loggers
 loggers = [
-    logging.getLogger('classroom_pilot.utils.token_manager'),
-    logging.getLogger('classroom_pilot'),
+    logging.getLogger('classdock.utils.token_manager'),
+    logging.getLogger('classdock'),
     logging.getLogger()  # root logger
 ]
 

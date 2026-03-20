@@ -2,66 +2,70 @@
 UI Components for the GitHub Classroom Setup Wizard.
 
 This module provides consistent user interface components including
-colors, progress indicators, and display screens.
+colors, progress indicators, and display screens. Uses Rich for output.
 """
 
-import os
 import sys
+
+from rich.console import Console
+from rich.panel import Panel
+from rich.text import Text
+
+_console = Console()
+_err_console = Console(stderr=True)
 
 
 class Colors:
-    """ANSI color codes for terminal output."""
-    RED = '\033[91m'
-    GREEN = '\033[92m'
-    YELLOW = '\033[93m'
-    BLUE = '\033[94m'
-    PURPLE = '\033[95m'
-    CYAN = '\033[96m'
-    GRAY = '\033[37m'
-    NC = '\033[0m'  # No Color
+    """Color constants (kept for backward compatibility)."""
+
+    RED = "red"
+    GREEN = "green"
+    YELLOW = "yellow"
+    BLUE = "blue"
+    PURPLE = "magenta"
+    CYAN = "cyan"
+    GRAY = "white"
+    NC = ""
 
     @classmethod
     def colorize(cls, text: str, color: str) -> str:
-        """Apply color to text if stdout is a TTY."""
-        if sys.stdout.isatty():
-            return f"{color}{text}{cls.NC}"
+        """Apply color markup to text (no-op — Rich handles rendering)."""
+        if color:
+            return f"[{color}]{text}[/{color}]"
         return text
 
 
 def print_colored(message: str, color: str = "", end: str = "\n") -> None:
-    """Print colored message."""
+    """Print colored message using Rich markup."""
     if color:
-        if end == "\n":
-            print(Colors.colorize(message, color))
-        else:
-            print(Colors.colorize(message, color), end=end)
+        _console.print(f"[{color}]{message}[/{color}]", end=end)
     else:
-        print(message, end=end)
+        _console.print(message, end=end)
 
 
 def print_error(message: str) -> None:
     """Print error message in red."""
-    print_colored(f"❌ ERROR: {message}", Colors.RED)
+    _console.print(f":x: ERROR: {message}", style="red")
 
 
 def print_success(message: str) -> None:
     """Print success message in green."""
-    print_colored(f"✅ {message}", Colors.GREEN)
+    _console.print(f":white_check_mark: {message}", style="green")
 
 
 def print_warning(message: str) -> None:
     """Print warning message in yellow."""
-    print_colored(f"⚠️  {message}", Colors.YELLOW)
+    _console.print(f":warning:  {message}", style="yellow")
 
 
 def print_status(message: str) -> None:
     """Print status message in blue."""
-    print_colored(f"ℹ️  {message}", Colors.BLUE)
+    _console.print(f":information_source:  {message}", style="blue")
 
 
 def print_header(message: str) -> None:
     """Print section header."""
-    print_colored(f"\n🔹 {message}", Colors.CYAN)
+    _console.print(f"\n:small_blue_diamond: {message}", style="cyan")
 
 
 class ProgressTracker:
@@ -74,42 +78,44 @@ class ProgressTracker:
     def show_progress(self, step_name: str) -> None:
         """Display progress indicator."""
         self.current_step += 1
-        print_colored("\n" + "━" * 79, Colors.CYAN)
-        print_colored(
-            f"📋 Step {self.current_step}/{self.total_steps}: {step_name}", Colors.PURPLE)
-        print_colored("━" * 79, Colors.CYAN)
+        _console.rule(style="cyan")
+        _console.print(
+            f":clipboard: Step {self.current_step}/{self.total_steps}: {step_name}",
+            style="magenta",
+        )
+        _console.rule(style="cyan")
 
 
 def show_welcome() -> None:
     """Show welcome screen."""
     if sys.stdout.isatty():
-        os.system('clear' if os.name == 'posix' else 'cls')
+        import os
 
-    welcome_text = f"""
-{Colors.CYAN}╔══════════════════════════════════════════════════════════════════════════════╗{Colors.NC}
-{Colors.CYAN}║                                                                              ║{Colors.NC}
-{Colors.CYAN}║{Colors.NC}  {Colors.PURPLE}🚀 GitHub Classroom Assignment Setup Wizard{Colors.NC}
-{Colors.CYAN}║                                                                              ║{Colors.NC}
-{Colors.CYAN}║{Colors.NC}  Welcome! This wizard will help you configure your GitHub Classroom
-{Colors.CYAN}║{Colors.NC}  assignment with automated tools for seamless management.
-{Colors.CYAN}║                                                                              ║{Colors.NC}
-{Colors.CYAN}║{Colors.NC}  {Colors.GREEN}✨ What this wizard will do:{Colors.NC}
-{Colors.CYAN}║{Colors.NC}     • Create assignment configuration file
-{Colors.CYAN}║{Colors.NC}     • Set up secure token files for GitHub API access
-{Colors.CYAN}║{Colors.NC}     • Configure .gitignore to protect sensitive files
-{Colors.CYAN}║{Colors.NC}     • Validate GitHub CLI access and permissions
-{Colors.CYAN}║                                                                              ║{Colors.NC}
-{Colors.CYAN}║{Colors.NC}  {Colors.BLUE}📋 You'll need:{Colors.NC}
-{Colors.CYAN}║{Colors.NC}     • GitHub Classroom assignment URL
-{Colors.CYAN}║{Colors.NC}     • Template repository URL (students fork this - has starter code)
-{Colors.CYAN}║{Colors.NC}     • Classroom repository URL (optional - for pushing updates)
-{Colors.CYAN}║{Colors.NC}     • GitHub personal access token with repo permissions
-{Colors.CYAN}║                                                                              ║{Colors.NC}
-{Colors.CYAN}╚══════════════════════════════════════════════════════════════════════════════╝{Colors.NC}
-"""
+        os.system("clear" if os.name == "posix" else "cls")
 
-    print(welcome_text)
-    print_colored("Press Enter to continue...", Colors.GREEN)
+    content = Text.assemble(
+        ("🚀 GitHub Classroom Assignment Setup Wizard\n\n", "bold magenta"),
+        (
+            "Welcome! This wizard will help you configure your GitHub Classroom\n",
+            "white",
+        ),
+        ("assignment with automated tools for seamless management.\n\n", "white"),
+        ("✨ What this wizard will do:\n", "bold green"),
+        ("   • Create assignment configuration file\n", "white"),
+        ("   • Set up secure token files for GitHub API access\n", "white"),
+        ("   • Configure .gitignore to protect sensitive files\n", "white"),
+        ("   • Validate GitHub CLI access and permissions\n\n", "white"),
+        ("📋 You'll need:\n", "bold blue"),
+        ("   • GitHub Classroom assignment URL\n", "white"),
+        (
+            "   • Template repository URL (students fork this - has starter code)\n",
+            "white",
+        ),
+        ("   • Classroom repository URL (optional - for pushing updates)\n", "white"),
+        ("   • GitHub personal access token with repo permissions\n", "white"),
+    )
+    _console.print(Panel(content, border_style="cyan"))
+    _console.print("[green]Press Enter to continue...[/green]")
 
     if sys.stdin.isatty():
         input()
@@ -118,48 +124,45 @@ def show_welcome() -> None:
 def show_completion(config_values: dict, token_files: dict) -> None:
     """Show completion screen."""
     if sys.stdout.isatty():
-        os.system('clear' if os.name == 'posix' else 'cls')
+        import os
 
-    completion_text = f"""
-{Colors.GREEN}╔══════════════════════════════════════════════════════════════════════════════╗{Colors.NC}
-{Colors.GREEN}║                                                                              ║{Colors.NC}
-{Colors.GREEN}║{Colors.NC}  {Colors.PURPLE}🎉 Assignment Setup Complete!{Colors.NC}
-{Colors.GREEN}║                                                                              ║{Colors.NC}
-{Colors.GREEN}║{Colors.NC}  Your GitHub Classroom assignment has been successfully configured
-{Colors.GREEN}║{Colors.NC}  with automated tools. Here's what was created:
-{Colors.GREEN}║                                                                              ║{Colors.NC}
-{Colors.GREEN}║{Colors.NC}  {Colors.CYAN}📁 Files Created:{Colors.NC}
-{Colors.GREEN}║{Colors.NC}     • assignment.conf - Complete assignment configuration
-"""
+        os.system("clear" if os.name == "posix" else "cls")
 
-    # Token information - now using centralized token system
-    if config_values.get('USE_SECRETS') == 'true':
-        completion_text += f"{Colors.GREEN}║{Colors.NC}     • Secrets configured (using centralized GitHub token)\n"
+    lines = [
+        ("🎉 Assignment Setup Complete!\n\n", "bold magenta"),
+        (
+            "Your GitHub Classroom assignment has been successfully configured\n",
+            "white",
+        ),
+        ("with automated tools. Here's what was created:\n\n", "white"),
+        ("📁 Files Created:\n", "bold cyan"),
+        ("   • assignment.conf - Complete assignment configuration\n", "white"),
+    ]
 
-    completion_text += f"""
-{Colors.GREEN}║{Colors.NC}     • .gitignore - Updated to protect sensitive files
-{Colors.GREEN}║                                                                              ║{Colors.NC}
-{Colors.GREEN}║{Colors.NC}  {Colors.CYAN}🔑 Token Management:{Colors.NC}
-{Colors.GREEN}║{Colors.NC}     • Centralized token: ~/.config/classdock/token_config.json
-{Colors.GREEN}║{Colors.NC}     • No token files needed in repository
-{Colors.GREEN}║                                                                              ║{Colors.NC}
-{Colors.GREEN}║{Colors.NC}  {Colors.YELLOW}🚀 Next Steps:{Colors.NC}
-{Colors.GREEN}║{Colors.NC}     1. Run the complete workflow:
-{Colors.GREEN}║{Colors.NC}        python -m classdock run
-{Colors.GREEN}║                                                                              ║{Colors.NC}
-{Colors.GREEN}║{Colors.NC}     2. Or run individual tools:
-{Colors.GREEN}║{Colors.NC}        python -m classdock discover
-{Colors.GREEN}║{Colors.NC}        python -m classdock secrets
-{Colors.GREEN}║                                                                              ║{Colors.NC}
-{Colors.GREEN}║{Colors.NC}  {Colors.BLUE}📚 Documentation:{Colors.NC}
-{Colors.GREEN}║{Colors.NC}     • docs/ORCHESTRATOR-WORKFLOW.md - Complete workflow guide
-{Colors.GREEN}║{Colors.NC}     • docs/TOOLS-USAGE.md - Individual tool documentation
-{Colors.GREEN}║{Colors.NC}     • docs/SECRETS-MANAGEMENT.md - Secret management guide
-{Colors.GREEN}║                                                                              ║{Colors.NC}
-{Colors.GREEN}╚══════════════════════════════════════════════════════════════════════════════╝{Colors.NC}
-"""
+    if config_values.get("USE_SECRETS") == "true":
+        lines.append(
+            ("   • Secrets configured (using centralized GitHub token)\n", "white")
+        )
 
-    print(completion_text)
+    lines += [
+        ("   • .gitignore - Updated to protect sensitive files\n\n", "white"),
+        ("🔑 Token Management:\n", "bold cyan"),
+        ("   • Centralized token: ~/.config/classdock/token_config.json\n", "white"),
+        ("   • No token files needed in repository\n\n", "white"),
+        ("🚀 Next Steps:\n", "bold yellow"),
+        ("   1. Run the complete workflow:\n", "white"),
+        ("      classdock run\n\n", "bold"),
+        ("   2. Or run individual tools:\n", "white"),
+        ("      classdock fetch\n", "bold"),
+        ("      classdock secrets add\n\n", "bold"),
+        ("📚 Documentation:\n", "bold blue"),
+        ("   • docs/ORCHESTRATOR-WORKFLOW.md - Complete workflow guide\n", "white"),
+        ("   • docs/TOOLS-USAGE.md - Individual tool documentation\n", "white"),
+        ("   • docs/SECRETS-MANAGEMENT.md - Secret management guide\n", "white"),
+    ]
+
+    content = Text.assemble(*lines)
+    _console.print(Panel(content, border_style="green"))
 
 
 def show_help():
@@ -173,7 +176,7 @@ DESCRIPTION:
     token storage, and configures .gitignore for instructor-only files.
 
 USAGE:
-    python -m classdock setup [options]
+    classdock setup [options]
 
 OPTIONS:
     --help              Show this help message
@@ -203,19 +206,21 @@ TOKEN MANAGEMENT:
 
 NEXT STEPS:
     After running this setup wizard, use:
-    • python -m classdock run - Complete automation workflow
-    • python -m classdock discover - Discover student repositories
-    • python -m classdock secrets - Add secrets to student repos
+    • classdock run    - Complete automation workflow
+    • classdock fetch  - Discover student repositories
+    • classdock secrets add - Add secrets to student repos
 
 DOCUMENTATION:
     • docs/ORCHESTRATOR-WORKFLOW.md - Complete workflow guide
     • docs/TOOLS-USAGE.md - Individual tool documentation
     • docs/SECRETS-MANAGEMENT.md - Secret management guide
 """
-    print(help_text)
+    _console.print(help_text)
 
 
 def show_version():
     """Show version information."""
-    print("GitHub Classroom Assignment Setup Wizard v2.0.0")
-    print("Part of the GitHub Classroom automation tools suite (Python version)")
+    from classdock import __version__
+
+    _console.print(f"ClassDock v{__version__}")
+    _console.print("Part of the GitHub Classroom automation tools suite (Python)")

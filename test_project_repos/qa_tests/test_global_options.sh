@@ -2,7 +2,7 @@
 ################################################################################
 # Test Suite: Global Options
 #
-# Comprehensive QA testing for all classroom-pilot global CLI options.
+# Comprehensive QA testing for all classdock global CLI options.
 # Tests --verbose, --dry-run, --config, and --assignment-root across all
 # command groups (assignments, repos, secrets, automation, config).
 #
@@ -28,7 +28,7 @@
 #   - lib/test_helpers.sh
 #   - lib/mock_helpers.sh
 #   - fixtures/ directory with test fixtures
-#   - classroom-pilot CLI installed (via poetry)
+#   - classdock CLI installed (via poetry)
 #
 ################################################################################
 
@@ -163,7 +163,7 @@ test_verbose_assignments_setup() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose --dry-run setup 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run setup 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] && verify_verbose_output "$output"; then
         mark_test_passed "verbose with assignments setup shows detailed output"
@@ -183,7 +183,7 @@ test_verbose_assignments_validate_config() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose validate-config --config-file "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose validate-config --config-file "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] && verify_verbose_output "$output"; then
         mark_test_passed "verbose with validate-config shows detailed validation"
@@ -203,7 +203,7 @@ test_verbose_assignments_orchestrate() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] && verify_verbose_output "$output"; then
         mark_test_passed "verbose with orchestrate shows workflow steps"
@@ -221,7 +221,7 @@ test_verbose_repos_fetch() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot repos --verbose --dry-run fetch --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock repos --verbose --dry-run fetch --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] && verify_verbose_output "$output"; then
         mark_test_passed "verbose with repos fetch shows discovery logging"
@@ -241,7 +241,7 @@ test_verbose_combined_with_dry_run() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] && verify_verbose_output "$output" && verify_dry_run_output "$output"; then
         mark_test_passed "verbose and dry-run work together"
@@ -273,7 +273,7 @@ test_dry_run_assignments_setup() {
     # Ensure no assignment.conf exists before test
     rm -f "$PROJECT_ROOT/assignment.conf"
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run setup 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run setup 2>&1) || exit_code=$?
     
     # Verify DRY RUN message and no file created
     if [ $exit_code -eq 0 ] && verify_dry_run_output "$output" && [ ! -f "$PROJECT_ROOT/assignment.conf" ]; then
@@ -298,7 +298,7 @@ test_dry_run_assignments_orchestrate() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] && verify_dry_run_output "$output"; then
         mark_test_passed "dry-run orchestrate shows workflow plan without execution"
@@ -316,7 +316,7 @@ test_dry_run_repos_fetch() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot repos --dry-run fetch --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock repos --dry-run fetch --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] && verify_dry_run_output "$output"; then
         mark_test_passed "dry-run fetch shows plan without cloning"
@@ -346,7 +346,7 @@ test_config_custom_path_assignments() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot --config "$custom_config" assignments validate-config 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock --config "$custom_config" assignments validate-config 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "config option loads from custom path"
@@ -363,7 +363,7 @@ test_config_nonexistent_file() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot --config nonexistent.conf assignments validate-config 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock --config nonexistent.conf assignments validate-config 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && echo "$output" | grep -qiE "(not found|missing|does not exist)"; then
         mark_test_passed "config nonexistent file shows clear error"
@@ -387,7 +387,7 @@ test_config_relative_path() {
     
     # Use relative path from PROJECT_ROOT
     cd "$TEST_TEMP_DIR"
-    output=$(poetry run classroom-pilot --config "./subdir/assignment.conf" assignments validate-config 2>&1) || exit_code=$?
+    output=$(poetry run classdock --config "./subdir/assignment.conf" assignments validate-config 2>&1) || exit_code=$?
     cd "$PROJECT_ROOT"
     
     if [ $exit_code -eq 0 ]; then
@@ -406,7 +406,7 @@ test_config_absolute_path() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot --config "$abs_config" assignments validate-config 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock --config "$abs_config" assignments validate-config 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "config absolute path works"
@@ -440,7 +440,7 @@ test_assignment_root_basic() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot --assignment-root "$root_dir" assignments validate-config 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock --assignment-root "$root_dir" assignments validate-config 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "assignment-root loads config from specified directory"
@@ -461,7 +461,7 @@ test_assignment_root_with_config() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot --assignment-root "$root_dir" --config custom.conf assignments validate-config 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock --assignment-root "$root_dir" --config custom.conf assignments validate-config 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "assignment-root with config resolves paths correctly"
@@ -476,7 +476,7 @@ test_assignment_root_nonexistent() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot --assignment-root "/nonexistent/directory" assignments validate-config 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock --assignment-root "/nonexistent/directory" assignments validate-config 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && echo "$output" | grep -qiE "(not found|missing|does not exist)"; then
         mark_test_passed "assignment-root nonexistent directory shows error"
@@ -508,7 +508,7 @@ test_verbose_dry_run_combined() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] && verify_verbose_output "$output" && verify_dry_run_output "$output"; then
         mark_test_passed "verbose and dry-run work together seamlessly"
@@ -529,7 +529,7 @@ test_config_assignment_root_combined() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot --assignment-root "$root_dir" --config custom.conf assignments validate-config 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock --assignment-root "$root_dir" --config custom.conf assignments validate-config 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "config and assignment-root resolve paths correctly together"
@@ -551,7 +551,7 @@ test_all_options_combined() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot --verbose --assignment-root "$root_dir" --config custom.conf assignments --dry-run orchestrate 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock --verbose --assignment-root "$root_dir" --config custom.conf assignments --dry-run orchestrate 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] && verify_verbose_output "$output" && verify_dry_run_output "$output"; then
         mark_test_passed "all global options work together without conflicts"
@@ -582,7 +582,7 @@ run_all_tests() {
 
 main() {
     log_step "Global Options Test Suite"
-    log_info "Testing all classroom-pilot global CLI options"
+    log_info "Testing all classdock global CLI options"
     
     # Setup test environment
     setup_test_environment

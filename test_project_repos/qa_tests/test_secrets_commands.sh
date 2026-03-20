@@ -2,7 +2,7 @@
 ################################################################################
 # Test Suite: Secrets Commands
 #
-# Comprehensive QA testing for all classroom-pilot secrets commands.
+# Comprehensive QA testing for all classdock secrets commands.
 # Tests secrets add command with various options including the new --force flag.
 #
 # Commands tested:
@@ -20,7 +20,6 @@
 #   --basic              Run only basic secrets add tests
 #   --force              Run only --force flag tests
 #   --advanced           Run only advanced option tests
-#   --manage             Run only secrets manage command tests
 #   --discovery          Run only auto-discovery tests
 #   --global-options     Run only global options tests (--verbose, --dry-run)
 #   --repo-targeting     Run only repository targeting tests
@@ -32,7 +31,7 @@
 #   - lib/test_helpers.sh
 #   - lib/mock_helpers.sh
 #   - fixtures/secrets/ directory with test fixtures
-#   - classroom-pilot CLI installed (via poetry)
+#   - classdock CLI installed (via poetry)
 #
 ################################################################################
 
@@ -298,7 +297,7 @@ test_secrets_help() {
     local output
     
     # Test main secrets help
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --help 2>&1) || true
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --help 2>&1) || true
     if echo "$output" | grep -q "secrets"; then
         mark_test_passed "secrets --help shows help"
     else
@@ -306,7 +305,7 @@ test_secrets_help() {
     fi
     
     # Test secrets add help
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets add --help 2>&1) || true
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets add --help 2>&1) || true
     if echo "$output" | grep -q "add"; then
         mark_test_passed "secrets add --help shows help"
     else
@@ -336,7 +335,7 @@ test_basic_secrets_add() {
     
     # Test basic secrets add (dry-run)
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Basic secrets add command executes"
@@ -353,7 +352,7 @@ test_secrets_add_with_force() {
     
     # Test secrets add with --force
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/repo1" --force 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/repo1" --force 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "secrets add with --force flag executes"
@@ -377,7 +376,7 @@ test_secrets_add_force_short_form() {
     
     # Test secrets add with -f
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/repo1" -f 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/repo1" -f 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "secrets add with -f short flag executes"
@@ -394,7 +393,7 @@ test_secrets_add_force_multiple_repos() {
     
     # Test with multiple repos and --force
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/repo1,https://github.com/test-org/repo2,https://github.com/test-org/repo3" --force 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/repo1,https://github.com/test-org/repo2,https://github.com/test-org/repo3" --force 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "secrets add --force with multiple repos executes"
@@ -421,7 +420,7 @@ test_secrets_add_force_without_repos() {
     
     # Test --force without specifying repos (should auto-discover)
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --force 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --force 2>&1) || exit_code=$?
     
     # This might fail due to no repos, but should attempt auto-discovery
     if echo "$output" | grep -qi "discover\|repository\|no repositories"; then
@@ -440,7 +439,7 @@ test_secrets_add_with_assignment_root() {
     
     # Test with valid assignment root
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "secrets add with --assignment-root executes"
@@ -458,7 +457,7 @@ test_secrets_add_force_with_assignment_root() {
     
     # Test --force with assignment root
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" --force 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" --force 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "secrets add --force with --assignment-root executes"
@@ -475,7 +474,7 @@ test_secrets_add_multiple_secrets() {
     
     # Test with multiple secrets
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "secrets add with multiple secrets executes"
@@ -501,7 +500,7 @@ test_secrets_add_force_multiple_secrets() {
     
     # Test --force with multiple secrets
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/repo1" --force 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/repo1" --force 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "secrets add --force with multiple secrets executes"
@@ -521,7 +520,7 @@ test_secrets_add_disabled() {
     
     # Test with secrets management disabled
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     # Should succeed but indicate secrets are disabled
     if echo "$output" | grep -qi "disabled\|skip"; then
@@ -539,7 +538,7 @@ test_secrets_add_error_cases() {
     
     # Test without config
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot --assignment-root "$TEST_TEMP_DIR" secrets add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock --assignment-root "$TEST_TEMP_DIR" secrets add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ]; then
         mark_test_passed "secrets add fails gracefully without config"
@@ -549,7 +548,7 @@ test_secrets_add_error_cases() {
     
     # Test with invalid assignment root
     exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --assignment-root "/nonexistent/path" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --assignment-root "/nonexistent/path" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ]; then
         mark_test_passed "secrets add fails with invalid assignment root"
@@ -563,55 +562,12 @@ test_secrets_add_force_error_cases() {
     
     # Test --force without config
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot --assignment-root "$TEST_TEMP_DIR" secrets add --repos "https://github.com/test-org/repo1" --force 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock --assignment-root "$TEST_TEMP_DIR" secrets add --repos "https://github.com/test-org/repo1" --force 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ]; then
         mark_test_passed "secrets add --force fails gracefully without config"
     else
         mark_test_failed "secrets add --force no config" "Should fail without configuration"
-    fi
-}
-
-################################################################################
-# Section: Secrets Manage Command Tests
-################################################################################
-
-test_secrets_manage_basic() {
-    log_step "Testing secrets manage basic command"
-    
-    local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets manage 2>&1) || exit_code=$?
-    
-    if echo "$output" | grep -qi "placeholder\|not implemented\|coming soon"; then
-        mark_test_passed "secrets manage shows placeholder message"
-    else
-        mark_test_failed "secrets manage placeholder" "Expected placeholder message"
-    fi
-}
-
-test_secrets_manage_verbose() {
-    log_step "Testing secrets manage with --verbose"
-    
-    local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets manage --verbose 2>&1) || exit_code=$?
-    
-    if echo "$output" | grep -qi "placeholder\|verbose"; then
-        mark_test_passed "secrets manage --verbose recognized"
-    else
-        mark_test_failed "secrets manage --verbose" "Command not properly handled"
-    fi
-}
-
-test_secrets_manage_dry_run() {
-    log_step "Testing secrets manage with --dry-run"
-    
-    local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets manage --dry-run 2>&1) || exit_code=$?
-    
-    if echo "$output" | grep -qi "placeholder\|dry"; then
-        mark_test_passed "secrets manage --dry-run recognized"
-    else
-        mark_test_failed "secrets manage --dry-run" "Command not properly handled"
     fi
 }
 
@@ -659,7 +615,7 @@ EOF
     config_file=$(create_test_config "basic")
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add 2>&1) || exit_code=$?
     
     # Verify explicit repo names or counts
     local discovered_count=0
@@ -718,7 +674,7 @@ EOF
     config_file=$(create_test_config "basic")
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add 2>&1) || exit_code=$?
     
     # Check for explicit "0 repositories" or "no repositories found" message
     if echo "$output" | grep -qiE "0 repositor|no repositor.*found|found 0|unable to.*discover"; then
@@ -746,7 +702,7 @@ ASSIGNMENT_NAME="test-assignment"
 EOF
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --assignment-root "$test_dir" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --assignment-root "$test_dir" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ]; then
         mark_test_passed "secrets add fails with invalid discovery configuration"
@@ -766,7 +722,7 @@ test_secrets_add_verbose() {
     config_file=$(create_test_config "basic")
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --verbose add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --verbose add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -qi "verbose\|detailed\|processing\|step"; then
         mark_test_passed "secrets add --verbose shows detailed output"
@@ -782,7 +738,7 @@ test_secrets_add_dry_run() {
     config_file=$(create_test_config "basic")
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -qi "dry run\|would"; then
         mark_test_passed "secrets add --dry-run shows simulation"
@@ -798,7 +754,7 @@ test_secrets_add_verbose_dry_run() {
     config_file=$(create_test_config "basic")
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/repo1" --verbose 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/repo1" --verbose 2>&1) || exit_code=$?
     
     if echo "$output" | grep -qi "dry\|verbose"; then
         mark_test_passed "secrets add --verbose --dry-run combines options"
@@ -818,7 +774,7 @@ test_secrets_add_single_repo() {
     config_file=$(create_test_config "basic")
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/single-repo" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/single-repo" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] || echo "$output" | grep -q "single-repo"; then
         mark_test_passed "secrets add processes single repository"
@@ -834,7 +790,7 @@ test_secrets_add_multiple_repos() {
     config_file=$(create_test_config "basic")
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/repo1,https://github.com/test-org/repo2" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/repo1,https://github.com/test-org/repo2" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -q "repo1\|repo2\|2"; then
         mark_test_passed "secrets add processes multiple repositories"
@@ -853,7 +809,7 @@ test_secrets_add_invalid_repo_url() {
     config_file=$(create_test_config "basic")
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "not-a-valid-url" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "not-a-valid-url" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] || echo "$output" | grep -qi "invalid\|malformed\|error"; then
         mark_test_passed "secrets add detects invalid URL"
@@ -869,7 +825,7 @@ test_secrets_add_nonexistent_repo() {
     config_file=$(create_test_config "basic")
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/nonexistent-repo-12345" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/nonexistent-repo-12345" 2>&1) || exit_code=$?
     
     # May fail or warn about non-existent repository
     if echo "$output" | grep -qi "not found\|error\|unable"; then
@@ -896,7 +852,7 @@ STEP_MANAGE_SECRETS=true
 EOF
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -qi "no secrets\|secrets_config\|not configured"; then
         mark_test_passed "secrets add detects missing SECRETS_CONFIG"
@@ -919,7 +875,7 @@ STEP_MANAGE_SECRETS=true
 EOF
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -qi "empty\|no secrets\|not configured"; then
         mark_test_passed "secrets add detects empty SECRETS_CONFIG"
@@ -944,7 +900,7 @@ STEP_MANAGE_SECRETS=true
 EOF
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -qi "malformed\|invalid\|format\|error"; then
         mark_test_passed "secrets add detects malformed SECRETS_CONFIG"
@@ -968,7 +924,7 @@ test_secrets_add_centralized_token() {
     mock_token=$(setup_mock_github_token)
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "secrets add uses centralized token"
@@ -988,7 +944,7 @@ test_secrets_add_token_file() {
     echo "ghp_legacytokenvalue12345" > "$test_dir/.instructor_tests_token"
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "secrets add handles legacy token file"
@@ -1008,7 +964,7 @@ test_secrets_add_missing_token() {
     unset INSTRUCTOR_TESTS_TOKEN
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -qi "token\|credential\|authentication"; then
         mark_test_passed "secrets add detects missing token"
@@ -1028,7 +984,7 @@ test_secrets_add_invalid_token() {
     export INSTRUCTOR_TESTS_TOKEN="invalid_token_format"
     
     local output exit_code=0
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock secrets --dry-run add --assignment-root "$test_dir" --repos "https://github.com/test-org/repo1" 2>&1) || exit_code=$?
     
     # May warn about invalid token format
     if echo "$output" | grep -qi "invalid\|format\|token"; then
@@ -1067,13 +1023,6 @@ run_advanced_tests() {
     log_section "Running Advanced Tests"
     test_secrets_add_error_cases
     test_secrets_add_force_error_cases
-}
-
-run_manage_tests() {
-    log_section "Running Secrets Manage Tests"
-    test_secrets_manage_basic
-    test_secrets_manage_verbose
-    test_secrets_manage_dry_run
 }
 
 run_discovery_tests() {
@@ -1117,7 +1066,6 @@ run_all_tests() {
     run_basic_tests
     run_force_tests
     run_advanced_tests
-    run_manage_tests
     run_discovery_tests
     run_global_options_tests
     run_repo_targeting_tests
@@ -1131,7 +1079,7 @@ run_all_tests() {
 
 main() {
     log_section "Secrets Commands Test Suite"
-    log_info "Testing classroom-pilot secrets commands"
+    log_info "Testing classdock secrets commands"
     
     # Setup
     setup_test_environment
@@ -1148,9 +1096,6 @@ main() {
             ;;
         --advanced)
             run_advanced_tests
-            ;;
-        --manage)
-            run_manage_tests
             ;;
         --discovery)
             run_discovery_tests
@@ -1172,7 +1117,7 @@ main() {
             ;;
         *)
             log_error "Unknown test type: $test_type"
-            log_info "Usage: $0 [--basic|--force|--advanced|--manage|--discovery|--global-options|--repo-targeting|--config-validation|--token|--all]"
+            log_info "Usage: $0 [--basic|--force|--advanced|--discovery|--global-options|--repo-targeting|--config-validation|--token|--all]"
             exit 1
             ;;
     esac

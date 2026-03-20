@@ -5,12 +5,12 @@ Provides functionality to synchronize discovered repositories with the roster
 database, linking students to their assignments.
 """
 
-from typing import List, Optional, Tuple
 from datetime import datetime
+from typing import List, Optional, Tuple
 
-from .models import Student, Assignment, StudentAssignment, SyncResult
-from .manager import RosterManager
 from ..utils.logger import get_logger
+from .manager import RosterManager
+from .models import Assignment, Student, StudentAssignment, SyncResult
 
 logger = get_logger("roster_sync")
 
@@ -36,7 +36,7 @@ class RosterSynchronizer:
         self,
         assignment_name: str,
         github_organization: str,
-        discovered_repos: List[Tuple[str, str, str]]
+        discovered_repos: List[Tuple[str, str, str]],
     ) -> SyncResult:
         """
         Synchronize discovered repositories with roster.
@@ -72,8 +72,7 @@ class RosterSynchronizer:
             logger.info(f"Creating new assignment: {assignment_name}")
             assignment_id = self.roster.add_assignment(
                 Assignment(
-                    name=assignment_name,
-                    github_organization=github_organization
+                    name=assignment_name, github_organization=github_organization
                 )
             )
             assignment = self.roster.get_assignment_by_id(assignment_id)
@@ -90,8 +89,7 @@ class RosterSynchronizer:
 
                 # Try to find student by GitHub username
                 student = self.roster.get_student_by_github(
-                    student_identifier,
-                    github_organization
+                    student_identifier, github_organization
                 )
 
                 if not student:
@@ -103,8 +101,7 @@ class RosterSynchronizer:
 
                 # Check if link already exists
                 existing_link = self.roster.get_student_assignment(
-                    student.id,
-                    assignment.id
+                    student.id, assignment.id
                 )
 
                 if existing_link:
@@ -112,7 +109,9 @@ class RosterSynchronizer:
                     existing_link.repository_url = repo_url
                     existing_link.repository_name = repo_name
                     existing_link.acceptance_status = "accepted"
-                    existing_link.accepted_at = existing_link.accepted_at or datetime.now()
+                    existing_link.accepted_at = (
+                        existing_link.accepted_at or datetime.now()
+                    )
                     existing_link.last_synced_at = datetime.now()
 
                     self.roster.update_student_assignment(existing_link)
@@ -125,10 +124,12 @@ class RosterSynchronizer:
                         assignment.id,
                         repository_url=repo_url,
                         repository_name=repo_name,
-                        acceptance_status="accepted"
+                        acceptance_status="accepted",
                     )
                     # Update the link to set last_synced_at
-                    new_link = self.roster.get_student_assignment(student.id, assignment.id)
+                    new_link = self.roster.get_student_assignment(
+                        student.id, assignment.id
+                    )
                     new_link.last_synced_at = datetime.now()
                     self.roster.update_student_assignment(new_link)
 
@@ -147,9 +148,7 @@ class RosterSynchronizer:
         return result
 
     def detect_unlinked_students(
-        self,
-        assignment_name: str,
-        github_organization: str
+        self, assignment_name: str, github_organization: str
     ) -> List[Student]:
         """
         Detect students without repositories for an assignment.
@@ -172,8 +171,7 @@ class RosterSynchronizer:
 
         # Get all students in organization
         all_students = self.roster.list_students(
-            github_organization=github_organization,
-            status="active"
+            github_organization=github_organization, status="active"
         )
 
         # Get students with repositories
@@ -182,7 +180,8 @@ class RosterSynchronizer:
 
         # Find students without repos
         unlinked_students = [
-            student for student in all_students
+            student
+            for student in all_students
             if student.id not in student_ids_with_repos
         ]
 
@@ -197,7 +196,7 @@ class RosterSynchronizer:
         self,
         assignment_name: str,
         github_organization: str,
-        discovered_repos: List[Tuple[str, str, str]]
+        discovered_repos: List[Tuple[str, str, str]],
     ) -> List[Tuple[str, str]]:
         """
         Detect repositories without matching roster entries.
@@ -222,8 +221,7 @@ class RosterSynchronizer:
 
             # Try to find student
             student = self.roster.get_student_by_github(
-                student_identifier,
-                github_organization
+                student_identifier, github_organization
             )
 
             if not student:
@@ -237,9 +235,7 @@ class RosterSynchronizer:
         return unlinked_repos
 
     def get_sync_statistics(
-        self,
-        assignment_name: str,
-        github_organization: str
+        self, assignment_name: str, github_organization: str
     ) -> dict:
         """
         Get synchronization statistics for an assignment.
@@ -258,16 +254,15 @@ class RosterSynchronizer:
         assignment = self.roster.get_assignment_by_name(assignment_name)
         if not assignment:
             return {
-                'total_students': 0,
-                'students_with_repos': 0,
-                'students_without_repos': 0,
-                'acceptance_rate': 0.0
+                "total_students": 0,
+                "students_with_repos": 0,
+                "students_without_repos": 0,
+                "acceptance_rate": 0.0,
             }
 
         # Get all students in organization
         all_students = self.roster.list_students(
-            github_organization=github_organization,
-            status="active"
+            github_organization=github_organization, status="active"
         )
 
         # Get students with repositories
@@ -277,20 +272,19 @@ class RosterSynchronizer:
         with_repos = len(students_with_repos)
         without_repos = total_students - with_repos
 
-        acceptance_rate = (with_repos / total_students * 100) if total_students > 0 else 0.0
+        acceptance_rate = (
+            (with_repos / total_students * 100) if total_students > 0 else 0.0
+        )
 
         return {
-            'total_students': total_students,
-            'students_with_repos': with_repos,
-            'students_without_repos': without_repos,
-            'acceptance_rate': acceptance_rate
+            "total_students": total_students,
+            "students_with_repos": with_repos,
+            "students_without_repos": without_repos,
+            "acceptance_rate": acceptance_rate,
         }
 
     def sync_from_classroom_api(
-        self,
-        assignment_id: int,
-        classroom_assignment_id: int,
-        classroom_api_client
+        self, assignment_id: int, classroom_assignment_id: int, classroom_api_client
     ) -> SyncResult:
         """
         Sync assignment data from GitHub Classroom API.

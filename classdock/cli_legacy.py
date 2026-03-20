@@ -7,9 +7,9 @@ complex type annotations that cause compatibility issues in CI environments.
 
 import typer
 
-from .config import Configuration
 from .bash_wrapper import BashWrapper
-from .utils import setup_logging, logger
+from .config import Configuration
+from .utils import logger, setup_logging
 
 # Create the absolutely minimal Typer application
 app = typer.Typer(
@@ -31,12 +31,7 @@ def run(
     # Load configuration
     config = Configuration.load(config_file)
 
-    wrapper = BashWrapper(
-        config,
-        dry_run=dry_run,
-        verbose=verbose,
-        auto_yes=yes
-    )
+    wrapper = BashWrapper(config, dry_run=dry_run, verbose=verbose, auto_yes=yes)
     success = wrapper.assignment_orchestrator(workflow_type="run")
 
     if success:
@@ -60,12 +55,7 @@ def sync(
     # Load configuration
     config = Configuration.load(config_file)
 
-    wrapper = BashWrapper(
-        config,
-        dry_run=dry_run,
-        verbose=verbose,
-        auto_yes=yes
-    )
+    wrapper = BashWrapper(config, dry_run=dry_run, verbose=verbose, auto_yes=yes)
     success = wrapper.push_to_classroom()
 
     if success:
@@ -89,12 +79,7 @@ def discover(
     # Load configuration
     config = Configuration.load(config_file)
 
-    wrapper = BashWrapper(
-        config,
-        dry_run=dry_run,
-        verbose=verbose,
-        auto_yes=yes
-    )
+    wrapper = BashWrapper(config, dry_run=dry_run, verbose=verbose, auto_yes=yes)
     success = wrapper.fetch_student_repos()
 
     if success:
@@ -118,12 +103,7 @@ def secrets(
     # Load configuration
     config = Configuration.load(config_file)
 
-    wrapper = BashWrapper(
-        config,
-        dry_run=dry_run,
-        verbose=verbose,
-        auto_yes=yes
-    )
+    wrapper = BashWrapper(config, dry_run=dry_run, verbose=verbose, auto_yes=yes)
     success = wrapper.add_secrets_to_students()
 
     if success:
@@ -147,12 +127,7 @@ def assist(
     # Load configuration
     config = Configuration.load(config_file)
 
-    wrapper = BashWrapper(
-        config,
-        dry_run=dry_run,
-        verbose=verbose,
-        auto_yes=yes
-    )
+    wrapper = BashWrapper(config, dry_run=dry_run, verbose=verbose, auto_yes=yes)
     success = wrapper.student_update_helper()
 
     if success:
@@ -182,13 +157,17 @@ def setup():
 @app.command(name="setup-bash")
 def setup_bash(
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Show what would be done without executing"),
+        False, "--dry-run", help="Show what would be done without executing"
+    ),
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"),
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config-file", "-c", help="Path to configuration file"),
-    yes: bool = typer.Option(False, "--yes", "-y",
-                             help="Automatically answer yes to prompts")
+        "assignment.conf", "--config-file", "-c", help="Path to configuration file"
+    ),
+    yes: bool = typer.Option(
+        False, "--yes", "-y", help="Automatically answer yes to prompts"
+    ),
 ):
     """Setup a new assignment configuration (Legacy bash version)."""
     setup_logging(verbose)
@@ -196,12 +175,7 @@ def setup_bash(
     # Load configuration
     config = Configuration.load(config_file)
 
-    wrapper = BashWrapper(
-        config,
-        dry_run=dry_run,
-        verbose=verbose,
-        auto_yes=yes
-    )
+    wrapper = BashWrapper(config, dry_run=dry_run, verbose=verbose, auto_yes=yes)
     success = wrapper.setup_assignment()
 
     if success:
@@ -214,13 +188,17 @@ def setup_bash(
 @app.command()
 def update(
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Show what would be done without executing"),
+        False, "--dry-run", help="Show what would be done without executing"
+    ),
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"),
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config-file", "-c", help="Path to configuration file"),
-    yes: bool = typer.Option(False, "--yes", "-y",
-                             help="Automatically answer yes to prompts")
+        "assignment.conf", "--config-file", "-c", help="Path to configuration file"
+    ),
+    yes: bool = typer.Option(
+        False, "--yes", "-y", help="Automatically answer yes to prompts"
+    ),
 ):
     """Update assignment configuration and repositories."""
     setup_logging(verbose)
@@ -228,12 +206,7 @@ def update(
     # Load configuration
     config = Configuration.load(config_file)
 
-    wrapper = BashWrapper(
-        config,
-        dry_run=dry_run,
-        verbose=verbose,
-        auto_yes=yes
-    )
+    wrapper = BashWrapper(config, dry_run=dry_run, verbose=verbose, auto_yes=yes)
     success = wrapper.update_assignment()
 
     if success:
@@ -246,15 +219,23 @@ def update(
 @app.command()
 def cron(
     action: str = typer.Option(
-        "status", "--action", "-a", help="Action to perform (status, install, remove, etc.)"),
+        "status",
+        "--action",
+        "-a",
+        help="Action to perform (status, install, remove, etc.)",
+    ),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Show what would be done without executing"),
+        False, "--dry-run", help="Show what would be done without executing"
+    ),
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"),
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config-file", "-c", help="Path to configuration file"),
-    yes: bool = typer.Option(False, "--yes", "-y",
-                             help="Automatically answer yes to prompts")
+        "assignment.conf", "--config-file", "-c", help="Path to configuration file"
+    ),
+    yes: bool = typer.Option(
+        False, "--yes", "-y", help="Automatically answer yes to prompts"
+    ),
 ):
     """Manage cron automation jobs."""
     setup_logging(verbose)
@@ -262,12 +243,7 @@ def cron(
     # Load configuration
     config = Configuration.load(config_file)
 
-    wrapper = BashWrapper(
-        config,
-        dry_run=dry_run,
-        verbose=verbose,
-        auto_yes=yes
-    )
+    wrapper = BashWrapper(config, dry_run=dry_run, verbose=verbose, auto_yes=yes)
     success = wrapper.manage_cron(action)
 
     if success:
@@ -280,13 +256,17 @@ def cron(
 @app.command(name="cron-sync")
 def cron_sync(
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Show what would be done without executing"),
+        False, "--dry-run", help="Show what would be done without executing"
+    ),
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"),
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config-file", "-c", help="Path to configuration file"),
-    yes: bool = typer.Option(False, "--yes", "-y",
-                             help="Automatically answer yes to prompts")
+        "assignment.conf", "--config-file", "-c", help="Path to configuration file"
+    ),
+    yes: bool = typer.Option(
+        False, "--yes", "-y", help="Automatically answer yes to prompts"
+    ),
 ):
     """Execute scheduled synchronization tasks."""
     setup_logging(verbose)
@@ -294,12 +274,7 @@ def cron_sync(
     # Load configuration
     config = Configuration.load(config_file)
 
-    wrapper = BashWrapper(
-        config,
-        dry_run=dry_run,
-        verbose=verbose,
-        auto_yes=yes
-    )
+    wrapper = BashWrapper(config, dry_run=dry_run, verbose=verbose, auto_yes=yes)
     success = wrapper.cron_sync()
 
     if success:
@@ -312,21 +287,25 @@ def cron_sync(
 @app.command()
 def cycle(
     assignment_prefix: str = typer.Option(
-        None, "--assignment-prefix", help="Assignment prefix"),
+        None, "--assignment-prefix", help="Assignment prefix"
+    ),
     username: str = typer.Option(None, "--username", help="Username"),
-    organization: str = typer.Option(
-        None, "--organization", help="Organization"),
+    organization: str = typer.Option(None, "--organization", help="Organization"),
     list: bool = typer.Option(False, "--list", help="List collaborators"),
     force: bool = typer.Option(False, "--force", help="Force cycling"),
     repo_urls: bool = typer.Option(False, "--repo-urls", help="Use repo URLs"),
     dry_run: bool = typer.Option(
-        False, "--dry-run", help="Show what would be done without executing"),
+        False, "--dry-run", help="Show what would be done without executing"
+    ),
     verbose: bool = typer.Option(
-        False, "--verbose", "-v", help="Enable verbose output"),
+        False, "--verbose", "-v", help="Enable verbose output"
+    ),
     config_file: str = typer.Option(
-        "assignment.conf", "--config-file", "-c", help="Path to configuration file"),
-    yes: bool = typer.Option(False, "--yes", "-y",
-                             help="Automatically answer yes to prompts")
+        "assignment.conf", "--config-file", "-c", help="Path to configuration file"
+    ),
+    yes: bool = typer.Option(
+        False, "--yes", "-y", help="Automatically answer yes to prompts"
+    ),
 ):
     """Cycle repository collaborator permissions."""
     setup_logging(verbose)
@@ -334,19 +313,14 @@ def cycle(
     # Load configuration
     config = Configuration.load(config_file)
 
-    wrapper = BashWrapper(
-        config,
-        dry_run=dry_run,
-        verbose=verbose,
-        auto_yes=yes
-    )
+    wrapper = BashWrapper(config, dry_run=dry_run, verbose=verbose, auto_yes=yes)
     success = wrapper.cycle_collaborator(
         assignment_prefix=assignment_prefix,
         username=username,
         organization=organization,
         list_mode=list,
         force_cycle=force,
-        repo_url_mode=repo_urls
+        repo_url_mode=repo_urls,
     )
 
     if success:

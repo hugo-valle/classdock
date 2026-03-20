@@ -26,39 +26,50 @@ Usage:
         return github_client.get_organization("org").get_repos()
 """
 
-import time
 import logging
 import random
-from functools import wraps
-from typing import Optional, Callable, Any, Dict, List
+import time
 from dataclasses import dataclass
 from datetime import datetime
+from functools import wraps
+from typing import Any, Callable, Dict, List, Optional
 
 # Try to import GitHub-specific exceptions
 try:
-    from github import GithubException, RateLimitExceededException, BadCredentialsException
-    from github import UnknownObjectException, GithubIntegrationException
+    from github import (
+        BadCredentialsException,
+        GithubException,
+        GithubIntegrationException,
+        RateLimitExceededException,
+        UnknownObjectException,
+    )
+
     GITHUB_AVAILABLE = True
 except ImportError:
     # Create placeholder classes for when PyGithub is not available
     class GithubException(Exception):
         """Placeholder for GitHub exception when PyGithub not available."""
+
         pass
 
     class RateLimitExceededException(GithubException):
         """Placeholder for rate limit exception."""
+
         pass
 
     class BadCredentialsException(GithubException):
         """Placeholder for bad credentials exception."""
+
         pass
 
     class UnknownObjectException(GithubException):
         """Placeholder for unknown object exception."""
+
         pass
 
     class GithubIntegrationException(GithubException):
         """Placeholder for integration exception."""
+
         pass
 
     GITHUB_AVAILABLE = False
@@ -70,6 +81,7 @@ logger = logging.getLogger("utils.github_exceptions")
 # Core Exception Hierarchy
 # ========================================================================================
 
+
 class GitHubAPIError(Exception):
     """
     Base exception for all GitHub API related errors.
@@ -78,8 +90,13 @@ class GitHubAPIError(Exception):
     that can be used across all GitHub API operations in the project.
     """
 
-    def __init__(self, message: str, original_error: Optional[Exception] = None,
-                 error_code: Optional[str] = None, retry_after: Optional[int] = None):
+    def __init__(
+        self,
+        message: str,
+        original_error: Optional[Exception] = None,
+        error_code: Optional[str] = None,
+        retry_after: Optional[int] = None,
+    ):
         super().__init__(message)
         self.message = message
         self.original_error = original_error
@@ -105,8 +122,13 @@ class GitHubAuthenticationError(GitHubAPIError):
     authentication troubleshooting.
     """
 
-    def __init__(self, message: str, token_type: Optional[str] = None,
-                 permissions_required: Optional[List[str]] = None, **kwargs):
+    def __init__(
+        self,
+        message: str,
+        token_type: Optional[str] = None,
+        permissions_required: Optional[List[str]] = None,
+        **kwargs,
+    ):
         super().__init__(message, **kwargs)
         self.token_type = token_type
         self.permissions_required = permissions_required or []
@@ -120,16 +142,22 @@ class GitHubRateLimitError(GitHubAPIError):
     automatic retry scheduling information.
     """
 
-    def __init__(self, message: str, reset_time: Optional[datetime] = None,
-                 remaining_requests: Optional[int] = None, **kwargs):
+    def __init__(
+        self,
+        message: str,
+        reset_time: Optional[datetime] = None,
+        remaining_requests: Optional[int] = None,
+        **kwargs,
+    ):
         super().__init__(message, **kwargs)
         self.reset_time = reset_time
         self.remaining_requests = remaining_requests
 
         # Calculate retry_after based on reset_time
-        if reset_time and not kwargs.get('retry_after'):
+        if reset_time and not kwargs.get("retry_after"):
             self.retry_after = max(
-                1, int((reset_time - datetime.now()).total_seconds()))
+                1, int((reset_time - datetime.now()).total_seconds())
+            )
 
 
 class GitHubRepositoryError(GitHubAPIError):
@@ -140,8 +168,13 @@ class GitHubRepositoryError(GitHubAPIError):
     failures, and other repository-specific operations.
     """
 
-    def __init__(self, message: str, repository_name: Optional[str] = None,
-                 operation: Optional[str] = None, **kwargs):
+    def __init__(
+        self,
+        message: str,
+        repository_name: Optional[str] = None,
+        operation: Optional[str] = None,
+        **kwargs,
+    ):
         super().__init__(message, **kwargs)
         self.repository_name = repository_name
         self.operation = operation
@@ -155,8 +188,13 @@ class GitHubNetworkError(GitHubAPIError):
     network-related issues that may be temporary.
     """
 
-    def __init__(self, message: str, is_timeout: bool = False,
-                 is_connection_error: bool = False, **kwargs):
+    def __init__(
+        self,
+        message: str,
+        is_timeout: bool = False,
+        is_connection_error: bool = False,
+        **kwargs,
+    ):
         super().__init__(message, **kwargs)
         self.is_timeout = is_timeout
         self.is_connection_error = is_connection_error
@@ -170,8 +208,13 @@ class GitHubDiscoveryError(GitHubAPIError):
     and classroom URL parsing problems.
     """
 
-    def __init__(self, message: str, organization: Optional[str] = None,
-                 assignment_prefix: Optional[str] = None, **kwargs):
+    def __init__(
+        self,
+        message: str,
+        organization: Optional[str] = None,
+        assignment_prefix: Optional[str] = None,
+        **kwargs,
+    ):
         super().__init__(message, **kwargs)
         self.organization = organization
         self.assignment_prefix = assignment_prefix
@@ -180,6 +223,7 @@ class GitHubDiscoveryError(GitHubAPIError):
 # ========================================================================================
 # Retry Configuration and State Management
 # ========================================================================================
+
 
 @dataclass
 class RetryConfig:
@@ -202,9 +246,7 @@ class RetryConfig:
     )
 
     # Exception types that should never be retried
-    non_retryable_exceptions: tuple = (
-        GitHubAuthenticationError,
-    )
+    non_retryable_exceptions: tuple = (GitHubAuthenticationError,)
 
 
 @dataclass
@@ -222,8 +264,151 @@ class RetryState:
 
 
 # ========================================================================================
+# Chain of Responsibility — error handlers
+# ========================================================================================
+
+
+class _ErrorHandler:
+    """Abstract base for a single link in the GitHubErrorAnalyzer handler chain."""
+
+    def can_handle(self, error: Exception) -> bool:
+        raise NotImplementedError
+
+    def handle(self, error: Exception, analysis: Dict[str, Any]) -> None:
+        """Mutate *analysis* in-place with handler-specific fields."""
+        raise NotImplementedError
+
+
+class _AuthenticationHandler(_ErrorHandler):
+    def can_handle(self, error):
+        return isinstance(error, (GitHubAuthenticationError, BadCredentialsException))
+
+    def handle(self, error, analysis):
+        analysis.update(
+            {
+                "is_authentication_error": True,
+                "suggested_action": "Check authentication credentials",
+                "recovery_suggestions": [
+                    "Verify GitHub token is correct and not expired",
+                    "Check token permissions include required scopes",
+                    "Regenerate GitHub token if necessary",
+                ],
+            }
+        )
+
+
+class _RateLimitHandler(_ErrorHandler):
+    def can_handle(self, error):
+        return isinstance(error, (GitHubRateLimitError, RateLimitExceededException))
+
+    def handle(self, error, analysis):
+        analysis.update(
+            {
+                "is_retryable": True,
+                "is_rate_limit_error": True,
+                "suggested_action": "Wait for rate limit reset",
+                "retry_delay": getattr(error, "retry_after", None) or 3600,
+                "recovery_suggestions": [
+                    "Wait for rate limit to reset",
+                    "Use a different authentication token",
+                    "Implement request batching to reduce API calls",
+                ],
+            }
+        )
+
+
+class _NetworkHandler(_ErrorHandler):
+    def can_handle(self, error):
+        if isinstance(error, GitHubNetworkError):
+            return True
+        msg = str(error).lower()
+        return "timeout" in msg or "connection" in msg
+
+    def handle(self, error, analysis):
+        analysis.update(
+            {
+                "is_retryable": True,
+                "is_network_error": True,
+                "suggested_action": "Retry with exponential backoff",
+                "retry_delay": 5,
+                "recovery_suggestions": [
+                    "Check internet connection",
+                    "Retry the operation",
+                    "Check GitHub status page for service issues",
+                ],
+            }
+        )
+
+
+class _DiscoveryHandler(_ErrorHandler):
+    def can_handle(self, error):
+        return isinstance(error, GitHubDiscoveryError)
+
+    def handle(self, error, analysis):
+        analysis.update(
+            {
+                "is_retryable": False,
+                "suggested_action": "Check discovery parameters and configuration",
+                "recovery_suggestions": [
+                    "Verify assignment prefix and organization parameters",
+                    "Check configuration file for required settings",
+                    "Ensure GitHub API access is properly configured",
+                ],
+            }
+        )
+
+
+class _UnknownObjectHandler(_ErrorHandler):
+    def can_handle(self, error):
+        return isinstance(error, UnknownObjectException)
+
+    def handle(self, error, analysis):
+        analysis.update(
+            {
+                "suggested_action": "Verify resource exists and permissions",
+                "recovery_suggestions": [
+                    "Check that the repository/organization exists",
+                    "Verify you have access to the requested resource",
+                    "Check spelling of organization/repository names",
+                ],
+            }
+        )
+
+
+class _ServerErrorHandler(_ErrorHandler):
+    def can_handle(self, error):
+        return hasattr(error, "status") and error.status >= 500
+
+    def handle(self, error, analysis):
+        analysis.update(
+            {
+                "is_retryable": True,
+                "suggested_action": "Retry due to server error",
+                "retry_delay": 10,
+                "recovery_suggestions": [
+                    "Retry the operation (server error)",
+                    "Check GitHub status page",
+                    "Reduce request frequency",
+                ],
+            }
+        )
+
+
+# Ordered chain used by GitHubErrorAnalyzer — earlier handlers take priority
+_HANDLER_CHAIN: List["_ErrorHandler"] = [
+    _AuthenticationHandler(),
+    _RateLimitHandler(),
+    _NetworkHandler(),
+    _DiscoveryHandler(),
+    _UnknownObjectHandler(),
+    _ServerErrorHandler(),
+]
+
+
+# ========================================================================================
 # Error Context and Analysis
 # ========================================================================================
+
 
 class GitHubErrorAnalyzer:
     """
@@ -246,133 +431,25 @@ class GitHubErrorAnalyzer:
             retry recommendation, and recovery suggestions.
         """
         analysis = {
-            'error_type': type(error).__name__,
-            'is_retryable': False,
-            'is_authentication_error': False,
-            'is_rate_limit_error': False,
-            'is_network_error': False,
-            'suggested_action': 'Manual intervention required',
-            'retry_delay': None,
-            'recovery_suggestions': []
+            "error_type": type(error).__name__,
+            "is_retryable": False,
+            "is_authentication_error": False,
+            "is_rate_limit_error": False,
+            "is_network_error": False,
+            "suggested_action": "Manual intervention required",
+            "retry_delay": None,
+            "recovery_suggestions": [],
         }
 
         if not GITHUB_AVAILABLE:
-            analysis['suggested_action'] = 'Install PyGithub library'
-            analysis['recovery_suggestions'].append('pip install PyGithub')
+            analysis["suggested_action"] = "Install PyGithub library"
+            analysis["recovery_suggestions"].append("pip install PyGithub")
             return analysis
 
-        # Check for our custom exception types first
-        if isinstance(error, GitHubAuthenticationError):
-            analysis.update({
-                'is_authentication_error': True,
-                'suggested_action': 'Check authentication credentials',
-                'recovery_suggestions': [
-                    'Verify GitHub token is correct and not expired',
-                    'Check token permissions include required scopes',
-                    'Regenerate GitHub token if necessary'
-                ]
-            })
-            return analysis
-
-        elif isinstance(error, GitHubRateLimitError):
-            analysis.update({
-                'is_retryable': True,
-                'is_rate_limit_error': True,
-                'suggested_action': 'Wait for rate limit reset',
-                'retry_delay': getattr(error, 'retry_after', 3600),
-                'recovery_suggestions': [
-                    'Wait for rate limit to reset',
-                    'Use a different authentication token',
-                    'Implement request batching to reduce API calls'
-                ]
-            })
-            return analysis
-
-        elif isinstance(error, GitHubNetworkError):
-            analysis.update({
-                'is_retryable': True,
-                'is_network_error': True,
-                'suggested_action': 'Retry with exponential backoff',
-                'retry_delay': 5,
-                'recovery_suggestions': [
-                    'Check internet connection',
-                    'Retry the operation',
-                    'Check GitHub status page for service issues'
-                ]
-            })
-            return analysis
-
-        elif isinstance(error, GitHubDiscoveryError):
-            analysis.update({
-                'is_retryable': False,  # Discovery errors usually require parameter fixes
-                'suggested_action': 'Check discovery parameters and configuration',
-                'recovery_suggestions': [
-                    'Verify assignment prefix and organization parameters',
-                    'Check configuration file for required settings',
-                    'Ensure GitHub API access is properly configured'
-                ]
-            })
-            return analysis
-
-        # Analyze specific GitHub exception types
-        if isinstance(error, RateLimitExceededException):
-            analysis.update({
-                'is_retryable': True,
-                'is_rate_limit_error': True,
-                'suggested_action': 'Wait for rate limit reset',
-                'retry_delay': getattr(error, 'retry_after', 3600),
-                'recovery_suggestions': [
-                    'Wait for rate limit to reset',
-                    'Use a different authentication token',
-                    'Implement request batching to reduce API calls'
-                ]
-            })
-
-        elif isinstance(error, BadCredentialsException):
-            analysis.update({
-                'is_authentication_error': True,
-                'suggested_action': 'Check authentication credentials',
-                'recovery_suggestions': [
-                    'Verify GitHub token is correct and not expired',
-                    'Check token permissions include required scopes',
-                    'Regenerate GitHub token if necessary'
-                ]
-            })
-
-        elif isinstance(error, UnknownObjectException):
-            analysis.update({
-                'suggested_action': 'Verify resource exists and permissions',
-                'recovery_suggestions': [
-                    'Check that the repository/organization exists',
-                    'Verify you have access to the requested resource',
-                    'Check spelling of organization/repository names'
-                ]
-            })
-
-        elif 'timeout' in str(error).lower() or 'connection' in str(error).lower():
-            analysis.update({
-                'is_retryable': True,
-                'is_network_error': True,
-                'suggested_action': 'Retry with exponential backoff',
-                'retry_delay': 5,
-                'recovery_suggestions': [
-                    'Check internet connection',
-                    'Retry the operation',
-                    'Check GitHub status page for service issues'
-                ]
-            })
-
-        elif hasattr(error, 'status') and error.status >= 500:
-            analysis.update({
-                'is_retryable': True,
-                'suggested_action': 'Retry due to server error',
-                'retry_delay': 10,
-                'recovery_suggestions': [
-                    'Retry the operation (server error)',
-                    'Check GitHub status page',
-                    'Reduce request frequency'
-                ]
-            })
+        for handler in _HANDLER_CHAIN:
+            if handler.can_handle(error):
+                handler.handle(error, analysis)
+                return analysis
 
         return analysis
 
@@ -393,7 +470,7 @@ class GitHubErrorAnalyzer:
             return False
 
         analysis = GitHubErrorAnalyzer.analyze_github_exception(error)
-        return analysis['is_retryable']
+        return analysis["is_retryable"]
 
     @staticmethod
     def calculate_delay(attempt: int, config: RetryConfig) -> float:
@@ -425,8 +502,13 @@ class GitHubErrorAnalyzer:
 # Retry Decorators and Context Managers
 # ========================================================================================
 
-def github_api_retry(max_attempts: int = 3, base_delay: float = 1.0,
-                     max_delay: float = 60.0, respect_rate_limits: bool = True):
+
+def github_api_retry(
+    max_attempts: int = 3,
+    base_delay: float = 1.0,
+    max_delay: float = 60.0,
+    respect_rate_limits: bool = True,
+):
     """
     Decorator that adds retry logic with exponential backoff to GitHub API functions.
 
@@ -447,6 +529,7 @@ def github_api_retry(max_attempts: int = 3, base_delay: float = 1.0,
         def fetch_repositories(github_client, org_name):
             return github_client.get_organization(org_name).get_repos()
     """
+
     def decorator(func: Callable) -> Callable:
         @wraps(func)
         def wrapper(*args, **kwargs):
@@ -454,7 +537,7 @@ def github_api_retry(max_attempts: int = 3, base_delay: float = 1.0,
                 max_attempts=max_attempts,
                 base_delay=base_delay,
                 max_delay=max_delay,
-                respect_rate_limits=respect_rate_limits
+                respect_rate_limits=respect_rate_limits,
             )
             state = RetryState()
 
@@ -463,12 +546,12 @@ def github_api_retry(max_attempts: int = 3, base_delay: float = 1.0,
 
                 try:
                     logger.debug(
-                        f"Attempting {func.__name__} (attempt {attempt}/{max_attempts})")
+                        f"Attempting {func.__name__} (attempt {attempt}/{max_attempts})"
+                    )
                     result = func(*args, **kwargs)
 
                     if attempt > 1:
-                        logger.info(
-                            f"{func.__name__} succeeded on attempt {attempt}")
+                        logger.info(f"{func.__name__} succeeded on attempt {attempt}")
 
                     return result
 
@@ -476,46 +559,46 @@ def github_api_retry(max_attempts: int = 3, base_delay: float = 1.0,
                     state.last_error = error
 
                     # Analyze the error
-                    analysis = GitHubErrorAnalyzer.analyze_github_exception(
-                        error)
+                    analysis = GitHubErrorAnalyzer.analyze_github_exception(error)
 
                     # Check if we should retry
                     should_retry = GitHubErrorAnalyzer.should_retry(
-                        error, attempt, max_attempts)
+                        error, attempt, max_attempts
+                    )
 
                     if not should_retry or attempt >= max_attempts:
                         logger.error(
-                            f"{func.__name__} failed after {attempt} attempts: {error}")
+                            f"{func.__name__} failed after {attempt} attempts: {error}"
+                        )
 
                         # Convert to appropriate custom exception
-                        if analysis['is_rate_limit_error']:
+                        if analysis["is_rate_limit_error"]:
                             raise GitHubRateLimitError(
                                 f"Rate limit exceeded in {func.__name__}",
-                                original_error=error
+                                original_error=error,
                             )
-                        elif analysis['is_authentication_error']:
+                        elif analysis["is_authentication_error"]:
                             raise GitHubAuthenticationError(
                                 f"Authentication failed in {func.__name__}",
-                                original_error=error
+                                original_error=error,
                             )
-                        elif analysis['is_network_error']:
+                        elif analysis["is_network_error"]:
                             raise GitHubNetworkError(
                                 f"Network error in {func.__name__}",
-                                original_error=error
+                                original_error=error,
                             )
                         else:
                             raise GitHubAPIError(
                                 f"GitHub API error in {func.__name__}",
-                                original_error=error
+                                original_error=error,
                             )
 
                     # Calculate delay for next attempt
-                    delay = GitHubErrorAnalyzer.calculate_delay(
-                        attempt, config)
+                    delay = GitHubErrorAnalyzer.calculate_delay(attempt, config)
 
                     # Use error-specific delay if available
-                    if analysis.get('retry_delay'):
-                        delay = max(delay, analysis['retry_delay'])
+                    if analysis.get("retry_delay"):
+                        delay = max(delay, analysis["retry_delay"])
 
                     state.total_delay += delay
 
@@ -527,10 +610,10 @@ def github_api_retry(max_attempts: int = 3, base_delay: float = 1.0,
                     time.sleep(delay)
 
             # This should never be reached, but just in case
-            raise GitHubAPIError(
-                f"{func.__name__} exhausted all retry attempts")
+            raise GitHubAPIError(f"{func.__name__} exhausted all retry attempts")
 
         return wrapper
+
     return decorator
 
 
@@ -547,7 +630,9 @@ class github_api_context:
             ctx.success(f"Found {len(list(repos))} repositories")
     """
 
-    def __init__(self, operation_name: str, logger_instance: Optional[logging.Logger] = None):
+    def __init__(
+        self, operation_name: str, logger_instance: Optional[logging.Logger] = None
+    ):
         self.operation_name = operation_name
         self.logger = logger_instance or logger
         self.start_time = None
@@ -555,8 +640,7 @@ class github_api_context:
 
     def __enter__(self):
         self.start_time = datetime.now()
-        self.logger.debug(
-            f"Starting GitHub API operation: {self.operation_name}")
+        self.logger.debug(f"Starting GitHub API operation: {self.operation_name}")
         return self
 
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -575,12 +659,10 @@ class github_api_context:
 
             # Analyze the error and potentially convert it
             if GITHUB_AVAILABLE and isinstance(exc_val, GithubException):
-                analysis = GitHubErrorAnalyzer.analyze_github_exception(
-                    exc_val)
-                self.logger.info(
-                    f"Error analysis: {analysis['suggested_action']}")
+                analysis = GitHubErrorAnalyzer.analyze_github_exception(exc_val)
+                self.logger.info(f"Error analysis: {analysis['suggested_action']}")
 
-                for suggestion in analysis['recovery_suggestions']:
+                for suggestion in analysis["recovery_suggestions"]:
                     self.logger.info(f"Recovery suggestion: {suggestion}")
 
         return False  # Don't suppress exceptions
@@ -604,6 +686,7 @@ class github_api_context:
 # Utility Functions
 # ========================================================================================
 
+
 def handle_github_errors(func: Callable) -> Callable:
     """
     Simplified decorator for basic GitHub error handling without retry logic.
@@ -617,6 +700,7 @@ def handle_github_errors(func: Callable) -> Callable:
     Returns:
         Wrapped function with error conversion
     """
+
     @wraps(func)
     def wrapper(*args, **kwargs):
         try:
@@ -624,25 +708,21 @@ def handle_github_errors(func: Callable) -> Callable:
         except Exception as error:
             analysis = GitHubErrorAnalyzer.analyze_github_exception(error)
 
-            if analysis['is_rate_limit_error']:
+            if analysis["is_rate_limit_error"]:
                 raise GitHubRateLimitError(
-                    f"Rate limit exceeded in {func.__name__}",
-                    original_error=error
+                    f"Rate limit exceeded in {func.__name__}", original_error=error
                 )
-            elif analysis['is_authentication_error']:
+            elif analysis["is_authentication_error"]:
                 raise GitHubAuthenticationError(
-                    f"Authentication failed in {func.__name__}",
-                    original_error=error
+                    f"Authentication failed in {func.__name__}", original_error=error
                 )
-            elif analysis['is_network_error']:
+            elif analysis["is_network_error"]:
                 raise GitHubNetworkError(
-                    f"Network error in {func.__name__}",
-                    original_error=error
+                    f"Network error in {func.__name__}", original_error=error
                 )
             else:
                 raise GitHubAPIError(
-                    f"GitHub API error in {func.__name__}",
-                    original_error=error
+                    f"GitHub API error in {func.__name__}", original_error=error
                 )
 
     return wrapper
@@ -670,7 +750,8 @@ def log_github_error_summary(errors: List[Exception], operation: str):
         return
 
     logger.error(
-        f"GitHub API operation '{operation}' encountered {len(errors)} errors:")
+        f"GitHub API operation '{operation}' encountered {len(errors)} errors:"
+    )
 
     error_counts = {}
     for error in errors:
@@ -698,19 +779,19 @@ RepositoryDiscoveryError = GitHubDiscoveryError
 
 # Export commonly used functions and classes
 __all__ = [
-    'GitHubAPIError',
-    'GitHubAuthenticationError',
-    'GitHubRateLimitError',
-    'GitHubRepositoryError',
-    'GitHubNetworkError',
-    'GitHubDiscoveryError',
-    'RetryConfig',
-    'RetryState',
-    'GitHubErrorAnalyzer',
-    'github_api_retry',
-    'github_api_context',
-    'handle_github_errors',
-    'is_github_available',
-    'log_github_error_summary',
-    'RepositoryDiscoveryError',  # Backwards compatibility
+    "GitHubAPIError",
+    "GitHubAuthenticationError",
+    "GitHubRateLimitError",
+    "GitHubRepositoryError",
+    "GitHubNetworkError",
+    "GitHubDiscoveryError",
+    "RetryConfig",
+    "RetryState",
+    "GitHubErrorAnalyzer",
+    "github_api_retry",
+    "github_api_context",
+    "handle_github_errors",
+    "is_github_available",
+    "log_github_error_summary",
+    "RepositoryDiscoveryError",  # Backwards compatibility
 ]

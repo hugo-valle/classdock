@@ -13,7 +13,7 @@ from ..utils.ui_components import print_header, print_success
 
 
 class ConfigGenerator:
-    """ 
+    """
     ConfigGenerator is responsible for generating configuration files for GitHub Classroom assignments.
 
     This class provides methods to assemble and write a configuration file containing assignment information,
@@ -56,7 +56,7 @@ class ConfigGenerator:
         self,
         config_values: Dict[str, str],
         token_files: Dict[str, str],
-        token_validation: Dict[str, bool]
+        token_validation: Dict[str, bool],
     ) -> None:
         """
         Creates a configuration file for the assignment using the provided configuration values, token files, and token validation results.
@@ -78,12 +78,13 @@ class ConfigGenerator:
         config_content = self._generate_header()
         config_content += self._generate_assignment_section(config_values)
         config_content += self._generate_secrets_section(
-            config_values, token_files, token_validation)
+            config_values, token_files, token_validation
+        )
         config_content += self._generate_workflow_section(config_values)
         config_content += self._generate_advanced_section()
 
         # Write configuration file
-        with open(self.config_file, 'w') as f:
+        with open(self.config_file, "w") as f:
             f.write(config_content)
 
         print_success(f"Configuration file created: {self.config_file}")
@@ -142,9 +143,11 @@ CLASSROOM_URL="{}"
 # Different from CLASSROOM_URL above - this is the git repository URL
 # Format: https://github.com/[ORG]/[classroom-semester-assignment-name]
 # To find this: look for a repo in your organization with a name like "classroom-fall25-assignment-name"
-""".format(config_values.get('CLASSROOM_URL', ''))
+""".format(
+            config_values.get("CLASSROOM_URL", "")
+        )
 
-        if config_values.get('CLASSROOM_REPO_URL'):
+        if config_values.get("CLASSROOM_REPO_URL"):
             section += f'CLASSROOM_REPO_URL="{config_values["CLASSROOM_REPO_URL"]}"\n'
         else:
             section += '# CLASSROOM_REPO_URL=""  # Optional - add if using template synchronization\n'
@@ -159,7 +162,7 @@ GITHUB_ORGANIZATION="{config_values.get('GITHUB_ORGANIZATION', '')}"
 # Assignment name (auto-extracted from classroom URL if not specified)
 """
 
-        if config_values.get('ASSIGNMENT_NAME'):
+        if config_values.get("ASSIGNMENT_NAME"):
             section += f'ASSIGNMENT_NAME="{config_values["ASSIGNMENT_NAME"]}"\n'
         else:
             section += '# ASSIGNMENT_NAME=""  # Auto-extracted from template URL if not specified\n'
@@ -186,7 +189,7 @@ STUDENT_FILES="{config_values.get('STUDENT_FILES', config_values.get('MAIN_ASSIG
         self,
         config_values: Dict[str, str],
         token_files: Dict[str, str],
-        token_validation: Dict[str, bool]
+        token_validation: Dict[str, bool],
     ) -> str:
         """
         Generate the secrets management section for a configuration file.
@@ -217,7 +220,7 @@ STUDENT_FILES="{config_values.get('STUDENT_FILES', config_values.get('MAIN_ASSIG
 """
 
         # Add secrets configuration
-        if config_values.get('USE_SECRETS') == 'true':
+        if config_values.get("USE_SECRETS") == "true":
             section += """# Secrets to add to student repositories
 # NEW Format (v3.1+): SECRET_NAME:description:validate_format
 # Uses centralized token management - no separate token files needed!
@@ -229,16 +232,20 @@ SECRETS_CONFIG="
 """
 
             # Add instructor tests token using new simplified format
-            validation = token_validation.get('INSTRUCTOR_TESTS_TOKEN', True)
+            validation = token_validation.get("INSTRUCTOR_TESTS_TOKEN", True)
             section += f"INSTRUCTOR_TESTS_TOKEN:Token for accessing instructor test repository:{str(validation).lower()}\n"
 
             # Add additional secrets
             for secret_name, token_file in token_files.items():
-                if secret_name != 'INSTRUCTOR_TESTS_TOKEN':
+                if secret_name != "INSTRUCTOR_TESTS_TOKEN":
                     validation = token_validation.get(secret_name, True)
                     description = config_values.get(
-                        f'{secret_name}_DESCRIPTION', f'{secret_name} for assignment functionality')
-                    section += f"{secret_name}:{description}:{str(validation).lower()}\n"
+                        f"{secret_name}_DESCRIPTION",
+                        f"{secret_name} for assignment functionality",
+                    )
+                    section += (
+                        f"{secret_name}:{description}:{str(validation).lower()}\n"
+                    )
 
             section += '"\n'
         else:
@@ -276,11 +283,11 @@ SECRETS_CONFIG=""
         Generate the workflow configuration section as a formatted string.
 
         Args:
-            config_values (Dict[str, str]): A dictionary containing configuration values, 
+            config_values (Dict[str, str]): A dictionary containing configuration values,
                 such as 'USE_SECRETS', to customize the workflow section.
 
         Returns:
-            str: A string representing the workflow configuration section, with values 
+            str: A string representing the workflow configuration section, with values
                 interpolated from the provided config_values.
 
         """

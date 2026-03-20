@@ -9,23 +9,26 @@ This module handles:
 - GitHub API authentication and fallback strategies for collaborator management
 """
 
-from pathlib import Path
-from typing import List, Dict, Optional
 import subprocess
+from pathlib import Path
+from typing import Dict, List, Optional
 
 # GitHub API integration with fallback handling
 try:
-    from github import Github, Repository, GithubException
+    from github import Github, GithubException, Repository
+
     GITHUB_AVAILABLE = True
 except ImportError:
     GITHUB_AVAILABLE = False
 
-from ..utils import get_logger, GitManager
-from ..utils.github_exceptions import (
-    GitHubAuthenticationError, GitHubRepositoryError,
-    github_api_retry, github_api_context
-)
 from ..config import ConfigLoader
+from ..utils import GitManager, get_logger
+from ..utils.github_exceptions import (
+    GitHubAuthenticationError,
+    GitHubRepositoryError,
+    github_api_context,
+    github_api_retry,
+)
 
 logger = get_logger("repos.collaborator")
 
@@ -93,7 +96,7 @@ class CollaboratorManager:
                 logger.warning(f"GitHub API initialization failed: {e}")
                 self.github_client = None
 
-    def _initialize_github_client(self) -> Optional['Github']:
+    def _initialize_github_client(self) -> Optional["Github"]:
         """
         Initialize GitHub API client with authentication.
 
@@ -104,13 +107,12 @@ class CollaboratorManager:
             GitHubAuthenticationError: If authentication fails.
         """
         if not GITHUB_AVAILABLE:
-            logger.warning(
-                "PyGithub not available - falling back to CLI operations")
+            logger.warning("PyGithub not available - falling back to CLI operations")
             return None
 
         tokens = [
-            self.config.get('GITHUB_TOKEN'),
-            self.config.get('GITHUB_ACCESS_TOKEN'),
+            self.config.get("GITHUB_TOKEN"),
+            self.config.get("GITHUB_ACCESS_TOKEN"),
         ]
 
         for token in tokens:
@@ -129,7 +131,8 @@ class CollaboratorManager:
                 continue
 
         raise GitHubAuthenticationError(
-            "No valid GitHub token found in environment or configuration")
+            "No valid GitHub token found in environment or configuration"
+        )
 
     @github_api_retry(max_attempts=2, base_delay=1.0)
     def list_collaborators(self, repo_name: str) -> List[Dict[str, str]]:
@@ -155,7 +158,7 @@ class CollaboratorManager:
         except Exception as e:
             raise GitHubRepositoryError(
                 f"Failed to list collaborators for {repo_name}: {e}",
-                repository_name=repo_name
+                repository_name=repo_name,
             )
 
     def _list_collaborators_via_api(self, repo_name: str) -> List[Dict[str, str]]:
@@ -169,9 +172,11 @@ class CollaboratorManager:
             for collaborator in repo.get_collaborators():
                 collaborator_info = {
                     "login": collaborator.login,
-                    "permissions": self._get_collaborator_permissions(repo, collaborator),
+                    "permissions": self._get_collaborator_permissions(
+                        repo, collaborator
+                    ),
                     "type": collaborator.type,
-                    "site_admin": collaborator.site_admin
+                    "site_admin": collaborator.site_admin,
                 }
                 collaborators.append(collaborator_info)
 
@@ -181,7 +186,7 @@ class CollaboratorManager:
         except GithubException as e:
             raise GitHubRepositoryError(
                 f"GitHub API error listing collaborators: {e}",
-                repository_name=repo_name
+                repository_name=repo_name,
             )
 
     def _list_collaborators_via_cli(self, repo_name: str) -> List[Dict[str, str]]:
@@ -190,11 +195,11 @@ class CollaboratorManager:
 
         try:
             # Use gh CLI to list collaborators
-            cmd = ['gh', 'api', f'repos/{repo_name}/collaborators']
-            _proc = subprocess.run(
-                cmd, capture_output=True, text=True, check=True)
+            cmd = ["gh", "api", f"repos/{repo_name}/collaborators"]
+            _proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
             import json
+
             collaborators_data = json.loads(_proc.stdout)
 
             collaborators = []
@@ -203,7 +208,7 @@ class CollaboratorManager:
                     "login": collab.get("login", ""),
                     "permissions": collab.get("permissions", {}),
                     "type": collab.get("type", ""),
-                    "site_admin": collab.get("site_admin", False)
+                    "site_admin": collab.get("site_admin", False),
                 }
                 collaborators.append(collaborator_info)
 
@@ -213,10 +218,12 @@ class CollaboratorManager:
         except subprocess.CalledProcessError as e:
             raise GitHubRepositoryError(
                 f"GitHub CLI error listing collaborators: {e}",
-                repository_name=repo_name
+                repository_name=repo_name,
             )
 
-    def _get_collaborator_permissions(self, repo: 'Repository', collaborator) -> Dict[str, bool]:
+    def _get_collaborator_permissions(
+        self, repo: "Repository", collaborator
+    ) -> Dict[str, bool]:
         """Get detailed permissions for a collaborator."""
         try:
             permissions = repo.get_collaborator_permission(collaborator)
@@ -224,8 +231,9 @@ class CollaboratorManager:
                 "admin": permissions.permission == "admin",
                 "maintain": permissions.permission == "maintain",
                 "push": permissions.permission in ["admin", "maintain", "push"],
-                "triage": permissions.permission in ["admin", "maintain", "push", "triage"],
-                "pull": True  # Everyone has pull access if they're a collaborator
+                "triage": permissions.permission
+                in ["admin", "maintain", "push", "triage"],
+                "pull": True,  # Everyone has pull access if they're a collaborator
             }
         except GithubException:
             # Fallback to basic permissions if detailed access fails
@@ -234,11 +242,13 @@ class CollaboratorManager:
                 "maintain": False,
                 "push": True,  # Assume push access for collaborators
                 "triage": True,
-                "pull": True
+                "pull": True,
             }
 
     @github_api_retry(max_attempts=2, base_delay=1.0)
-    def add_collaborator(self, repo_name: str, username: str, permission: str = "push") -> bool:
+    def add_collaborator(
+        self, repo_name: str, username: str, permission: str = "push"
+    ) -> bool:
         """
         Add a collaborator to a repository.
 
@@ -254,7 +264,8 @@ class CollaboratorManager:
             GitHubRepositoryError: If adding collaborator fails.
         """
         logger.info(
-            f"Adding collaborator {username} to {repo_name} with {permission} permission")
+            f"Adding collaborator {username} to {repo_name} with {permission} permission"
+        )
 
         try:
             if self.github_client:
@@ -264,10 +275,12 @@ class CollaboratorManager:
         except Exception as e:
             raise GitHubRepositoryError(
                 f"Failed to add collaborator {username} to {repo_name}: {e}",
-                repository_name=repo_name
+                repository_name=repo_name,
             )
 
-    def _add_collaborator_via_api(self, repo_name: str, username: str, permission: str) -> bool:
+    def _add_collaborator_via_api(
+        self, repo_name: str, username: str, permission: str
+    ) -> bool:
         """Add collaborator using GitHub API."""
         logger.info("Using GitHub API for adding collaborator")
 
@@ -279,37 +292,40 @@ class CollaboratorManager:
             repo.add_to_collaborators(user, permission=permission)
 
             logger.info(
-                f"Successfully added {username} to {repo_name} with {permission} permission")
+                f"Successfully added {username} to {repo_name} with {permission} permission"
+            )
             return True
 
         except GithubException as e:
             raise GitHubRepositoryError(
-                f"GitHub API error adding collaborator: {e}",
-                repository_name=repo_name
+                f"GitHub API error adding collaborator: {e}", repository_name=repo_name
             )
 
-    def _add_collaborator_via_cli(self, repo_name: str, username: str, permission: str) -> bool:
+    def _add_collaborator_via_cli(
+        self, repo_name: str, username: str, permission: str
+    ) -> bool:
         """Add collaborator using GitHub CLI fallback."""
         logger.info("Using GitHub CLI for adding collaborator")
 
         try:
             # Use gh CLI to add collaborator
             cmd = [
-                'gh', 'api', f'repos/{repo_name}/collaborators/{username}',
-                '--method', 'PUT',
-                '--field', f'permission={permission}'
+                "gh",
+                "api",
+                f"repos/{repo_name}/collaborators/{username}",
+                "--method",
+                "PUT",
+                "--field",
+                f"permission={permission}",
             ]
-            subprocess.run(
-                cmd, capture_output=True, text=True, check=True)
+            subprocess.run(cmd, capture_output=True, text=True, check=True)
 
-            logger.info(
-                f"Successfully added {username} to {repo_name} via CLI")
+            logger.info(f"Successfully added {username} to {repo_name} via CLI")
             return True
 
         except subprocess.CalledProcessError as e:
             raise GitHubRepositoryError(
-                f"GitHub CLI error adding collaborator: {e}",
-                repository_name=repo_name
+                f"GitHub CLI error adding collaborator: {e}", repository_name=repo_name
             )
 
     @github_api_retry(max_attempts=2, base_delay=1.0)
@@ -337,7 +353,7 @@ class CollaboratorManager:
         except Exception as e:
             raise GitHubRepositoryError(
                 f"Failed to remove collaborator {username} from {repo_name}: {e}",
-                repository_name=repo_name
+                repository_name=repo_name,
             )
 
     def _remove_collaborator_via_api(self, repo_name: str, username: str) -> bool:
@@ -357,7 +373,7 @@ class CollaboratorManager:
         except GithubException as e:
             raise GitHubRepositoryError(
                 f"GitHub API error removing collaborator: {e}",
-                repository_name=repo_name
+                repository_name=repo_name,
             )
 
     def _remove_collaborator_via_cli(self, repo_name: str, username: str) -> bool:
@@ -367,26 +383,30 @@ class CollaboratorManager:
         try:
             # Use gh CLI to remove collaborator
             cmd = [
-                'gh', 'api', f'repos/{repo_name}/collaborators/{username}',
-                '--method', 'DELETE'
+                "gh",
+                "api",
+                f"repos/{repo_name}/collaborators/{username}",
+                "--method",
+                "DELETE",
             ]
-            subprocess.run(
-                cmd, capture_output=True, text=True, check=True)
+            subprocess.run(cmd, capture_output=True, text=True, check=True)
 
-            logger.info(
-                f"Successfully removed {username} from {repo_name} via CLI")
+            logger.info(f"Successfully removed {username} from {repo_name} via CLI")
             return True
 
         except subprocess.CalledProcessError as e:
             raise GitHubRepositoryError(
                 f"GitHub CLI error removing collaborator: {e}",
-                repository_name=repo_name
+                repository_name=repo_name,
             )
 
-    def cycle_collaborator_permissions(self, assignment_prefix: str, username: str) -> Dict[str, bool]:
+    def cycle_collaborator_permissions(
+        self, assignment_prefix: str, username: str
+    ) -> Dict[str, bool]:
         """Cycle collaborator permissions across assignment repositories."""
         logger.info(
-            f"Cycling permissions for {username} on assignment {assignment_prefix}")
+            f"Cycling permissions for {username} on assignment {assignment_prefix}"
+        )
 
         results = {}
 
@@ -397,7 +417,8 @@ class CollaboratorManager:
             # 3. Add collaborator to next repository in cycle
 
             logger.warning(
-                "Permission cycling not yet implemented - using bash wrapper")
+                "Permission cycling not yet implemented - using bash wrapper"
+            )
             results[assignment_prefix] = True
 
         except Exception as e:
@@ -418,40 +439,45 @@ class CollaboratorManager:
             # 2. List collaborators for each repository
             # 3. Generate access report
 
-            logger.warning(
-                "Access auditing not yet implemented - using bash wrapper")
+            logger.warning("Access auditing not yet implemented - using bash wrapper")
 
         except Exception as e:
             logger.error(f"Access audit failed for {assignment_prefix}: {e}")
 
         return access_report
 
-    def update_repository_permissions(self, repo_name: str, permission_updates: Dict[str, str]) -> Dict[str, bool]:
+    def update_repository_permissions(
+        self, repo_name: str, permission_updates: Dict[str, str]
+    ) -> Dict[str, bool]:
         """Update permissions for multiple collaborators on a repository."""
         logger.info(
-            f"Updating permissions for {len(permission_updates)} collaborators on {repo_name}")
+            f"Updating permissions for {len(permission_updates)} collaborators on {repo_name}"
+        )
 
         results = {}
 
         for username, permission in permission_updates.items():
             try:
                 success = self.update_collaborator_permission(
-                    repo_name, username, permission)
+                    repo_name, username, permission
+                )
                 results[username] = success
 
             except GitHubRepositoryError as e:
-                logger.error(
-                    f"Failed to update permission for {username}: {e}")
+                logger.error(f"Failed to update permission for {username}: {e}")
                 results[username] = False
             except Exception as e:
                 logger.error(
-                    f"Unexpected error updating permission for {username}: {e}")
+                    f"Unexpected error updating permission for {username}: {e}"
+                )
                 results[username] = False
 
         return results
 
     @github_api_retry(max_attempts=2, base_delay=1.0)
-    def update_collaborator_permission(self, repo_name: str, username: str, permission: str) -> bool:
+    def update_collaborator_permission(
+        self, repo_name: str, username: str, permission: str
+    ) -> bool:
         """
         Update permission for a single collaborator.
 
@@ -466,8 +492,7 @@ class CollaboratorManager:
         Raises:
             GitHubRepositoryError: If updating permission fails.
         """
-        logger.info(
-            f"Updating {username} permission to {permission} on {repo_name}")
+        logger.info(f"Updating {username} permission to {permission} on {repo_name}")
 
         try:
             if self.github_client:
@@ -477,10 +502,12 @@ class CollaboratorManager:
         except Exception as e:
             raise GitHubRepositoryError(
                 f"Failed to update permission for {username} on {repo_name}: {e}",
-                repository_name=repo_name
+                repository_name=repo_name,
             )
 
-    def _update_permission_via_api(self, repo_name: str, username: str, permission: str) -> bool:
+    def _update_permission_via_api(
+        self, repo_name: str, username: str, permission: str
+    ) -> bool:
         """Update collaborator permission using GitHub API."""
         logger.info("Using GitHub API for permission update")
 
@@ -492,35 +519,40 @@ class CollaboratorManager:
             repo.add_to_collaborators(user, permission=permission)
 
             logger.info(
-                f"Successfully updated {username} permission to {permission} on {repo_name}")
+                f"Successfully updated {username} permission to {permission} on {repo_name}"
+            )
             return True
 
         except GithubException as e:
             raise GitHubRepositoryError(
-                f"GitHub API error updating permission: {e}",
-                repository_name=repo_name
+                f"GitHub API error updating permission: {e}", repository_name=repo_name
             )
 
-    def _update_permission_via_cli(self, repo_name: str, username: str, permission: str) -> bool:
+    def _update_permission_via_cli(
+        self, repo_name: str, username: str, permission: str
+    ) -> bool:
         """Update collaborator permission using GitHub CLI fallback."""
         logger.info("Using GitHub CLI for permission update")
 
         try:
             # Use gh CLI to update permission (same as add collaborator)
             cmd = [
-                'gh', 'api', f'repos/{repo_name}/collaborators/{username}',
-                '--method', 'PUT',
-                '--field', f'permission={permission}'
+                "gh",
+                "api",
+                f"repos/{repo_name}/collaborators/{username}",
+                "--method",
+                "PUT",
+                "--field",
+                f"permission={permission}",
             ]
-            _proc = subprocess.run(
-                cmd, capture_output=True, text=True, check=True)
+            _proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
             logger.info(
-                f"Successfully updated {username} permission to {permission} via CLI")
+                f"Successfully updated {username} permission to {permission} via CLI"
+            )
             return True
 
         except subprocess.CalledProcessError as e:
             raise GitHubRepositoryError(
-                f"GitHub CLI error updating permission: {e}",
-                repository_name=repo_name
+                f"GitHub CLI error updating permission: {e}", repository_name=repo_name
             )

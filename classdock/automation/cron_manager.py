@@ -6,14 +6,14 @@ handling cron job installation, removal, status checking, and validation
 for automated assignment workflow management.
 """
 
+import os
 import subprocess
 import tempfile
-import os
 from dataclasses import dataclass
+from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Tuple, Union
-from datetime import datetime
 
 from ..config import GlobalConfig
 from ..utils import get_logger
@@ -23,6 +23,7 @@ logger = get_logger("automation.cron_manager")
 
 class CronJobType(Enum):
     """Supported cron job workflow types."""
+
     SYNC = "sync"
     DISCOVER = "discover"
     SECRETS = "secrets"
@@ -32,6 +33,7 @@ class CronJobType(Enum):
 
 class CronOperationResult(Enum):
     """Results of cron operations."""
+
     SUCCESS = "success"
     ALREADY_EXISTS = "already_exists"
     NOT_FOUND = "not_found"
@@ -43,6 +45,7 @@ class CronOperationResult(Enum):
 @dataclass
 class CronJob:
     """Represents a single cron job entry."""
+
     steps: List[str]
     schedule: str
     command: str
@@ -58,6 +61,7 @@ class CronJob:
 @dataclass
 class CronValidationResult:
     """Result of cron job validation."""
+
     is_valid: bool
     errors: List[str]
     warnings: List[str]
@@ -76,6 +80,7 @@ class CronValidationResult:
 @dataclass
 class CronStatus:
     """Status information for cron jobs."""
+
     installed_jobs: List[CronJob]
     total_jobs: int
     log_file_exists: bool
@@ -97,11 +102,11 @@ class CronManager:
 
         # Default schedules for different workflow types
         self.default_schedules = {
-            CronJobType.SYNC: "0 */4 * * *",      # Every 4 hours
-            CronJobType.SECRETS: "0 2 * * *",     # Daily at 2 AM
-            CronJobType.CYCLE: "0 6 * * 0",       # Weekly on Sunday at 6 AM
-            CronJobType.DISCOVER: "0 1 * * *",    # Daily at 1 AM
-            CronJobType.ASSIST: "0 3 * * 0"       # Weekly on Sunday at 3 AM
+            CronJobType.SYNC: "0 */4 * * *",  # Every 4 hours
+            CronJobType.SECRETS: "0 2 * * *",  # Daily at 2 AM
+            CronJobType.CYCLE: "0 6 * * 0",  # Weekly on Sunday at 6 AM
+            CronJobType.DISCOVER: "0 1 * * *",  # Daily at 1 AM
+            CronJobType.ASSIST: "0 3 * * 0",  # Weekly on Sunday at 3 AM
         }
 
         # Configuration constants
@@ -130,27 +135,21 @@ class CronManager:
 
         # Check if working directory exists (Python validation)
         if not self.cron_script_path.exists():
-            errors.append(
-                f"Working directory not found: {self.cron_script_path}")
+            errors.append(f"Working directory not found: {self.cron_script_path}")
 
         # Check if assignment config exists
         assignment_conf = self._get_assignment_config_path()
         if not assignment_conf.exists():
-            warnings.append(
-                f"Assignment configuration not found: {assignment_conf}")
+            warnings.append(f"Assignment configuration not found: {assignment_conf}")
 
         # Check cron service availability
         try:
             subprocess.run(
-                ["crontab", "-l"],
-                capture_output=True,
-                text=True,
-                timeout=10
+                ["crontab", "-l"], capture_output=True, text=True, timeout=10
             )
             # Command succeeds even if no crontab exists (returns specific error)
         except (subprocess.TimeoutExpired, FileNotFoundError):
-            errors.append(
-                "Crontab command not available or system cron not running")
+            errors.append("Crontab command not available or system cron not running")
         except Exception as e:
             warnings.append(f"Could not verify cron service: {e}")
 
@@ -160,15 +159,12 @@ class CronManager:
             try:
                 log_dir.mkdir(parents=True, exist_ok=True)
             except Exception as e:
-                warnings.append(
-                    f"Could not create log directory {log_dir}: {e}")
+                warnings.append(f"Could not create log directory {log_dir}: {e}")
         elif not os.access(log_dir, os.W_OK):
             warnings.append(f"Log directory not writable: {log_dir}")
 
         return CronValidationResult(
-            is_valid=len(errors) == 0,
-            errors=errors,
-            warnings=warnings
+            is_valid=len(errors) == 0, errors=errors, warnings=warnings
         )
 
     def validate_cron_schedule(self, schedule: str) -> CronValidationResult:
@@ -180,7 +176,8 @@ class CronManager:
         fields = schedule.strip().split()
         if len(fields) != 5:
             errors.append(
-                f"Invalid cron schedule format: '{schedule}' (expected 5 fields)")
+                f"Invalid cron schedule format: '{schedule}' (expected 5 fields)"
+            )
             return CronValidationResult(False, errors, warnings)
 
         # Validate each field
@@ -188,36 +185,33 @@ class CronManager:
 
         # Minute validation (0-59)
         if not self._validate_cron_field(minute, 0, 59):
-            errors.append(
-                f"Invalid minute field: '{minute}' (must be 0-59 or */n)")
+            errors.append(f"Invalid minute field: '{minute}' (must be 0-59 or */n)")
 
         # Hour validation (0-23)
         if not self._validate_cron_field(hour, 0, 23):
-            errors.append(
-                f"Invalid hour field: '{hour}' (must be 0-23 or */n)")
+            errors.append(f"Invalid hour field: '{hour}' (must be 0-23 or */n)")
 
         # Day validation (1-31)
         if not self._validate_cron_field(day, 1, 31, allow_star=True):
-            errors.append(
-                f"Invalid day field: '{day}' (must be 1-31, *, or */n)")
+            errors.append(f"Invalid day field: '{day}' (must be 1-31, *, or */n)")
 
         # Month validation (1-12)
         if not self._validate_cron_field(month, 1, 12, allow_star=True):
-            errors.append(
-                f"Invalid month field: '{month}' (must be 1-12, *, or */n)")
+            errors.append(f"Invalid month field: '{month}' (must be 1-12, *, or */n)")
 
         # Weekday validation (0-7, where 0 and 7 are Sunday)
         if not self._validate_cron_field(weekday, 0, 7, allow_star=True):
             errors.append(
-                f"Invalid weekday field: '{weekday}' (must be 0-7, *, or */n)")
+                f"Invalid weekday field: '{weekday}' (must be 0-7, *, or */n)"
+            )
 
         return CronValidationResult(
-            is_valid=len(errors) == 0,
-            errors=errors,
-            warnings=warnings
+            is_valid=len(errors) == 0, errors=errors, warnings=warnings
         )
 
-    def _validate_cron_field(self, field: str, min_val: int, max_val: int, allow_star: bool = True) -> bool:
+    def _validate_cron_field(
+        self, field: str, min_val: int, max_val: int, allow_star: bool = True
+    ) -> bool:
         """Validate individual cron field."""
         if field == "*" and allow_star:
             return True
@@ -236,9 +230,11 @@ class CronManager:
                 start, end = field.split("-", 1)
                 start_val = int(start)
                 end_val = int(end)
-                return (min_val <= start_val <= max_val and
-                        min_val <= end_val <= max_val and
-                        start_val <= end_val)
+                return (
+                    min_val <= start_val <= max_val
+                    and min_val <= end_val <= max_val
+                    and start_val <= end_val
+                )
             except ValueError:
                 return False
 
@@ -267,15 +263,14 @@ class CronManager:
         for step in steps:
             if step not in valid_steps:
                 errors.append(
-                    f"Invalid step: '{step}' (valid steps: {', '.join(sorted(valid_steps))})")
+                    f"Invalid step: '{step}' (valid steps: {', '.join(sorted(valid_steps))})"
+                )
 
         if not steps:
             errors.append("At least one workflow step is required")
 
         return CronValidationResult(
-            is_valid=len(errors) == 0,
-            errors=errors,
-            warnings=warnings
+            is_valid=len(errors) == 0, errors=errors, warnings=warnings
         )
 
     def get_default_schedule(self, steps: List[str]) -> str:
@@ -302,7 +297,9 @@ class CronManager:
         # Try to get assignment name from config
         if self.global_config and self.global_config.assignment_name:
             # Sanitize assignment name for use in cron comment
-            return self.global_config.assignment_name.replace(" ", "-").replace("/", "-")
+            return self.global_config.assignment_name.replace(" ", "-").replace(
+                "/", "-"
+            )
 
         # Fallback to "classdock" as default identifier
         return "classdock"
@@ -320,10 +317,7 @@ class CronManager:
         """Get current user's crontab content."""
         try:
             result = subprocess.run(
-                ["crontab", "-l"],
-                capture_output=True,
-                text=True,
-                timeout=10
+                ["crontab", "-l"], capture_output=True, text=True, timeout=10
             )
             if result.returncode == 0:
                 return result.stdout
@@ -337,15 +331,14 @@ class CronManager:
     def _set_crontab(self, content: str) -> bool:
         """Set user's crontab content."""
         try:
-            with tempfile.NamedTemporaryFile(mode='w', delete=False, suffix='.cron') as temp_file:
+            with tempfile.NamedTemporaryFile(
+                mode="w", delete=False, suffix=".cron"
+            ) as temp_file:
                 temp_file.write(content)
                 temp_file_path = temp_file.name
 
             result = subprocess.run(
-                ["crontab", temp_file_path],
-                capture_output=True,
-                text=True,
-                timeout=10
+                ["crontab", temp_file_path], capture_output=True, text=True, timeout=10
             )
 
             os.unlink(temp_file_path)
@@ -364,10 +357,7 @@ class CronManager:
         """Remove user's crontab entirely."""
         try:
             result = subprocess.run(
-                ["crontab", "-r"],
-                capture_output=True,
-                text=True,
-                timeout=10
+                ["crontab", "-r"], capture_output=True, text=True, timeout=10
             )
             return result.returncode == 0 or "no crontab" in result.stderr.lower()
         except Exception as e:
@@ -383,21 +373,25 @@ class CronManager:
         comment = self._get_cron_comment(steps)
         return comment in current_crontab
 
-    def install_cron_job(self, steps: List[str], schedule: Optional[str] = None) -> Tuple[CronOperationResult, str]:
+    def install_cron_job(
+        self, steps: List[str], schedule: Optional[str] = None
+    ) -> Tuple[CronOperationResult, str]:
         """Install cron job for specified workflow steps."""
         try:
             # Validate prerequisites
             prereq_validation = self.validate_prerequisites()
             if not prereq_validation.is_valid:
-                error_msg = "Prerequisites validation failed: " + \
-                    "; ".join(prereq_validation.errors)
+                error_msg = "Prerequisites validation failed: " + "; ".join(
+                    prereq_validation.errors
+                )
                 return CronOperationResult.VALIDATION_ERROR, error_msg
 
             # Validate steps
             steps_validation = self.validate_steps(steps)
             if not steps_validation.is_valid:
-                error_msg = "Steps validation failed: " + \
-                    "; ".join(steps_validation.errors)
+                error_msg = "Steps validation failed: " + "; ".join(
+                    steps_validation.errors
+                )
                 return CronOperationResult.VALIDATION_ERROR, error_msg
 
             # Get default schedule if not provided
@@ -408,13 +402,17 @@ class CronManager:
             # Validate schedule
             schedule_validation = self.validate_cron_schedule(schedule)
             if not schedule_validation.is_valid:
-                error_msg = "Schedule validation failed: " + \
-                    "; ".join(schedule_validation.errors)
+                error_msg = "Schedule validation failed: " + "; ".join(
+                    schedule_validation.errors
+                )
                 return CronOperationResult.VALIDATION_ERROR, error_msg
 
             # Check if job already exists
             if self.job_exists(steps):
-                return CronOperationResult.ALREADY_EXISTS, f"Cron job for steps '{' '.join(steps)}' already exists"
+                return (
+                    CronOperationResult.ALREADY_EXISTS,
+                    f"Cron job for steps '{' '.join(steps)}' already exists",
+                )
 
             # Create cron job entry
             comment = self._get_cron_comment(steps)
@@ -430,26 +428,35 @@ class CronManager:
 
             # Set new crontab
             if self._set_crontab(new_crontab):
-                success_msg = f"Cron job installed successfully for steps: {' '.join(steps)}"
+                success_msg = (
+                    f"Cron job installed successfully for steps: {' '.join(steps)}"
+                )
                 logger.info(success_msg)
                 return CronOperationResult.SUCCESS, success_msg
             else:
                 return CronOperationResult.SYSTEM_ERROR, "Failed to update crontab"
 
         except PermissionError:
-            return CronOperationResult.PERMISSION_ERROR, "Permission denied accessing crontab"
+            return (
+                CronOperationResult.PERMISSION_ERROR,
+                "Permission denied accessing crontab",
+            )
         except Exception as e:
             logger.error(f"Unexpected error installing cron job: {e}")
             return CronOperationResult.SYSTEM_ERROR, f"System error: {e}"
 
-    def remove_cron_job(self, steps: Union[List[str], str]) -> Tuple[CronOperationResult, str]:
+    def remove_cron_job(
+        self, steps: Union[List[str], str]
+    ) -> Tuple[CronOperationResult, str]:
         """Remove cron job for specified workflow steps or all jobs."""
         try:
             current_crontab = self._get_current_crontab()
             if not current_crontab:
                 return CronOperationResult.NOT_FOUND, "No crontab exists"
 
-            if steps == "all" or (isinstance(steps, list) and len(steps) == 1 and steps[0] == "all"):
+            if steps == "all" or (
+                isinstance(steps, list) and len(steps) == 1 and steps[0] == "all"
+            ):
                 # Remove all assignment-related cron jobs
                 lines = current_crontab.splitlines()
                 filtered_lines = []
@@ -467,24 +474,40 @@ class CronManager:
                         i += 1
 
                 if len(filtered_lines) == len(lines):
-                    return CronOperationResult.NOT_FOUND, "No assignment cron jobs found to remove"
+                    return (
+                        CronOperationResult.NOT_FOUND,
+                        "No assignment cron jobs found to remove",
+                    )
 
                 # Check if there are any non-empty, non-whitespace lines remaining
                 non_empty_filtered_lines = [
-                    line for line in filtered_lines if line.strip()]
+                    line for line in filtered_lines if line.strip()
+                ]
 
                 if non_empty_filtered_lines:
                     new_crontab = "\n".join(filtered_lines) + "\n"
                     if self._set_crontab(new_crontab):
-                        return CronOperationResult.SUCCESS, "All assignment cron jobs removed successfully"
+                        return (
+                            CronOperationResult.SUCCESS,
+                            "All assignment cron jobs removed successfully",
+                        )
                     else:
-                        return CronOperationResult.SYSTEM_ERROR, "Failed to update crontab"
+                        return (
+                            CronOperationResult.SYSTEM_ERROR,
+                            "Failed to update crontab",
+                        )
                 else:
                     # Remove entire crontab if no other entries
                     if self._remove_crontab():
-                        return CronOperationResult.SUCCESS, "All assignment cron jobs removed successfully"
+                        return (
+                            CronOperationResult.SUCCESS,
+                            "All assignment cron jobs removed successfully",
+                        )
                     else:
-                        return CronOperationResult.SYSTEM_ERROR, "Failed to remove crontab"
+                        return (
+                            CronOperationResult.SYSTEM_ERROR,
+                            "Failed to remove crontab",
+                        )
 
             else:
                 # Remove specific cron job
@@ -492,32 +515,51 @@ class CronManager:
                     steps = [steps]
 
                 if not self.job_exists(steps):
-                    return CronOperationResult.NOT_FOUND, f"Cron job for steps '{' '.join(steps)}' not found"
+                    return (
+                        CronOperationResult.NOT_FOUND,
+                        f"Cron job for steps '{' '.join(steps)}' not found",
+                    )
 
                 comment = self._get_cron_comment(steps)
                 command = self._get_cron_command(steps)
 
                 lines = current_crontab.splitlines()
                 filtered_lines = [
-                    line for line in lines
+                    line
+                    for line in lines
                     if comment not in line and command not in line
                 ]
 
                 if filtered_lines:
                     new_crontab = "\n".join(filtered_lines) + "\n"
                     if self._set_crontab(new_crontab):
-                        return CronOperationResult.SUCCESS, f"Cron job for steps '{' '.join(steps)}' removed successfully"
+                        return (
+                            CronOperationResult.SUCCESS,
+                            f"Cron job for steps '{' '.join(steps)}' removed successfully",
+                        )
                     else:
-                        return CronOperationResult.SYSTEM_ERROR, "Failed to update crontab"
+                        return (
+                            CronOperationResult.SYSTEM_ERROR,
+                            "Failed to update crontab",
+                        )
                 else:
                     # Remove entire crontab if no other entries
                     if self._remove_crontab():
-                        return CronOperationResult.SUCCESS, f"Cron job for steps '{' '.join(steps)}' removed successfully"
+                        return (
+                            CronOperationResult.SUCCESS,
+                            f"Cron job for steps '{' '.join(steps)}' removed successfully",
+                        )
                     else:
-                        return CronOperationResult.SYSTEM_ERROR, "Failed to remove crontab"
+                        return (
+                            CronOperationResult.SYSTEM_ERROR,
+                            "Failed to remove crontab",
+                        )
 
         except PermissionError:
-            return CronOperationResult.PERMISSION_ERROR, "Permission denied accessing crontab"
+            return (
+                CronOperationResult.PERMISSION_ERROR,
+                "Permission denied accessing crontab",
+            )
         except Exception as e:
             logger.error(f"Unexpected error removing cron job: {e}")
             return CronOperationResult.SYSTEM_ERROR, f"System error: {e}"
@@ -557,7 +599,7 @@ class CronManager:
                                         schedule=schedule,
                                         command=command,
                                         comment=line,
-                                        is_active=True
+                                        is_active=True,
                                     )
                                     installed_jobs.append(job)
                                     i += 1  # Skip the command line
@@ -570,7 +612,7 @@ class CronManager:
         if log_file_exists:
             try:
                 # Get last few lines from log file
-                with open(self.log_file_path, 'r') as f:
+                with open(self.log_file_path, "r") as f:
                     lines = f.readlines()
                     if lines:
                         last_log_activity = "".join(lines[-3:]).strip()
@@ -582,7 +624,7 @@ class CronManager:
             total_jobs=len(installed_jobs),
             log_file_exists=log_file_exists,
             log_file_path=self.log_file_path if log_file_exists else None,
-            last_log_activity=last_log_activity
+            last_log_activity=last_log_activity,
         )
 
     def show_logs(self, lines: int = 30) -> Tuple[bool, str]:
@@ -596,7 +638,7 @@ class CronManager:
                 ["tail", f"-n{lines}", str(self.log_file_path)],
                 capture_output=True,
                 text=True,
-                timeout=10
+                timeout=10,
             )
 
             if result.returncode == 0:
@@ -612,8 +654,9 @@ class CronManager:
                 else:
                     size_str = f"{file_size / (1024 * 1024):.1f} MB"
 
-                mod_time = datetime.fromtimestamp(
-                    stat.st_mtime).strftime("%Y-%m-%d %H:%M:%S")
+                mod_time = datetime.fromtimestamp(stat.st_mtime).strftime(
+                    "%Y-%m-%d %H:%M:%S"
+                )
 
                 output += "\n=== Log File Info ===\n"
                 output += f"File: {self.log_file_path}\n"

@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 ################################################################################
-# QA Test Orchestrator for Classroom Pilot
+# QA Test Orchestrator for ClassDock
 #
 # This script orchestrates the execution of all QA functional test suites,
-# providing comprehensive validation of classroom-pilot commands, options,
+# providing comprehensive validation of classdock commands, options,
 # and error scenarios.
 #
 # Features:
@@ -96,7 +96,7 @@ FAILED_SUITES=0
 
 show_help() {
     cat << EOF
-QA Test Orchestrator for Classroom Pilot
+QA Test Orchestrator for ClassDock
 
 USAGE:
     ./run_qa_tests.sh [OPTIONS]
@@ -387,7 +387,7 @@ generate_markdown_report() {
     log_info "Generating Markdown report: $report_file"
     
     cat > "$report_file" << EOF
-# QA Test Report - Classroom Pilot
+# QA Test Report - ClassDock
 
 **Run ID**: $RUN_ID
 **Date**: $(date '+%Y-%m-%d %H:%M:%S')
@@ -651,7 +651,7 @@ main() {
     START_TIME=$(date +%s)
     
     # Display header
-    log_section "QA Test Orchestrator - Classroom Pilot"
+    log_section "QA Test Orchestrator - ClassDock"
     log_info "Test suites to execute: ${#SELECTED_SUITES[@]}"
     log_info "Execution mode: $([ "$PARALLEL_MODE" = true ] && echo "Parallel" || echo "Sequential")"
     echo ""

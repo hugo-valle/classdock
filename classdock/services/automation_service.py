@@ -1,4 +1,5 @@
 from typing import List, Optional, Tuple
+
 from ..utils import get_logger
 
 logger = get_logger("services.automation")
@@ -7,15 +8,34 @@ logger = get_logger("services.automation")
 class AutomationService:
     """Service layer for automation-related CLI commands."""
 
-    def __init__(self, dry_run: bool = False, verbose: bool = False):
+    def __init__(
+        self, dry_run: bool = False, verbose: bool = False, cron_manager_factory=None
+    ):
+        """
+        Args:
+            dry_run: If True, skip real cron operations.
+            verbose: Enable verbose logging.
+            cron_manager_factory: Optional callable ``() -> CronManager``.
+                Injecting a factory keeps cron logic testable without touching
+                the real crontab.
+        """
         self.dry_run = dry_run
         self.verbose = verbose
+        self._cron_manager_factory = cron_manager_factory
 
-    def cron_install(self, steps: List[str], schedule: Optional[str], config_file: str) -> Tuple[bool, str]:
+    def _make_cron_manager(self):
+        """Create or return an injected CronManager instance."""
+        if self._cron_manager_factory is not None:
+            return self._cron_manager_factory()
+        from ..automation import CronManager
+
+        return CronManager()
+
+    def cron_install(
+        self, steps: List[str], schedule: Optional[str], config_file: str
+    ) -> Tuple[bool, str]:
         try:
-            from ..automation import CronManager
-
-            cron_manager = CronManager()
+            cron_manager = self._make_cron_manager()
             result, message = cron_manager.install_cron_job(steps, schedule)
 
             if result.value == "success":
@@ -30,9 +50,7 @@ class AutomationService:
 
     def cron_remove(self, steps, config_file: str) -> Tuple[bool, str]:
         try:
-            from ..automation import CronManager
-
-            cron_manager = CronManager()
+            cron_manager = self._make_cron_manager()
 
             # Normalize steps
             if not steps:
@@ -54,9 +72,7 @@ class AutomationService:
 
     def cron_status(self, config_file: str):
         try:
-            from ..automation import CronManager
-
-            cron_manager = CronManager()
+            cron_manager = self._make_cron_manager()
             status = cron_manager.get_cron_status()
             return True, status
         except Exception as e:
@@ -65,9 +81,7 @@ class AutomationService:
 
     def cron_logs(self, lines: int = 30):
         try:
-            from ..automation import CronManager
-
-            cron_manager = CronManager()
+            cron_manager = self._make_cron_manager()
             success, output = cron_manager.show_logs(lines)
             return success, output
         except Exception as e:
@@ -76,16 +90,16 @@ class AutomationService:
 
     def cron_schedules(self):
         try:
-            from ..automation import CronManager
-
-            cron_manager = CronManager()
+            cron_manager = self._make_cron_manager()
             output = cron_manager.list_default_schedules()
             return True, output
         except Exception as e:
             logger.error(f"AutomationService.cron_schedules failed: {e}")
             return False, str(e)
 
-    def cron_sync(self, steps, dry_run: bool, verbose: bool, stop_on_failure: bool, show_log: bool):
+    def cron_sync(
+        self, steps, dry_run: bool, verbose: bool, stop_on_failure: bool, show_log: bool
+    ):
         try:
             from ..automation.cron_sync import CronSyncManager
 
@@ -96,12 +110,14 @@ class AutomationService:
 
             if dry_run:
                 # Provide manager info useful for dry-run
-                return True, {"dry_run": True, "steps": steps, "log_file": getattr(manager, 'log_file', None)}
+                return True, {
+                    "dry_run": True,
+                    "steps": steps,
+                    "log_file": getattr(manager, "log_file", None),
+                }
 
             result = manager.execute_cron_sync(
-                steps=steps,
-                verbose=verbose,
-                stop_on_failure=stop_on_failure
+                steps=steps, verbose=verbose, stop_on_failure=stop_on_failure
             )
 
             return True, result
@@ -115,7 +131,10 @@ class AutomationService:
 
             manager = CronSyncManager(assignment_root=None)
             if dry_run:
-                return True, f"DRY RUN: Would run scheduled sync (config: {config_file})"
+                return (
+                    True,
+                    f"DRY RUN: Would run scheduled sync (config: {config_file})",
+                )
 
             result = manager.execute_cron_sync(["sync"], verbose=verbose)
 

@@ -10,7 +10,7 @@ Note: This module is being migrated to the utils/ package for better organizatio
 import os
 import re
 from pathlib import Path
-from typing import Optional, List, Union
+from typing import List, Optional, Union
 from urllib.parse import urlparse
 
 # Import from new utils package
@@ -23,7 +23,7 @@ logger = get_logger("utils")
 def validate_github_url(
     url: str,
     custom_hosts: Optional[Union[List[str], str]] = None,
-    config: Optional[dict] = None
+    config: Optional[dict] = None,
 ) -> bool:
     """
     Validate GitHub URL format with support for custom GitHub hosts.
@@ -51,9 +51,9 @@ def validate_github_url(
 
         # Build list of valid GitHub hosts
         github_patterns = [
-            r'^github\.com$',
-            r'^.*\.github\.com$',
-            r'^classroom\.github\.com$',
+            r"^github\.com$",
+            r"^.*\.github\.com$",
+            r"^classroom\.github\.com$",
         ]
 
         # Add custom hosts from various sources
@@ -63,33 +63,38 @@ def validate_github_url(
         if custom_hosts:
             if isinstance(custom_hosts, str):
                 custom_host_sources.extend(
-                    [h.strip() for h in custom_hosts.split(',') if h.strip()])
+                    [h.strip() for h in custom_hosts.split(",") if h.strip()]
+                )
             elif isinstance(custom_hosts, list):
                 custom_host_sources.extend(
-                    [h.strip() for h in custom_hosts if h and h.strip()])
+                    [h.strip() for h in custom_hosts if h and h.strip()]
+                )
 
         # 2. From config parameter
-        if config and 'GITHUB_HOSTS' in config:
-            hosts_config = config['GITHUB_HOSTS']
+        if config and "GITHUB_HOSTS" in config:
+            hosts_config = config["GITHUB_HOSTS"]
             if isinstance(hosts_config, str):
                 custom_host_sources.extend(
-                    [h.strip() for h in hosts_config.split(',') if h.strip()])
+                    [h.strip() for h in hosts_config.split(",") if h.strip()]
+                )
             elif isinstance(hosts_config, list):
                 custom_host_sources.extend(
-                    [h.strip() for h in hosts_config if h and h.strip()])
+                    [h.strip() for h in hosts_config if h and h.strip()]
+                )
 
         # 3. From environment variable
-        env_hosts = os.getenv('GITHUB_HOSTS')
+        env_hosts = os.getenv("GITHUB_HOSTS")
         if env_hosts:
             custom_host_sources.extend(
-                [h.strip() for h in env_hosts.split(',') if h.strip()])
+                [h.strip() for h in env_hosts.split(",") if h.strip()]
+            )
 
         # Add custom hosts as exact patterns
         for host in custom_host_sources:
             if host:
                 # Escape special regex characters and create exact match pattern
                 escaped_host = re.escape(host)
-                github_patterns.append(f'^{escaped_host}$')
+                github_patterns.append(f"^{escaped_host}$")
 
         # Check against all patterns
         for pattern in github_patterns:
@@ -150,7 +155,7 @@ def safe_path_join(*parts: str) -> Path:
     safe_parts = []
     for part in parts:
         # Remove dangerous path components
-        clean_part = str(part).replace('..', '').replace('~', '')
+        clean_part = str(part).replace("..", "").replace("~", "")
         safe_parts.append(clean_part)
 
     return Path(*safe_parts)
@@ -196,7 +201,7 @@ def parse_bash_array(array_string: str) -> list:
 
     # Remove outer parentheses
     array_string = array_string.strip()
-    if array_string.startswith('(') and array_string.endswith(')'):
+    if array_string.startswith("(") and array_string.endswith(")"):
         array_string = array_string[1:-1]
 
     # Extract quoted items
@@ -243,10 +248,7 @@ def check_github_cli() -> bool:
 
         # Check if gh command exists
         result = subprocess.run(
-            ['gh', '--version'],
-            capture_output=True,
-            text=True,
-            timeout=10
+            ["gh", "--version"], capture_output=True, text=True, timeout=10
         )
 
         if result.returncode != 0:
@@ -255,15 +257,11 @@ def check_github_cli() -> bool:
 
         # Check if authenticated
         result = subprocess.run(
-            ['gh', 'auth', 'status'],
-            capture_output=True,
-            text=True,
-            timeout=10
+            ["gh", "auth", "status"], capture_output=True, text=True, timeout=10
         )
 
         if result.returncode != 0:
-            logger.warning(
-                "GitHub CLI is not authenticated. Run 'gh auth login'")
+            logger.warning("GitHub CLI is not authenticated. Run 'gh auth login'")
             return False
 
         logger.debug("GitHub CLI is available and authenticated")
@@ -288,10 +286,10 @@ def get_git_root() -> Optional[Path]:
         import subprocess
 
         result = subprocess.run(
-            ['git', 'rev-parse', '--show-toplevel'],
+            ["git", "rev-parse", "--show-toplevel"],
             capture_output=True,
             text=True,
-            timeout=10
+            timeout=10,
         )
 
         if result.returncode == 0:
@@ -312,8 +310,7 @@ def ensure_git_repository() -> bool:
     """
     git_root = get_git_root()
     if git_root is None:
-        logger.error(
-            "Not in a Git repository. Please run from a Git repository.")
+        logger.error("Not in a Git repository. Please run from a Git repository.")
         return False
 
     logger.debug(f"Git repository root: {git_root}")
@@ -331,6 +328,7 @@ def shell_escape(arg: str) -> str:
         Escaped argument safe for shell execution
     """
     import shlex
+
     return shlex.quote(str(arg))
 
 
@@ -359,7 +357,7 @@ def get_repo_root() -> Path:
     # Fallback: navigate up from script directory
     current = Path(__file__).parent
     while current != current.parent:
-        if (current / '.git').exists() or (current / 'pyproject.toml').exists():
+        if (current / ".git").exists() or (current / "pyproject.toml").exists():
             return current
         current = current.parent
 

@@ -208,22 +208,16 @@ class TestAssignmentServiceSetup:
 class TestAssignmentServiceOrchestrate:
     """Test assignment orchestration functionality."""
 
-    @patch('classdock.assignments.orchestrator.AssignmentOrchestrator')
-    def test_orchestrate_dry_run(self, mock_orchestrator):
-        """Test orchestration in dry-run mode."""
-        # Mock the orchestrator and its validation
-        mock_orch = Mock()
-        mock_orch.validate_configuration.return_value = True
-        mock_orchestrator.return_value = mock_orch
-
+    def test_orchestrate_dry_run(self):
+        """Test orchestration in dry-run mode uses NullOrchestrator."""
+        # dry_run=True causes AssignmentService to inject a NullOrchestrator,
+        # which succeeds silently without touching GitHub or the filesystem.
         service = AssignmentService(dry_run=True)
         success, message = service.orchestrate()
 
         assert success is True
-        assert "DRY RUN" in message
-        assert "orchestrate assignment workflow" in message
-        # Verify configuration was validated even in dry-run
-        mock_orch.validate_configuration.assert_called_once()
+        # NullOrchestrator completes successfully; no steps fail
+        assert "orchestration completed" in message.lower() or "success" in message.lower()
 
     @patch('classdock.assignments.orchestrator.AssignmentOrchestrator')
     def test_orchestrate_success(self, mock_orchestrator):
