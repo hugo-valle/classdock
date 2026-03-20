@@ -6,7 +6,7 @@ Defines dataclasses for students, assignments, and their relationships.
 
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, List, Dict, Any
+from typing import Any, Dict, List, Optional
 
 
 @dataclass
@@ -27,6 +27,7 @@ class Student:
         created_at: Record creation timestamp
         updated_at: Record last update timestamp
     """
+
     email: str
     name: str
     github_organization: str
@@ -53,7 +54,7 @@ class Student:
             raise ValueError(f"status must be one of {valid_statuses}")
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Student':
+    def from_dict(cls, data: Dict[str, Any]) -> "Student":
         """
         Create Student from dictionary (e.g., database row).
 
@@ -64,7 +65,7 @@ class Student:
             Student instance
         """
         # Convert timestamp strings to datetime objects
-        for field_name in ['enrolled_date', 'created_at', 'updated_at']:
+        for field_name in ["enrolled_date", "created_at", "updated_at"]:
             if field_name in data and isinstance(data[field_name], str):
                 try:
                     data[field_name] = datetime.fromisoformat(data[field_name])
@@ -81,17 +82,19 @@ class Student:
             Dictionary representation of student
         """
         data = {
-            'id': self.id,
-            'email': self.email,
-            'name': self.name,
-            'github_username': self.github_username,
-            'github_id': self.github_id,
-            'github_organization': self.github_organization,
-            'enrolled_date': self.enrolled_date.isoformat() if self.enrolled_date else None,
-            'status': self.status,
-            'notes': self.notes,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            "id": self.id,
+            "email": self.email,
+            "name": self.name,
+            "github_username": self.github_username,
+            "github_id": self.github_id,
+            "github_organization": self.github_organization,
+            "enrolled_date": self.enrolled_date.isoformat()
+            if self.enrolled_date
+            else None,
+            "status": self.status,
+            "notes": self.notes,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
         return data
 
@@ -115,6 +118,7 @@ class Assignment:
         created_at: Record creation timestamp
         updated_at: Record last update timestamp
     """
+
     name: str
     github_organization: str
     id: Optional[int] = None
@@ -144,7 +148,7 @@ class Assignment:
             raise ValueError(f"status must be one of {valid_statuses}")
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'Assignment':
+    def from_dict(cls, data: Dict[str, Any]) -> "Assignment":
         """
         Create Assignment from dictionary.
 
@@ -155,7 +159,7 @@ class Assignment:
             Assignment instance
         """
         # Convert timestamp strings to datetime objects
-        for field_name in ['deadline', 'created_at', 'updated_at']:
+        for field_name in ["deadline", "created_at", "updated_at"]:
             if field_name in data and isinstance(data[field_name], str):
                 try:
                     data[field_name] = datetime.fromisoformat(data[field_name])
@@ -172,18 +176,18 @@ class Assignment:
             Dictionary representation of assignment
         """
         data = {
-            'id': self.id,
-            'name': self.name,
-            'classroom_id': self.classroom_id,
-            'classroom_url': self.classroom_url,
-            'template_repo_url': self.template_repo_url,
-            'github_organization': self.github_organization,
-            'assignment_type': self.assignment_type,
-            'deadline': self.deadline.isoformat() if self.deadline else None,
-            'points_available': self.points_available,
-            'status': self.status,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            "id": self.id,
+            "name": self.name,
+            "classroom_id": self.classroom_id,
+            "classroom_url": self.classroom_url,
+            "template_repo_url": self.template_repo_url,
+            "github_organization": self.github_organization,
+            "assignment_type": self.assignment_type,
+            "deadline": self.deadline.isoformat() if self.deadline else None,
+            "points_available": self.points_available,
+            "status": self.status,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
         return data
 
@@ -207,6 +211,7 @@ class StudentAssignment:
         created_at: Record creation timestamp
         updated_at: Record last update timestamp
     """
+
     student_id: int
     assignment_id: int
     id: Optional[int] = None
@@ -231,7 +236,7 @@ class StudentAssignment:
             raise ValueError(f"acceptance_status must be one of {valid_statuses}")
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> 'StudentAssignment':
+    def from_dict(cls, data: Dict[str, Any]) -> "StudentAssignment":
         """
         Create StudentAssignment from dictionary.
 
@@ -242,8 +247,13 @@ class StudentAssignment:
             StudentAssignment instance
         """
         # Convert timestamp strings to datetime objects
-        for field_name in ['accepted_at', 'last_commit_at', 'last_synced_at',
-                           'created_at', 'updated_at']:
+        for field_name in [
+            "accepted_at",
+            "last_commit_at",
+            "last_synced_at",
+            "created_at",
+            "updated_at",
+        ]:
             if field_name in data and isinstance(data[field_name], str):
                 try:
                     data[field_name] = datetime.fromisoformat(data[field_name])
@@ -260,18 +270,22 @@ class StudentAssignment:
             Dictionary representation
         """
         data = {
-            'id': self.id,
-            'student_id': self.student_id,
-            'assignment_id': self.assignment_id,
-            'repository_url': self.repository_url,
-            'repository_name': self.repository_name,
-            'acceptance_status': self.acceptance_status,
-            'accepted_at': self.accepted_at.isoformat() if self.accepted_at else None,
-            'last_commit_at': self.last_commit_at.isoformat() if self.last_commit_at else None,
-            'last_synced_at': self.last_synced_at.isoformat() if self.last_synced_at else None,
-            'notes': self.notes,
-            'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
+            "id": self.id,
+            "student_id": self.student_id,
+            "assignment_id": self.assignment_id,
+            "repository_url": self.repository_url,
+            "repository_name": self.repository_name,
+            "acceptance_status": self.acceptance_status,
+            "accepted_at": self.accepted_at.isoformat() if self.accepted_at else None,
+            "last_commit_at": self.last_commit_at.isoformat()
+            if self.last_commit_at
+            else None,
+            "last_synced_at": self.last_synced_at.isoformat()
+            if self.last_synced_at
+            else None,
+            "notes": self.notes,
+            "created_at": self.created_at.isoformat() if self.created_at else None,
+            "updated_at": self.updated_at.isoformat() if self.updated_at else None,
         }
         return data
 
@@ -289,6 +303,7 @@ class ImportResult:
         errors: List of error messages
         imported_students: List of successfully imported students
     """
+
     total_rows: int = 0
     successful: int = 0
     failed: int = 0
@@ -331,6 +346,7 @@ class SyncResult:
         errors: List of error messages
         unlinked_repos: List of repository URLs that couldn't be linked
     """
+
     sync_type: str
     total_repos: int = 0
     linked_count: int = 0

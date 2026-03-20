@@ -8,8 +8,9 @@ from pathlib import Path
 from typing import Optional
 
 try:
-    from rich.logging import RichHandler
     from rich.console import Console
+    from rich.logging import RichHandler
+
     RICH_AVAILABLE = True
 except ImportError:
     RICH_AVAILABLE = False
@@ -41,18 +42,15 @@ def setup_logging(verbose: bool = False, log_file: Optional[Path] = None) -> Non
             show_path=verbose,
             show_time=verbose,
             rich_tracebacks=True,
-            markup=True
+            markup=True,
         )
-        formatter = logging.Formatter(
-            fmt="%(message)s",
-            datefmt="[%X]"
-        )
+        formatter = logging.Formatter(fmt="%(message)s", datefmt="[%X]")
     else:
         # Fallback to standard handler
         handler = logging.StreamHandler(sys.stderr)
         formatter = logging.Formatter(
             fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S"
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
 
     handler.setFormatter(formatter)
@@ -64,7 +62,7 @@ def setup_logging(verbose: bool = False, log_file: Optional[Path] = None) -> Non
         file_handler = logging.FileHandler(log_file)
         file_formatter = logging.Formatter(
             fmt="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-            datefmt="%Y-%m-%d %H:%M:%S"
+            datefmt="%Y-%m-%d %H:%M:%S",
         )
         file_handler.setFormatter(file_formatter)
         file_handler.setLevel(logging.DEBUG)  # Always debug to file

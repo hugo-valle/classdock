@@ -70,15 +70,25 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Python Environment
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-integration-${{ runner.os }}-3.10-${{ hashFiles('**/poetry.lock') }}
+
       - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry install
+        run: poetry install
 
       - name: Download Integration Test Configuration
         uses: actions/download-artifact@v4
@@ -91,19 +101,10 @@ jobs:
           source .github/scripts/workflow_utils.sh
           echo "Loaded workflow utilities for integration testing"
 
-      - name: Test Assignment Setup Workflow
+      - name: Test CLI Commands
         run: ./.github/scripts/test_cli_commands.sh
 
-      - name: Test Assignment Orchestration Workflow
-        run: ./.github/scripts/run_integration_tests.sh tests/fixtures
-
-      - name: Test Repository Fetch Workflow
-        run: ./.github/scripts/test_cli_commands.sh
-
-      - name: Test Secrets Management Workflow
-        run: ./.github/scripts/run_integration_tests.sh tests/fixtures
-
-      - name: Test Complete Multi-Script Workflow
+      - name: Test Integration Workflows
         run: ./.github/scripts/run_integration_tests.sh tests/fixtures
 
       - name: Export Workflow Metrics
@@ -123,15 +124,25 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Python Environment
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-integration-${{ runner.os }}-3.10-${{ hashFiles('**/poetry.lock') }}
+
       - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry install
+        run: poetry install
 
       - name: Download Integration Test Configuration
         uses: actions/download-artifact@v4
@@ -174,15 +185,25 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Python Environment
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-integration-${{ runner.os }}-3.10-${{ hashFiles('**/poetry.lock') }}
+
       - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry install
+        run: poetry install
 
       - name: Download Integration Test Configuration
         uses: actions/download-artifact@v4
@@ -195,13 +216,7 @@ jobs:
           source .github/scripts/workflow_utils.sh
           echo "Loaded utilities for error recovery testing"
 
-      - name: Test Invalid Configuration Handling
-        run: ./.github/scripts/test_error_recovery.sh tests/fixtures
-
-      - name: Test Network Failure Simulation
-        run: ./.github/scripts/test_error_recovery.sh tests/fixtures
-
-      - name: Test Missing Dependencies Handling
+      - name: Test Error Recovery
         run: ./.github/scripts/test_error_recovery.sh tests/fixtures
 
       - name: Export Error Recovery Metrics
@@ -221,15 +236,25 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Setup Python Environment
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-integration-${{ runner.os }}-3.10-${{ hashFiles('**/poetry.lock') }}
+
       - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry install
+        run: poetry install
 
       - name: Download Integration Test Configuration
         uses: actions/download-artifact@v4
@@ -265,22 +290,31 @@ jobs:
     strategy:
       matrix:
         os: [ubuntu-latest]
-        shell: [bash, zsh]
     
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
 
       - name: Setup Python Environment
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10'
 
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+        with:
+          version: latest
+          virtualenvs-create: true
+          virtualenvs-in-project: true
+
+      - name: Cache Poetry dependencies
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-integration-${{ runner.os }}-3.10-${{ hashFiles('**/poetry.lock') }}
+
       - name: Install Dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install poetry
-          poetry install
+        run: poetry install
 
       - name: Download Integration Test Configuration
         uses: actions/download-artifact@v4
@@ -291,7 +325,7 @@ jobs:
       - name: Load Workflow Utilities
         run: |
           source .github/scripts/workflow_utils.sh
-          echo "Loaded utilities for cross-platform testing on ${{ matrix.os }} with ${{ matrix.shell }}"
+          echo "Loaded utilities for cross-platform testing on ${{ matrix.os }}"
 
       - name: Test Shell Script Compatibility
         run: ./.github/scripts/test_cli_commands.sh
@@ -302,7 +336,7 @@ jobs:
       - name: Export Cross-Platform Metrics
         run: |
           source .github/scripts/workflow_utils.sh
-          export_performance_metrics "cross_platform_${{ matrix.os }}_${{ matrix.shell }}" \
+          export_performance_metrics "cross_platform_${{ matrix.os }}" \
             "integration_results/cross_platform_metrics.json"
 
   integration-test-reporting:
@@ -350,4 +384,4 @@ jobs:
           path: |
             integration_test_report.md
             all_integration_results/
-          retention-days: 30
+          retention-days: 7

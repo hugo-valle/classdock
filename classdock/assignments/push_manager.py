@@ -19,6 +19,7 @@ logger = get_logger("assignments.push_manager")
 
 class PushResult(Enum):
     """Results of push operations."""
+
     SUCCESS = "success"
     UP_TO_DATE = "up_to_date"
     CANCELLED = "cancelled"
@@ -32,6 +33,7 @@ class PushResult(Enum):
 @dataclass
 class GitCommitInfo:
     """Information about a git commit."""
+
     hash: str
     short_hash: str
     message: str
@@ -39,36 +41,45 @@ class GitCommitInfo:
     date: str
 
     @classmethod
-    def from_hash(cls, commit_hash: str) -> 'GitCommitInfo':
+    def from_hash(cls, commit_hash: str) -> "GitCommitInfo":
         """Create GitCommitInfo from commit hash."""
         try:
             # Get commit information
-            result = subprocess.run([
-                'git', 'show', '--format=%H%n%h%n%s%n%an%n%ad', '--no-patch', commit_hash
-            ], capture_output=True, text=True, check=True)
+            result = subprocess.run(
+                [
+                    "git",
+                    "show",
+                    "--format=%H%n%h%n%s%n%an%n%ad",
+                    "--no-patch",
+                    commit_hash,
+                ],
+                capture_output=True,
+                text=True,
+                check=True,
+            )
 
-            lines = result.stdout.strip().split('\n')
+            lines = result.stdout.strip().split("\n")
             return cls(
                 hash=lines[0],
                 short_hash=lines[1],
                 message=lines[2],
                 author=lines[3],
-                date=lines[4]
+                date=lines[4],
             )
         except Exception:
             return cls(
                 hash=commit_hash,
-                short_hash=commit_hash[:8] if len(
-                    commit_hash) >= 8 else commit_hash,
+                short_hash=commit_hash[:8] if len(commit_hash) >= 8 else commit_hash,
                 message="Unknown",
                 author="Unknown",
-                date="Unknown"
+                date="Unknown",
             )
 
 
 @dataclass
 class RepositoryState:
     """State information about git repositories."""
+
     local_commit: GitCommitInfo
     classroom_commit: Optional[GitCommitInfo]
     is_in_sync: bool
@@ -79,6 +90,7 @@ class RepositoryState:
 @dataclass
 class PushValidationResult:
     """Result of push validation."""
+
     is_valid: bool
     errors: List[str]
     warnings: List[str]
@@ -97,7 +109,11 @@ class PushValidationResult:
 class ClassroomPushManager:
     """Manages pushing template changes to GitHub Classroom repositories."""
 
-    def __init__(self, global_config: Optional[GlobalConfig] = None, assignment_root: Optional[Path] = None):
+    def __init__(
+        self,
+        global_config: Optional[GlobalConfig] = None,
+        assignment_root: Optional[Path] = None,
+    ):
         """Initialize push manager with configuration."""
         self.global_config = global_config or GlobalConfig()
         self.assignment_root = assignment_root or Path.cwd()
@@ -106,17 +122,22 @@ class ClassroomPushManager:
         self.classroom_remote = "classroom"
         self.branch = "main"
 
-    def _run_git_command(self, args: List[str], cwd: Optional[Path] = None,
-                         check: bool = True, capture_output: bool = True) -> subprocess.CompletedProcess:
+    def _run_git_command(
+        self,
+        args: List[str],
+        cwd: Optional[Path] = None,
+        check: bool = True,
+        capture_output: bool = True,
+    ) -> subprocess.CompletedProcess:
         """Run git command with error handling."""
         try:
             return subprocess.run(
-                ['git'] + args,
+                ["git"] + args,
                 cwd=cwd or self.assignment_root,
                 capture_output=capture_output,
                 text=True,
                 check=check,
-                timeout=30
+                timeout=30,
             )
         except subprocess.CalledProcessError as e:
             logger.error(f"Git command failed: git {' '.join(args)}")
@@ -139,14 +160,15 @@ class ClassroomPushManager:
             return PushValidationResult(False, errors, warnings)
 
         # Check if assignment file exists
-        assignment_file = getattr(self.global_config, 'assignment_file', None)
+        assignment_file = getattr(self.global_config, "assignment_file", None)
         if not assignment_file:
             # Try common defaults
-            for default_file in ['assignment.ipynb', 'assignment.py', 'README.md']:
+            for default_file in ["assignment.ipynb", "assignment.py", "README.md"]:
                 if (self.assignment_root / default_file).exists():
                     assignment_file = default_file
                     warnings.append(
-                        f"Using detected assignment file: {assignment_file}")
+                        f"Using detected assignment file: {assignment_file}"
+                    )
                     break
 
         if assignment_file and not (self.assignment_root / assignment_file).exists():
@@ -156,18 +178,18 @@ class ClassroomPushManager:
             warnings.append("No assignment file specified in configuration")
 
         # Check if classroom repository URL is configured
-        classroom_url = getattr(self.global_config, 'classroom_repo_url', None)
+        classroom_url = getattr(self.global_config, "classroom_repo_url", None)
         if not classroom_url:
             errors.append("CLASSROOM_REPO_URL is not set in configuration")
             errors.append(
-                "Please add the GitHub Classroom repository URL to your assignment.conf:")
+                "Please add the GitHub Classroom repository URL to your assignment.conf:"
+            )
             errors.append(
-                'CLASSROOM_REPO_URL="https://github.com/ORG/classroom-semester-assignment-name"')
+                'CLASSROOM_REPO_URL="https://github.com/ORG/classroom-semester-assignment-name"'
+            )
 
         return PushValidationResult(
-            is_valid=len(errors) == 0,
-            errors=errors,
-            warnings=warnings
+            is_valid=len(errors) == 0, errors=errors, warnings=warnings
         )
 
     def check_working_tree_clean(self) -> PushValidationResult:
@@ -177,50 +199,46 @@ class ClassroomPushManager:
 
         try:
             # Check for uncommitted changes
-            result = self._run_git_command(['status', '--porcelain'])
+            result = self._run_git_command(["status", "--porcelain"])
 
             if result.stdout.strip():
-                errors.append(
-                    "You have uncommitted changes in your working directory")
-                errors.append(
-                    "Please commit or stash your changes before pushing")
+                errors.append("You have uncommitted changes in your working directory")
+                errors.append("Please commit or stash your changes before pushing")
 
                 # Show the status
-                status_result = self._run_git_command(['status', '--short'])
+                status_result = self._run_git_command(["status", "--short"])
                 if status_result.stdout:
-                    errors.append(
-                        f"Uncommitted changes:\n{status_result.stdout}")
+                    errors.append(f"Uncommitted changes:\n{status_result.stdout}")
 
         except Exception as e:
             errors.append(f"Failed to check working tree status: {e}")
 
         return PushValidationResult(
-            is_valid=len(errors) == 0,
-            errors=errors,
-            warnings=warnings
+            is_valid=len(errors) == 0, errors=errors, warnings=warnings
         )
 
     def setup_classroom_remote(self) -> Tuple[bool, str]:
         """Setup or update classroom remote."""
         try:
-            classroom_url = getattr(
-                self.global_config, 'classroom_repo_url', None)
+            classroom_url = getattr(self.global_config, "classroom_repo_url", None)
             if not classroom_url:
                 return False, "Classroom repository URL not configured"
 
             # Check if remote exists
-            result = self._run_git_command(['remote'], check=False)
-            remotes = result.stdout.strip().split('\n') if result.stdout.strip() else []
+            result = self._run_git_command(["remote"], check=False)
+            remotes = result.stdout.strip().split("\n") if result.stdout.strip() else []
 
             if self.classroom_remote in remotes:
                 # Update existing remote URL
                 self._run_git_command(
-                    ['remote', 'set-url', self.classroom_remote, classroom_url])
+                    ["remote", "set-url", self.classroom_remote, classroom_url]
+                )
                 logger.info(f"Updated {self.classroom_remote} remote URL")
             else:
                 # Add new remote
                 self._run_git_command(
-                    ['remote', 'add', self.classroom_remote, classroom_url])
+                    ["remote", "add", self.classroom_remote, classroom_url]
+                )
                 logger.info(f"Added {self.classroom_remote} remote")
 
             return True, f"Classroom remote configured: {classroom_url}"
@@ -232,7 +250,7 @@ class ClassroomPushManager:
         """Fetch latest state from classroom repository."""
         try:
             logger.info("Fetching classroom repository state...")
-            self._run_git_command(['fetch', self.classroom_remote])
+            self._run_git_command(["fetch", self.classroom_remote])
             return True, "Successfully fetched classroom repository"
 
         except subprocess.CalledProcessError as e:
@@ -246,7 +264,7 @@ class ClassroomPushManager:
         """Get current state comparison between local and classroom repositories."""
         try:
             # Get local commit
-            local_result = self._run_git_command(['rev-parse', self.branch])
+            local_result = self._run_git_command(["rev-parse", self.branch])
             local_commit_hash = local_result.stdout.strip()
             local_commit = GitCommitInfo.from_hash(local_commit_hash)
 
@@ -254,31 +272,33 @@ class ClassroomPushManager:
             classroom_commit = None
             try:
                 classroom_result = self._run_git_command(
-                    ['rev-parse', f'{self.classroom_remote}/{self.branch}'],
-                    check=False
+                    ["rev-parse", f"{self.classroom_remote}/{self.branch}"], check=False
                 )
                 if classroom_result.returncode == 0:
                     classroom_commit_hash = classroom_result.stdout.strip()
-                    classroom_commit = GitCommitInfo.from_hash(
-                        classroom_commit_hash)
+                    classroom_commit = GitCommitInfo.from_hash(classroom_commit_hash)
             except Exception:
                 pass  # Classroom branch doesn't exist yet
 
             # Check if repositories are in sync
-            is_in_sync = (classroom_commit and
-                          local_commit.hash == classroom_commit.hash)
+            is_in_sync = classroom_commit and local_commit.hash == classroom_commit.hash
 
             # Get list of changed files
             files_changed = []
             if classroom_commit:
                 try:
-                    diff_result = self._run_git_command([
-                        'diff', '--name-only',
-                        f'{self.classroom_remote}/{self.branch}..{self.branch}'
-                    ], check=False)
+                    diff_result = self._run_git_command(
+                        [
+                            "diff",
+                            "--name-only",
+                            f"{self.classroom_remote}/{self.branch}..{self.branch}",
+                        ],
+                        check=False,
+                    )
                     if diff_result.returncode == 0:
                         files_changed = [
-                            line.strip() for line in diff_result.stdout.splitlines()
+                            line.strip()
+                            for line in diff_result.stdout.splitlines()
                             if line.strip()
                         ]
                 except Exception:
@@ -289,10 +309,15 @@ class ClassroomPushManager:
             if classroom_commit:
                 try:
                     # Check if classroom branch is ancestor of local branch
-                    merge_base_result = self._run_git_command([
-                        'merge-base', '--is-ancestor',
-                        f'{self.classroom_remote}/{self.branch}', self.branch
-                    ], check=False)
+                    merge_base_result = self._run_git_command(
+                        [
+                            "merge-base",
+                            "--is-ancestor",
+                            f"{self.classroom_remote}/{self.branch}",
+                            self.branch,
+                        ],
+                        check=False,
+                    )
                     force_required = merge_base_result.returncode != 0
                 except Exception:
                     force_required = True  # Assume force needed if we can't determine
@@ -302,7 +327,7 @@ class ClassroomPushManager:
                 classroom_commit=classroom_commit,
                 is_in_sync=is_in_sync,
                 files_changed=files_changed,
-                force_required=force_required
+                force_required=force_required,
             )
 
         except Exception as e:
@@ -315,34 +340,35 @@ class ClassroomPushManager:
 
         summary.append("Repository Comparison:")
         summary.append(
-            f"  Local commit:     {state.local_commit.short_hash} - {state.local_commit.message}")
+            f"  Local commit:     {state.local_commit.short_hash} - {state.local_commit.message}"
+        )
 
         if state.classroom_commit:
             summary.append(
-                f"  Classroom commit: {state.classroom_commit.short_hash} - {state.classroom_commit.message}")
+                f"  Classroom commit: {state.classroom_commit.short_hash} - {state.classroom_commit.message}"
+            )
         else:
-            summary.append(
-                "  Classroom commit: none (empty or new repository)")
+            summary.append("  Classroom commit: none (empty or new repository)")
 
         if state.is_in_sync:
             summary.append("\n✅ Repositories are already in sync!")
             return "\n".join(summary)
 
         if state.files_changed:
-            summary.append(
-                f"\nFiles to be updated ({len(state.files_changed)}):")
+            summary.append(f"\nFiles to be updated ({len(state.files_changed)}):")
             for file_path in state.files_changed[:10]:  # Show first 10 files
                 summary.append(f"  - {file_path}")
             if len(state.files_changed) > 10:
-                summary.append(
-                    f"  ... and {len(state.files_changed) - 10} more files")
+                summary.append(f"  ... and {len(state.files_changed) - 10} more files")
         elif not state.classroom_commit:
             summary.append(
-                "\n📝 This appears to be the first push to classroom repository")
+                "\n📝 This appears to be the first push to classroom repository"
+            )
 
         if state.force_required:
             summary.append(
-                "\n⚠️  Force push will be required (histories have diverged)")
+                "\n⚠️  Force push will be required (histories have diverged)"
+            )
 
         return "\n".join(summary)
 
@@ -357,19 +383,25 @@ class ClassroomPushManager:
             # Prepare push arguments
             push_args = [self.classroom_remote, self.branch]
             if force or state.force_required:
-                push_args.append('--force')
+                push_args.append("--force")
                 logger.warning("Using force push")
 
             # Execute push
-            result = self._run_git_command(['push'] + push_args)
+            result = self._run_git_command(["push"] + push_args)
 
             if result.returncode == 0:
-                return PushResult.SUCCESS, "Successfully pushed changes to classroom repository"
+                return (
+                    PushResult.SUCCESS,
+                    "Successfully pushed changes to classroom repository",
+                )
             else:
                 return PushResult.GIT_ERROR, f"Push failed: {result.stderr}"
 
         except subprocess.CalledProcessError as e:
-            if "permission denied" in e.stderr.lower() or "access denied" in e.stderr.lower():
+            if (
+                "permission denied" in e.stderr.lower()
+                or "access denied" in e.stderr.lower()
+            ):
                 return PushResult.PERMISSION_ERROR, f"Permission denied: {e.stderr}"
             elif "network" in e.stderr.lower() or "connection" in e.stderr.lower():
                 return PushResult.NETWORK_ERROR, f"Network error: {e.stderr}"
@@ -384,7 +416,7 @@ class ClassroomPushManager:
             logger.info("Verifying push was successful...")
 
             # Fetch latest state
-            self._run_git_command(['fetch', self.classroom_remote])
+            self._run_git_command(["fetch", self.classroom_remote])
 
             # Get current state
             state = self.get_repository_state()
@@ -399,8 +431,7 @@ class ClassroomPushManager:
 
     def get_next_steps_guidance(self) -> str:
         """Generate guidance for next steps after successful push."""
-        classroom_url = getattr(
-            self.global_config, 'classroom_repo_url', 'N/A')
+        classroom_url = getattr(self.global_config, "classroom_repo_url", "N/A")
 
         guidance = []
         guidance.append("📋 Next Steps:")
@@ -410,22 +441,21 @@ class ClassroomPushManager:
         guidance.append("   - Email notification")
         guidance.append("   - Canvas/LMS message")
         guidance.append("")
-        guidance.append(
-            "2. Direct students to update their repositories using:")
-        guidance.append(
-            "   - Automated update: classdock assignments update")
+        guidance.append("2. Direct students to update their repositories using:")
+        guidance.append("   - Automated update: classdock assignments update")
         guidance.append("   - Manual process: docs/UPDATE-GUIDE.md")
         guidance.append("")
         guidance.append("3. Monitor for student questions and provide support")
         guidance.append("")
-        guidance.append(
-            "4. Check that student tests still pass with the updates")
+        guidance.append("4. Check that student tests still pass with the updates")
         guidance.append("")
         guidance.append(f"🔗 Classroom repository: {classroom_url}")
 
         return "\n".join(guidance)
 
-    def execute_push_workflow(self, force: bool = False, interactive: bool = True) -> Tuple[PushResult, str]:
+    def execute_push_workflow(
+        self, force: bool = False, interactive: bool = True
+    ) -> Tuple[PushResult, str]:
         """Execute the complete push workflow."""
         try:
             # Step 1: Validate repository
@@ -461,7 +491,10 @@ class ClassroomPushManager:
             state = self.get_repository_state()
 
             if state.is_in_sync:
-                return PushResult.UP_TO_DATE, "Repositories are already in sync - no changes to push"
+                return (
+                    PushResult.UP_TO_DATE,
+                    "Repositories are already in sync - no changes to push",
+                )
 
             # Step 6: Show changes (if interactive)
             changes_summary = self.show_changes_summary(state)
@@ -471,8 +504,9 @@ class ClassroomPushManager:
             if interactive and not force:
                 try:
                     response = input(
-                        "\nDo you want to push these changes to the classroom repository? [y/N] ")
-                    if response.lower() not in ['y', 'yes']:
+                        "\nDo you want to push these changes to the classroom repository? [y/N] "
+                    )
+                    if response.lower() not in ["y", "yes"]:
                         return PushResult.CANCELLED, "Operation cancelled by user"
                 except (EOFError, KeyboardInterrupt):
                     return PushResult.CANCELLED, "Operation cancelled by user"

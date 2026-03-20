@@ -283,25 +283,26 @@ end_step_timing() {
     eval "start_time=\$$var_name"
     
     if [ -z "$start_time" ]; then
-        print_message "warning" "No start time found for step: $step_name"
+        print_message "warning" "No start time found for step: $step_name" >&2
         return 1
     fi
-    
+
     local duration=$((end_time - start_time))
-    
-    print_message "info" "$step_name completed in ${duration}s"
-    
+
+    # Log to stderr so callers using $() capture only get the numeric duration
+    print_message "info" "$step_name completed in ${duration}s" >&2
+
     # Export for GitHub Actions step summary
     if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
         echo "| $step_name | ${duration}s |" >> "$GITHUB_STEP_SUMMARY"
     fi
-    
+
     # Export duration for use in other steps
     if [ -n "${GITHUB_ENV:-}" ] && [ -f "${GITHUB_ENV}" ]; then
         local duration_var="STEP_DURATION_$(echo "$step_name" | tr -c '[:alnum:]' '_' | tr '[:lower:]' '[:upper:]')"
         echo "$duration_var=$duration" >> "$GITHUB_ENV"
     fi
-    
+
     echo "$duration"
 }
 
@@ -319,14 +320,15 @@ report_step_timing() {
     local end_time
     end_time=$(date +%s)
     local duration=$((end_time - start_time))
-    
-    print_message "info" "$step_name completed in ${duration}s"
-    
+
+    # Log to stderr so callers using $() capture only get the numeric duration
+    print_message "info" "$step_name completed in ${duration}s" >&2
+
     # Export for GitHub Actions step summary
     if [ -n "${GITHUB_STEP_SUMMARY:-}" ]; then
         echo "| $step_name | ${duration}s |" >> "$GITHUB_STEP_SUMMARY"
     fi
-    
+
     echo "$duration"
 }
 
@@ -500,7 +502,7 @@ export_performance_metrics() {
             echo "}"
         } > "$perf_file"
         
-        print_message "info" "Performance metrics saved to $perf_file"
+        print_message "info" "Performance metrics saved to $perf_file" >&2
     fi
 }
 

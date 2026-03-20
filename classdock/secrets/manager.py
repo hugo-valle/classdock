@@ -9,24 +9,27 @@ This module handles:
 - Integration with GitHub API for automated secrets management workflows
 """
 
-from pathlib import Path
-from typing import List, Dict, Optional
 import json
+from pathlib import Path
+from typing import Dict, List, Optional
 
 # GitHub API integration with fallback handling
 try:
     from github import Github, GithubException
+
     # Repository import unused in this module; avoid unused import lint error
     GITHUB_AVAILABLE = True
 except ImportError:
     GITHUB_AVAILABLE = False
 
-from ..utils import get_logger, PathManager
-from ..utils.github_exceptions import (
-    GitHubAuthenticationError, GitHubRepositoryError,
-    github_api_retry, github_api_context
-)
 from ..config import ConfigLoader
+from ..utils import PathManager, get_logger
+from ..utils.github_exceptions import (
+    GitHubAuthenticationError,
+    GitHubRepositoryError,
+    github_api_context,
+    github_api_retry,
+)
 
 logger = get_logger("secrets.manager")
 
@@ -91,7 +94,7 @@ class SecretsManager:
                 logger.warning(f"GitHub API initialization failed: {e}")
                 self.github_client = None
 
-    def _initialize_github_client(self) -> Optional['Github']:
+    def _initialize_github_client(self) -> Optional["Github"]:
         """
         Initialize GitHub API client with authentication.
 
@@ -102,13 +105,12 @@ class SecretsManager:
             GitHubAuthenticationError: If authentication fails.
         """
         if not GITHUB_AVAILABLE:
-            logger.warning(
-                "PyGithub not available - falling back to CLI operations")
+            logger.warning("PyGithub not available - falling back to CLI operations")
             return None
 
         tokens = [
-            self.config.get('GITHUB_TOKEN'),
-            self.config.get('GITHUB_ACCESS_TOKEN'),
+            self.config.get("GITHUB_TOKEN"),
+            self.config.get("GITHUB_ACCESS_TOKEN"),
         ]
 
         for token in tokens:
@@ -127,13 +129,14 @@ class SecretsManager:
                 continue
 
         raise GitHubAuthenticationError(
-            "No valid GitHub token found in environment or configuration")
+            "No valid GitHub token found in environment or configuration"
+        )
 
     def get_secret_token_value(self, secret_config) -> str:
         """
         Get the token value for a secret configuration.
 
-        If the secret uses centralized token (token_file is None), 
+        If the secret uses centralized token (token_file is None),
         gets token from the centralized token manager.
         Otherwise, reads from the specified token file.
 
@@ -151,13 +154,16 @@ class SecretsManager:
             # Use centralized token manager
             try:
                 from ..utils.token_manager import GitHubTokenManager
+
                 token_manager = GitHubTokenManager()
                 token = token_manager.get_github_token()
                 if not token:
                     raise ValueError(
-                        "No GitHub token available from centralized token manager")
+                        "No GitHub token available from centralized token manager"
+                    )
                 logger.debug(
-                    f"Using centralized token for secret: {secret_config.name}")
+                    f"Using centralized token for secret: {secret_config.name}"
+                )
                 return token
             except Exception as e:
                 raise ValueError(f"Failed to get centralized token: {e}")
@@ -166,20 +172,22 @@ class SecretsManager:
             token_file_path = Path(secret_config.token_file)
             if not token_file_path.exists():
                 raise FileNotFoundError(
-                    f"Token file not found: {secret_config.token_file}")
+                    f"Token file not found: {secret_config.token_file}"
+                )
 
             try:
-                with open(token_file_path, 'r') as f:
+                with open(token_file_path, "r") as f:
                     token = f.read().strip()
                 if not token:
-                    raise ValueError(
-                        f"Token file is empty: {secret_config.token_file}")
+                    raise ValueError(f"Token file is empty: {secret_config.token_file}")
                 logger.debug(
-                    f"Using token file for secret: {secret_config.name} -> {secret_config.token_file}")
+                    f"Using token file for secret: {secret_config.name} -> {secret_config.token_file}"
+                )
                 return token
             except Exception as e:
                 raise ValueError(
-                    f"Failed to read token file {secret_config.token_file}: {e}")
+                    f"Failed to read token file {secret_config.token_file}: {e}"
+                )
 
     def load_secrets_template(self) -> Dict[str, str]:
         """Load secrets template from configuration."""
@@ -191,7 +199,7 @@ class SecretsManager:
                 logger.warning("No secrets template found")
                 return {}
 
-            with open(secrets_file, 'r') as f:
+            with open(secrets_file, "r") as f:
                 secrets = json.load(f)
 
             logger.info(f"Loaded {len(secrets)} secret templates")
@@ -233,7 +241,8 @@ class SecretsManager:
             else:
                 # Basic format validation only
                 logger.warning(
-                    "GitHub API not available - using basic format validation")
+                    "GitHub API not available - using basic format validation"
+                )
                 return True
 
         except GitHubAuthenticationError:
@@ -255,17 +264,17 @@ class SecretsManager:
                 user = test_client.get_user()
                 username = user.login
 
-                logger.info(
-                    f"Token validation successful for user: {username}")
+                logger.info(f"Token validation successful for user: {username}")
                 return True
 
         except GithubException as e:
             raise GitHubAuthenticationError(
-                f"GitHub token validation failed: {e}",
-                original_error=e
+                f"GitHub token validation failed: {e}", original_error=e
             )
 
-    def add_secrets_to_repository(self, repo_name: str, secrets: Dict[str, str]) -> Dict[str, bool]:
+    def add_secrets_to_repository(
+        self, repo_name: str, secrets: Dict[str, str]
+    ) -> Dict[str, bool]:
         """Add secrets to a specific repository."""
         logger.info(f"Adding {len(secrets)} secrets to {repo_name}")
 
@@ -273,22 +282,23 @@ class SecretsManager:
 
         for secret_name, secret_value in secrets.items():
             try:
-                success = self.add_single_secret(
-                    repo_name, secret_name, secret_value)
+                success = self.add_single_secret(repo_name, secret_name, secret_value)
                 results[secret_name] = success
 
             except GitHubRepositoryError as e:
-                logger.error(
-                    f"Failed to add secret {secret_name} to {repo_name}: {e}")
+                logger.error(f"Failed to add secret {secret_name} to {repo_name}: {e}")
                 results[secret_name] = False
             except Exception as e:
                 logger.error(
-                    f"Unexpected error adding secret {secret_name} to {repo_name}: {e}")
+                    f"Unexpected error adding secret {secret_name} to {repo_name}: {e}"
+                )
                 results[secret_name] = False
 
         return results
 
-    def add_single_secret(self, repo_name: str, secret_name: str, secret_value: str) -> bool:
+    def add_single_secret(
+        self, repo_name: str, secret_name: str, secret_value: str
+    ) -> bool:
         """
         Add a single secret to a repository.
 
@@ -314,10 +324,12 @@ class SecretsManager:
             raise GitHubRepositoryError(
                 f"Failed to add secret {secret_name} to {repo_name}: {e}",
                 repository_name=repo_name,
-                operation="add_secret"
+                operation="add_secret",
             )
 
-    def _add_secret_via_api(self, repo_name: str, secret_name: str, secret_value: str) -> bool:
+    def _add_secret_via_api(
+        self, repo_name: str, secret_name: str, secret_value: str
+    ) -> bool:
         """Add secret using GitHub API."""
         logger.info("Using GitHub API for adding repository secret")
 
@@ -329,17 +341,20 @@ class SecretsManager:
             # This would require using the REST API directly or additional libraries
             # For now, we'll use CLI fallback and log a warning
             logger.warning(
-                "GitHub API secret addition not yet fully implemented - using CLI fallback")
+                "GitHub API secret addition not yet fully implemented - using CLI fallback"
+            )
             return self._add_secret_via_cli(repo_name, secret_name, secret_value)
 
         except GithubException as e:
             raise GitHubRepositoryError(
                 f"GitHub API error adding secret: {e}",
                 repository_name=repo_name,
-                operation="add_secret"
+                operation="add_secret",
             )
 
-    def _add_secret_via_cli(self, repo_name: str, secret_name: str, secret_value: str) -> bool:
+    def _add_secret_via_cli(
+        self, repo_name: str, secret_name: str, secret_value: str
+    ) -> bool:
         """Add secret using GitHub CLI fallback."""
         logger.info("Using GitHub CLI for adding repository secret")
 
@@ -348,28 +363,34 @@ class SecretsManager:
 
             # Use gh CLI to add repository secret
             cmd = [
-                'gh', 'secret', 'set', secret_name,
-                '--repo', repo_name,
-                '--body', secret_value
+                "gh",
+                "secret",
+                "set",
+                secret_name,
+                "--repo",
+                repo_name,
+                "--body",
+                secret_value,
             ]
-            _proc = subprocess.run(
-                cmd, capture_output=True, text=True, check=True)
+            _proc = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
             logger.info(
-                f"Successfully added secret {secret_name} to {repo_name} via CLI")
+                f"Successfully added secret {secret_name} to {repo_name} via CLI"
+            )
             return True
 
         except subprocess.CalledProcessError as e:
             raise GitHubRepositoryError(
                 f"GitHub CLI error adding secret: {e}",
                 repository_name=repo_name,
-                operation="add_secret"
+                operation="add_secret",
             )
 
-    def add_secrets_to_students(self, assignment_prefix: str) -> Dict[str, Dict[str, bool]]:
+    def add_secrets_to_students(
+        self, assignment_prefix: str
+    ) -> Dict[str, Dict[str, bool]]:
         """Add secrets to all student repositories for an assignment."""
-        logger.info(
-            f"Adding secrets to student repositories for {assignment_prefix}")
+        logger.info(f"Adding secrets to student repositories for {assignment_prefix}")
 
         secrets = self.load_secrets_template()
         if not secrets:
@@ -382,8 +403,7 @@ class SecretsManager:
             student_repos = self.find_student_repositories(assignment_prefix)
 
             for repo_name in student_repos:
-                repo_results = self.add_secrets_to_repository(
-                    repo_name, secrets)
+                repo_results = self.add_secrets_to_repository(repo_name, secrets)
                 results[repo_name] = repo_results
 
         except GitHubRepositoryError as e:
@@ -417,10 +437,7 @@ class SecretsManager:
             repositories = fetcher.discover_repositories(assignment_prefix)
 
             # Extract just the repository names for student repositories
-            student_repos = [
-                repo.name for repo in repositories
-                if repo.is_student_repo
-            ]
+            student_repos = [repo.name for repo in repositories if repo.is_student_repo]
 
             logger.info(f"Found {len(student_repos)} student repositories")
             return student_repos
@@ -429,7 +446,7 @@ class SecretsManager:
             raise GitHubRepositoryError(
                 f"Failed to find student repositories for {assignment_prefix}: {e}",
                 repository_name=assignment_prefix,
-                operation="repository_discovery"
+                operation="repository_discovery",
             )
 
     def rotate_tokens(self) -> Dict[str, bool]:
@@ -476,7 +493,7 @@ class SecretsManager:
             raise GitHubRepositoryError(
                 f"Failed to audit secrets for {repo_name}: {e}",
                 repository_name=repo_name,
-                operation="audit_secrets"
+                operation="audit_secrets",
             )
 
     def _audit_secrets_via_cli(self, repo_name: str) -> List[str]:
@@ -487,13 +504,12 @@ class SecretsManager:
             import subprocess
 
             # Use gh CLI to list repository secrets
-            cmd = ['gh', 'secret', 'list', '--repo', repo_name]
-            result = subprocess.run(
-                cmd, capture_output=True, text=True, check=True)
+            cmd = ["gh", "secret", "list", "--repo", repo_name]
+            result = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
             # Parse the output to extract secret names
             secret_names = []
-            for line in result.stdout.strip().split('\n'):
+            for line in result.stdout.strip().split("\n"):
                 if line.strip():
                     # Extract secret name (first column)
                     secret_name = line.split()[0]
@@ -506,7 +522,7 @@ class SecretsManager:
             raise GitHubRepositoryError(
                 f"GitHub CLI error auditing secrets: {e}",
                 repository_name=repo_name,
-                operation="audit_secrets"
+                operation="audit_secrets",
             )
 
     def add_secrets_from_global_config(self, repository_urls: List[str] = None) -> bool:
@@ -528,8 +544,7 @@ class SecretsManager:
         try:
             global_config = get_global_config()
             if not global_config or not global_config.secrets_config:
-                logger.warning(
-                    "No secrets configuration found in global config")
+                logger.warning("No secrets configuration found in global config")
                 return False
 
             # Prepare secrets dictionary
@@ -541,7 +556,8 @@ class SecretsManager:
                     logger.info(f"Prepared secret: {secret_config.name}")
                 except Exception as e:
                     logger.error(
-                        f"Failed to get token for secret {secret_config.name}: {e}")
+                        f"Failed to get token for secret {secret_config.name}: {e}"
+                    )
                     return False
 
             if not secrets_dict:
@@ -551,14 +567,15 @@ class SecretsManager:
             # Get repositories to deploy to
             if repository_urls is None:
                 # Auto-discover student repositories
-                if hasattr(global_config, 'github_organization'):
+                if hasattr(global_config, "github_organization"):
                     assignment_name = getattr(
-                        global_config, 'assignment_name', 'assignment')
-                    repository_urls = self.find_student_repositories(
-                        assignment_name)
+                        global_config, "assignment_name", "assignment"
+                    )
+                    repository_urls = self.find_student_repositories(assignment_name)
                 else:
                     logger.error(
-                        "No repository URLs provided and cannot auto-discover without organization")
+                        "No repository URLs provided and cannot auto-discover without organization"
+                    )
                     return False
 
             if not repository_urls:
@@ -567,29 +584,27 @@ class SecretsManager:
 
             # Deploy secrets to all repositories
             logger.info(
-                f"Deploying {len(secrets_dict)} secrets to {len(repository_urls)} repositories")
+                f"Deploying {len(secrets_dict)} secrets to {len(repository_urls)} repositories"
+            )
             all_successful = True
 
             for repo_url in repository_urls:
                 try:
                     # Extract repo name from URL
-                    repo_name = repo_url.replace(
-                        'https://github.com/', '').replace('.git', '')
-                    results = self.add_secrets_to_repository(
-                        repo_name, secrets_dict)
+                    repo_name = repo_url.replace("https://github.com/", "").replace(
+                        ".git", ""
+                    )
+                    results = self.add_secrets_to_repository(repo_name, secrets_dict)
 
                     # Check if all secrets were added successfully
                     if not all(results.values()):
-                        logger.error(
-                            f"Some secrets failed to deploy to {repo_name}")
+                        logger.error(f"Some secrets failed to deploy to {repo_name}")
                         all_successful = False
                     else:
-                        logger.info(
-                            f"Successfully deployed all secrets to {repo_name}")
+                        logger.info(f"Successfully deployed all secrets to {repo_name}")
 
                 except Exception as e:
-                    logger.error(
-                        f"Failed to deploy secrets to {repo_url}: {e}")
+                    logger.error(f"Failed to deploy secrets to {repo_url}: {e}")
                     all_successful = False
 
             return all_successful
@@ -606,10 +621,10 @@ class SecretsManager:
             template = {
                 "GITHUB_TOKEN": "your_github_token_here",
                 "API_KEY": "your_api_key_here",
-                "DATABASE_URL": "your_database_url_here"
+                "DATABASE_URL": "your_database_url_here",
             }
 
-            with open(template_path, 'w') as f:
+            with open(template_path, "w") as f:
                 json.dump(template, f, indent=2)
 
             logger.info("Secrets template created successfully")

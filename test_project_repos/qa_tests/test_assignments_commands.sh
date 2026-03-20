@@ -2,15 +2,14 @@
 ################################################################################
 # Test Suite: Assignments Commands
 #
-# Comprehensive QA testing for all classroom-pilot assignments commands.
+# Comprehensive QA testing for all classdock assignments commands.
 # Tests 13 commands with various options, error scenarios, and edge cases.
 #
 # Commands tested:
 # - setup, validate-config, orchestrate
 # - help-student, help-students, check-student, student-instructions
-# - check-classroom, manage
-# - cycle-collaborator, cycle-collaborators, check-repository-access
-# - push-to-classroom
+# - check-classroom, cycle-collaborator, cycle-collaborators
+# - check-repository-access, push-to-classroom
 #
 # Usage:
 #   ./test_assignments_commands.sh [--setup|--validate|--orchestrate|--help|--check|--cycle|--push|--all]
@@ -29,7 +28,7 @@
 #   - lib/test_helpers.sh
 #   - lib/mock_helpers.sh
 #   - fixtures/assignments/ directory with test fixtures
-#   - classroom-pilot CLI installed (via poetry)
+#   - classdock CLI installed (via poetry)
 #
 ################################################################################
 
@@ -137,7 +136,7 @@ test_setup_with_url() {
     
     # Run setup with URL (in dry-run mode to avoid actual file creation in real scenario)
     # Note: --dry-run must come BEFORE the subcommand
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run setup --url "$test_url" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run setup --url "$test_url" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Setup with --url option"
@@ -156,7 +155,7 @@ test_setup_dry_run() {
     
     # Run in project root but scope CLI to TEST_TEMP_DIR so any generated assignment.conf would appear there
     # Note: poetry must run from project root (where pyproject.toml lives)
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot --assignment-root "$TEST_TEMP_DIR" assignments --dry-run setup --url "https://classroom.github.com/a/test" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock --assignment-root "$TEST_TEMP_DIR" assignments --dry-run setup --url "https://classroom.github.com/a/test" 2>&1) || exit_code=$?
     
     # Verify no config file was created
     if [ ! -f "$TEST_TEMP_DIR/assignment.conf" ] && echo "$output" | grep -q "DRY RUN:"; then
@@ -178,7 +177,7 @@ test_setup_verbose() {
     
     # Run with verbose flag
         # Note: --verbose and --dry-run are subcommand-level options (after assignments, before setup)
-        output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose --dry-run setup --url "https://classroom.github.com/a/test" 2>&1) || exit_code=$?
+        output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run setup --url "https://classroom.github.com/a/test" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Setup with --verbose option"
@@ -214,7 +213,7 @@ test_validate_config_valid() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments validate-config --config-file "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments validate-config --config-file "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Validate-config with valid comprehensive config"
@@ -232,7 +231,7 @@ test_validate_config_minimal() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments validate-config --config-file "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments validate-config --config-file "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Validate-config with minimal config"
@@ -250,7 +249,7 @@ test_validate_config_missing_classroom_url() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments validate-config --config-file "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments validate-config --config-file "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && echo "$output" | grep -qi "classroom"; then
         mark_test_passed "Validate-config detects missing CLASSROOM_URL"
@@ -268,7 +267,7 @@ test_validate_config_missing_template_url() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments validate-config --config-file "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments validate-config --config-file "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && echo "$output" | grep -qi "template"; then
         mark_test_passed "Validate-config detects missing TEMPLATE_REPO_URL"
@@ -283,7 +282,7 @@ test_validate_config_missing_file() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments validate-config --config-file "/nonexistent/file.conf" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments validate-config --config-file "/nonexistent/file.conf" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ]; then
         mark_test_passed "Validate-config detects missing file"
@@ -301,7 +300,7 @@ test_validate_config_invalid_urls() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments validate-config --config-file "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments validate-config --config-file "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && (echo "$output" | grep -qi "url\|invalid\|malformed"); then
         mark_test_passed "Validate-config detects malformed URLs"
@@ -319,7 +318,7 @@ test_validate_config_verbose() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose validate-config --config-file "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose validate-config --config-file "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Validate-config with --verbose"
@@ -357,7 +356,7 @@ test_orchestrate_dry_run() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -q "DRY RUN:"; then
         mark_test_passed "Orchestrate with --dry-run"
@@ -376,7 +375,7 @@ test_orchestrate_with_yes() {
     local exit_code=0
     
     # Use dry-run to avoid actual operations
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run orchestrate --config "$config_file" --yes 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run orchestrate --config "$config_file" --yes 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Orchestrate with --yes flag"
@@ -394,7 +393,7 @@ test_orchestrate_with_config() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Orchestrate with custom config"
@@ -413,7 +412,7 @@ test_orchestrate_step_sync() {
     local exit_code=0
     
     # Note: --dry-run must come BEFORE the subcommand
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run orchestrate --step sync --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run orchestrate --step sync --config "$config_file" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -q "sync"; then
         mark_test_passed "Orchestrate with --step sync"
@@ -432,7 +431,7 @@ test_orchestrate_step_discover() {
     local exit_code=0
     
     # Note: --dry-run must come BEFORE the subcommand
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run orchestrate --step discover --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run orchestrate --step discover --config "$config_file" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -q "discover"; then
         mark_test_passed "Orchestrate with --step discover"
@@ -450,7 +449,7 @@ test_orchestrate_step_secrets() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run orchestrate --step secrets --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run orchestrate --step secrets --config "$config_file" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -q "secrets"; then
         mark_test_passed "Orchestrate with --step secrets"
@@ -468,7 +467,7 @@ test_orchestrate_step_assist() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run orchestrate --step assist --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run orchestrate --step assist --config "$config_file" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -q "assist"; then
         mark_test_passed "Orchestrate with --step assist"
@@ -486,7 +485,7 @@ test_orchestrate_step_cycle() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run orchestrate --step cycle --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run orchestrate --step cycle --config "$config_file" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -q "cycle"; then
         mark_test_passed "Orchestrate with --step cycle"
@@ -504,7 +503,7 @@ test_orchestrate_skip_single() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run orchestrate --skip sync --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run orchestrate --skip sync --config "$config_file" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -qi "skip.*sync\|Skipping.*sync"; then
         mark_test_passed "Orchestrate with --skip sync"
@@ -522,7 +521,7 @@ test_orchestrate_skip_multiple() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run orchestrate --skip sync,secrets --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run orchestrate --skip sync,secrets --config "$config_file" 2>&1) || exit_code=$?
     
     # Check if output mentions skipping both sync and secrets (can be in same line like "skipping: sync,secrets")
     if echo "$output" | grep -qi "skip" && echo "$output" | grep -qi "sync" && echo "$output" | grep -qi "secrets"; then
@@ -541,7 +540,7 @@ test_orchestrate_verbose() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run orchestrate --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Orchestrate with --verbose"
@@ -574,7 +573,7 @@ test_help_student_dry_run() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run help-student "$test_repo_url" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run help-student "$test_repo_url" --config "$config_file" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -q "DRY RUN:"; then
         mark_test_passed "Help-student with --dry-run"
@@ -593,7 +592,7 @@ test_help_student_with_yes() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run help-student "$test_repo_url" --config "$config_file" --yes 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run help-student "$test_repo_url" --config "$config_file" --yes 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Help-student with --yes flag"
@@ -612,7 +611,7 @@ test_help_student_one_student_mode() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run help-student "$test_repo_url" --one-student --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run help-student "$test_repo_url" --one-student --config "$config_file" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -qi "one.*student\|single.*student\|DRY RUN:"; then
         mark_test_passed "Help-student with --one-student mode"
@@ -631,7 +630,7 @@ test_help_student_invalid_url() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments help-student "$invalid_url" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments help-student "$invalid_url" --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && echo "$output" | grep -qi "invalid\|url\|error\|validation"; then
         mark_test_passed "Help-student detects invalid URL"
@@ -650,7 +649,7 @@ test_help_student_verbose() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose --dry-run help-student "$test_repo_url" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run help-student "$test_repo_url" --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Help-student with --verbose"
@@ -683,7 +682,7 @@ test_help_students_batch() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run help-students "$repos_file" --config "$config_file" --yes 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run help-students "$repos_file" --config "$config_file" --yes 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Help-students with batch file"
@@ -702,7 +701,7 @@ test_help_students_empty_file() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments help-students "$empty_file" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments help-students "$empty_file" --config "$config_file" 2>&1) || exit_code=$?
     
     # Should handle empty file gracefully (error or warning expected)
     if [ $exit_code -ne 0 ] || echo "$output" | grep -qi "empty\|no.*repo"; then
@@ -721,7 +720,7 @@ test_help_students_missing_file() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments help-students /nonexistent.txt --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments help-students /nonexistent.txt --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && echo "$output" | grep -qi "not found\|file.*not.*exist\|no such file"; then
         mark_test_passed "Help-students detects missing file"
@@ -740,7 +739,7 @@ test_help_students_invalid_urls() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run help-students "$invalid_file" --config "$config_file" --yes 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run help-students "$invalid_file" --config "$config_file" --yes 2>&1) || exit_code=$?
     
     # Should process file and report invalid URLs
     if echo "$output" | grep -qi "invalid\|error\|skip\|fail"; then
@@ -760,7 +759,7 @@ test_help_students_verbose() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose --dry-run help-students "$repos_file" --config "$config_file" --yes 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run help-students "$repos_file" --config "$config_file" --yes 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Help-students with --verbose"
@@ -792,7 +791,7 @@ test_check_student_basic() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments check-student "$test_repo_url" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments check-student "$test_repo_url" --config "$config_file" 2>&1) || exit_code=$?
     
     # Command should execute (may fail due to mocking, but should run)
     if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "check\|status\|repository"; then
@@ -812,7 +811,7 @@ test_check_student_invalid_url() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments check-student "$invalid_url" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments check-student "$invalid_url" --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && echo "$output" | grep -qi "invalid\|url\|error"; then
         mark_test_passed "Check-student detects invalid URL"
@@ -831,7 +830,7 @@ test_check_student_nonexistent_repo() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments check-student "$nonexistent_url" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments check-student "$nonexistent_url" --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && echo "$output" | grep -qi "not found\|404\|does not exist\|error"; then
         mark_test_passed "Check-student detects non-existent repo"
@@ -850,7 +849,7 @@ test_check_student_verbose() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose check-student "$test_repo_url" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose check-student "$test_repo_url" --config "$config_file" 2>&1) || exit_code=$?
     
     # Command should run (may fail due to mocking)
     if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "check\|status\|repository\|verbose"; then
@@ -884,7 +883,7 @@ test_student_instructions_display() {
     local exit_code=0
     
     local test_repo_url="https://github.com/test-org/test-assignment-student1"
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments student-instructions "$test_repo_url" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments student-instructions "$test_repo_url" --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Student-instructions display"
@@ -904,7 +903,7 @@ test_student_instructions_save_file() {
     local exit_code=0
     
     local test_repo_url="https://github.com/test-org/test-assignment-student1"
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments student-instructions "$test_repo_url" --config "$config_file" --output "$output_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments student-instructions "$test_repo_url" --config "$config_file" --output "$output_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] && [ -f "$output_file" ]; then
         mark_test_passed "Student-instructions with --output"
@@ -930,7 +929,7 @@ EOF
     local exit_code=0
     
     local test_repo_url="https://github.com/test-org/test-assignment-student1"
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments student-instructions "$test_repo_url" --config "$temp_config" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments student-instructions "$test_repo_url" --config "$temp_config" 2>&1) || exit_code=$?
     
     # Current CLI may generate instructions without strict URL validation; accept success or validation error
     if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "invalid\|url\|validation\|error"; then
@@ -956,7 +955,7 @@ test_student_instructions_overwrite() {
     
     # Write to existing file (no confirmation required in current CLI)
     local test_repo_url="https://github.com/test-org/test-assignment-student1"
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments student-instructions "$test_repo_url" --config "$config_file" --output "$output_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments student-instructions "$test_repo_url" --config "$config_file" --output "$output_file" 2>&1) || exit_code=$?
     
     # Should overwrite the existing file successfully
     if [ $exit_code -eq 0 ] && [ -f "$output_file" ]; then
@@ -976,7 +975,7 @@ test_student_instructions_verbose() {
     local exit_code=0
     
     local test_repo_url="https://github.com/test-org/test-assignment-student1"
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose student-instructions "$test_repo_url" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose student-instructions "$test_repo_url" --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ]; then
         mark_test_passed "Student-instructions with --verbose"
@@ -1007,7 +1006,7 @@ test_check_classroom_basic() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments check-classroom --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments check-classroom --config "$config_file" 2>&1) || exit_code=$?
     
     # Command should execute (may fail due to mocking, but should run)
     if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "classroom\|repository\|check"; then
@@ -1026,7 +1025,7 @@ test_check_classroom_dry_run() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run check-classroom --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run check-classroom --config "$config_file" 2>&1) || exit_code=$?
     
     # Current CLI performs actual status check even with --dry-run;
     # accept successful run or informative status output
@@ -1046,7 +1045,7 @@ test_check_classroom_verbose() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose check-classroom --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose check-classroom --config "$config_file" 2>&1) || exit_code=$?
     
     # Command should execute (may fail due to mocking)
     if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "classroom\|repository\|check\|verbose"; then
@@ -1062,43 +1061,12 @@ test_check_classroom_missing_config() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments check-classroom --config /nonexistent.conf 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments check-classroom --config /nonexistent.conf 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && echo "$output" | grep -qi "not found\|file.*not.*exist\|no such file\|error"; then
         mark_test_passed "Check-classroom detects missing config"
     else
         mark_test_failed "Check-classroom missing config" "Should have failed with clear error"
-    fi
-}
-
-################################################################################
-# Section 9: Manage Command Tests
-################################################################################
-
-run_manage_tests() {
-    log_info "Testing: assignments manage command"
-    
-    test_manage_basic
-}
-
-test_manage_basic() {
-    log_step "Testing manage command (placeholder)"
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments manage 2>&1) || exit_code=$?
-    
-    # Manage is a placeholder, should indicate not implemented
-    if echo "$output" | grep -qi "not.*implement\|placeholder\|coming\|future"; then
-        mark_test_passed "Manage command placeholder"
-    else
-        # If command runs without error, that's also acceptable
-        if [ $exit_code -eq 0 ]; then
-            mark_test_passed "Manage command runs"
-        else
-            mark_test_failed "Manage command" "Unexpected behavior: $output"
-        fi
     fi
 }
 
@@ -1127,7 +1095,7 @@ test_cycle_collaborator_dry_run() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run cycle-collaborator "$test_repo_url" "$test_username" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run cycle-collaborator "$test_repo_url" "$test_username" --config "$config_file" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -q "DRY RUN:"; then
         mark_test_passed "Cycle-collaborator with --dry-run"
@@ -1147,7 +1115,7 @@ test_cycle_collaborator_force() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run cycle-collaborator "$test_repo_url" "$test_username" --config "$config_file" --force 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run cycle-collaborator "$test_repo_url" "$test_username" --config "$config_file" --force 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "force\|DRY RUN:"; then
         mark_test_passed "Cycle-collaborator with --force"
@@ -1167,7 +1135,7 @@ test_cycle_collaborator_invalid_repo() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments cycle-collaborator "$invalid_url" "$test_username" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments cycle-collaborator "$invalid_url" "$test_username" --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && echo "$output" | grep -qi "invalid\|url\|error\|validation"; then
         mark_test_passed "Cycle-collaborator detects invalid repo URL"
@@ -1187,7 +1155,7 @@ test_cycle_collaborator_invalid_user() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments cycle-collaborator "$test_repo_url" "$invalid_username" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments cycle-collaborator "$test_repo_url" "$invalid_username" --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && echo "$output" | grep -qi "invalid\|username\|error\|validation"; then
         mark_test_passed "Cycle-collaborator detects invalid username"
@@ -1207,7 +1175,7 @@ test_cycle_collaborator_verbose() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose --dry-run cycle-collaborator "$test_repo_url" "$test_username" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run cycle-collaborator "$test_repo_url" "$test_username" --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] || echo "$output" | grep -q "DRY RUN:"; then
         mark_test_passed "Cycle-collaborator with --verbose"
@@ -1241,7 +1209,7 @@ test_cycle_collaborators_usernames() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run cycle-collaborators "$usernames_file" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run cycle-collaborators "$usernames_file" --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "dry"; then
         mark_test_passed "Cycle-collaborators with usernames"
@@ -1260,7 +1228,7 @@ test_cycle_collaborators_repo_urls() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run cycle-collaborators "$repos_file" --repo-urls --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run cycle-collaborators "$repos_file" --repo-urls --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] || echo "$output" | grep -q "DRY RUN:"; then
         mark_test_passed "Cycle-collaborators with --repo-urls"
@@ -1278,7 +1246,7 @@ test_cycle_collaborators_missing_file() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments cycle-collaborators /nonexistent.txt --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments cycle-collaborators /nonexistent.txt --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -ne 0 ] && echo "$output" | grep -qi "not found\|file.*not.*exist\|no such file\|error"; then
         mark_test_passed "Cycle-collaborators detects missing file"
@@ -1297,7 +1265,7 @@ test_cycle_collaborators_force() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run cycle-collaborators "$usernames_file" --config "$config_file" --force 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run cycle-collaborators "$usernames_file" --config "$config_file" --force 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "force\|DRY RUN:"; then
         mark_test_passed "Cycle-collaborators with --force"
@@ -1316,7 +1284,7 @@ test_cycle_collaborators_summary() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run cycle-collaborators "$usernames_file" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run cycle-collaborators "$usernames_file" --config "$config_file" 2>&1) || exit_code=$?
     
     # Look for summary indicators like counts, processed, failed, etc.
     if echo "$output" | grep -qi "processed\|completed\|failed\|success\|summary\|total"; then
@@ -1336,7 +1304,7 @@ test_cycle_collaborators_verbose() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose --dry-run cycle-collaborators "$usernames_file" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run cycle-collaborators "$usernames_file" --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] || echo "$output" | grep -q "DRY RUN:"; then
         mark_test_passed "Cycle-collaborators with --verbose"
@@ -1366,7 +1334,7 @@ test_check_access_basic() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments check-repository-access "$test_repo_url" "$test_username" --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments check-repository-access "$test_repo_url" "$test_username" --config "$config_file" 2>&1) || exit_code=$?
     
     # Command should execute (may fail due to mocking, but should run)
     if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "access\|repository\|collaborator"; then
@@ -1401,7 +1369,7 @@ test_push_to_classroom_dry_run() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run push-to-classroom --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run push-to-classroom --config "$config_file" 2>&1) || exit_code=$?
     
     if echo "$output" | grep -qi "DRY RUN MODE\|DRY RUN:"; then
         mark_test_passed "Push-to-classroom with --dry-run"
@@ -1419,7 +1387,7 @@ test_push_to_classroom_with_force() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run push-to-classroom --config "$config_file" --force 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run push-to-classroom --config "$config_file" --force 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "force\|DRY RUN:"; then
         mark_test_passed "Push-to-classroom with --force"
@@ -1438,7 +1406,7 @@ test_push_to_classroom_interactive() {
     local exit_code=0
     
     # Interactive mode is default; in DRY RUN no confirmation is required
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run push-to-classroom --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run push-to-classroom --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] || echo "$output" | grep -q "DRY RUN:"; then
         mark_test_passed "Push-to-classroom interactive mode with --yes"
@@ -1456,7 +1424,7 @@ test_push_to_classroom_non_interactive() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run push-to-classroom --config "$config_file" --non-interactive 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run push-to-classroom --config "$config_file" --non-interactive 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "non.*interactive\|DRY RUN MODE\|DRY RUN:"; then
         mark_test_passed "Push-to-classroom with --non-interactive"
@@ -1474,7 +1442,7 @@ test_push_to_classroom_branch() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run push-to-classroom --config "$config_file" --branch custom-branch 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run push-to-classroom --config "$config_file" --branch custom-branch 2>&1) || exit_code=$?
     
     # The current CLI does not echo the branch in dry-run; validate dry-run mode instead
     if [ $exit_code -eq 0 ] && echo "$output" | grep -qi "DRY RUN MODE\|DRY RUN:\|Dry run completed"; then
@@ -1493,7 +1461,7 @@ test_push_to_classroom_verbose() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --verbose --dry-run push-to-classroom --config "$config_file" 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run push-to-classroom --config "$config_file" 2>&1) || exit_code=$?
     
     if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "DRY RUN MODE\|DRY RUN:"; then
         mark_test_passed "Push-to-classroom with --verbose"
@@ -1511,7 +1479,7 @@ test_push_to_classroom_combined() {
     local output
     local exit_code=0
     
-    output=$(cd "$PROJECT_ROOT" && poetry run classroom-pilot assignments --dry-run push-to-classroom --config "$config_file" --force --branch test-branch 2>&1) || exit_code=$?
+    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run push-to-classroom --config "$config_file" --force --branch test-branch 2>&1) || exit_code=$?
     
     # Current CLI dry-run output does not echo --force or branch; validate dry-run mode
     if [ $exit_code -eq 0 ] && echo "$output" | grep -qi "DRY RUN MODE\|DRY RUN:\|Dry run completed"; then
@@ -1536,7 +1504,6 @@ run_all_tests() {
     run_check_student_tests
     run_student_instructions_tests
     run_check_classroom_tests
-    run_manage_tests
     run_cycle_collaborator_tests
     run_cycle_collaborators_tests
     run_check_repository_access_tests

@@ -7,8 +7,9 @@ and integrates with PathManager for automatic file discovery.
 """
 
 from pathlib import Path
-from typing import Dict, Any, Optional
-from ..utils import get_logger, PathManager
+from typing import Any, Dict, Optional
+
+from ..utils import PathManager, get_logger
 
 logger = get_logger("config.loader")
 
@@ -105,18 +106,18 @@ class ConfigLoader:
         try:
             # Read configuration file (shell format)
             config = {}
-            with open(self.config_path, 'r') as f:
+            with open(self.config_path, "r") as f:
                 for line in f:
                     line = line.strip()
                     # Skip comments and empty lines
-                    if not line or line.startswith('#'):
+                    if not line or line.startswith("#"):
                         continue
 
                     # Parse variable assignments
-                    if '=' in line:
-                        key, value = line.split('=', 1)
+                    if "=" in line:
+                        key, value = line.split("=", 1)
                         key = key.strip()
-                        value = value.strip().strip('"\'')  # Remove quotes
+                        value = value.strip().strip("\"'")  # Remove quotes
                         config[key] = value
 
             logger.info(f"Loaded configuration from {self.config_path}")
@@ -200,7 +201,7 @@ class ConfigLoader:
             existing_config.update(updates)
 
             # Write back to file
-            with open(self.config_path, 'w') as f:
+            with open(self.config_path, "w") as f:
                 f.write("# GitHub Classroom Assignment Configuration\n")
                 f.write("# Updated by ConfigLoader\n\n")
 

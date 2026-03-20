@@ -9,10 +9,10 @@ This module handles:
 """
 
 from pathlib import Path
-from typing import List, Dict
+from typing import Dict, List
 
-from ..utils import get_logger, PathManager
 from ..config import ConfigLoader
+from ..utils import PathManager, get_logger
 
 logger = get_logger("automation.scheduler")
 
@@ -39,7 +39,8 @@ class AutomationScheduler:
             # 3. Verify installation
 
             logger.warning(
-                "Cron job installation not yet implemented - using bash wrapper")
+                "Cron job installation not yet implemented - using bash wrapper"
+            )
             results["sync_job"] = True
             results["orchestrator_job"] = True
 
@@ -61,8 +62,7 @@ class AutomationScheduler:
             # 2. Remove entries from crontab
             # 3. Verify removal
 
-            logger.warning(
-                "Cron job removal not yet implemented - using bash wrapper")
+            logger.warning("Cron job removal not yet implemented - using bash wrapper")
             results["sync_job"] = True
             results["orchestrator_job"] = True
 
@@ -76,12 +76,7 @@ class AutomationScheduler:
         """Get status of installed cron jobs."""
         logger.info("Checking cron job status")
 
-        status = {
-            "installed": False,
-            "jobs": [],
-            "last_run": None,
-            "next_run": None
-        }
+        status = {"installed": False, "jobs": [], "last_run": None, "next_run": None}
 
         try:
             # TODO: Implement cron status checking
@@ -90,7 +85,8 @@ class AutomationScheduler:
             # 3. Check execution logs
 
             logger.warning(
-                "Cron status checking not yet implemented - using bash wrapper")
+                "Cron status checking not yet implemented - using bash wrapper"
+            )
 
         except Exception as e:
             logger.error(f"Cron status check failed: {e}")
@@ -107,18 +103,18 @@ class AutomationScheduler:
             # 2. Update student repositories
             # 3. Log execution results
 
-            logger.warning(
-                "Scheduled sync not yet implemented - using bash wrapper")
+            logger.warning("Scheduled sync not yet implemented - using bash wrapper")
             return True
 
         except Exception as e:
             logger.error(f"Scheduled sync failed: {e}")
             return False
 
-    def run_batch_operation(self, operation: str, targets: List[str]) -> Dict[str, bool]:
+    def run_batch_operation(
+        self, operation: str, targets: List[str]
+    ) -> Dict[str, bool]:
         """Run batch operations on multiple repositories."""
-        logger.info(
-            f"Running batch operation '{operation}' on {len(targets)} targets")
+        logger.info(f"Running batch operation '{operation}' on {len(targets)} targets")
 
         results = {}
 
@@ -194,8 +190,7 @@ class AutomationScheduler:
 
     def schedule_workflow(self, workflow_name: str, schedule: str) -> bool:
         """Schedule a workflow to run automatically."""
-        logger.info(
-            f"Scheduling workflow '{workflow_name}' with schedule '{schedule}'")
+        logger.info(f"Scheduling workflow '{workflow_name}' with schedule '{schedule}'")
 
         try:
             # TODO: Implement workflow scheduling

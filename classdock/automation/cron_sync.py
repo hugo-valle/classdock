@@ -15,11 +15,11 @@ Key capabilities:
 
 import sys
 import time
+from dataclasses import dataclass
 from datetime import datetime
 from enum import Enum
 from pathlib import Path
 from typing import List, Optional, Tuple
-from dataclasses import dataclass
 
 from ..config import GlobalConfig
 from ..utils import get_logger
@@ -27,6 +27,7 @@ from ..utils import get_logger
 
 class WorkflowStep(Enum):
     """Valid workflow steps for automated execution."""
+
     SYNC = "sync"
     DISCOVER = "discover"
     SECRETS = "secrets"
@@ -36,6 +37,7 @@ class WorkflowStep(Enum):
 
 class CronSyncResult(Enum):
     """Results of cron sync execution."""
+
     SUCCESS = "success"
     PARTIAL_FAILURE = "partial_failure"
     COMPLETE_FAILURE = "complete_failure"
@@ -46,6 +48,7 @@ class CronSyncResult(Enum):
 @dataclass
 class StepResult:
     """Result of executing a single workflow step."""
+
     step: WorkflowStep
     success: bool
     exit_code: int
@@ -56,6 +59,7 @@ class StepResult:
 @dataclass
 class CronSyncExecutionResult:
     """Comprehensive result of cron sync execution."""
+
     overall_result: CronSyncResult
     steps_executed: List[StepResult]
     total_execution_time: float
@@ -74,8 +78,11 @@ class CronSyncManager:
     # Log file size limit (10MB)
     LOG_SIZE_LIMIT = 10 * 1024 * 1024
 
-    def __init__(self, global_config: Optional[GlobalConfig] = None,
-                 assignment_root: Optional[Path] = None):
+    def __init__(
+        self,
+        global_config: Optional[GlobalConfig] = None,
+        assignment_root: Optional[Path] = None,
+    ):
         """
         Initialize the CronSyncManager.
 
@@ -146,9 +153,13 @@ class CronSyncManager:
 
         if invalid_steps:
             valid_step_names = [step.value for step in WorkflowStep]
-            return False, [], (
-                f"Invalid step names: {invalid_steps}. "
-                f"Valid steps are: {valid_step_names}"
+            return (
+                False,
+                [],
+                (
+                    f"Invalid step names: {invalid_steps}. "
+                    f"Valid steps are: {valid_step_names}"
+                ),
             )
 
         return True, valid_steps, f"Validated {len(valid_steps)} steps"
@@ -166,7 +177,7 @@ class CronSyncManager:
         try:
             file_size = self.log_file.stat().st_size
             if file_size > self.LOG_SIZE_LIMIT:
-                old_log = self.log_file.with_suffix('.log.old')
+                old_log = self.log_file.with_suffix(".log.old")
                 if old_log.exists():
                     old_log.unlink()  # Remove old backup
                 self.log_file.rename(old_log)
@@ -184,18 +195,20 @@ class CronSyncManager:
         Args:
             message: Message to log
         """
-        timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+        timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
         log_entry = f"[{timestamp}] {message}\n"
 
         try:
-            with open(self.log_file, 'a', encoding='utf-8') as f:
+            with open(self.log_file, "a", encoding="utf-8") as f:
                 f.write(log_entry)
         except Exception as e:
             # Fallback to console if file logging fails
             print(f"LOG ERROR: {e}", file=sys.stderr)
             print(log_entry.strip(), file=sys.stderr)
 
-    def execute_workflow_step(self, step: WorkflowStep, verbose: bool = True) -> StepResult:
+    def execute_workflow_step(
+        self, step: WorkflowStep, verbose: bool = True
+    ) -> StepResult:
         """
         Execute a single workflow step using the assignment orchestrator.
 
@@ -215,26 +228,28 @@ class CronSyncManager:
 
             # Initialize orchestrator
             orchestrator = AssignmentOrchestrator(
-                self.global_config, self.assignment_root)
+                self.global_config, self.assignment_root
+            )
 
             # Execute the specific step
             result, message = orchestrator.execute_step(
                 step=step.value,
                 auto_confirm=True,  # Equivalent to --yes flag
-                verbose=verbose
+                verbose=verbose,
             )
 
             execution_time = time.time() - start_time
 
             if result:
                 self.log_cron(
-                    f"SUCCESS: Step '{step.value}' completed successfully in {execution_time:.2f}s")
+                    f"SUCCESS: Step '{step.value}' completed successfully in {execution_time:.2f}s"
+                )
                 return StepResult(
                     step=step,
                     success=True,
                     exit_code=0,
                     message=message,
-                    execution_time=execution_time
+                    execution_time=execution_time,
                 )
             else:
                 self.log_cron(f"ERROR: Step '{step.value}' failed: {message}")
@@ -243,7 +258,7 @@ class CronSyncManager:
                     success=False,
                     exit_code=1,
                     message=message,
-                    execution_time=execution_time
+                    execution_time=execution_time,
                 )
 
         except Exception as e:
@@ -256,13 +271,12 @@ class CronSyncManager:
                 success=False,
                 exit_code=2,
                 message=error_msg,
-                execution_time=execution_time
+                execution_time=execution_time,
             )
 
-    def execute_cron_sync(self,
-                          steps: List[str],
-                          verbose: bool = True,
-                          stop_on_failure: bool = False) -> CronSyncExecutionResult:
+    def execute_cron_sync(
+        self, steps: List[str], verbose: bool = True, stop_on_failure: bool = False
+    ) -> CronSyncExecutionResult:
         """
         Execute the complete cron sync workflow.
 
@@ -286,14 +300,13 @@ class CronSyncManager:
         # Validate environment
         env_valid, env_message = self.validate_environment()
         if not env_valid:
-            self.log_cron(
-                f"ERROR: Environment validation failed: {env_message}")
+            self.log_cron(f"ERROR: Environment validation failed: {env_message}")
             return CronSyncExecutionResult(
                 overall_result=CronSyncResult.ENVIRONMENT_ERROR,
                 steps_executed=[],
                 total_execution_time=time.time() - start_time,
                 log_file_path=str(self.log_file),
-                error_summary=env_message
+                error_summary=env_message,
             )
 
         # Validate and parse steps
@@ -305,7 +318,7 @@ class CronSyncManager:
                 steps_executed=[],
                 total_execution_time=time.time() - start_time,
                 log_file_path=str(self.log_file),
-                error_summary=steps_message
+                error_summary=steps_message,
             )
 
         self.log_cron(f"INFO: {steps_message}")
@@ -322,7 +335,8 @@ class CronSyncManager:
                 overall_success = False
                 if stop_on_failure:
                     self.log_cron(
-                        f"INFO: Stopping execution due to failure in step: {step.value}")
+                        f"INFO: Stopping execution due to failure in step: {step.value}"
+                    )
                     break
 
         # Determine overall result
@@ -331,17 +345,14 @@ class CronSyncManager:
             self.log_cron("SUCCESS: All workflow steps completed successfully")
         elif any(result.success for result in step_results):
             overall_result = CronSyncResult.PARTIAL_FAILURE
-            failed_steps = [
-                r.step.value for r in step_results if not r.success]
-            self.log_cron(
-                f"WARNING: Some workflow steps failed: {failed_steps}")
+            failed_steps = [r.step.value for r in step_results if not r.success]
+            self.log_cron(f"WARNING: Some workflow steps failed: {failed_steps}")
         else:
             overall_result = CronSyncResult.COMPLETE_FAILURE
             self.log_cron("ERROR: All workflow steps failed")
 
         total_time = time.time() - start_time
-        self.log_cron(
-            f"INFO: Automated workflow job completed in {total_time:.2f}s")
+        self.log_cron(f"INFO: Automated workflow job completed in {total_time:.2f}s")
 
         # Generate error summary if needed
         error_summary = None
@@ -355,7 +366,7 @@ class CronSyncManager:
             steps_executed=step_results,
             total_execution_time=total_time,
             log_file_path=str(self.log_file),
-            error_summary=error_summary
+            error_summary=error_summary,
         )
 
     def get_log_tail(self, lines: int = 50) -> List[str]:
@@ -372,7 +383,7 @@ class CronSyncManager:
             return []
 
         try:
-            with open(self.log_file, 'r', encoding='utf-8') as f:
+            with open(self.log_file, "r", encoding="utf-8") as f:
                 all_lines = f.readlines()
                 return [line.rstrip() for line in all_lines[-lines:]]
         except Exception as e:
@@ -387,18 +398,13 @@ class CronSyncManager:
             Dictionary with log file statistics
         """
         if not self.log_file.exists():
-            return {
-                "exists": False,
-                "size": 0,
-                "lines": 0,
-                "last_modified": None
-            }
+            return {"exists": False, "size": 0, "lines": 0, "last_modified": None}
 
         try:
             stat_info = self.log_file.stat()
 
             # Count lines
-            with open(self.log_file, 'r', encoding='utf-8') as f:
+            with open(self.log_file, "r", encoding="utf-8") as f:
                 line_count = sum(1 for _ in f)
 
             return {
@@ -407,13 +413,10 @@ class CronSyncManager:
                 "size_mb": round(stat_info.st_size / (1024 * 1024), 2),
                 "lines": line_count,
                 "last_modified": datetime.fromtimestamp(stat_info.st_mtime).isoformat(),
-                "path": str(self.log_file)
+                "path": str(self.log_file),
             }
         except Exception as e:
-            return {
-                "exists": True,
-                "error": str(e)
-            }
+            return {"exists": True, "error": str(e)}
 
     def clear_log(self) -> bool:
         """

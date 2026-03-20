@@ -14,7 +14,7 @@ def get_version() -> str:
     """
     Get the version from the installed package metadata.
 
-    If the package is not installed (development mode), 
+    If the package is not installed (development mode),
     falls back to reading from pyproject.toml.
 
     Returns:
@@ -44,6 +44,7 @@ def _read_version_from_pyproject() -> str:
 
         # Simple regex to extract version (avoiding external dependencies)
         import re
+
         match = re.search(r'version\s*=\s*["\']([^"\']+)["\']', content)
         if match:
             return f"{match.group(1)}.dev"

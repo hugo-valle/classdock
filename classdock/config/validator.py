@@ -5,7 +5,8 @@ This module provides validation for configuration values and settings.
 """
 
 import re
-from typing import Dict, Any, List, Tuple
+from typing import Any, Dict, List, Tuple
+
 from ..utils import get_logger
 
 logger = get_logger("config.validator")
@@ -28,8 +29,10 @@ class ConfigValidator:
         if not url:
             return False, "URL cannot be empty"
 
-        github_pattern = r'^https://github\.com/.+/.+$'
-        classroom_pattern = r'^https://classroom\.github\.com/classrooms/.+/assignments/.+$'
+        github_pattern = r"^https://github\.com/.+/.+$"
+        classroom_pattern = (
+            r"^https://classroom\.github\.com/classrooms/.+/assignments/.+$"
+        )
 
         if re.match(github_pattern, url) or re.match(classroom_pattern, url):
             return True, ""
@@ -50,10 +53,13 @@ class ConfigValidator:
         if not org:
             return False, "Organization name cannot be empty"
 
-        if re.match(r'^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$', org):
+        if re.match(r"^[a-zA-Z0-9]([a-zA-Z0-9-]*[a-zA-Z0-9])?$", org):
             return True, ""
         else:
-            return False, "Organization name must contain only letters, numbers, and hyphens"
+            return (
+                False,
+                "Organization name must contain only letters, numbers, and hyphens",
+            )
 
     @staticmethod
     def validate_assignment_name(name: str) -> Tuple[bool, str]:
@@ -69,10 +75,13 @@ class ConfigValidator:
         if not name:
             return True, ""  # Allow empty assignment names
 
-        if re.match(r'^[a-zA-Z0-9]([a-zA-Z0-9_-]*[a-zA-Z0-9])?$', name):
+        if re.match(r"^[a-zA-Z0-9]([a-zA-Z0-9_-]*[a-zA-Z0-9])?$", name):
             return True, ""
         else:
-            return False, "Assignment name must contain only letters, numbers, hyphens, and underscores"
+            return (
+                False,
+                "Assignment name must contain only letters, numbers, hyphens, and underscores",
+            )
 
     @staticmethod
     def validate_file_path(file_path: str) -> Tuple[bool, str]:
@@ -88,13 +97,30 @@ class ConfigValidator:
         if not file_path:
             return False, "File path cannot be empty"
 
-        valid_extensions = {'.ipynb', '.py', '.cpp', '.sql', '.md', 'asm',
-                            '.html', '.js', '.ts', '.java', '.c', '.h', '.hpp', '.txt'}
+        valid_extensions = {
+            ".ipynb",
+            ".py",
+            ".cpp",
+            ".sql",
+            ".md",
+            "asm",
+            ".html",
+            ".js",
+            ".ts",
+            ".java",
+            ".c",
+            ".h",
+            ".hpp",
+            ".txt",
+        }
 
         if any(file_path.endswith(ext) for ext in valid_extensions):
             return True, ""
         else:
-            return False, f"File must have a valid extension: {', '.join(sorted(valid_extensions))}"
+            return (
+                False,
+                f"File must have a valid extension: {', '.join(sorted(valid_extensions))}",
+            )
 
     @staticmethod
     def validate_student_files(student_files: str) -> Tuple[bool, str]:
@@ -111,33 +137,53 @@ class ConfigValidator:
             return False, "Student files cannot be empty"
 
         # Split by comma and validate each entry
-        file_entries = [entry.strip()
-                        for entry in student_files.split(',') if entry.strip()]
+        file_entries = [
+            entry.strip() for entry in student_files.split(",") if entry.strip()
+        ]
 
         if not file_entries:
             return False, "At least one file, pattern, or folder must be specified"
 
-        valid_extensions = {'.ipynb', '.py', '.cpp', '.sql', '.md', '.asm',
-                            '.html', '.js', '.ts', '.java', '.c', '.h', '.hpp', '.txt', '.csv', '.json'}
+        valid_extensions = {
+            ".ipynb",
+            ".py",
+            ".cpp",
+            ".sql",
+            ".md",
+            ".asm",
+            ".html",
+            ".js",
+            ".ts",
+            ".java",
+            ".c",
+            ".h",
+            ".hpp",
+            ".txt",
+            ".csv",
+            ".json",
+        }
 
         for entry in file_entries:
             # Check for folders (ending with /)
-            if entry.endswith('/'):
+            if entry.endswith("/"):
                 if len(entry) < 2:
                     return False, f"Folder path '{entry}' is too short"
                 continue
 
             # Check for glob patterns (containing wildcards)
-            if '*' in entry or '?' in entry or '[' in entry:
+            if "*" in entry or "?" in entry or "[" in entry:
                 # Basic validation for glob patterns
-                if entry.startswith('**/') or entry.endswith('/**'):
+                if entry.startswith("**/") or entry.endswith("/**"):
                     continue  # Valid recursive patterns
-                if any(char in entry for char in ['*', '?']):
+                if any(char in entry for char in ["*", "?"]):
                     continue  # Valid glob patterns
 
             # Check regular files
             if not any(entry.endswith(ext) for ext in valid_extensions):
-                return False, f"File '{entry}' must have a valid extension: {', '.join(sorted(valid_extensions))}"
+                return (
+                    False,
+                    f"File '{entry}' must have a valid extension: {', '.join(sorted(valid_extensions))}",
+                )
 
         return True, ""
 
@@ -152,11 +198,7 @@ class ConfigValidator:
         Returns:
             List of missing required fields
         """
-        required_fields = [
-            'CLASSROOM_URL',
-            'TEMPLATE_REPO_URL',
-            'GITHUB_ORGANIZATION'
-        ]
+        required_fields = ["CLASSROOM_URL", "TEMPLATE_REPO_URL", "GITHUB_ORGANIZATION"]
 
         missing_fields = []
         for field in required_fields:
@@ -164,8 +206,8 @@ class ConfigValidator:
                 missing_fields.append(field)
 
         # Check for STUDENT_FILES or ASSIGNMENT_FILE (backward compatibility)
-        if not config.get('STUDENT_FILES') and not config.get('ASSIGNMENT_FILE'):
-            missing_fields.append('STUDENT_FILES or ASSIGNMENT_FILE')
+        if not config.get("STUDENT_FILES") and not config.get("ASSIGNMENT_FILE"):
+            missing_fields.append("STUDENT_FILES or ASSIGNMENT_FILE")
 
         return missing_fields
 
@@ -185,45 +227,46 @@ class ConfigValidator:
         # Check required fields
         missing = ConfigValidator.validate_required_fields(config)
         if missing:
-            errors.extend(
-                [f"Missing required field: {field}" for field in missing])
+            errors.extend([f"Missing required field: {field}" for field in missing])
 
         # Validate specific fields if present
-        if config.get('CLASSROOM_URL'):
-            valid, error = ConfigValidator.validate_github_url(
-                config['CLASSROOM_URL'])
+        if config.get("CLASSROOM_URL"):
+            valid, error = ConfigValidator.validate_github_url(config["CLASSROOM_URL"])
             if not valid:
                 errors.append(f"CLASSROOM_URL: {error}")
 
-        if config.get('TEMPLATE_REPO_URL'):
+        if config.get("TEMPLATE_REPO_URL"):
             valid, error = ConfigValidator.validate_github_url(
-                config['TEMPLATE_REPO_URL'])
+                config["TEMPLATE_REPO_URL"]
+            )
             if not valid:
                 errors.append(f"TEMPLATE_REPO_URL: {error}")
 
-        if config.get('GITHUB_ORGANIZATION'):
+        if config.get("GITHUB_ORGANIZATION"):
             valid, error = ConfigValidator.validate_organization(
-                config['GITHUB_ORGANIZATION'])
+                config["GITHUB_ORGANIZATION"]
+            )
             if not valid:
                 errors.append(f"GITHUB_ORGANIZATION: {error}")
 
-        if config.get('ASSIGNMENT_NAME'):
+        if config.get("ASSIGNMENT_NAME"):
             valid, error = ConfigValidator.validate_assignment_name(
-                config['ASSIGNMENT_NAME'])
+                config["ASSIGNMENT_NAME"]
+            )
             if not valid:
                 errors.append(f"ASSIGNMENT_NAME: {error}")
 
         # Validate new STUDENT_FILES configuration (preferred)
-        if config.get('STUDENT_FILES'):
+        if config.get("STUDENT_FILES"):
             valid, error = ConfigValidator.validate_student_files(
-                config['STUDENT_FILES'])
+                config["STUDENT_FILES"]
+            )
             if not valid:
                 errors.append(f"STUDENT_FILES: {error}")
 
         # Validate legacy ASSIGNMENT_FILE for backward compatibility
-        elif config.get('ASSIGNMENT_FILE'):
-            valid, error = ConfigValidator.validate_file_path(
-                config['ASSIGNMENT_FILE'])
+        elif config.get("ASSIGNMENT_FILE"):
+            valid, error = ConfigValidator.validate_file_path(config["ASSIGNMENT_FILE"])
             if not valid:
                 errors.append(f"ASSIGNMENT_FILE: {error}")
 
@@ -239,13 +282,15 @@ class ConfigValidator:
         Returns:
             Tuple of (is_valid: bool, errors: List[str])
         """
-        from .loader import ConfigLoader
         from pathlib import Path
+
+        from .loader import ConfigLoader
 
         try:
             # Convert to Path object if needed
-            path = Path(config_path) if not isinstance(
-                config_path, Path) else config_path
+            path = (
+                Path(config_path) if not isinstance(config_path, Path) else config_path
+            )
 
             # Check if file exists before loading
             if not path.exists():

@@ -7,12 +7,20 @@ config directory.
 """
 
 import sqlite3
-from pathlib import Path
-from typing import Optional, List, Dict, Any, Tuple
 from contextlib import contextmanager
+from datetime import date, datetime
+from pathlib import Path
+from typing import Any, Dict, List, Optional, Tuple
+
 from ..utils.logger import get_logger
 
 logger = get_logger("database")
+
+# Explicit adapters replace the deprecated default datetime adapters (Python 3.12+).
+# The models already parse ISO strings back to datetime in their from_dict() methods,
+# so no converters are needed on the read side.
+sqlite3.register_adapter(datetime, lambda dt: dt.isoformat())
+sqlite3.register_adapter(date, lambda d: d.isoformat())
 
 
 class DatabaseManager:
@@ -89,7 +97,8 @@ class DatabaseManager:
                 cursor = conn.cursor()
 
                 # Create students table with composite unique constraint
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS students (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         email TEXT NOT NULL,
@@ -104,31 +113,41 @@ class DatabaseManager:
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         UNIQUE(email, github_organization)
                     )
-                """)
+                """
+                )
 
                 # Create indexes for students table
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE INDEX IF NOT EXISTS idx_students_email
                     ON students(email)
-                """)
+                """
+                )
 
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE INDEX IF NOT EXISTS idx_students_org
                     ON students(github_organization)
-                """)
+                """
+                )
 
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE INDEX IF NOT EXISTS idx_students_email_org
                     ON students(email, github_organization)
-                """)
+                """
+                )
 
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE INDEX IF NOT EXISTS idx_students_github_username
                     ON students(github_username)
-                """)
+                """
+                )
 
                 # Create assignments table
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS assignments (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         name TEXT NOT NULL UNIQUE,
@@ -143,21 +162,27 @@ class DatabaseManager:
                         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
                         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
-                """)
+                """
+                )
 
                 # Create index for assignments table
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE INDEX IF NOT EXISTS idx_assignments_name
                     ON assignments(name)
-                """)
+                """
+                )
 
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE INDEX IF NOT EXISTS idx_assignments_org
                     ON assignments(github_organization)
-                """)
+                """
+                )
 
                 # Create student_assignments junction table
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS student_assignments (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         student_id INTEGER NOT NULL,
@@ -175,21 +200,27 @@ class DatabaseManager:
                         FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE CASCADE,
                         UNIQUE(student_id, assignment_id)
                     )
-                """)
+                """
+                )
 
                 # Create indexes for student_assignments table
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE INDEX IF NOT EXISTS idx_student_assignments_student
                     ON student_assignments(student_id)
-                """)
+                """
+                )
 
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE INDEX IF NOT EXISTS idx_student_assignments_assignment
                     ON student_assignments(assignment_id)
-                """)
+                """
+                )
 
                 # Create sync_history table
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS sync_history (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         sync_type TEXT NOT NULL,
@@ -202,21 +233,27 @@ class DatabaseManager:
                         completed_at TIMESTAMP,
                         FOREIGN KEY (assignment_id) REFERENCES assignments(id) ON DELETE SET NULL
                     )
-                """)
+                """
+                )
 
                 # Create schema_version table for migrations
-                cursor.execute("""
+                cursor.execute(
+                    """
                     CREATE TABLE IF NOT EXISTS schema_version (
                         version INTEGER PRIMARY KEY,
                         applied_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
                     )
-                """)
+                """
+                )
 
                 # Insert current schema version
-                cursor.execute("""
+                cursor.execute(
+                    """
                     INSERT OR IGNORE INTO schema_version (version)
                     VALUES (?)
-                """, (self.SCHEMA_VERSION,))
+                """,
+                    (self.SCHEMA_VERSION,),
+                )
 
                 conn.commit()
                 logger.info(f"Database initialized at {self.db_path}")
@@ -226,11 +263,7 @@ class DatabaseManager:
             logger.error(f"Failed to initialize database: {e}")
             raise
 
-    def execute_query(
-        self,
-        query: str,
-        params: Tuple = ()
-    ) -> List[Dict[str, Any]]:
+    def execute_query(self, query: str, params: Tuple = ()) -> List[Dict[str, Any]]:
         """
         Execute a SELECT query and return results as list of dictionaries.
 
@@ -255,11 +288,7 @@ class DatabaseManager:
             logger.error(f"Query execution failed: {e}\nQuery: {query}")
             raise
 
-    def execute_update(
-        self,
-        query: str,
-        params: Tuple = ()
-    ) -> int:
+    def execute_update(self, query: str, params: Tuple = ()) -> int:
         """
         Execute an INSERT, UPDATE, or DELETE query.
 
@@ -288,11 +317,7 @@ class DatabaseManager:
             logger.error(f"Update execution failed: {e}\nQuery: {query}")
             raise
 
-    def execute_many(
-        self,
-        query: str,
-        params_list: List[Tuple]
-    ) -> int:
+    def execute_many(self, query: str, params_list: List[Tuple]) -> int:
         """
         Execute a query with multiple parameter sets (batch operation).
 
@@ -388,10 +413,12 @@ class DatabaseManager:
                 cursor.execute("PRAGMA foreign_keys = OFF")
 
                 # Get all table names
-                cursor.execute("""
+                cursor.execute(
+                    """
                     SELECT name FROM sqlite_master
                     WHERE type='table' AND name NOT LIKE 'sqlite_%'
-                """)
+                """
+                )
                 tables = [row[0] for row in cursor.fetchall()]
 
                 # Drop each table

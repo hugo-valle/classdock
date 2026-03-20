@@ -8,9 +8,9 @@ This package handles all repository-related operations including:
 - Template repository operations
 """
 
-from .fetch import RepositoryFetcher
 from .collaborator import CollaboratorManager
+from .fetch import RepositoryFetcher
 
 __all__ = ["RepositoryFetcher", "CollaboratorManager"]
 
-__all__ = ['RepoFetcher', 'RepoUpdater', 'RepoPusher', 'CollaboratorManager']
+__all__ = ["RepoFetcher", "RepoUpdater", "RepoPusher", "CollaboratorManager"]

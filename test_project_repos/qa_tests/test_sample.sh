@@ -6,10 +6,10 @@ source lib/test_helpers.sh 2>/dev/null
 init_test_tracking
 
 # Test 1: Verify CLI is available
-if command -v classroom-pilot >/dev/null 2>&1; then
+if command -v classdock >/dev/null 2>&1; then
     mark_test_passed "CLI availability"
 else
-    mark_test_failed "CLI availability" "classroom-pilot not found"
+    mark_test_failed "CLI availability" "classdock not found"
 fi
 
 # Test 2: Verify helper functions work

@@ -6,16 +6,18 @@ roster manager, and importer components.
 """
 
 from pathlib import Path
-from typing import Optional, List
-from rich.console import Console
-from rich.table import Table
-from rich.panel import Panel
+from typing import List, Optional
 
-from ..utils.database import DatabaseManager
-from ..roster.manager import RosterManager
+from rich.console import Console
+from rich.panel import Panel
+from rich.table import Table
+
 from ..roster.importer import RosterImporter
+from ..roster.manager import RosterManager
+from ..roster.models import Assignment, Student, SyncResult
+from ..roster.repositories import SqliteStudentRepository, StudentRepository
 from ..roster.sync import RosterSynchronizer
-from ..roster.models import Student, Assignment, SyncResult
+from ..utils.database import DatabaseManager
 from ..utils.logger import get_logger
 
 logger = get_logger("roster_service")
@@ -30,17 +32,47 @@ class RosterService:
     with rich console output.
     """
 
-    def __init__(self, db_path: Optional[Path] = None):
+    def __init__(
+        self,
+        db_path: Optional[Path] = None,
+        db: Optional[DatabaseManager] = None,
+        manager: Optional[RosterManager] = None,
+        importer: Optional[RosterImporter] = None,
+        synchronizer: Optional[RosterSynchronizer] = None,
+        student_repository: Optional[StudentRepository] = None,
+    ):
         """
         Initialize roster service.
 
         Args:
-            db_path: Optional database path (defaults to global database)
+            db_path: Optional database path (defaults to global database).
+                Ignored when ``db`` is provided.
+            db: Pre-built :class:`DatabaseManager`. When provided, ``db_path``
+                is ignored and no new ``DatabaseManager`` is constructed.
+            manager: Pre-built :class:`RosterManager`. When provided, the
+                default one built from ``db`` is not constructed.
+            importer: Pre-built :class:`RosterImporter`.
+            synchronizer: Pre-built :class:`RosterSynchronizer`.
+            student_repository: :class:`StudentRepository` implementation.
+                Defaults to :class:`SqliteStudentRepository` wrapping *manager*.
+                Inject an :class:`InMemoryStudentRepository` in tests to avoid
+                real database calls.
         """
-        self.db = DatabaseManager(db_path=db_path)
-        self.manager = RosterManager(self.db)
-        self.importer = RosterImporter(self.manager)
-        self.synchronizer = RosterSynchronizer(self.manager)
+        self.db = db if db is not None else DatabaseManager(db_path=db_path)
+        self.manager = manager if manager is not None else RosterManager(self.db)
+        self.importer = (
+            importer if importer is not None else RosterImporter(self.manager)
+        )
+        self.synchronizer = (
+            synchronizer
+            if synchronizer is not None
+            else RosterSynchronizer(self.manager)
+        )
+        self.student_repository: StudentRepository = (
+            student_repository
+            if student_repository is not None
+            else SqliteStudentRepository(self.manager)
+        )
 
     def initialize_database(self) -> bool:
         """
@@ -50,16 +82,15 @@ class RosterService:
             True if initialization successful
         """
         try:
-            if self.db.database_exists():
+            existed = self.db.database_exists()
+            self.db.initialize_database()
+            if existed:
                 console.print(
-                    f"✅ Database already exists at: {self.db.db_path}",
-                    style="yellow"
+                    f"✅ Database initialized at: {self.db.db_path}", style="green bold"
                 )
             else:
-                self.db.initialize_database()
                 console.print(
-                    f"✅ Database initialized at: {self.db.db_path}",
-                    style="green bold"
+                    f"✅ Database created at: {self.db.db_path}", style="green bold"
                 )
             return True
         except Exception as e:
@@ -68,10 +99,7 @@ class RosterService:
             return False
 
     def import_students_from_csv(
-        self,
-        csv_path: Path,
-        github_organization: str,
-        skip_duplicates: bool = True
+        self, csv_path: Path, github_organization: str, skip_duplicates: bool = True
     ) -> bool:
         """
         Import students from CSV file.
@@ -86,15 +114,12 @@ class RosterService:
         """
         try:
             console.print(
-                f"\n📥 Importing students from: [cyan]{csv_path}[/cyan]",
-                style="bold"
+                f"\n📥 Importing students from: [cyan]{csv_path}[/cyan]", style="bold"
             )
             console.print(f"   Organization: [cyan]{github_organization}[/cyan]\n")
 
             result = self.importer.import_from_csv(
-                csv_path,
-                github_organization,
-                skip_duplicates=skip_duplicates
+                csv_path, github_organization, skip_duplicates=skip_duplicates
             )
 
             # Display results
@@ -129,15 +154,14 @@ class RosterService:
                 console.print(f"   • {error}", style="red")
             if len(result.errors) > 10:
                 console.print(
-                    f"   ... and {len(result.errors) - 10} more errors",
-                    style="red dim"
+                    f"   ... and {len(result.errors) - 10} more errors", style="red dim"
                 )
 
     def list_students(
         self,
         github_organization: Optional[str] = None,
         status: str = "active",
-        output_format: str = "table"
+        output_format: str = "table",
     ) -> bool:
         """
         List students in roster.
@@ -151,16 +175,13 @@ class RosterService:
             True if students were listed successfully
         """
         try:
-            students = self.manager.list_students(
+            students = self.student_repository.list_all(
                 github_organization=github_organization,
-                status=status
+                status=status,
             )
 
             if not students:
-                console.print(
-                    "📭 No students found matching criteria",
-                    style="yellow"
-                )
+                console.print("📭 No students found matching criteria", style="yellow")
                 return False
 
             if output_format == "table":
@@ -178,9 +199,7 @@ class RosterService:
             return False
 
     def _display_students_table(
-        self,
-        students: List[Student],
-        github_organization: Optional[str]
+        self, students: List[Student], github_organization: Optional[str]
     ) -> None:
         """Display students in a rich table."""
         org_str = github_organization or "All Organizations"
@@ -199,7 +218,7 @@ class RosterService:
                 student.name,
                 student.github_username or "—",
                 student.github_organization,
-                student.status
+                student.status,
             )
 
         console.print("\n")
@@ -219,9 +238,10 @@ class RosterService:
     def _display_students_json(self, students: List[Student]) -> None:
         """Display students in JSON format."""
         import json
+
         data = {
             "total": len(students),
-            "students": [student.to_dict() for student in students]
+            "students": [student.to_dict() for student in students],
         }
         console.print(json.dumps(data, indent=2))
 
@@ -229,7 +249,7 @@ class RosterService:
         self,
         output_path: Path,
         github_organization: Optional[str] = None,
-        output_format: str = "csv"
+        output_format: str = "csv",
     ) -> bool:
         """
         Export students to file.
@@ -244,25 +264,19 @@ class RosterService:
         """
         try:
             console.print(
-                f"\n📤 Exporting students to: [cyan]{output_path}[/cyan]",
-                style="bold"
+                f"\n📤 Exporting students to: [cyan]{output_path}[/cyan]", style="bold"
             )
 
             if output_format == "csv":
                 success = self.importer.export_to_csv(
-                    output_path,
-                    github_organization=github_organization
+                    output_path, github_organization=github_organization
                 )
             elif output_format == "json":
                 success = self.importer.export_to_json(
-                    output_path,
-                    github_organization=github_organization
+                    output_path, github_organization=github_organization
                 )
             else:
-                console.print(
-                    f"❌ Invalid format: {output_format}",
-                    style="red bold"
-                )
+                console.print(f"❌ Invalid format: {output_format}", style="red bold")
                 return False
 
             if success:
@@ -280,7 +294,7 @@ class RosterService:
         email: str,
         name: str,
         github_organization: str,
-        github_username: Optional[str] = None
+        github_username: Optional[str] = None,
     ) -> bool:
         """
         Add a single student to roster.
@@ -299,13 +313,13 @@ class RosterService:
                 email=email,
                 name=name,
                 github_username=github_username,
-                github_organization=github_organization
+                github_organization=github_organization,
             )
 
-            student_id = self.manager.add_student(student)
+            student_id = self.student_repository.add(student)
             console.print(
                 f"✅ Added student: [cyan]{email}[/cyan] (ID: {student_id})",
-                style="green bold"
+                style="green bold",
             )
             return True
 
@@ -315,10 +329,7 @@ class RosterService:
             return False
 
     def link_github_username(
-        self,
-        email: str,
-        github_organization: str,
-        github_username: str
+        self, email: str, github_organization: str, github_username: str
     ) -> bool:
         """
         Link a GitHub username to a student.
@@ -332,19 +343,21 @@ class RosterService:
             True if link was successful
         """
         try:
-            student = self.manager.get_student_by_email(email, github_organization)
+            student = self.student_repository.find_by_email(email, github_organization)
             if not student:
                 console.print(
                     f"❌ Student not found: {email} in {github_organization}",
-                    style="red bold"
+                    style="red bold",
                 )
                 return False
 
-            success = self.manager.link_github_username(student.id, github_username)
+            success = self.student_repository.link_github_username(
+                student.id, github_username
+            )
             if success:
                 console.print(
                     f"✅ Linked [cyan]{email}[/cyan] to GitHub: [yellow]{github_username}[/yellow]",
-                    style="green bold"
+                    style="green bold",
                 )
                 return True
             return False
@@ -363,17 +376,15 @@ class RosterService:
         """
         try:
             # Get statistics
-            total_students = self.manager.count_students(github_organization)
+            total_students = self.student_repository.count(github_organization)
             total_assignments = self.manager.count_assignments(github_organization)
 
-            students = self.manager.list_students(
+            students = self.student_repository.list_all(
                 github_organization=github_organization,
-                status="active"
+                status="active",
             )
 
-            students_with_github = sum(
-                1 for s in students if s.github_username
-            )
+            students_with_github = sum(1 for s in students if s.github_username)
             students_without_github = total_students - students_with_github
 
             # Create status panel
@@ -394,17 +405,16 @@ Database:
   Schema Version: [green]{self.db.get_schema_version()}[/green]
 """
 
-            console.print(Panel(status_text, title="📊 Roster Status", border_style="cyan"))
+            console.print(
+                Panel(status_text, title="📊 Roster Status", border_style="cyan")
+            )
 
         except Exception as e:
             console.print(f"❌ Failed to show status: {e}", style="red bold")
             logger.error(f"Failed to show status: {e}")
 
     def sync_repositories(
-        self,
-        assignment_name: str,
-        github_organization: str,
-        repos: List[tuple]
+        self, assignment_name: str, github_organization: str, repos: List[tuple]
     ) -> SyncResult:
         """
         Synchronize discovered repositories with roster.
@@ -419,9 +429,7 @@ Database:
         """
         try:
             return self.synchronizer.sync_repositories(
-                assignment_name,
-                github_organization,
-                repos
+                assignment_name, github_organization, repos
             )
         except Exception as e:
             console.print(f"❌ Sync failed: {e}", style="red bold")

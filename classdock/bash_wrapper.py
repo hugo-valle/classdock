@@ -13,11 +13,11 @@ from typing import Dict, List, Optional
 
 # Import for resource management (Python 3.9+)
 try:
-    from importlib.resources import files, as_file
+    from importlib.resources import as_file, files
 except ImportError:
     # Fallback for Python 3.8
     try:
-        from importlib_resources import files, as_file
+        from importlib_resources import as_file, files
     except ImportError:
         # Final fallback - disable importlib.resources functionality
         files = None
@@ -39,7 +39,7 @@ class BashWrapper:
         config: Dict[str, str],
         dry_run: bool = False,
         verbose: bool = False,
-        auto_yes: bool = False
+        auto_yes: bool = False,
     ):
         """
         Initialize bash wrapper.
@@ -82,11 +82,13 @@ class BashWrapper:
                         return Path(script_path)
                     else:
                         raise FileNotFoundError(
-                            f"Script not found in package: {script_name}")
+                            f"Script not found in package: {script_name}"
+                        )
 
             except (ImportError, FileNotFoundError, AttributeError) as e:
                 logger.debug(
-                    f"importlib.resources approach failed: {e}, using fallback")
+                    f"importlib.resources approach failed: {e}, using fallback"
+                )
 
         # Fallback to direct filesystem access (for source checkouts or when importlib.resources fails)
         logger.debug("Using fallback filesystem access for script resolution")
@@ -101,7 +103,8 @@ class BashWrapper:
             return package_scripts_path
 
         raise FileNotFoundError(
-            f"Script not found: {script_name} (tried importlib.resources and filesystem fallbacks)")
+            f"Script not found: {script_name} (tried importlib.resources and filesystem fallbacks)"
+        )
 
     def _prepare_environment(self) -> Dict[str, str]:
         """
@@ -113,7 +116,7 @@ class BashWrapper:
         env = os.environ.copy()
 
         # Add configuration variables
-        if hasattr(self.config, 'to_env_dict'):
+        if hasattr(self.config, "to_env_dict"):
             # Legacy Configuration object
             config_env = self.config.to_env_dict()
         else:
@@ -122,7 +125,7 @@ class BashWrapper:
             for key, value in self.config.items():
                 if isinstance(value, list):
                     # Convert arrays to bash array format
-                    config_env[key] = ' '.join(f'"{item}"' for item in value)
+                    config_env[key] = " ".join(f'"{item}"' for item in value)
                 else:
                     config_env[key] = str(value)
 
@@ -130,11 +133,11 @@ class BashWrapper:
 
         # Add wrapper-specific variables
         if self.dry_run:
-            env['DRY_RUN'] = 'true'
+            env["DRY_RUN"] = "true"
         if self.verbose:
-            env['VERBOSE'] = 'true'
+            env["VERBOSE"] = "true"
         if self.auto_yes:
-            env['AUTO_YES'] = 'true'
+            env["AUTO_YES"] = "true"
 
         return env
 
@@ -142,7 +145,7 @@ class BashWrapper:
         self,
         script_name: str,
         args: Optional[List[str]] = None,
-        cwd: Optional[Path] = None
+        cwd: Optional[Path] = None,
     ) -> bool:
         """
         Execute a bash script with proper environment and error handling.
@@ -188,7 +191,7 @@ class BashWrapper:
                 env=env,
                 capture_output=not self.verbose,
                 text=True,
-                timeout=3600  # 1 hour timeout
+                timeout=3600,  # 1 hour timeout
             )
 
             if result.returncode == 0:
@@ -198,7 +201,8 @@ class BashWrapper:
                 return True
             else:
                 logger.error(
-                    f"Script {script_name} failed with exit code {result.returncode}")
+                    f"Script {script_name} failed with exit code {result.returncode}"
+                )
                 if result.stderr:
                     logger.error(f"Error output: {result.stderr.strip()}")
                 if result.stdout:
@@ -225,8 +229,7 @@ class BashWrapper:
         Returns:
             True if successful, False otherwise
         """
-        logger.info(
-            f"🎯 Running assignment orchestrator workflow: {workflow_type}")
+        logger.info(f"🎯 Running assignment orchestrator workflow: {workflow_type}")
 
         args = []
         if workflow_type != "run":
@@ -280,8 +283,7 @@ class BashWrapper:
             try:
                 # Use the Python implementation
                 success = add_secrets_to_students(
-                    config=self.config,
-                    dry_run=self.dry_run
+                    config=self.config, dry_run=self.dry_run
                 )
                 return success
             finally:
@@ -290,11 +292,12 @@ class BashWrapper:
                     os.chdir(original_cwd)
 
         except ImportError as e:
-            logger.error(
-                f"Failed to import Python secrets implementation: {e}")
+            logger.error(f"Failed to import Python secrets implementation: {e}")
             logger.info("Falling back to bash script implementation")
             # Fallback to bash script
-            return self._execute_script("add-secrets-to-students.sh", cwd=assignment_root)
+            return self._execute_script(
+                "add-secrets-to-students.sh", cwd=assignment_root
+            )
 
     def student_update_helper(self) -> bool:
         """
@@ -358,7 +361,7 @@ class BashWrapper:
         config_file: Optional[str] = None,
         list_mode: bool = False,
         force_cycle: bool = False,
-        repo_url_mode: bool = False
+        repo_url_mode: bool = False,
     ) -> bool:
         """
         Execute the cycle collaborator script to manage repository collaborator permissions.
