@@ -255,11 +255,6 @@ main() {
     [[ "$RUN_TIER1" == true ]] && print_status "  • Tier 1 (pytest):       ✅ Executed"
     [[ "$RUN_TIER2" == true ]] && print_status "  • Tier 2 (QA bash):      ✅ Executed"
     [[ -f "htmlcov/index.html" ]] && print_status "  • Coverage report:       ✅ htmlcov/index.html"
-    echo ""
-    print_status "Next steps:"
-    [[ "$RUN_TIER1" == true ]] && print_status "  • poetry run pytest tests/          (re-run unit tests)"
-    [[ "$RUN_TIER2" == true ]] && print_status "  • test_project_repos/qa_tests/*.sh  (re-run QA tests)"
-    print_status "  • poetry run classdock --help       (test CLI)"
 }
 
 cleanup() {
