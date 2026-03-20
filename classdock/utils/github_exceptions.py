@@ -222,6 +222,135 @@ class RetryState:
 
 
 # ========================================================================================
+# Chain of Responsibility — error handlers
+# ========================================================================================
+
+class _ErrorHandler:
+    """Abstract base for a single link in the GitHubErrorAnalyzer handler chain."""
+
+    def can_handle(self, error: Exception) -> bool:
+        raise NotImplementedError
+
+    def handle(self, error: Exception, analysis: Dict[str, Any]) -> None:
+        """Mutate *analysis* in-place with handler-specific fields."""
+        raise NotImplementedError
+
+
+class _AuthenticationHandler(_ErrorHandler):
+    def can_handle(self, error):
+        return isinstance(error, (GitHubAuthenticationError, BadCredentialsException))
+
+    def handle(self, error, analysis):
+        analysis.update({
+            'is_authentication_error': True,
+            'suggested_action': 'Check authentication credentials',
+            'recovery_suggestions': [
+                'Verify GitHub token is correct and not expired',
+                'Check token permissions include required scopes',
+                'Regenerate GitHub token if necessary',
+            ],
+        })
+
+
+class _RateLimitHandler(_ErrorHandler):
+    def can_handle(self, error):
+        return isinstance(error, (GitHubRateLimitError, RateLimitExceededException))
+
+    def handle(self, error, analysis):
+        analysis.update({
+            'is_retryable': True,
+            'is_rate_limit_error': True,
+            'suggested_action': 'Wait for rate limit reset',
+            'retry_delay': getattr(error, 'retry_after', None) or 3600,
+            'recovery_suggestions': [
+                'Wait for rate limit to reset',
+                'Use a different authentication token',
+                'Implement request batching to reduce API calls',
+            ],
+        })
+
+
+class _NetworkHandler(_ErrorHandler):
+    def can_handle(self, error):
+        if isinstance(error, GitHubNetworkError):
+            return True
+        msg = str(error).lower()
+        return 'timeout' in msg or 'connection' in msg
+
+    def handle(self, error, analysis):
+        analysis.update({
+            'is_retryable': True,
+            'is_network_error': True,
+            'suggested_action': 'Retry with exponential backoff',
+            'retry_delay': 5,
+            'recovery_suggestions': [
+                'Check internet connection',
+                'Retry the operation',
+                'Check GitHub status page for service issues',
+            ],
+        })
+
+
+class _DiscoveryHandler(_ErrorHandler):
+    def can_handle(self, error):
+        return isinstance(error, GitHubDiscoveryError)
+
+    def handle(self, error, analysis):
+        analysis.update({
+            'is_retryable': False,
+            'suggested_action': 'Check discovery parameters and configuration',
+            'recovery_suggestions': [
+                'Verify assignment prefix and organization parameters',
+                'Check configuration file for required settings',
+                'Ensure GitHub API access is properly configured',
+            ],
+        })
+
+
+class _UnknownObjectHandler(_ErrorHandler):
+    def can_handle(self, error):
+        return isinstance(error, UnknownObjectException)
+
+    def handle(self, error, analysis):
+        analysis.update({
+            'suggested_action': 'Verify resource exists and permissions',
+            'recovery_suggestions': [
+                'Check that the repository/organization exists',
+                'Verify you have access to the requested resource',
+                'Check spelling of organization/repository names',
+            ],
+        })
+
+
+class _ServerErrorHandler(_ErrorHandler):
+    def can_handle(self, error):
+        return hasattr(error, 'status') and error.status >= 500
+
+    def handle(self, error, analysis):
+        analysis.update({
+            'is_retryable': True,
+            'suggested_action': 'Retry due to server error',
+            'retry_delay': 10,
+            'recovery_suggestions': [
+                'Retry the operation (server error)',
+                'Check GitHub status page',
+                'Reduce request frequency',
+            ],
+        })
+
+
+# Ordered chain used by GitHubErrorAnalyzer — earlier handlers take priority
+_HANDLER_CHAIN: List["_ErrorHandler"] = [
+    _AuthenticationHandler(),
+    _RateLimitHandler(),
+    _NetworkHandler(),
+    _DiscoveryHandler(),
+    _UnknownObjectHandler(),
+    _ServerErrorHandler(),
+]
+
+
+# ========================================================================================
 # Error Context and Analysis
 # ========================================================================================
 
@@ -261,118 +390,10 @@ class GitHubErrorAnalyzer:
             analysis['recovery_suggestions'].append('pip install PyGithub')
             return analysis
 
-        # Check for our custom exception types first
-        if isinstance(error, GitHubAuthenticationError):
-            analysis.update({
-                'is_authentication_error': True,
-                'suggested_action': 'Check authentication credentials',
-                'recovery_suggestions': [
-                    'Verify GitHub token is correct and not expired',
-                    'Check token permissions include required scopes',
-                    'Regenerate GitHub token if necessary'
-                ]
-            })
-            return analysis
-
-        elif isinstance(error, GitHubRateLimitError):
-            analysis.update({
-                'is_retryable': True,
-                'is_rate_limit_error': True,
-                'suggested_action': 'Wait for rate limit reset',
-                'retry_delay': getattr(error, 'retry_after', 3600),
-                'recovery_suggestions': [
-                    'Wait for rate limit to reset',
-                    'Use a different authentication token',
-                    'Implement request batching to reduce API calls'
-                ]
-            })
-            return analysis
-
-        elif isinstance(error, GitHubNetworkError):
-            analysis.update({
-                'is_retryable': True,
-                'is_network_error': True,
-                'suggested_action': 'Retry with exponential backoff',
-                'retry_delay': 5,
-                'recovery_suggestions': [
-                    'Check internet connection',
-                    'Retry the operation',
-                    'Check GitHub status page for service issues'
-                ]
-            })
-            return analysis
-
-        elif isinstance(error, GitHubDiscoveryError):
-            analysis.update({
-                'is_retryable': False,  # Discovery errors usually require parameter fixes
-                'suggested_action': 'Check discovery parameters and configuration',
-                'recovery_suggestions': [
-                    'Verify assignment prefix and organization parameters',
-                    'Check configuration file for required settings',
-                    'Ensure GitHub API access is properly configured'
-                ]
-            })
-            return analysis
-
-        # Analyze specific GitHub exception types
-        if isinstance(error, RateLimitExceededException):
-            analysis.update({
-                'is_retryable': True,
-                'is_rate_limit_error': True,
-                'suggested_action': 'Wait for rate limit reset',
-                'retry_delay': getattr(error, 'retry_after', 3600),
-                'recovery_suggestions': [
-                    'Wait for rate limit to reset',
-                    'Use a different authentication token',
-                    'Implement request batching to reduce API calls'
-                ]
-            })
-
-        elif isinstance(error, BadCredentialsException):
-            analysis.update({
-                'is_authentication_error': True,
-                'suggested_action': 'Check authentication credentials',
-                'recovery_suggestions': [
-                    'Verify GitHub token is correct and not expired',
-                    'Check token permissions include required scopes',
-                    'Regenerate GitHub token if necessary'
-                ]
-            })
-
-        elif isinstance(error, UnknownObjectException):
-            analysis.update({
-                'suggested_action': 'Verify resource exists and permissions',
-                'recovery_suggestions': [
-                    'Check that the repository/organization exists',
-                    'Verify you have access to the requested resource',
-                    'Check spelling of organization/repository names'
-                ]
-            })
-
-        elif 'timeout' in str(error).lower() or 'connection' in str(error).lower():
-            analysis.update({
-                'is_retryable': True,
-                'is_network_error': True,
-                'suggested_action': 'Retry with exponential backoff',
-                'retry_delay': 5,
-                'recovery_suggestions': [
-                    'Check internet connection',
-                    'Retry the operation',
-                    'Check GitHub status page for service issues'
-                ]
-            })
-
-        elif hasattr(error, 'status') and error.status >= 500:
-            analysis.update({
-                'is_retryable': True,
-                'suggested_action': 'Retry due to server error',
-                'retry_delay': 10,
-                'recovery_suggestions': [
-                    'Retry the operation (server error)',
-                    'Check GitHub status page',
-                    'Reduce request frequency'
-                ]
-            })
+        for handler in _HANDLER_CHAIN:
+            if handler.can_handle(error):
+                handler.handle(error, analysis)
+                return analysis
 
         return analysis
 
