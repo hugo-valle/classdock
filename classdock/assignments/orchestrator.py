@@ -68,6 +68,26 @@ class WorkflowConfig:
             self.skip_steps = set()
 
 
+@dataclass
+class WorkflowCommand:
+    """
+    Encapsulates a single executable workflow step as a Command object.
+
+    Separates the *description* of what a step will do from the *execution*
+    of that step, enabling dry-run preview and ordered planning without
+    coupling the caller to step implementation details.
+    """
+    step: WorkflowStep
+    description: str
+    _executor: object = None  # callable set by get_workflow_plan
+
+    def execute(self, dry_run: bool = False) -> "StepResult":
+        """Execute the step via the bound executor method."""
+        if self._executor is None:
+            raise RuntimeError(f"WorkflowCommand for {self.step} has no executor bound")
+        return self._executor(dry_run=dry_run)
+
+
 class AssignmentOrchestrator:
     """
     Main workflow coordinator for GitHub Classroom assignments.
@@ -172,6 +192,38 @@ class AssignmentOrchestrator:
         table.add_row("Workflow Steps", "\n".join(enabled_steps))
 
         self.console.print(table)
+
+    def get_workflow_plan(self, workflow_config: "WorkflowConfig") -> "List[WorkflowCommand]":
+        """
+        Return the ordered list of WorkflowCommands that would run for *workflow_config*
+        without executing any of them.
+
+        The live path calls ``command.execute()`` on each item; the dry-run path
+        iterates the plan and logs ``command.description`` without executing.
+        """
+        all_commands = [
+            WorkflowCommand(WorkflowStep.SYNC, "Synchronize template with classroom",
+                            self.step_sync_template),
+            WorkflowCommand(WorkflowStep.DISCOVER, "Discover student repositories",
+                            self.step_discover_repos),
+            WorkflowCommand(WorkflowStep.SYNC_ROSTER, "Sync repositories with roster",
+                            self.step_sync_roster),
+            WorkflowCommand(WorkflowStep.SECRETS, "Manage secrets for student repositories",
+                            self.step_manage_secrets),
+            WorkflowCommand(WorkflowStep.ASSIST, "Run student assistance tools",
+                            self.step_assist_students),
+            WorkflowCommand(WorkflowStep.CYCLE, "Cycle collaborator access",
+                            self.step_cycle_collaborators),
+        ]
+
+        if workflow_config.step_override:
+            return [cmd for cmd in all_commands if cmd.step == workflow_config.step_override]
+
+        return [
+            cmd for cmd in all_commands
+            if cmd.step in workflow_config.enabled_steps
+            and cmd.step not in workflow_config.skip_steps
+        ]
 
     def confirm_execution(self, workflow_config: WorkflowConfig) -> bool:
         """Confirm workflow execution with user."""

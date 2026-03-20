@@ -764,16 +764,20 @@ def push_to_classroom(
         manager.branch = branch
 
         if dry_run:
+            push_steps = [
+                "Validate repository structure and configuration",
+                "Check for uncommitted changes",
+                "Setup classroom remote repository",
+                "Fetch latest classroom repository state",
+                "Analyze changes between local and classroom",
+                "Display changes summary and get confirmation",
+                "Push changes to classroom repository",
+                "Verify push completed successfully",
+                "Provide next steps guidance",
+            ]
             logger.info("📋 Push workflow steps that would be executed:")
-            logger.info("  1. Validate repository structure and configuration")
-            logger.info("  2. Check for uncommitted changes")
-            logger.info("  3. Setup classroom remote repository")
-            logger.info("  4. Fetch latest classroom repository state")
-            logger.info("  5. Analyze changes between local and classroom")
-            logger.info("  6. Display changes summary and get confirmation")
-            logger.info("  7. Push changes to classroom repository")
-            logger.info("  8. Verify push completed successfully")
-            logger.info("  9. Provide next steps guidance")
+            for i, step_desc in enumerate(push_steps, 1):
+                logger.info(f"  {i}. {step_desc}")
             logger.info("✅ Dry run completed - use without --dry-run to execute")
             return
 

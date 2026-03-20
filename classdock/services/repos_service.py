@@ -37,6 +37,8 @@ class ReposService:
         self._cycle_manager_factory = cycle_manager_factory
 
     def fetch(self, config_file: Optional[str] = None) -> Tuple[bool, str]:
+        if self.dry_run:
+            return True, "DRY RUN: Would fetch student repositories"
         try:
             config_path = Path(config_file) if config_file else None
             if self._fetcher_factory is not None:
