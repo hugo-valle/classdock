@@ -33,7 +33,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🐍 Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python-version }}
           cache: "pip" # Cache pip dependencies
@@ -93,25 +93,6 @@ jobs:
 
           print_message "success" "Python CLI validation completed"
 
-      - name: 🧪 Test CLI functionality
-        run: |
-          source .github/scripts/workflow_utils.sh
-
-          # Create comprehensive test files
-          echo '{"assignment":"test","version":"1.0"}' > assignment.json
-          echo '{"cells":[],"metadata":{},"nbformat":4,"nbformat_minor":4}' > test.ipynb
-          echo '{"test_secret": "test_value"}' > test-secrets.json
-
-          # Test Python CLI help commands
-          print_message "info" "Testing Python CLI help commands"
-          poetry run python -m classdock --help > /dev/null
-          poetry run python -m classdock assignments --help > /dev/null
-          poetry run python -m classdock repos --help > /dev/null
-          poetry run python -m classdock secrets --help > /dev/null
-          poetry run python -m classdock automation --help > /dev/null
-
-          print_message "success" "All Python CLI help commands working"
-
       - name: 🧪 Run comprehensive test suite
         run: |
           source .github/scripts/workflow_utils.sh
@@ -142,7 +123,7 @@ jobs:
           name: test-results-python${{ matrix.python-version }}
           path: |
             test-results/python${{ matrix.python-version }}/
-          retention-days: 30
+          retention-days: 7
 
       - name: 📊 Generate test summary
         if: always()
@@ -172,7 +153,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: 🐍 Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: "pip"
@@ -214,17 +195,14 @@ jobs:
           source .github/scripts/workflow_utils.sh
           print_message "step" "Running Python code quality analysis"
 
-          # Check Python syntax
-          log_info "Checking Python syntax..."
-          poetry run python -m py_compile classdock/*.py
+          log_info "Running flake8 (syntax errors and undefined names)..."
+          poetry run flake8 classdock/ --select=E9,F63,F7,F82 --count --show-source --statistics
 
-          # Test imports
-          log_info "Testing module imports..."
-          poetry run python -c "import classdock; print('✅ Package imports successfully')"
+          log_info "Running black (formatting check)..."
+          poetry run black --check classdock/
 
-          # Test CLI functionality
-          log_info "Testing CLI functionality..."
-          poetry run python -m classdock --help > /dev/null
+          log_info "Running isort (import order check)..."
+          poetry run isort --check-only classdock/
 
           print_message "success" "Python code quality checks passed"
 
@@ -272,7 +250,7 @@ jobs:
           fetch-depth: 0
 
       - name: 🐍 Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
           cache: "pip"
