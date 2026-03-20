@@ -18,7 +18,7 @@ import time
 from dataclasses import dataclass
 from enum import Enum
 from pathlib import Path
-from typing import Dict, List, Optional, Set
+from typing import Callable, Dict, List, Optional, Set, Tuple
 
 import typer
 from rich.console import Console
@@ -232,6 +232,69 @@ class AssignmentOrchestrator:
 
         return typer.confirm("Do you want to proceed with this workflow?")
 
+    # ------------------------------------------------------------------
+    # Template Method: common algorithm skeleton for every workflow step
+    # ------------------------------------------------------------------
+
+    def _run_step(
+        self,
+        step: WorkflowStep,
+        config_attr: str,
+        config_default: bool,
+        dry_run: bool,
+        body: Callable[[bool], Tuple[bool, str, Optional[Dict]]],
+    ) -> StepResult:
+        """
+        Template Method that defines the invariant algorithm for a workflow step.
+
+        The skeleton is:
+            1. Check whether the step is enabled in global config.
+               If not, return a "Skipped" result immediately.
+            2. Execute the step-specific *body* callable.
+            3. Wrap execution in try/except; on failure return a failed
+               ``StepResult`` with the error message.
+
+        Subclasses or future steps only need to supply a *body* callable that
+        implements the varying part of the algorithm.
+
+        Args:
+            step:           The ``WorkflowStep`` enum value for this step.
+            config_attr:    Attribute name on ``global_config`` that enables/disables this step.
+            config_default: Default value when the attribute is absent.
+            dry_run:        Passed through to *body*.
+            body:           ``(dry_run) -> (success, message, data | None)``
+        """
+        if not getattr(self.global_config, config_attr, config_default):
+            return StepResult(
+                step=step,
+                success=True,
+                message="Skipped (disabled in config)",
+                duration=0.0,
+            )
+
+        start_time = time.time()
+        try:
+            success, message, data = body(dry_run)
+            return StepResult(
+                step=step,
+                success=success,
+                message=message,
+                duration=time.time() - start_time,
+                data=data,
+            )
+        except Exception as e:
+            self.logger.error(f"{step.value} failed: {e}")
+            return StepResult(
+                step=step,
+                success=False,
+                message=f"{step.value} failed: {e}",
+                duration=time.time() - start_time,
+            )
+
+    # ------------------------------------------------------------------
+    # Workflow step methods — each delegates to _run_step
+    # ------------------------------------------------------------------
+
     def step_sync_template(self, dry_run: bool = False) -> StepResult:
         """
         Step 1: Synchronize template with classroom.
@@ -240,283 +303,139 @@ class AssignmentOrchestrator:
         implemented in the push manager component.
         For now, we'll provide a placeholder that logs the action.
         """
-        start_time = time.time()
-
-        if not getattr(self.global_config, 'step_sync_template', True):
-            return StepResult(
-                step=WorkflowStep.SYNC,
-                success=True,
-                message="Skipped (disabled in config)",
-                duration=0.0
-            )
-
-        try:
+        def body(dry_run: bool) -> Tuple[bool, str, None]:
             if dry_run:
-                self.logger.info(
-                    "DRY RUN: Would synchronize template with classroom")
-                self.logger.info(
-                    f"Template repo: {self.global_config.template_repo_url}")
-                message = "DRY RUN: Template sync simulated"
-            else:
-                # Template push functionality is available via push manager
-                self.logger.warning(
-                    "Template sync requires push manager integration")
-                self.logger.info(
-                    "Use 'classdock repos push' for template synchronization")
-                message = "Template sync available via push manager"
+                self.logger.info("DRY RUN: Would synchronize template with classroom")
+                self.logger.info(f"Template repo: {self.global_config.template_repo_url}")
+                return True, "DRY RUN: Template sync simulated", None
+            self.logger.warning("Template sync requires push manager integration")
+            self.logger.info("Use 'classdock repos push' for template synchronization")
+            return True, "Template sync available via push manager", None
 
-            duration = time.time() - start_time
-            return StepResult(
-                step=WorkflowStep.SYNC,
-                success=True,
-                message=message,
-                duration=duration
-            )
-
-        except Exception as e:
-            duration = time.time() - start_time
-            self.logger.error(f"Template sync failed: {e}")
-            return StepResult(
-                step=WorkflowStep.SYNC,
-                success=False,
-                message=f"Template sync failed: {e}",
-                duration=duration
-            )
+        return self._run_step(WorkflowStep.SYNC, 'step_sync_template', True, dry_run, body)
 
     def step_discover_repos(self, dry_run: bool = False) -> StepResult:
         """Step 2: Discover student repositories using GitHub Classroom API."""
-        start_time = time.time()
-
-        if not getattr(self.global_config, 'step_discover_repos', True):
-            return StepResult(
-                step=WorkflowStep.DISCOVER,
-                success=True,
-                message="Skipped (disabled in config)",
-                duration=0.0
-            )
-
-        try:
+        def body(dry_run: bool) -> Tuple[bool, str, Optional[Dict]]:
             if dry_run:
-                self.logger.info(
-                    "DRY RUN: Would discover student repositories")
-                self.logger.info(
-                    f"Organization: {self.global_config.github_organization}")
-                self.logger.info(
-                    f"Assignment: {self.global_config.assignment_name}")
+                self.logger.info("DRY RUN: Would discover student repositories")
+                self.logger.info(f"Organization: {self.global_config.github_organization}")
+                self.logger.info(f"Assignment: {self.global_config.assignment_name}")
                 repos = ["https://github.com/example/student-repo-1",
                          "https://github.com/example/student-repo-2"]
-                message = f"DRY RUN: Would discover {len(repos)} repositories"
-            else:
-                # Use the existing repos fetch service
-                from ..services.repos_service import ReposService
+                return True, f"DRY RUN: Would discover {len(repos)} repositories", \
+                       {"repositories": None, "count": len(repos)}
 
-                self.logger.info("Discovering student repositories...")
-                repos_service = ReposService(
-                    dry_run=False, verbose=self.logger.level <= 10)
-                success, fetch_message = repos_service.fetch(
-                    config_file=str(self.config_file))
+            from ..services.repos_service import ReposService
+            self.logger.info("Discovering student repositories...")
+            repos_service = ReposService(dry_run=False, verbose=self.logger.level <= 10)
+            success, fetch_message = repos_service.fetch(config_file=str(self.config_file))
 
-                if not success:
-                    duration = time.time() - start_time
-                    return StepResult(
-                        step=WorkflowStep.DISCOVER,
-                        success=False,
-                        message=f"Repository discovery failed: {fetch_message}",
-                        duration=duration
-                    )
+            if not success:
+                return False, f"Repository discovery failed: {fetch_message}", None
 
-                # Load the discovered repositories from student-repos.txt
-                student_repos_file = Path("student-repos.txt")
-                if student_repos_file.exists():
-                    with open(student_repos_file, 'r') as f:
-                        repos = [line.strip() for line in f if line.strip()
-                                 and not line.startswith('#')]
-                    self.discovered_repos = repos
-                    message = f"Discovered {len(repos)} student repositories"
-                else:
-                    repos = []
-                    self.discovered_repos = repos
-                    message = "No repositories discovered"
+            student_repos_file = Path("student-repos.txt")
+            if student_repos_file.exists():
+                with open(student_repos_file, 'r') as f:
+                    repos = [line.strip() for line in f
+                             if line.strip() and not line.startswith('#')]
+                self.discovered_repos = repos
+                return True, f"Discovered {len(repos)} student repositories", \
+                       {"repositories": repos, "count": len(repos)}
 
-            duration = time.time() - start_time
-            return StepResult(
-                step=WorkflowStep.DISCOVER,
-                success=True,
-                message=message,
-                duration=duration,
-                data={"repositories": repos if not dry_run else None,
-                      "count": len(repos) if not dry_run else 2}
-            )
+            self.discovered_repos = []
+            return True, "No repositories discovered", {"repositories": [], "count": 0}
 
-        except Exception as e:
-            duration = time.time() - start_time
-            self.logger.error(f"Repository discovery failed: {e}")
-            return StepResult(
-                step=WorkflowStep.DISCOVER,
-                success=False,
-                message=f"Repository discovery failed: {e}",
-                duration=duration
-            )
+        return self._run_step(WorkflowStep.DISCOVER, 'step_discover_repos', True, dry_run, body)
 
     def step_sync_roster(self, dry_run: bool = False) -> StepResult:
         """Step 2.5: Sync discovered repositories with roster database."""
-        start_time = time.time()
-
-        # Check if roster sync is enabled (optional step)
-        if not getattr(self.global_config, 'step_sync_roster', False):
-            return StepResult(
-                step=WorkflowStep.SYNC_ROSTER,
-                success=True,
-                message="Skipped (disabled in config)",
-                duration=0.0
-            )
-
-        try:
-            # Check if roster database exists
+        def body(dry_run: bool) -> Tuple[bool, str, None]:
             from ..utils.database import DatabaseManager
             db = DatabaseManager()
             if not db.database_exists():
                 self.logger.warning(
-                    "Roster database not initialized. Run 'classdock roster init' first."
-                )
-                return StepResult(
-                    step=WorkflowStep.SYNC_ROSTER,
-                    success=True,
-                    message="Skipped (roster database not initialized)",
-                    duration=0.0
-                )
+                    "Roster database not initialized. Run 'classdock roster init' first.")
+                return True, "Skipped (roster database not initialized)", None
 
             if dry_run:
-                self.logger.info(
-                    "DRY RUN: Would sync repositories with roster")
-                message = f"DRY RUN: Would sync {len(self.discovered_repos)} repositories with roster"
-            else:
-                if not self.discovered_repos:
-                    message = "No repositories to sync"
-                    self.logger.info(message)
-                else:
-                    from ..services.roster_service import RosterService
+                self.logger.info("DRY RUN: Would sync repositories with roster")
+                return True, \
+                       f"DRY RUN: Would sync {len(self.discovered_repos)} repositories with roster", \
+                       None
 
-                    self.logger.info("Syncing repositories with roster...")
-                    roster_service = RosterService()
+            if not self.discovered_repos:
+                self.logger.info("No repositories to sync")
+                return True, "No repositories to sync", None
 
-                    # Parse repository URLs to extract student identifiers
-                    repos_data = []
-                    for repo_url in self.discovered_repos:
-                        # Extract repo name and student identifier
-                        # URL format: https://github.com/org/assignment-name-username
-                        if '/' in repo_url:
-                            repo_name = repo_url.split('/')[-1]
-                            # Extract student identifier (part after last dash)
-                            if '-' in repo_name:
-                                parts = repo_name.split('-')
-                                student_identifier = parts[-1]
-                                repos_data.append((repo_name, repo_url, student_identifier))
+            from ..services.roster_service import RosterService
+            self.logger.info("Syncing repositories with roster...")
+            roster_service = RosterService()
 
-                    if repos_data:
-                        result = roster_service.sync_repositories(
-                            self.global_config.assignment_name,
-                            self.global_config.github_organization,
-                            repos_data
-                        )
+            repos_data = []
+            for repo_url in self.discovered_repos:
+                if '/' in repo_url:
+                    repo_name = repo_url.split('/')[-1]
+                    if '-' in repo_name:
+                        parts = repo_name.split('-')
+                        repos_data.append((repo_name, repo_url, parts[-1]))
 
-                        message = (
-                            f"Synced {result.linked_count}/{result.total_repos} repositories "
-                            f"({result.success_rate:.1f}% success rate)"
-                        )
+            if not repos_data:
+                return True, "No valid repositories to sync", None
 
-                        if result.unlinked_count > 0:
-                            self.logger.warning(
-                                f"{result.unlinked_count} repositories could not be linked to roster"
-                            )
-                    else:
-                        message = "No valid repositories to sync"
-
-            duration = time.time() - start_time
-            return StepResult(
-                step=WorkflowStep.SYNC_ROSTER,
-                success=True,
-                message=message,
-                duration=duration
+            result = roster_service.sync_repositories(
+                self.global_config.assignment_name,
+                self.global_config.github_organization,
+                repos_data,
             )
+            message = (
+                f"Synced {result.linked_count}/{result.total_repos} repositories "
+                f"({result.success_rate:.1f}% success rate)"
+            )
+            if result.unlinked_count > 0:
+                self.logger.warning(
+                    f"{result.unlinked_count} repositories could not be linked to roster")
+            return True, message, None
 
+        # Roster sync errors are non-fatal — catch inside and return success
+        try:
+            return self._run_step(
+                WorkflowStep.SYNC_ROSTER, 'step_sync_roster', False, dry_run, body)
         except Exception as e:
-            duration = time.time() - start_time
             self.logger.error(f"Roster sync failed: {e}")
-            # Don't fail the workflow if roster sync fails
             return StepResult(
                 step=WorkflowStep.SYNC_ROSTER,
                 success=True,
                 message=f"Roster sync skipped: {e}",
-                duration=duration
+                duration=0.0,
             )
 
     def step_manage_secrets(self, dry_run: bool = False) -> StepResult:
         """Step 3: Manage secrets across repositories using our GitHub secrets manager."""
-        start_time = time.time()
-
-        if not getattr(self.global_config, 'step_manage_secrets', True):
-            return StepResult(
-                step=WorkflowStep.SECRETS,
-                success=True,
-                message="Skipped (disabled in config)",
-                duration=0.0
-            )
-
-        try:
-            # Check if we have repositories to work with
+        def body(dry_run: bool) -> Tuple[bool, str, Optional[Dict]]:
             if not dry_run and not self.discovered_repos:
-                # Try to load from student-repos.txt if discovery wasn't run
                 student_repos_file = Path("student-repos.txt")
                 if student_repos_file.exists():
                     with open(student_repos_file, 'r') as f:
                         self.discovered_repos = [
-                            line.strip() for line in f if line.strip() and not line.startswith('#')]
+                            line.strip() for line in f
+                            if line.strip() and not line.startswith('#')]
                 else:
-                    return StepResult(
-                        step=WorkflowStep.SECRETS,
-                        success=False,
-                        message="No repositories found. Run discovery step first.",
-                        duration=time.time() - start_time
-                    )
+                    return False, "No repositories found. Run discovery step first.", None
 
-            # Use the existing secrets add service
             if dry_run:
-                self.logger.info(
-                    "DRY RUN: Would manage secrets for student repositories")
-                message = "DRY RUN: Secret management simulated"
-                success = True
-            else:
-                from ..services.secrets_service import SecretsService
+                self.logger.info("DRY RUN: Would manage secrets for student repositories")
+                return True, "DRY RUN: Secret management simulated", {}
 
-                self.logger.info(
-                    f"Managing secrets for {len(self.discovered_repos)} repositories...")
-                secrets_service = SecretsService(
-                    dry_run=False, verbose=self.logger.level <= 10)
-                success, secrets_message = secrets_service.add_secrets(
-                    repo_urls=self.discovered_repos,
-                    force_update=False
-                )
-                message = secrets_message
+            from ..services.secrets_service import SecretsService
+            self.logger.info(
+                f"Managing secrets for {len(self.discovered_repos)} repositories...")
+            secrets_service = SecretsService(dry_run=False, verbose=self.logger.level <= 10)
+            success, message = secrets_service.add_secrets(
+                repo_urls=self.discovered_repos, force_update=False)
+            return success, message, {}
 
-            duration = time.time() - start_time
-            return StepResult(
-                step=WorkflowStep.SECRETS,
-                success=success,
-                message=message,
-                duration=duration,
-                data={}
-            )
-
-        except Exception as e:
-            duration = time.time() - start_time
-            self.logger.error(f"Secret management failed: {e}")
-            return StepResult(
-                step=WorkflowStep.SECRETS,
-                success=False,
-                message=f"Secret management failed: {e}",
-                duration=duration
-            )
+        return self._run_step(WorkflowStep.SECRETS, 'step_manage_secrets', True, dry_run, body)
 
     def step_assist_students(self, dry_run: bool = False) -> StepResult:
         """
@@ -525,45 +444,15 @@ class AssignmentOrchestrator:
         Note: This step requires student update helper functionality that will be
         implemented in the student helper component.
         """
-        start_time = time.time()
-
-        if not getattr(self.global_config, 'step_assist_students', False):
-            return StepResult(
-                step=WorkflowStep.ASSIST,
-                success=True,
-                message="Skipped (disabled in config)",
-                duration=0.0
-            )
-
-        try:
+        def body(dry_run: bool) -> Tuple[bool, str, None]:
             if dry_run:
                 self.logger.info("DRY RUN: Would run student assistance tools")
-                message = "DRY RUN: Student assistance simulated"
-            else:
-                # Student assistance functionality is available via student helper
-                self.logger.warning(
-                    "Student assistance requires direct student helper usage")
-                self.logger.info(
-                    "Use 'classdock assignments student-help' for assistance tools")
-                message = "Student assistance available via student helper"
+                return True, "DRY RUN: Student assistance simulated", None
+            self.logger.warning("Student assistance requires direct student helper usage")
+            self.logger.info("Use 'classdock assignments student-help' for assistance tools")
+            return True, "Student assistance available via student helper", None
 
-            duration = time.time() - start_time
-            return StepResult(
-                step=WorkflowStep.ASSIST,
-                success=True,
-                message=message,
-                duration=duration
-            )
-
-        except Exception as e:
-            duration = time.time() - start_time
-            self.logger.error(f"Student assistance failed: {e}")
-            return StepResult(
-                step=WorkflowStep.ASSIST,
-                success=False,
-                message=f"Student assistance failed: {e}",
-                duration=duration
-            )
+        return self._run_step(WorkflowStep.ASSIST, 'step_assist_students', False, dry_run, body)
 
     def step_cycle_collaborators(self, dry_run: bool = False) -> StepResult:
         """
@@ -572,45 +461,16 @@ class AssignmentOrchestrator:
         Note: This step requires collaborator cycling functionality that will be
         implemented in the cycle collaborator component.
         """
-        start_time = time.time()
-
-        if not getattr(self.global_config, 'step_cycle_collaborators', False):
-            return StepResult(
-                step=WorkflowStep.CYCLE,
-                success=True,
-                message="Skipped (disabled in config)",
-                duration=0.0
-            )
-
-        try:
+        def body(dry_run: bool) -> Tuple[bool, str, None]:
             if dry_run:
                 self.logger.info("DRY RUN: Would cycle collaborator access")
-                message = "DRY RUN: Collaborator cycling simulated"
-            else:
-                # Collaborator cycling functionality is available via cycle collaborator
-                self.logger.warning(
-                    "Collaborator cycling requires direct cycle collaborator usage")
-                self.logger.info(
-                    "Use 'classdock repos cycle-collaborator' for access management")
-                message = "Collaborator cycling available via cycle collaborator"
+                return True, "DRY RUN: Collaborator cycling simulated", None
+            self.logger.warning("Collaborator cycling requires direct cycle collaborator usage")
+            self.logger.info("Use 'classdock repos cycle-collaborator' for access management")
+            return True, "Collaborator cycling available via cycle collaborator", None
 
-            duration = time.time() - start_time
-            return StepResult(
-                step=WorkflowStep.CYCLE,
-                success=True,
-                message=message,
-                duration=duration
-            )
-
-        except Exception as e:
-            duration = time.time() - start_time
-            self.logger.error(f"Collaborator cycling failed: {e}")
-            return StepResult(
-                step=WorkflowStep.CYCLE,
-                success=False,
-                message=f"Collaborator cycling failed: {e}",
-                duration=duration
-            )
+        return self._run_step(
+            WorkflowStep.CYCLE, 'step_cycle_collaborators', False, dry_run, body)
 
     def execute_single_step(self, step: WorkflowStep, dry_run: bool = False) -> StepResult:
         """Execute a single workflow step."""
