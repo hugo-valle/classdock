@@ -7,12 +7,19 @@ config directory.
 """
 
 import sqlite3
+from datetime import datetime, date
 from pathlib import Path
 from typing import Optional, List, Dict, Any, Tuple
 from contextlib import contextmanager
 from ..utils.logger import get_logger
 
 logger = get_logger("database")
+
+# Explicit adapters replace the deprecated default datetime adapters (Python 3.12+).
+# The models already parse ISO strings back to datetime in their from_dict() methods,
+# so no converters are needed on the read side.
+sqlite3.register_adapter(datetime, lambda dt: dt.isoformat())
+sqlite3.register_adapter(date, lambda d: d.isoformat())
 
 
 class DatabaseManager:
