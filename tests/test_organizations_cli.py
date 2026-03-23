@@ -14,6 +14,7 @@ from classdock.organizations.models import (
     CloneResult,
     Organization,
     SetupResult,
+    TemplateRepo,
 )
 
 runner = CliRunner(mix_stderr=False)
@@ -48,6 +49,18 @@ class TestOrgList:
         assert "SOC-CS3030-Valle-SU26" in result.output
 
 
+def _mock_template_manager(repos=None):
+    m = MagicMock()
+    m.return_value.list_org_repos.return_value = repos or []
+    return m
+
+
+_SAMPLE_REPOS = [
+    TemplateRepo(name="python-basics", owner="SOC-CS3030-Valle-SU26", is_template=True),
+    TemplateRepo(name="midterm-project", owner="SOC-CS3030-Valle-SU26", is_template=False),
+]
+
+
 class TestOrgVerify:
     def test_valid_org_found(self):
         org = Organization(
@@ -56,30 +69,60 @@ class TestOrgVerify:
             url="https://github.com/SOC-CS3030-Valle-SU26",
             role="admin",
         )
-        with patch(
-            "classdock.commands.organizations.OrganizationManager",
-            _mock_org_manager(org=org),
+        with (
+            patch("classdock.commands.organizations.OrganizationManager", _mock_org_manager(org=org)),
+            patch("classdock.commands.organizations.TemplateManager", _mock_template_manager(_SAMPLE_REPOS)),
         ):
             result = runner.invoke(app, ["organizations", "verify", "SOC-CS3030-Valle-SU26"])
         assert result.exit_code == 0
         assert "verified" in result.output.lower()
 
+    def test_shows_repo_count(self):
+        org = Organization(login="SOC-CS3030-Valle-SU26")
+        with (
+            patch("classdock.commands.organizations.OrganizationManager", _mock_org_manager(org=org)),
+            patch("classdock.commands.organizations.TemplateManager", _mock_template_manager(_SAMPLE_REPOS)),
+        ):
+            result = runner.invoke(app, ["organizations", "verify", "SOC-CS3030-Valle-SU26"])
+        assert result.exit_code == 0
+        assert "2" in result.output   # total repos
+        assert "1" in result.output   # template repos
+
+    def test_shows_repo_names(self):
+        org = Organization(login="SOC-CS3030-Valle-SU26")
+        with (
+            patch("classdock.commands.organizations.OrganizationManager", _mock_org_manager(org=org)),
+            patch("classdock.commands.organizations.TemplateManager", _mock_template_manager(_SAMPLE_REPOS)),
+        ):
+            result = runner.invoke(app, ["organizations", "verify", "SOC-CS3030-Valle-SU26"])
+        assert "python-basics" in result.output
+        assert "midterm-project" in result.output
+
     def test_org_not_found_exits_1(self):
-        with patch(
-            "classdock.commands.organizations.OrganizationManager",
-            _mock_org_manager(org=None),
+        with (
+            patch("classdock.commands.organizations.OrganizationManager", _mock_org_manager(org=None)),
         ):
             result = runner.invoke(app, ["organizations", "verify", "ghost-org"])
         assert result.exit_code == 1
 
     def test_invalid_name_shows_warning(self):
         org = Organization(login="my-plain-org")
-        with patch(
-            "classdock.commands.organizations.OrganizationManager",
-            _mock_org_manager(org=org),
+        with (
+            patch("classdock.commands.organizations.OrganizationManager", _mock_org_manager(org=org)),
+            patch("classdock.commands.organizations.TemplateManager", _mock_template_manager([])),
         ):
             result = runner.invoke(app, ["organizations", "verify", "my-plain-org"])
         assert "Warning" in result.output or result.exit_code in (0, 1)
+
+    def test_no_repos_shows_empty(self):
+        org = Organization(login="SOC-CS3030-Valle-SU26")
+        with (
+            patch("classdock.commands.organizations.OrganizationManager", _mock_org_manager(org=org)),
+            patch("classdock.commands.organizations.TemplateManager", _mock_template_manager([])),
+        ):
+            result = runner.invoke(app, ["organizations", "verify", "SOC-CS3030-Valle-SU26"])
+        assert result.exit_code == 0
+        assert "0" in result.output
 
 
 class TestOrgCreate:

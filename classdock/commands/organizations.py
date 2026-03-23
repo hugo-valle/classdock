@@ -9,6 +9,7 @@ from rich.table import Table
 from ._helpers import get_global_options
 from ..utils import get_logger, setup_logging
 from ..organizations.manager import OrganizationManager
+from ..organizations.templates import TemplateManager
 from ..organizations.validators import OrgNameValidator
 from ..services.organization_service import OrganizationService
 
@@ -253,12 +254,18 @@ def org_verify(
                 f"[yellow]Warning: '{login}' does not match the ClassDock naming convention.[/yellow]"
             )
 
-        mgr = OrganizationManager(token=_get_token())  # noqa: F811
+        token = _get_token()
+        mgr = OrganizationManager(token=token)
         org = mgr.get_organization(login)
 
         if org is None:
             console.print(f"[red]Organization '{login}' not found on GitHub.[/red]")
             raise typer.Exit(code=1)
+
+        # Fetch repo counts
+        tmpl_mgr = TemplateManager(token=token)
+        all_repos = tmpl_mgr.list_org_repos(login, templates_only=False)
+        template_repos = [r for r in all_repos if r.is_template]
 
         table = Table(title=f"Organization: {org.login}")
         table.add_column("Field", style="cyan")
@@ -267,6 +274,8 @@ def org_verify(
         table.add_row("Name", org.name or "—")
         table.add_row("URL", org.url or "—")
         table.add_row("Role", org.role or "—")
+        table.add_row("Repositories", str(len(all_repos)))
+        table.add_row("Template repos", str(len(template_repos)))
 
         if val.is_valid:
             table.add_row("Semester", val.semester_label or "—")
@@ -274,6 +283,15 @@ def org_verify(
             table.add_row("Instructor", val.lastname or "—")
 
         console.print(table)
+
+        if all_repos:
+            repo_table = Table(title="Repositories", show_header=True)
+            repo_table.add_column("Name", style="cyan")
+            repo_table.add_column("Template", justify="center")
+            for repo in all_repos:
+                repo_table.add_row(repo.name, "[green]✓[/green]" if repo.is_template else "")
+            console.print(repo_table)
+
         console.print("[green]✓ Organization verified.[/green]")
 
     except typer.Exit:
