@@ -12,6 +12,8 @@ from typing import Dict, List, Optional, Tuple
 
 import requests
 
+from .github_exceptions import RepoAlreadyExistsError
+
 logger = logging.getLogger(__name__)
 
 
@@ -679,6 +681,18 @@ class GitHubAPIClient:
                     target_owner, new_name, template_owner, template_repo,
                 )
                 return response.json()
+            if response.status_code == 422:
+                body = response.text
+                if "already exists" in body.lower():
+                    logger.debug(
+                        "'%s/%s' already exists in '%s'; skipping.",
+                        target_owner, new_name, target_owner,
+                    )
+                    raise RepoAlreadyExistsError(
+                        f"'{target_owner}/{new_name}' already exists",
+                        repository_name=new_name,
+                        operation="create_from_template",
+                    )
             logger.error(
                 "create_from_template failed for '%s/%s' → '%s/%s': HTTP %s %s",
                 template_owner, template_repo,
@@ -687,6 +701,8 @@ class GitHubAPIClient:
                 response.text[:300],
             )
             return None
+        except RepoAlreadyExistsError:
+            raise
         except Exception as exc:
             logger.error(
                 "Error creating '%s/%s' from template '%s/%s': %s",

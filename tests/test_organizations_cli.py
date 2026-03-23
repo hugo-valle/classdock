@@ -175,7 +175,10 @@ class TestOrgCreate:
 
 class TestOrgCloneTemplates:
     def test_successful_clone(self):
-        clone_result = CloneResult(total=2, successful=2)
+        repo = TemplateRepo(name="python-basics", owner="CS3030")
+        clone_result = CloneResult(total=1, successful=1)
+        clone_result.cloned_repos.append(repo)
+        clone_result.attempted_names.append("python-basics")
 
         with patch(
             "classdock.commands.organizations.OrganizationService"
@@ -195,7 +198,8 @@ class TestOrgCloneTemplates:
                 ],
             )
         assert result.exit_code == 0
-        assert "2/2" in result.output
+        assert "cloned" in result.output
+        assert "python-basics" in result.output
 
     def test_partial_failure_exits_1(self):
         clone_result = CloneResult(total=2, successful=1, failed=1)
@@ -217,6 +221,32 @@ class TestOrgCloneTemplates:
                 ],
             )
         assert result.exit_code == 1
+
+    def test_already_existed_shown_in_table(self):
+        clone_result = CloneResult(total=2, successful=1)
+        clone_result.cloned_repos.append(TemplateRepo(name="new-repo", owner="CS3030"))
+        clone_result.already_existed.append("old-repo")
+        clone_result.attempted_names.extend(["new-repo", "old-repo"])
+
+        with patch(
+            "classdock.commands.organizations.OrganizationService"
+        ) as mock_svc_cls:
+            mock_svc_cls.return_value.clone_templates.return_value = clone_result
+            result = runner.invoke(
+                app,
+                [
+                    "organizations",
+                    "clone-templates",
+                    "--source-org",
+                    "CS3030",
+                    "--target-org",
+                    "SOC-CS3030-Valle-SU26",
+                ],
+            )
+        assert result.exit_code == 0
+        assert "exists" in result.output
+        assert "cloned" in result.output
+        assert "already existed" in result.output
 
     def test_zero_repos_shows_message(self):
         clone_result = CloneResult(total=0)

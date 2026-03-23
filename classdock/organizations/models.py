@@ -181,6 +181,8 @@ class CloneResult:
     failed: int = 0
     cloned_repos: List[TemplateRepo] = field(default_factory=list)
     errors: List[str] = field(default_factory=list)
+    already_existed: List[str] = field(default_factory=list)
+    attempted_names: List[str] = field(default_factory=list)
 
     def add_success(self, repo: TemplateRepo) -> None:
         """Record a successful clone."""
@@ -191,6 +193,10 @@ class CloneResult:
         """Record a clone failure."""
         self.errors.append(error)
         self.failed += 1
+
+    def add_already_existed(self, repo_name: str) -> None:
+        """Record a repo that was skipped because it already exists in the target org."""
+        self.already_existed.append(repo_name)
 
     @property
     def success_rate(self) -> float:

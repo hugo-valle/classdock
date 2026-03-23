@@ -13,6 +13,7 @@ import time
 from typing import Callable, List, Optional
 
 from ..utils.github_api_client import GitHubAPIClient
+from ..utils.github_exceptions import RepoAlreadyExistsError
 from .models import CloneResult, TemplateRepo
 
 logger = logging.getLogger(__name__)
@@ -120,8 +121,8 @@ class TemplateManager:
             return TemplateRepo.from_dict(raw)
 
         # Fallback: try fork (for repos not marked as templates)
-        logger.warning(
-            "generate-from-template failed for '%s/%s'; falling back to fork.",
+        logger.debug(
+            "generate-from-template returned None for '%s/%s'; falling back to fork.",
             source_owner, repo_name,
         )
         raw = self._api.fork_repository(
@@ -194,14 +195,14 @@ class TemplateManager:
         Returns:
             CloneResult summarising successes and failures.
         """
-        result = CloneResult(total=len(repo_names))
+        result = CloneResult(total=len(repo_names), attempted_names=list(repo_names))
 
         for idx, name in enumerate(repo_names, start=1):
             if progress_callback:
                 progress_callback(idx, len(repo_names), name)
 
-            logger.info(
-                "Forking '%s/%s' → '%s' (%d/%d)",
+            logger.debug(
+                "Copying '%s/%s' → '%s' (%d/%d)",
                 source_org,
                 name,
                 target_org,
@@ -209,11 +210,16 @@ class TemplateManager:
                 len(repo_names),
             )
 
-            repo = self.copy_template_repository(
-                source_owner=source_org,
-                repo_name=name,
-                target_org=target_org,
-            )
+            try:
+                repo = self.copy_template_repository(
+                    source_owner=source_org,
+                    repo_name=name,
+                    target_org=target_org,
+                )
+            except RepoAlreadyExistsError:
+                logger.debug("'%s/%s' already exists; skipping.", target_org, name)
+                result.add_already_existed(name)
+                continue
 
             if repo is None:
                 error_msg = f"Failed to fork '{source_org}/{name}' into '{target_org}'"
@@ -240,11 +246,12 @@ class TemplateManager:
                 repo.is_template = True
 
             result.add_success(repo)
-            logger.info("✓ Cloned and configured '%s/%s'", target_org, repo.name)
+            logger.debug("Cloned and configured '%s/%s'", target_org, repo.name)
 
-        logger.info(
-            "Batch clone complete: %d/%d succeeded",
+        logger.debug(
+            "Batch clone complete: %d cloned, %d already existed, %d failed",
             result.successful,
-            result.total,
+            len(result.already_existed),
+            result.failed,
         )
         return result

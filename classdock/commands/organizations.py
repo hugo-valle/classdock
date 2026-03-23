@@ -213,14 +213,32 @@ def org_clone_templates(
             console.print("[yellow]No repositories to clone.[/yellow]")
             return
 
-        console.print(
-            f"\n[bold]Clone Results:[/bold] "
-            f"[green]{result.successful}[/green]/{result.total} succeeded"
-        )
-        if result.errors:
-            console.print("[red]Errors:[/red]")
-            for err in result.errors:
-                console.print(f"  • {err}")
+        # Build per-repo status table
+        cloned_names = {r.name for r in result.cloned_repos}
+        existed_names = set(result.already_existed)
+
+        table = Table(title=f"Clone: {source_org} → {target_org}", show_header=True)
+        table.add_column("Repository", style="cyan")
+        table.add_column("Status", justify="center")
+
+        for repo_name in result.attempted_names:
+            if repo_name in cloned_names:
+                table.add_row(repo_name, "[green]✓ cloned[/green]")
+            elif repo_name in existed_names:
+                table.add_row(repo_name, "[yellow]↩ exists[/yellow]")
+            else:
+                table.add_row(repo_name, "[red]✗ failed[/red]")
+
+        console.print(table)
+
+        parts = []
+        if result.successful:
+            parts.append(f"[green]{result.successful} cloned[/green]")
+        if result.already_existed:
+            parts.append(f"[yellow]{len(result.already_existed)} already existed[/yellow]")
+        if result.failed:
+            parts.append(f"[red]{result.failed} failed[/red]")
+        console.print("\nSummary: " + " · ".join(parts))
 
         if result.failed > 0:
             raise typer.Exit(code=1)

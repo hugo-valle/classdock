@@ -133,8 +133,8 @@ class OrganizationService:
         if not repo_names:
             templates = self._template_manager.list_org_templates(source_org)
             repo_names = [t.name for t in templates]
-            logger.info(
-                "No repos specified; using all %d template(s) from '%s'",
+            logger.debug(
+                "No repos specified; resolved %d template(s) from '%s'",
                 len(repo_names),
                 source_org,
             )
