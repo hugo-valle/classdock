@@ -137,3 +137,70 @@ class PathManager:
         except ValueError:
             # If file is not under workspace root, return absolute path
             return str(file_path.resolve())
+
+    # ------------------------------------------------------------------
+    # Organization workspace helpers
+    # ------------------------------------------------------------------
+
+    _MASTER_MARKER = ".classdock-master"
+
+    def find_master_folder(self, start: Optional[Path] = None) -> Optional[Path]:
+        """
+        Walk up the directory tree looking for a ClassDock master template folder.
+
+        A master folder is identified by the presence of a ``.classdock-master``
+        marker file in the directory.
+
+        Args:
+            start: Directory to start searching from. Defaults to self.base_path.
+
+        Returns:
+            Path to the master folder if found, otherwise None.
+        """
+        current = (start or self.base_path).resolve()
+
+        while current != current.parent:
+            if (current / self._MASTER_MARKER).exists():
+                logger.debug("Found master template folder: %s", current)
+                return current
+            current = current.parent
+
+        logger.debug("No master template folder found (no %s marker)", self._MASTER_MARKER)
+        return None
+
+    def get_org_folder(self, base: Path, org_name: str) -> Path:
+        """
+        Return the expected path for a semester org folder.
+
+        Args:
+            base: Base directory that contains all course/org folders.
+            org_name: GitHub organization name (e.g., SOC-CS3030-Valle-SU26).
+
+        Returns:
+            Path pointing to ``<base>/<org_name>``.
+        """
+        return base / org_name
+
+    def ensure_org_folder(self, base: Path, org_name: str) -> Path:
+        """
+        Create a semester org folder and write a metadata marker file.
+
+        The folder ``<base>/<org_name>`` is created (including any missing
+        parents).  A ``.classdock-org`` marker file is written into it with
+        the org name so the folder can be identified later.
+
+        Args:
+            base: Base directory that contains all course/org folders.
+            org_name: GitHub organization name.
+
+        Returns:
+            Path to the newly created org folder.
+        """
+        org_path = self.get_org_folder(base, org_name)
+        org_path.mkdir(parents=True, exist_ok=True)
+
+        marker = org_path / ".classdock-org"
+        marker.write_text(org_name, encoding="utf-8")
+
+        logger.debug("Created org folder: %s", org_path)
+        return org_path
