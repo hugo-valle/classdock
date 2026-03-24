@@ -350,6 +350,130 @@ class GitHubClassroomAPI:
         logger.info(f"Found {len(repositories)} student repositories")
         return repositories
 
+    def get_classroom(self, classroom_id: int) -> Dict:
+        """
+        Get a specific classroom by ID.
+
+        Args:
+            classroom_id: GitHub Classroom ID
+
+        Returns:
+            Classroom dictionary
+        """
+        response = self._make_request("GET", f"/classrooms/{classroom_id}")
+        return response.json()
+
+    def get_assignment(self, assignment_id: int) -> Dict:
+        """
+        Get a specific assignment by ID.
+
+        Args:
+            assignment_id: GitHub Classroom assignment ID
+
+        Returns:
+            Assignment dictionary
+        """
+        response = self._make_request("GET", f"/assignments/{assignment_id}")
+        return response.json()
+
+    def get_assignment_grades(self, assignment_id: int) -> List[Dict]:
+        """
+        Get grading data for a specific assignment.
+
+        Args:
+            assignment_id: GitHub Classroom assignment ID
+
+        Returns:
+            List of grade records
+        """
+        response = self._make_request("GET", f"/assignments/{assignment_id}/grades")
+        return response.json()
+
+    def get_classrooms_paginated(self, per_page: int = 100) -> List[Dict]:
+        """
+        Get all classrooms with pagination support.
+
+        Args:
+            per_page: Results per page (max 100)
+
+        Returns:
+            Full list of all classroom dicts across all pages
+        """
+        results = []
+        page = 1
+        while True:
+            response = self._make_request(
+                "GET", "/classrooms", params={"page": page, "per_page": per_page}
+            )
+            page_data = response.json()
+            if not page_data:
+                break
+            results.extend(page_data)
+            if len(page_data) < per_page:
+                break
+            page += 1
+        return results
+
+    def get_classroom_assignments_paginated(
+        self, classroom_id: int, per_page: int = 100
+    ) -> List[Dict]:
+        """
+        Get all assignments for a classroom with pagination support.
+
+        Args:
+            classroom_id: GitHub Classroom ID
+            per_page: Results per page (max 100)
+
+        Returns:
+            Full list of all assignment dicts across all pages
+        """
+        results = []
+        page = 1
+        while True:
+            response = self._make_request(
+                "GET",
+                f"/classrooms/{classroom_id}/assignments",
+                params={"page": page, "per_page": per_page},
+            )
+            page_data = response.json()
+            if not page_data:
+                break
+            results.extend(page_data)
+            if len(page_data) < per_page:
+                break
+            page += 1
+        return results
+
+    def get_accepted_assignments_paginated(
+        self, assignment_id: int, per_page: int = 100
+    ) -> List[Dict]:
+        """
+        Get all accepted assignments (student repos) with pagination support.
+
+        Args:
+            assignment_id: GitHub Classroom assignment ID
+            per_page: Results per page (max 100)
+
+        Returns:
+            Full list of accepted assignment dicts across all pages
+        """
+        results = []
+        page = 1
+        while True:
+            response = self._make_request(
+                "GET",
+                f"/assignments/{assignment_id}/accepted_assignments",
+                params={"page": page, "per_page": per_page},
+            )
+            page_data = response.json()
+            if not page_data:
+                break
+            results.extend(page_data)
+            if len(page_data) < per_page:
+                break
+            page += 1
+        return results
+
     def get_assignment_metadata(
         self, classroom_url: str, github_organization: str
     ) -> Dict:
