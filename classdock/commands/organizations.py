@@ -530,37 +530,108 @@ def classroom_assignments(
 @classroom_app.command("grades")
 def classroom_grades(
     ctx: typer.Context,
-    assignment_id: int = typer.Argument(..., help="GitHub Classroom assignment numeric ID"),
+    org_login: Optional[str] = typer.Argument(
+        None,
+        help="GitHub organization login to filter classrooms. "
+             "If omitted, all accessible classrooms are shown.",
+    ),
 ):
     """
-    Show grading data for an assignment.
+    Interactively select a classroom and assignment, then show grade data.
+
+    Three-level drill-down:
+      1. Select organization → classroom list
+      2. Select classroom → assignment list
+      3. Select assignment → grades table
 
     Examples:
-        $ classdock organizations classroom grades 67890
+        $ classdock organizations classroom grades
+        $ classdock organizations classroom grades SOC-CS3030-Valle-FA26
     """
     setup_logging(ctx.obj.get("verbose", False) if ctx.obj else False)
     try:
         mgr = ClassroomManager(token=_get_token())
-        assignment = mgr.get_assignment(assignment_id)
-        if assignment is None:
-            console.print(f"[red]Assignment {assignment_id} not found.[/red]")
+
+        # Step 1 — classroom list
+        if org_login:
+            classrooms = mgr.list_classrooms_for_org(org_login)
+            scope = f"'{org_login}'"
+        else:
+            classrooms = mgr.list_classrooms(enrich_org=True)
+            scope = "your account"
+
+        if not classrooms:
+            console.print(f"[yellow]No classrooms found for {scope}.[/yellow]")
+            return
+
+        console.print(f"\n[bold]Classrooms in {scope}:[/bold]\n")
+        for i, c in enumerate(classrooms, start=1):
+            org_hint = f"  [dim]({c.org_login})[/dim]" if c.org_login else ""
+            archived = "  [yellow][archived][/yellow]" if c.archived else ""
+            console.print(f"  {i}. {c.name}{org_hint}{archived}")
+
+        console.print()
+        choice = typer.prompt(f"Select classroom [1-{len(classrooms)}]", default="1")
+        try:
+            idx = int(choice) - 1
+            if not 0 <= idx < len(classrooms):
+                raise ValueError
+        except ValueError:
+            console.print("[red]Invalid selection.[/red]")
             raise typer.Exit(code=1)
 
-        grades = mgr.get_grades(assignment_id)
+        classroom = classrooms[idx]
+
+        # Step 2 — assignment list
+        assignments = mgr.list_assignments(classroom.id)
+        if not assignments:
+            console.print(f"[yellow]No assignments in classroom '{classroom.name}'.[/yellow]")
+            return
+
+        console.print(f"\n[bold]Assignments in {classroom.name}:[/bold]\n")
+        for i, a in enumerate(assignments, start=1):
+            deadline = f"  [dim]due {a.deadline}[/dim]" if a.deadline else ""
+            console.print(
+                f"  {i}. {a.title}  "
+                f"[dim]{a.type}[/dim]  "
+                f"accepted: {a.accepted_count}{deadline}"
+            )
+
+        console.print()
+        choice = typer.prompt(
+            f"Select assignment [1-{len(assignments)}]", default="1"
+        )
+        try:
+            aidx = int(choice) - 1
+            if not 0 <= aidx < len(assignments):
+                raise ValueError
+        except ValueError:
+            console.print("[red]Invalid selection.[/red]")
+            raise typer.Exit(code=1)
+
+        assignment = assignments[aidx]
+
+        # Step 3 — grades table
+        grades = mgr.get_grades(assignment.id)
         if not grades:
             console.print(
                 f"[yellow]No grade data for '{assignment.title}' yet.[/yellow]"
             )
             return
 
-        table = Table(title=f"Grades: {assignment.title}", show_header=True)
+        table = Table(
+            title=f"Grades: {assignment.title} ({classroom.name})",
+            show_header=True,
+        )
+        table.add_column("#", style="dim", justify="right")
         table.add_column("GitHub Username", style="cyan")
         table.add_column("Points Awarded", justify="right")
         table.add_column("Points Available", justify="right")
         table.add_column("Submitted At")
 
-        for g in grades:
+        for i, g in enumerate(grades, start=1):
             table.add_row(
+                str(i),
                 g.get("github_username", "—"),
                 str(g.get("points_awarded", "—")),
                 str(g.get("points_available", "—")),
@@ -568,6 +639,9 @@ def classroom_grades(
             )
 
         console.print(table)
+        console.print(
+            f"\n[dim]Total: {len(grades)} student(s) · Assignment ID: {assignment.id}[/dim]"
+        )
 
     except GitHubClassroomAPIError as exc:
         console.print(f"[red]Classroom API error:[/red] {exc}")

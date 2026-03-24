@@ -87,12 +87,32 @@ The wizard will:
 ### Step 3 — Complete GitHub Classroom Setup
 
 The GitHub Classroom API does not support classroom creation.
-After the wizard completes:
+After the wizard completes it will check whether your source org already has a classroom.
+If it does, you will be offered a generated assignment checklist with one-click creation links.
+
+**Option A — Wizard detects a source classroom (automatic checklist)**
+
+The wizard prompts:
+```
+Found classroom "CS3030-Valle-S26-classroom" in source org CS3030-Valle-S26.
+Generate assignment checklist from this classroom? [Y/n]:
+```
+
+Accepting generates:
+- A per-assignment table with deep-link URLs to create each assignment
+- A `classroom_setup.md` file in your org folder with the same checklist in Markdown
+
+**Option B — No source classroom found (manual guidance)**
 
 1. Go to [classroom.github.com/classrooms/new](https://classroom.github.com/classrooms/new)
 2. Select your new organization (e.g., `SOC-CS3030-Valle-SU26`)
 3. Name your classroom (e.g., "CS3030 Summer 2026")
 4. Create assignments using the template repos now in your org
+
+You can also generate a checklist later:
+```bash
+classdock organizations classroom clone <SOURCE_CLASSROOM_ID> SOC-CS3030-Valle-SU26
+```
 
 ### Step 4 — Configure and Run Assignments
 
@@ -129,16 +149,36 @@ Requires the `admin:org` scope on your GitHub token.
 ```bash
 # Clone all template repos from a source org
 classdock organizations clone-templates \
-    --source-org CS3030 \
+    --source-org CS3030-master \
     --target-org SOC-CS3030-Valle-SU26
 
 # Clone specific repos only
 classdock organizations clone-templates \
-    --source-org CS3030 \
+    --source-org CS3030-master \
     --target-org SOC-CS3030-Valle-SU26 \
     --repos python-basics \
     --repos midterm-project
 ```
+
+The output is a per-repo status table:
+
+```
+     Clone: CS3030-master → SOC-CS3030-Valle-SU26
+┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
+┃ Repository        ┃  Status  ┃
+┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
+│ project1-template │ ✓ cloned │
+│ project2-template │ ↩ exists │
+└───────────────────┴──────────┘
+
+Summary: 1 cloned · 1 already existed
+```
+
+| Status | Meaning |
+|--------|---------|
+| `✓ cloned` | Newly created in the target org |
+| `↩ exists` | Already present — skipped (idempotent) |
+| `✗ failed` | Could not be cloned — check token/permissions |
 
 ### List Your GitHub Organizations
 
@@ -151,6 +191,109 @@ classdock organizations list
 ```bash
 classdock organizations verify SOC-CS3030-Valle-SU26
 ```
+
+Displays org details, total repo count, template repo count, and a per-repo table.
+
+---
+
+## GitHub Classroom Commands
+
+All GitHub Classroom API operations are **read-only** — classroom and assignment
+creation must be done via the web UI.  ClassDock provides inspection tools and
+generates deep-link creation URLs.
+
+### List Classrooms
+
+```bash
+# All classrooms you administer
+classdock organizations classroom list
+
+# Filtered to a specific organization
+classdock organizations classroom list SOC-CS3030-Valle-SU26
+```
+
+Output includes classroom name, linked organization, archived status, and URL.
+
+### Browse Assignments (3-level drill-down)
+
+```bash
+# All classrooms
+classdock organizations classroom assignments
+
+# Filtered by org (fewer choices in the first menu)
+classdock organizations classroom assignments SOC-CS3030-Valle-SU26
+```
+
+The command presents three interactive menus in sequence:
+
+```
+Classrooms in 'SOC-CS3030-Valle-SU26':
+
+  1. CS3030-Valle-SU26-classroom  (SOC-CS3030-Valle-SU26)
+
+Select classroom [1-1] [1]:
+
+Assignments in CS3030-Valle-SU26-classroom:
+
+  1. python-basics  individual  accepted: 28
+  2. midterm-project  individual  accepted: 25
+
+Select assignment to view student repos [1-2] [1]:
+
+       Student Repos: python-basics (CS3030-Valle-SU26-classroom)
+┏━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━┳━━━━━━━━━┳━━━━━━━━━┳━━━━━━━┓
+┃  # ┃ GitHub Username┃ Repository      ┃ Submitted ┃ Passing ┃ Commits ┃ Grade ┃
+┡━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━╇━━━━━━━━━╇━━━━━━━━━╇━━━━━━━┩
+│  1 │ student-a      │ org/python-…    │           │    ✓    │      14 │ —     │
+```
+
+### Browse Grades (3-level drill-down)
+
+```bash
+classdock organizations classroom grades
+classdock organizations classroom grades SOC-CS3030-Valle-SU26
+```
+
+Same org → classroom → assignment selection flow, then displays:
+
+```
+       Grades: python-basics (CS3030-Valle-SU26-classroom)
+┏━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━┓
+┃  # ┃ GitHub Username┃ Points Awarded ┃ Points Available ┃ Submitted At     ┃
+┡━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━┩
+│  1 │ student-a      │              8 │               10 │ 2026-04-01 ...   │
+```
+
+### Clone Classroom Structure into a New Org
+
+```bash
+# Get source classroom ID from: classdock organizations classroom list
+classdock organizations classroom clone 298811 SOC-CS3030-Valle-FA26
+
+# Write classroom_setup.md to a specific workspace folder
+classdock organizations classroom clone 298811 SOC-CS3030-Valle-FA26 \
+    --workspace ~/courses/SOC-CS3030-Valle-FA26
+```
+
+This command:
+1. Fetches all assignments from the source classroom
+2. Clones each starter-code repo into the target org (uses generate-from-template API)
+3. Displays a checklist table with one-click assignment creation URLs
+4. Writes `classroom_setup.md` to the workspace folder (or CWD)
+
+Example output:
+```
+    Assignment Checklist: CS3030-S26-classroom → SOC-CS3030-Valle-FA26
+┏━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┓
+┃ Assignment    ┃ Type       ┃ Deadline   ┃ Starter  ┃ Create URL               ┃
+┡━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━┩
+│ python-basics │ individual │ —          │ ✓ cloned │ https://classroom.git... │
+└───────────────┴────────────┴────────────┴──────────┴──────────────────────────┘
+```
+
+The Create URL opens GitHub Classroom's new-assignment form with the starter repo
+pre-selected.  If the target org doesn't have a classroom yet, the URL links to the
+new-classroom page instead.
 
 ---
 
@@ -181,23 +324,41 @@ export GITHUB_TOKEN=<YOUR_TOKEN>
 ## Typical Semester Workflow
 
 ```bash
-# At the start of each new semester:
+# ── NEW SEMESTER SETUP ────────────────────────────────────────────────
 
-# 1. Run the organization setup wizard
+# 1. Run the organization setup wizard from your master folder
+cd ~/courses/CS3030
 classdock organizations init
-#    → Creates SOC-CS3030-Valle-SU26/ locally and on GitHub
+#    → Wizard: select source org, pick templates, name the new org,
+#      clone locally, create GitHub org, fork templates, generate checklist
 
-# 2. Complete GitHub Classroom setup (manual)
-#    → Visit classroom.github.com and create classroom
+# 2. Verify the new org and its repos
+classdock organizations verify SOC-CS3030-Valle-FA26
 
-# 3. Set up individual assignments
-cd ~/courses/SOC-CS3030-Valle-SU26
-classdock assignments setup   # one per assignment
+# 3. (If wizard found a source classroom) Follow the generated checklist
+#    classroom_setup.md is written to ~/courses/SOC-CS3030-Valle-FA26/
 
-# 4. Run the assignment workflow
-classdock assignments orchestrate
+# 4. (If no source classroom) Clone structure from a previous semester's classroom
+classdock organizations classroom list                  # find the source classroom ID
+classdock organizations classroom clone 298811 SOC-CS3030-Valle-FA26 \
+    --workspace ~/courses/SOC-CS3030-Valle-FA26
 
-# 5. Repeat steps 3–4 for each assignment
+# 5. Create the GitHub Classroom manually (API limitation)
+#    → Visit classroom.github.com/classrooms/new, select the new org
+#    → Use the Create URLs from the checklist to add each assignment
+
+# ── MID-SEMESTER MONITORING ───────────────────────────────────────────
+
+# Check student submission progress for any assignment
+classdock organizations classroom assignments SOC-CS3030-Valle-FA26
+#    → Select classroom → select assignment → student repos table
+
+# Review grades
+classdock organizations classroom grades SOC-CS3030-Valle-FA26
+#    → Select classroom → select assignment → grades table
+
+# ── REPEAT NEXT SEMESTER ──────────────────────────────────────────────
+# Re-run classdock organizations init from the same master folder
 ```
 
 ---
@@ -225,8 +386,29 @@ cd ~/courses/CS3030
 git clone https://github.com/YOUR-ORG/python-basics
 ```
 
-### Fork fails for a specific repo
+### clone-templates shows `✗ failed` for a repo
 
 - The source repo must be accessible to your token.
-- Private repos require `repo` scope.
-- The target org must already exist before forking.
+- Private repos require the `repo` scope.
+- The target org must already exist before cloning.
+- If the source repo is a GitHub template (`is_template: true`), the
+  generate-from-template API is used automatically; otherwise forking is attempted.
+
+### "No classrooms found for 'ORG'"
+
+The GitHub Classroom list endpoint returns only classrooms where you are an admin.
+Make sure the organization is linked to a classroom at
+[classroom.github.com](https://classroom.github.com) and that your token has the
+`repo` and `read:org` scopes.
+
+### classroom grades shows 0 points for all students
+
+This is expected when GitHub Classroom autograding is not configured for the
+assignment.  Set up autograding tests in the classroom assignment settings to
+populate points data.
+
+### `classroom clone` shows "↩ exists" for all starter repos
+
+The repos were already cloned into the target org from a previous run.
+This is idempotent — the checklist and `classroom_setup.md` are still generated
+correctly using the existing repos.
