@@ -25,14 +25,9 @@ import typer
 from rich.console import Console
 from rich.panel import Panel
 from rich.table import Table
-
 from rich.text import Text
 
-from ..utils.ui_components import (
-    print_error,
-    print_status,
-    print_success,
-)
+from ..utils.ui_components import print_error, print_status, print_success
 from .classroom import ClassroomManager
 from .manager import OrganizationManager
 from .models import Organization, SetupResult, TemplateRepo, WorkspaceFolder

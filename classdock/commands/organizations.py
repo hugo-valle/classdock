@@ -6,14 +6,14 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from ._helpers import get_global_options
-from ..utils import get_logger, setup_logging
 from ..organizations.classroom import ClassroomManager
 from ..organizations.manager import OrganizationManager
 from ..organizations.templates import TemplateManager
 from ..organizations.validators import OrgNameValidator
 from ..services.organization_service import OrganizationService
+from ..utils import get_logger, setup_logging
 from ..utils.github_classroom_api import GitHubClassroomAPIError
+from ._helpers import get_global_options
 
 logger = get_logger("cli.organizations")
 console = Console()
@@ -714,6 +714,7 @@ def classroom_clone(
     """
     import re as _re
     from pathlib import Path as _Path
+
     from rich.panel import Panel
 
     setup_logging(ctx.obj.get("verbose", False) if ctx.obj else False)
