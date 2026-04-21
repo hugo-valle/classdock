@@ -30,7 +30,7 @@ jobs:
         python-version: ["3.10", "3.12", "3.14"]
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🐍 Set up Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
@@ -39,7 +39,7 @@ jobs:
           cache: "pip" # Cache pip dependencies
 
       - name: 📦 Cache Poetry installation
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.local/share/pypoetry
@@ -60,7 +60,7 @@ jobs:
           virtualenvs-in-project: true
 
       - name: � Cache Poetry dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-test-${{ runner.os }}-${{ matrix.python-version }}-${{ hashFiles('**/poetry.lock') }}-${{ env.CACHE_VERSION }}
@@ -117,7 +117,7 @@ jobs:
           print_message "success" "All tests passed for Python ${{ matrix.python-version }}"
 
       - name: 📊 Upload test results and coverage
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: test-results-python${{ matrix.python-version }}
@@ -150,7 +150,7 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 🐍 Set up Python
         uses: actions/setup-python@v5
@@ -159,7 +159,7 @@ jobs:
           cache: "pip"
 
       - name: 📦 Cache Poetry installation
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.local/share/pypoetry
@@ -180,7 +180,7 @@ jobs:
           virtualenvs-in-project: true
 
       - name: 📦 Cache Poetry dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-lint-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}-${{ env.CACHE_VERSION }}
@@ -229,7 +229,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout code (for utilities)
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 📦 Load workflow utilities
         run: |
@@ -245,7 +245,7 @@ jobs:
     timeout-minutes: 45
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -256,7 +256,7 @@ jobs:
           cache: "pip"
 
       - name: 📦 Cache security tools
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             /tmp/security-scan-cache
