@@ -97,7 +97,7 @@ def org_init(ctx: typer.Context):
 def org_create(
     ctx: typer.Context,
     login: str = typer.Option(
-        ..., "--login", help="Organization login (e.g., SOC-CS3030-Valle-SU26)"
+        ..., "--login", help="Organization login (e.g., soc-cs3030-valle-su26)"
     ),
     email: str = typer.Option(..., "--email", help="Billing contact email"),
     name: Optional[str] = typer.Option(
@@ -110,8 +110,8 @@ def org_create(
     Requires the ``admin:org`` scope on your GitHub token.
 
     Examples:
-        $ classdock organizations create --login SOC-CS3030-Valle-SU26 --email me@weber.edu
-        $ classdock organizations create --login SOC-CS3030-Valle-SU26 --email me@weber.edu --name "CS3030 SU26"
+        $ classdock organizations create --login soc-cs3030-valle-su26 --email me@weber.edu
+        $ classdock organizations create --login soc-cs3030-valle-su26 --email me@weber.edu --name "CS3030 SU26"
     """
     verbose, dry_run = get_global_options(ctx)
     setup_logging(verbose)
@@ -206,11 +206,11 @@ def org_clone_templates(
     Examples:
         $ classdock organizations clone-templates \\
               --source-org CS3030 \\
-              --target-org SOC-CS3030-Valle-SU26
+              --target-org soc-cs3030-valle-su26
 
         $ classdock organizations clone-templates \\
               --source-org CS3030 \\
-              --target-org SOC-CS3030-Valle-SU26 \\
+              --target-org soc-cs3030-valle-su26 \\
               --repos python-basics \\
               --repos midterm-project
     """
@@ -279,7 +279,7 @@ def org_verify(
     Verify that a GitHub organization exists and show its details.
 
     Examples:
-        $ classdock organizations verify SOC-CS3030-Valle-SU26
+        $ classdock organizations verify soc-cs3030-valle-su26
     """
     verbose, _ = get_global_options(ctx)
     setup_logging(verbose)
@@ -318,7 +318,7 @@ def org_verify(
         if val.is_valid:
             table.add_row("Semester", val.semester_label or "—")
             table.add_row("Year", val.full_year or "—")
-            table.add_row("Instructor", val.lastname or "—")
+            table.add_row("Instructor", val.last_name or "—")
 
         console.print(table)
 
@@ -355,7 +355,7 @@ organizations_app.add_typer(classroom_app, name="classroom")
 def classroom_list(
     ctx: typer.Context,
     org_login: Optional[str] = typer.Argument(
-        None, help="Filter classrooms by GitHub org login (e.g., SOC-CS3030-Valle-FA26)"
+        None, help="Filter classrooms by GitHub org login (e.g., soc-cs3030-valle-fa26)"
     ),
 ):
     """
@@ -363,7 +363,7 @@ def classroom_list(
 
     Examples:
         $ classdock organizations classroom list
-        $ classdock organizations classroom list SOC-CS3030-Valle-FA26
+        $ classdock organizations classroom list soc-cs3030-valle-fa26
     """
     setup_logging(ctx.obj.get("verbose", False) if ctx.obj else False)
     try:
@@ -417,7 +417,7 @@ def classroom_assignments(
     ctx: typer.Context,
     org_login: Optional[str] = typer.Argument(
         None,
-        help="GitHub organization login to filter classrooms (e.g., SOC-CS3030-Valle-FA26). "
+        help="GitHub organization login to filter classrooms (e.g., soc-cs3030-valle-fa26). "
         "If omitted, you will be prompted to select from all accessible classrooms.",
     ),
 ):
@@ -429,7 +429,7 @@ def classroom_assignments(
 
     Examples:
         $ classdock organizations classroom assignments
-        $ classdock organizations classroom assignments SOC-CS3030-Valle-FA26
+        $ classdock organizations classroom assignments soc-cs3030-valle-fa26
     """
     setup_logging(ctx.obj.get("verbose", False) if ctx.obj else False)
     try:
@@ -576,7 +576,7 @@ def classroom_grades(
 
     Examples:
         $ classdock organizations classroom grades
-        $ classdock organizations classroom grades SOC-CS3030-Valle-FA26
+        $ classdock organizations classroom grades soc-cs3030-valle-fa26
     """
     setup_logging(ctx.obj.get("verbose", False) if ctx.obj else False)
     try:
@@ -709,8 +709,8 @@ def classroom_clone(
     must be completed manually — this command gives you everything you need.
 
     Examples:
-        $ classdock organizations classroom clone 12345 SOC-CS3030-Valle-FA26
-        $ classdock organizations classroom clone 12345 SOC-CS3030-Valle-FA26 --workspace ~/courses/SOC-CS3030-Valle-FA26
+        $ classdock organizations classroom clone 12345 soc-cs3030-valle-fa26
+        $ classdock organizations classroom clone 12345 soc-cs3030-valle-fa26 --workspace ~/courses/soc-cs3030-valle-fa26
     """
     import re as _re
     from pathlib import Path as _Path

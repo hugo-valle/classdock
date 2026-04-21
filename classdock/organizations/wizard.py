@@ -185,7 +185,7 @@ class OrganizationSetupWizard:
             ("   • Fork templates into the new org as GitHub templates\n\n", "white"),
             ("📋 You'll need:\n", "bold blue"),
             ("   • A master template folder with cloned assignment repos\n", "white"),
-            ("   • New organization name (e.g., SOC-CS3030-Valle-SU26)\n", "white"),
+            ("   • New organization name (e.g., soc-cs3030-valle-su26)\n", "white"),
             ("   • GitHub token with repo + admin:org scopes\n", "white"),
             ("   • A billing email for the new organization\n", "white"),
         )
@@ -362,8 +362,8 @@ class OrganizationSetupWizard:
         """Prompt for and validate the new GitHub organization name."""
         console.print(
             "\n[bold]Organization Naming Convention:[/bold]\n"
-            "  [SUBJECT]-[COURSE][-SECTION]-[LASTNAME]-[SEMESTER][YEAR]\n"
-            "  Example: SOC-CS3030-Valle-SU26\n"
+            "  [program-][course][-section]-[last_name]-[semester][year]\n"
+            "  Example: soc-cs3030-valle-su26\n"
         )
 
         # Offer component-by-component guidance
@@ -382,23 +382,26 @@ class OrganizationSetupWizard:
 
     def _build_org_name_interactively(self) -> Optional[str]:
         """Prompt for each component individually and build a validated name."""
-        subject = (
-            typer.prompt("  SUBJECT (3-4 uppercase letters, e.g., SOC)").strip().upper()
+        program_raw = typer.prompt(
+            "  PROGRAM (3-4 letters, e.g., soc — press Enter to skip)", default=""
         )
+        program = program_raw.strip().lower() or None
         course = (
-            typer.prompt("  COURSE (letters + 4 digits, e.g., CS3030)").strip().upper()
+            typer.prompt("  COURSE (letters + 4 digits, e.g., cs3030)").strip().lower()
         )
         section_raw = typer.prompt(
             "  SECTION (single digit, press Enter to skip)", default=""
         )
         section = section_raw.strip() or None
-        lastname = typer.prompt("  LASTNAME (your last name, e.g., Valle)").strip()
-        semester = typer.prompt("  SEMESTER (FA / SP / SU)").strip().upper()
+        last_name = (
+            typer.prompt("  LAST NAME (your last name, e.g., valle)").strip().lower()
+        )
+        semester = typer.prompt("  SEMESTER (fa / sp / su)").strip().lower()
         year = typer.prompt("  YEAR (2-digit, e.g., 26)").strip()
 
         try:
             name = OrgNameValidator.build(
-                subject, course, lastname, semester, year, section
+                course, last_name, semester, year, program, section
             )
             console.print(f"\n  Generated name: [green bold]{name}[/green bold]")
             if typer.confirm("  Use this name?", default=True):

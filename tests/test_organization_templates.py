@@ -22,10 +22,10 @@ def manager():
 
 _REPO_DICT = {
     "name": "python-basics",
-    "owner": {"login": "SOC-CS3030-Valle-SU26"},
-    "full_name": "SOC-CS3030-Valle-SU26/python-basics",
-    "html_url": "https://github.com/SOC-CS3030-Valle-SU26/python-basics",
-    "clone_url": "https://github.com/SOC-CS3030-Valle-SU26/python-basics.git",
+    "owner": {"login": "soc-cs3030-valle-su26"},
+    "full_name": "soc-cs3030-valle-su26/python-basics",
+    "html_url": "https://github.com/soc-cs3030-valle-su26/python-basics",
+    "clone_url": "https://github.com/soc-cs3030-valle-su26/python-basics.git",
     "is_template": True,
     "private": False,
     "description": "Python basics assignment",
@@ -35,7 +35,7 @@ _REPO_DICT = {
 class TestListOrgTemplates:
     def test_returns_template_repos(self, manager):
         manager._api.list_org_repos.return_value = [_REPO_DICT]
-        repos = manager.list_org_templates("SOC-CS3030-Valle-SU26")
+        repos = manager.list_org_templates("soc-cs3030-valle-su26")
         assert len(repos) == 1
         assert isinstance(repos[0], TemplateRepo)
 
@@ -58,7 +58,7 @@ class TestForkRepository:
         repo = manager.fork_repository(
             source_owner="master-org",
             repo_name="python-basics",
-            target_org="SOC-CS3030-Valle-SU26",
+            target_org="soc-cs3030-valle-su26",
         )
         assert repo is not None
         assert repo.name == "python-basics"
@@ -98,7 +98,7 @@ class TestCloneTemplates:
         self._setup_success(manager)
         result = manager.clone_templates(
             source_org="CS3030",
-            target_org="SOC-CS3030-Valle-SU26",
+            target_org="soc-cs3030-valle-su26",
             repo_names=["python-basics", "midterm-project"],
             settle_seconds=0,
         )
@@ -122,7 +122,7 @@ class TestCloneTemplates:
 
         result = manager.clone_templates(
             source_org="CS3030",
-            target_org="SOC-CS3030-Valle-SU26",
+            target_org="soc-cs3030-valle-su26",
             repo_names=["fail-repo", "ok-repo"],
             settle_seconds=0,
         )
