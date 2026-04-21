@@ -27,7 +27,7 @@ EOF
     
     # Test that the CLI properly handles invalid configuration
     set +e
-    poetry run classdock assignments --dry-run orchestrate \
+    poetry run classdock assignments orchestrate \
         --config "$TEST_CONFIG_DIR/invalid_assignment.conf" 2>/dev/null
     exit_code=$?
     set -e
