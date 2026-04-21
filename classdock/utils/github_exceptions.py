@@ -180,6 +180,16 @@ class GitHubRepositoryError(GitHubAPIError):
         self.operation = operation
 
 
+class RepoAlreadyExistsError(GitHubRepositoryError):
+    """
+    Raised when a repository already exists in the target organization.
+
+    Signals an idempotent condition (HTTP 422 "Name already exists on this
+    account") rather than a hard failure, allowing callers to skip the repo
+    and report it as "already existed" instead of an error.
+    """
+
+
 class GitHubNetworkError(GitHubAPIError):
     """
     Raised when network-related GitHub API operations fail.
