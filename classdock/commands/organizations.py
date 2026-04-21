@@ -780,6 +780,7 @@ def classroom_clone(
 
         # Write classroom_setup.md
         ws_path = _Path(workspace) if workspace else _Path.cwd()
+        ws_path.mkdir(parents=True, exist_ok=True)
         md_path = ws_path / "classroom_setup.md"
         if not dry_run:
             lines = [

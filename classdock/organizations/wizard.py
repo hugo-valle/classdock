@@ -665,6 +665,7 @@ class OrganizationSetupWizard:
 
         # Write classroom_setup.md
         ws_path = org_folder.path if org_folder else _Path.cwd()
+        ws_path.mkdir(parents=True, exist_ok=True)
         md_path = ws_path / "classroom_setup.md"
         if not self.dry_run:
             lines = [
