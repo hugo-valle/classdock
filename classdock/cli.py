@@ -279,6 +279,7 @@ def main(
 from .commands.assignments import assignments_app
 from .commands.automation import automation_app
 from .commands.config import config_app
+from .commands.organizations import organizations_app
 from .commands.repos import repos_app
 from .commands.roster import roster_app
 from .commands.secrets import secrets_app
@@ -290,6 +291,7 @@ app.add_typer(secrets_app, name="secrets")
 app.add_typer(automation_app, name="automation")
 app.add_typer(config_app, name="config")
 app.add_typer(roster_app, name="roster")
+app.add_typer(organizations_app, name="organizations")
 
 
 # ---------------------------------------------------------------------------
