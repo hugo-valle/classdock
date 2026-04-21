@@ -38,7 +38,7 @@ jobs:
       
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -52,7 +52,7 @@ jobs:
           ./.github/scripts/create_integration_test_config.sh basic tests/fixtures
 
       - name: Upload Integration Test Configuration
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         with:
           name: integration-test-config
           path: tests/fixtures/
@@ -67,7 +67,7 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Python Environment
         uses: actions/setup-python@v5
@@ -82,7 +82,7 @@ jobs:
           virtualenvs-in-project: true
 
       - name: Cache Poetry dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-integration-${{ runner.os }}-3.10-${{ hashFiles('**/poetry.lock') }}
@@ -91,7 +91,7 @@ jobs:
         run: poetry install
 
       - name: Download Integration Test Configuration
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: integration-test-config
           path: tests/fixtures/
@@ -121,7 +121,7 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Python Environment
         uses: actions/setup-python@v5
@@ -136,7 +136,7 @@ jobs:
           virtualenvs-in-project: true
 
       - name: Cache Poetry dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-integration-${{ runner.os }}-3.10-${{ hashFiles('**/poetry.lock') }}
@@ -145,7 +145,7 @@ jobs:
         run: poetry install
 
       - name: Download Integration Test Configuration
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: integration-test-config
           path: tests/fixtures/
@@ -182,7 +182,7 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Python Environment
         uses: actions/setup-python@v5
@@ -197,7 +197,7 @@ jobs:
           virtualenvs-in-project: true
 
       - name: Cache Poetry dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-integration-${{ runner.os }}-3.10-${{ hashFiles('**/poetry.lock') }}
@@ -206,7 +206,7 @@ jobs:
         run: poetry install
 
       - name: Download Integration Test Configuration
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: integration-test-config
           path: tests/fixtures/
@@ -233,7 +233,7 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Python Environment
         uses: actions/setup-python@v5
@@ -248,7 +248,7 @@ jobs:
           virtualenvs-in-project: true
 
       - name: Cache Poetry dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-integration-${{ runner.os }}-3.10-${{ hashFiles('**/poetry.lock') }}
@@ -257,7 +257,7 @@ jobs:
         run: poetry install
 
       - name: Download Integration Test Configuration
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: integration-test-config
           path: tests/fixtures/
@@ -293,7 +293,7 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Python Environment
         uses: actions/setup-python@v5
@@ -308,7 +308,7 @@ jobs:
           virtualenvs-in-project: true
 
       - name: Cache Poetry dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-integration-${{ runner.os }}-3.10-${{ hashFiles('**/poetry.lock') }}
@@ -317,7 +317,7 @@ jobs:
         run: poetry install
 
       - name: Download Integration Test Configuration
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           name: integration-test-config
           path: tests/fixtures/
@@ -354,10 +354,10 @@ jobs:
     
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download All Integration Test Results
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: 'integration-*'
           path: all_integration_results/
@@ -377,7 +377,7 @@ jobs:
           export_performance_metrics "integration_testing" "all_integration_results/final_metrics.json"
 
       - name: Upload Integration Test Report
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: integration-test-final-report

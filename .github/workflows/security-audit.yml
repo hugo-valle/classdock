@@ -42,7 +42,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0 # Full history for comprehensive analysis
 
@@ -66,7 +66,7 @@ jobs:
           print_message "success" "Security audit directories created"
 
       - name: 💾 Cache security audit data
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             /tmp/security-audit
@@ -79,7 +79,7 @@ jobs:
             ${{ runner.os }}-security-audit-
 
       - name: 🏗️ Setup Python environment
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
@@ -483,7 +483,7 @@ jobs:
           print_message "success" "Security metrics collected - Score: $security_score/100, Critical: $critical_vulns, High: $high_vulns, Secrets: $secret_findings"
 
       - name: 📤 Archive comprehensive security artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: comprehensive-security-audit-${{ github.sha }}
@@ -637,7 +637,7 @@ jobs:
 
     steps:
       - name: 📥 Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: 📝 Create security advisory issue
         uses: actions/github-script@v7
