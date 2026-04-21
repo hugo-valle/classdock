@@ -48,7 +48,9 @@ class WorkspaceManager:
     # Master folder operations
     # ------------------------------------------------------------------
 
-    def find_master_folder(self, start: Optional[Path] = None) -> Optional[WorkspaceFolder]:
+    def find_master_folder(
+        self, start: Optional[Path] = None
+    ) -> Optional[WorkspaceFolder]:
         """
         Search for the nearest master template folder above the given path.
 

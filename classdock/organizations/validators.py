@@ -85,7 +85,9 @@ class OrgNameValidator:
             ValidationResult with parsed components if valid
         """
         if not name or not name.strip():
-            return ValidationResult(is_valid=False, error="Organization name cannot be empty.")
+            return ValidationResult(
+                is_valid=False, error="Organization name cannot be empty."
+            )
 
         name = name.strip()
 

@@ -117,7 +117,9 @@ class GitHubGraphQLClient:
         try:
             response = self._session.post(GRAPHQL_ENDPOINT, json=payload, timeout=30)
         except requests.exceptions.ConnectionError as exc:
-            raise GitHubAPIError(f"Network error connecting to GitHub GraphQL: {exc}") from exc
+            raise GitHubAPIError(
+                f"Network error connecting to GitHub GraphQL: {exc}"
+            ) from exc
         except requests.exceptions.Timeout as exc:
             raise GitHubAPIError("GitHub GraphQL request timed out.") from exc
 
@@ -233,5 +235,7 @@ class GitHubGraphQLClient:
         data = self.execute(_VIEWER_SCOPES_QUERY)
         login = data.get("viewer", {}).get("login", "")
         if not login:
-            raise GitHubAPIError("Could not determine authenticated user's GitHub login.")
+            raise GitHubAPIError(
+                "Could not determine authenticated user's GitHub login."
+            )
         return login

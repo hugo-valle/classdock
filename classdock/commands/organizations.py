@@ -23,9 +23,11 @@ def _get_token() -> Optional[str]:
     """Load the GitHub token from classdock's token store (same priority as other commands)."""
     try:
         from ..utils.token_manager import GitHubTokenManager
+
         return GitHubTokenManager().get_github_token()
     except Exception:
         return None
+
 
 organizations_app = typer.Typer(
     help="GitHub organization lifecycle management: create, list, and clone templates."
@@ -73,7 +75,9 @@ def org_init(ctx: typer.Context):
     setup_logging(verbose)
 
     try:
-        service = OrganizationService(token=_get_token(), dry_run=dry_run, verbose=verbose)
+        service = OrganizationService(
+            token=_get_token(), dry_run=dry_run, verbose=verbose
+        )
         ok, message = service.setup()
 
         if ok:
@@ -92,9 +96,13 @@ def org_init(ctx: typer.Context):
 @organizations_app.command("create")
 def org_create(
     ctx: typer.Context,
-    login: str = typer.Option(..., "--login", help="Organization login (e.g., SOC-CS3030-Valle-SU26)"),
+    login: str = typer.Option(
+        ..., "--login", help="Organization login (e.g., SOC-CS3030-Valle-SU26)"
+    ),
     email: str = typer.Option(..., "--email", help="Billing contact email"),
-    name: Optional[str] = typer.Option(None, "--name", help="Organization display name"),
+    name: Optional[str] = typer.Option(
+        None, "--name", help="Organization display name"
+    ),
 ):
     """
     Create a new GitHub organization (non-interactive).
@@ -119,7 +127,9 @@ def org_create(
 
     try:
         mgr = OrganizationManager(token=_get_token())
-        org = mgr.create_organization(login=login, billing_email=email, display_name=name)
+        org = mgr.create_organization(
+            login=login, billing_email=email, display_name=name
+        )
         console.print(f"[green]✓ Organization '{org.login}' created.[/green]")
         if org.url:
             console.print(f"  URL: {org.url}")
@@ -175,8 +185,12 @@ def org_list(ctx: typer.Context):
 @organizations_app.command("clone-templates")
 def org_clone_templates(
     ctx: typer.Context,
-    source_org: str = typer.Option(..., "--source-org", help="Organization to clone templates from"),
-    target_org: str = typer.Option(..., "--target-org", help="Organization to clone templates into"),
+    source_org: str = typer.Option(
+        ..., "--source-org", help="Organization to clone templates from"
+    ),
+    target_org: str = typer.Option(
+        ..., "--target-org", help="Organization to clone templates into"
+    ),
     repos: Optional[List[str]] = typer.Option(
         None,
         "--repos",
@@ -204,7 +218,9 @@ def org_clone_templates(
     setup_logging(verbose)
 
     try:
-        service = OrganizationService(token=_get_token(), dry_run=dry_run, verbose=verbose)
+        service = OrganizationService(
+            token=_get_token(), dry_run=dry_run, verbose=verbose
+        )
         result = service.clone_templates(
             source_org=source_org,
             target_org=target_org,
@@ -237,7 +253,9 @@ def org_clone_templates(
         if result.successful:
             parts.append(f"[green]{result.successful} cloned[/green]")
         if result.already_existed:
-            parts.append(f"[yellow]{len(result.already_existed)} already existed[/yellow]")
+            parts.append(
+                f"[yellow]{len(result.already_existed)} already existed[/yellow]"
+            )
         if result.failed:
             parts.append(f"[red]{result.failed} failed[/red]")
         console.print("\nSummary: " + " · ".join(parts))
@@ -309,7 +327,9 @@ def org_verify(
             repo_table.add_column("Name", style="cyan")
             repo_table.add_column("Template", justify="center")
             for repo in all_repos:
-                repo_table.add_row(repo.name, "[green]✓[/green]" if repo.is_template else "")
+                repo_table.add_row(
+                    repo.name, "[green]✓[/green]" if repo.is_template else ""
+                )
             console.print(repo_table)
 
         console.print("[green]✓ Organization verified.[/green]")
@@ -355,11 +375,17 @@ def classroom_list(
         )
 
         if not classrooms:
-            msg = f"No classrooms found" + (f" for '{org_login}'" if org_login else "") + "."
+            msg = (
+                f"No classrooms found"
+                + (f" for '{org_login}'" if org_login else "")
+                + "."
+            )
             console.print(f"[yellow]{msg}[/yellow]")
             return
 
-        title = f"Classrooms for '{org_login}'" if org_login else "Your GitHub Classrooms"
+        title = (
+            f"Classrooms for '{org_login}'" if org_login else "Your GitHub Classrooms"
+        )
         table = Table(title=title, show_header=True)
         table.add_column("ID", style="dim", justify="right")
         table.add_column("Name", style="cyan")
@@ -392,7 +418,7 @@ def classroom_assignments(
     org_login: Optional[str] = typer.Argument(
         None,
         help="GitHub organization login to filter classrooms (e.g., SOC-CS3030-Valle-FA26). "
-             "If omitted, you will be prompted to select from all accessible classrooms.",
+        "If omitted, you will be prompted to select from all accessible classrooms.",
     ),
 ):
     """
@@ -446,7 +472,9 @@ def classroom_assignments(
         # Step 3 — fetch and display assignments
         assignments = mgr.list_assignments(classroom.id)
         if not assignments:
-            console.print(f"[yellow]No assignments in classroom '{classroom.name}'.[/yellow]")
+            console.print(
+                f"[yellow]No assignments in classroom '{classroom.name}'.[/yellow]"
+            )
             return
 
         console.print(f"\n[bold]Assignments in {classroom.name}:[/bold]\n")
@@ -505,7 +533,9 @@ def classroom_assignments(
             submitted = "[green]✓[/green]" if entry.get("submitted") else ""
             passing = "[green]✓[/green]" if entry.get("passing") else ""
             commits = str(entry.get("commit_count", "—"))
-            grade = str(entry.get("grade", "—")) if entry.get("grade") is not None else "—"
+            grade = (
+                str(entry.get("grade", "—")) if entry.get("grade") is not None else "—"
+            )
 
             repo_table.add_row(
                 str(i), username, repo_name, submitted, passing, commits, grade
@@ -533,7 +563,7 @@ def classroom_grades(
     org_login: Optional[str] = typer.Argument(
         None,
         help="GitHub organization login to filter classrooms. "
-             "If omitted, all accessible classrooms are shown.",
+        "If omitted, all accessible classrooms are shown.",
     ),
 ):
     """
@@ -585,7 +615,9 @@ def classroom_grades(
         # Step 2 — assignment list
         assignments = mgr.list_assignments(classroom.id)
         if not assignments:
-            console.print(f"[yellow]No assignments in classroom '{classroom.name}'.[/yellow]")
+            console.print(
+                f"[yellow]No assignments in classroom '{classroom.name}'.[/yellow]"
+            )
             return
 
         console.print(f"\n[bold]Assignments in {classroom.name}:[/bold]\n")
@@ -598,9 +630,7 @@ def classroom_grades(
             )
 
         console.print()
-        choice = typer.prompt(
-            f"Select assignment [1-{len(assignments)}]", default="1"
-        )
+        choice = typer.prompt(f"Select assignment [1-{len(assignments)}]", default="1")
         try:
             aidx = int(choice) - 1
             if not 0 <= aidx < len(assignments):
@@ -744,7 +774,9 @@ def classroom_clone(
                         target_org=target_org,
                     )
                     new_repo = f"{target_org}/{repo_name}"
-                    cloned_status = "[green]✓ cloned[/green]" if result else "[red]✗ failed[/red]"
+                    cloned_status = (
+                        "[green]✓ cloned[/green]" if result else "[red]✗ failed[/red]"
+                    )
                 except Exception:
                     new_repo = f"{target_org}/{repo_name}"
                     cloned_status = "[yellow]↩ exists[/yellow]"
@@ -754,9 +786,7 @@ def classroom_clone(
                 cloned_status = "[dim][dry-run][/dim]"
 
             create_url = (
-                ClassroomManager.assignment_creation_url(
-                    target_classroom_id, new_repo
-                )
+                ClassroomManager.assignment_creation_url(target_classroom_id, new_repo)
                 if target_classroom_id
                 else ClassroomManager.new_classroom_url()
             )
@@ -792,9 +822,7 @@ def classroom_clone(
             for title, atype, deadline, _, url in rows:
                 lines.append(f"| {title} | {atype} | {deadline} | {url} |\n")
             md_path.write_text("".join(lines), encoding="utf-8")
-            console.print(
-                f"\n[dim]Checklist written to:[/dim] {md_path}"
-            )
+            console.print(f"\n[dim]Checklist written to:[/dim] {md_path}")
 
         console.print(
             Panel(

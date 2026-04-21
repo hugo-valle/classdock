@@ -165,7 +165,9 @@ class PathManager:
                 return current
             current = current.parent
 
-        logger.debug("No master template folder found (no %s marker)", self._MASTER_MARKER)
+        logger.debug(
+            "No master template folder found (no %s marker)", self._MASTER_MARKER
+        )
         return None
 
     def get_org_folder(self, base: Path, org_name: str) -> Path:

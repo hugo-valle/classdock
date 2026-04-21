@@ -90,10 +90,14 @@ class OrganizationSetupWizard:
         # Step 2b — pick the source GitHub org (filters the repo list)
         source_org = self._step_select_source_org(master_folder)
         if not source_org:
-            return SetupResult(success=False, error_message="No source organization selected.")
+            return SetupResult(
+                success=False, error_message="No source organization selected."
+            )
 
         # Step 3 — select template repos (filtered to source_org only)
-        selected_repos = self._step_select_templates(master_folder, source_org=source_org)
+        selected_repos = self._step_select_templates(
+            master_folder, source_org=source_org
+        )
         if not selected_repos:
             console.print("[yellow]No templates selected. Setup cancelled.[/yellow]")
             return SetupResult(success=False, error_message="No templates selected.")
@@ -101,7 +105,9 @@ class OrganizationSetupWizard:
         # Step 4 — org name
         org_name = self._step_collect_org_name()
         if not org_name:
-            return SetupResult(success=False, error_message="No organization name provided.")
+            return SetupResult(
+                success=False, error_message="No organization name provided."
+            )
 
         # Step 5 — create local folder
         base_dir = master_folder.path.parent
@@ -165,8 +171,14 @@ class OrganizationSetupWizard:
         """Display the organization setup wizard welcome panel."""
         content = Text.assemble(
             ("🏫 ClassDock — New Semester Organization Setup\n\n", "bold magenta"),
-            ("This wizard sets up a GitHub organization and local workspace\n", "white"),
-            ("for a new semester, ready for GitHub Classroom assignments.\n\n", "white"),
+            (
+                "This wizard sets up a GitHub organization and local workspace\n",
+                "white",
+            ),
+            (
+                "for a new semester, ready for GitHub Classroom assignments.\n\n",
+                "white",
+            ),
             ("✨ What this wizard will do:\n", "bold green"),
             ("   • Verify your GitHub token scopes\n", "white"),
             ("   • Detect your master template folder (e.g., CS3030/)\n", "white"),
@@ -264,10 +276,13 @@ class OrganizationSetupWizard:
 
         # Count how many repos each owner has
         from collections import Counter
+
         owner_counts = Counter(r.owner for r in all_repos if r.owner)
 
         if not owner_counts:
-            return typer.prompt("  Enter the source GitHub organization (e.g., cs3030-master)")
+            return typer.prompt(
+                "  Enter the source GitHub organization (e.g., cs3030-master)"
+            )
 
         # Sort by frequency (most common first)
         ranked = owner_counts.most_common()
@@ -275,11 +290,15 @@ class OrganizationSetupWizard:
         if len(ranked) == 1:
             org = ranked[0][0]
             console.print(f"\n  Source GitHub org detected: [cyan]{org}[/cyan]")
-            if typer.confirm(f"  Use '{org}' as the source organization?", default=True):
+            if typer.confirm(
+                f"  Use '{org}' as the source organization?", default=True
+            ):
                 return org
             return typer.prompt("  Enter the source GitHub organization")
 
-        console.print("\n[bold]Source GitHub organizations found in master folder:[/bold]\n")
+        console.print(
+            "\n[bold]Source GitHub organizations found in master folder:[/bold]\n"
+        )
         for i, (owner, count) in enumerate(ranked, start=1):
             console.print(f"  {i}. [cyan]{owner}[/cyan]  ({count} repo(s))")
 
@@ -305,9 +324,7 @@ class OrganizationSetupWizard:
 
         # Filter to the chosen source org
         repos = (
-            [r for r in all_repos if r.owner == source_org]
-            if source_org
-            else all_repos
+            [r for r in all_repos if r.owner == source_org] if source_org else all_repos
         )
 
         if not repos:
@@ -370,16 +387,24 @@ class OrganizationSetupWizard:
 
     def _build_org_name_interactively(self) -> Optional[str]:
         """Prompt for each component individually and build a validated name."""
-        subject = typer.prompt("  SUBJECT (3-4 uppercase letters, e.g., SOC)").strip().upper()
-        course = typer.prompt("  COURSE (letters + 4 digits, e.g., CS3030)").strip().upper()
-        section_raw = typer.prompt("  SECTION (single digit, press Enter to skip)", default="")
+        subject = (
+            typer.prompt("  SUBJECT (3-4 uppercase letters, e.g., SOC)").strip().upper()
+        )
+        course = (
+            typer.prompt("  COURSE (letters + 4 digits, e.g., CS3030)").strip().upper()
+        )
+        section_raw = typer.prompt(
+            "  SECTION (single digit, press Enter to skip)", default=""
+        )
         section = section_raw.strip() or None
         lastname = typer.prompt("  LASTNAME (your last name, e.g., Valle)").strip()
         semester = typer.prompt("  SEMESTER (FA / SP / SU)").strip().upper()
         year = typer.prompt("  YEAR (2-digit, e.g., 26)").strip()
 
         try:
-            name = OrgNameValidator.build(subject, course, lastname, semester, year, section)
+            name = OrgNameValidator.build(
+                subject, course, lastname, semester, year, section
+            )
             console.print(f"\n  Generated name: [green bold]{name}[/green bold]")
             if typer.confirm("  Use this name?", default=True):
                 return name
@@ -393,16 +418,12 @@ class OrganizationSetupWizard:
     ) -> Optional[WorkspaceFolder]:
         """Create the local semester org folder."""
         if self.dry_run:
-            console.print(
-                f"[dry-run] Would create folder: {base / org_name}"
-            )
+            console.print(f"[dry-run] Would create folder: {base / org_name}")
             return WorkspaceFolder(path=base / org_name, org_name=org_name)
 
         existing = self._workspace_manager.find_org_folder(base, org_name)
         if existing:
-            console.print(
-                f"  [yellow]Folder already exists: {existing.path}[/yellow]"
-            )
+            console.print(f"  [yellow]Folder already exists: {existing.path}[/yellow]")
             if not typer.confirm("  Continue using existing folder?", default=True):
                 return None
             return existing
@@ -473,26 +494,30 @@ class OrganizationSetupWizard:
             console.print(
                 "Once you have created the organization manually, press Enter to continue."
             )
-            typer.prompt("  Press Enter when the org is ready", default="", show_default=False)
+            typer.prompt(
+                "  Press Enter when the org is ready", default="", show_default=False
+            )
             # Verify the org now exists
             if self._org_manager.organization_exists(org_name):
                 print_success(f"Organization '{org_name}' confirmed on GitHub.")
                 return self._org_manager.get_organization(org_name)
             else:
-                print_error(f"Organization '{org_name}' not found. Continuing without GitHub org.")
+                print_error(
+                    f"Organization '{org_name}' not found. Continuing without GitHub org."
+                )
                 return None
         except PermissionError as exc:
             print_error(str(exc))
             return None
         except Exception as exc:
             print_error(f"Organization creation failed: {exc}")
-            if typer.confirm("  Continue setup without creating the org?", default=True):
+            if typer.confirm(
+                "  Continue setup without creating the org?", default=True
+            ):
                 return None
             raise
 
-    def _step_fork_to_github(
-        self, target_org: str, repos: List[TemplateRepo]
-    ):
+    def _step_fork_to_github(self, target_org: str, repos: List[TemplateRepo]):
         """
         Fork selected repos to the new GitHub org.
 
@@ -522,13 +547,16 @@ class OrganizationSetupWizard:
                 target_org=target_org,
             )
             if forked is None:
-                error_msg = f"Failed to copy '{repo.owner}/{repo.name}' into '{target_org}'"
+                error_msg = (
+                    f"Failed to copy '{repo.owner}/{repo.name}' into '{target_org}'"
+                )
                 result.add_failure(error_msg)
                 console.print(f"    [red]✗ {error_msg}[/red]")
                 continue
 
             # Brief pause then mark as template
             import time
+
             time.sleep(3)
             ok = self._template_manager.make_template(target_org, forked.name)
             forked.is_template = ok
@@ -540,7 +568,9 @@ class OrganizationSetupWizard:
             for err in result.errors:
                 console.print(f"    • {err}")
 
-        print_success(f"Forked {result.successful}/{result.total} repo(s) to '{target_org}'")
+        print_success(
+            f"Forked {result.successful}/{result.total} repo(s) to '{target_org}'"
+        )
         return result
 
     def _step_classroom_guidance(
@@ -568,7 +598,8 @@ class OrganizationSetupWizard:
                         f"[bold]{source_org}[/bold]."
                     )
                     clone_it = typer.confirm(
-                        "Generate assignment checklist from this classroom?", default=True
+                        "Generate assignment checklist from this classroom?",
+                        default=True,
                     )
                     if clone_it:
                         source_classroom_id = sc.id
