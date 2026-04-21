@@ -35,12 +35,12 @@ def _make_service(wizard_result=None, dry_run=False):
 
 class TestSetup:
     def test_returns_true_on_success(self):
-        org = Organization(login="SOC-CS3030-Valle-SU26")
+        org = Organization(login="soc-cs3030-valle-su26")
         result = SetupResult(success=True, organization=org)
         svc = _make_service(wizard_result=result)
         ok, msg = svc.setup()
         assert ok
-        assert "SOC-CS3030-Valle-SU26" in msg
+        assert "soc-cs3030-valle-su26" in msg
 
     def test_returns_false_on_failure(self):
         result = SetupResult(success=False, error_message="No master folder selected.")
@@ -80,9 +80,9 @@ class TestListOrganizations:
 class TestVerifyOrganization:
     def test_returns_true_and_org_when_exists(self):
         svc = _make_service()
-        org = Organization(login="SOC-CS3030-Valle-SU26")
+        org = Organization(login="soc-cs3030-valle-su26")
         svc._org_manager.get_organization.return_value = org
-        exists, found = svc.verify_organization("SOC-CS3030-Valle-SU26")
+        exists, found = svc.verify_organization("soc-cs3030-valle-su26")
         assert exists
         assert found == org
 

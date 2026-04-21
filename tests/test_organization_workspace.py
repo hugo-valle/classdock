@@ -110,18 +110,18 @@ class TestInitMasterFolder:
 
 class TestCreateOrgFolder:
     def test_creates_directory(self, tmp_workspace, manager):
-        wf = manager.create_org_folder(tmp_workspace, "SOC-CS3030-Valle-SU26")
-        assert (tmp_workspace / "SOC-CS3030-Valle-SU26").is_dir()
+        wf = manager.create_org_folder(tmp_workspace, "soc-cs3030-valle-su26")
+        assert (tmp_workspace / "soc-cs3030-valle-su26").is_dir()
 
     def test_creates_marker_file(self, tmp_workspace, manager):
-        wf = manager.create_org_folder(tmp_workspace, "SOC-CS3030-Valle-SU26")
+        wf = manager.create_org_folder(tmp_workspace, "soc-cs3030-valle-su26")
         marker = wf.path / ".classdock-org"
         assert marker.exists()
 
     def test_returns_workspace_folder(self, tmp_workspace, manager):
-        wf = manager.create_org_folder(tmp_workspace, "SOC-CS3030-Valle-SU26")
+        wf = manager.create_org_folder(tmp_workspace, "soc-cs3030-valle-su26")
         assert not wf.is_master
-        assert wf.org_name == "SOC-CS3030-Valle-SU26"
+        assert wf.org_name == "soc-cs3030-valle-su26"
 
 
 class TestFindOrgFolder:
@@ -129,10 +129,10 @@ class TestFindOrgFolder:
         assert manager.find_org_folder(tmp_workspace, "nonexistent-org") is None
 
     def test_returns_folder_when_exists(self, tmp_workspace, manager):
-        (tmp_workspace / "SOC-CS3030-Valle-SU26").mkdir()
-        wf = manager.find_org_folder(tmp_workspace, "SOC-CS3030-Valle-SU26")
+        (tmp_workspace / "soc-cs3030-valle-su26").mkdir()
+        wf = manager.find_org_folder(tmp_workspace, "soc-cs3030-valle-su26")
         assert wf is not None
-        assert wf.org_name == "SOC-CS3030-Valle-SU26"
+        assert wf.org_name == "soc-cs3030-valle-su26"
 
 
 # ---------------------------------------------------------------------------

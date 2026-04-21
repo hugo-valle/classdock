@@ -163,7 +163,7 @@ class GitHubGraphQLClient:
         Create a new GitHub organization.
 
         Args:
-            login: The organization login/slug (e.g., SOC-CS3030-Valle-SU26)
+            login: The organization login/slug (e.g., soc-cs3030-valle-su26)
             billing_email: Billing contact email for the organization
             admin_login: GitHub username to add as admin. Defaults to the
                          authenticated user's login (fetched automatically).

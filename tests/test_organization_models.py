@@ -21,32 +21,32 @@ class TestOrganization:
     """Tests for Organization model."""
 
     def test_create_minimal(self):
-        org = Organization(login="SOC-CS3030-Valle-SU26")
-        assert org.login == "SOC-CS3030-Valle-SU26"
+        org = Organization(login="soc-cs3030-valle-su26")
+        assert org.login == "soc-cs3030-valle-su26"
         assert org.id is None
         assert org.name is None
 
     def test_from_dict(self):
         data = {
-            "login": "SOC-CS3030-Valle-SU26",
+            "login": "soc-cs3030-valle-su26",
             "name": "CS3030 Summer 2026",
             "id": 42,
             "description": "Test org",
-            "html_url": "https://github.com/SOC-CS3030-Valle-SU26",
+            "html_url": "https://github.com/soc-cs3030-valle-su26",
             "avatar_url": "https://example.com/avatar.png",
             "role": "admin",
         }
         org = Organization.from_dict(data)
-        assert org.login == "SOC-CS3030-Valle-SU26"
+        assert org.login == "soc-cs3030-valle-su26"
         assert org.name == "CS3030 Summer 2026"
         assert org.id == 42
         assert org.role == "admin"
         assert "github.com" in org.url
 
     def test_to_dict_roundtrip(self):
-        org = Organization(login="SOC-CS3030-Valle-SU26", name="CS3030", id=1, role="admin")
+        org = Organization(login="soc-cs3030-valle-su26", name="CS3030", id=1, role="admin")
         d = org.to_dict()
-        assert d["login"] == "SOC-CS3030-Valle-SU26"
+        assert d["login"] == "soc-cs3030-valle-su26"
         assert d["name"] == "CS3030"
         assert d["id"] == 1
 
@@ -55,8 +55,8 @@ class TestTemplateRepo:
     """Tests for TemplateRepo model."""
 
     def test_create_minimal(self):
-        repo = TemplateRepo(name="python-basics", owner="SOC-CS3030-Valle-SU26")
-        assert repo.full_name == "SOC-CS3030-Valle-SU26/python-basics"
+        repo = TemplateRepo(name="python-basics", owner="soc-cs3030-valle-su26")
+        assert repo.full_name == "soc-cs3030-valle-su26/python-basics"
         assert not repo.is_template
 
     def test_full_name_auto_populated(self):
@@ -70,17 +70,17 @@ class TestTemplateRepo:
     def test_from_dict(self):
         data = {
             "name": "python-basics",
-            "owner": {"login": "SOC-CS3030-Valle-SU26"},
-            "full_name": "SOC-CS3030-Valle-SU26/python-basics",
-            "html_url": "https://github.com/SOC-CS3030-Valle-SU26/python-basics",
-            "clone_url": "https://github.com/SOC-CS3030-Valle-SU26/python-basics.git",
+            "owner": {"login": "soc-cs3030-valle-su26"},
+            "full_name": "soc-cs3030-valle-su26/python-basics",
+            "html_url": "https://github.com/soc-cs3030-valle-su26/python-basics",
+            "clone_url": "https://github.com/soc-cs3030-valle-su26/python-basics.git",
             "is_template": True,
             "private": False,
             "description": "Python basics assignment",
         }
         repo = TemplateRepo.from_dict(data)
         assert repo.name == "python-basics"
-        assert repo.owner == "SOC-CS3030-Valle-SU26"
+        assert repo.owner == "soc-cs3030-valle-su26"
         assert repo.is_template is True
 
     def test_to_dict(self):
@@ -168,7 +168,7 @@ class TestSetupResult:
         assert r.organization is None
 
     def test_with_all_fields(self):
-        org = Organization(login="SOC-CS3030-Valle-SU26")
+        org = Organization(login="soc-cs3030-valle-su26")
         r = SetupResult(organization=org, success=True)
         assert r.success
-        assert r.organization.login == "SOC-CS3030-Valle-SU26"
+        assert r.organization.login == "soc-cs3030-valle-su26"

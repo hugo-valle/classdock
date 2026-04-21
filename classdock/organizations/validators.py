@@ -2,29 +2,30 @@
 Naming convention validation for GitHub organizations.
 
 Enforces the ClassDock organization naming standard:
-  [SUBJECT]-[COURSE][SECTION?]-[LASTNAME]-[SEMESTER][YEAR]
+  [program?-][course][section?]-[last_name]-[semester][year]
 
 Examples:
-  SOC-CS3030-Valle-SU26        (single section)
-  SOC-CS3550-2-Smith-SP26      (section 2)
-  SOC-WEB1400-Valle-FA25
+  soc-cs3030-valle-su26        (with program, single section)
+  cs3030-valle-su26            (no program)
+  soc-cs3550-2-smith-sp26      (program + section 2)
+  soc-web1400-valle-fa25
 """
 
 import re
 from dataclasses import dataclass
 from typing import Optional
 
-# Regex: SUBJECT-COURSE(-SECTION)?-LASTNAME-SEMESTERYEAR
+# Regex: (program-)?COURSE(-SECTION)?-LAST_NAME-SEMESTERYEAR
 _ORG_NAME_RE = re.compile(
-    r"^(?P<subject>[A-Z]{3,4})"
-    r"-(?P<course>[A-Z]+\d{4})"
+    r"^(?:(?P<program>[a-z]{3,4})-)?"
+    r"(?P<course>[a-z]+\d{4})"
     r"(?:-(?P<section>\d))?"
-    r"-(?P<lastname>[A-Z][a-z]+)"
-    r"-(?P<semester>FA|SP|SU)(?P<year>\d{2})$"
+    r"-(?P<last_name>[a-z][a-z]+)"
+    r"-(?P<semester>fa|sp|su)(?P<year>\d{2})$"
 )
 
-VALID_SEMESTERS = {"FA", "SP", "SU"}
-SEMESTER_LABELS = {"FA": "Fall", "SP": "Spring", "SU": "Summer"}
+VALID_SEMESTERS = {"fa", "sp", "su"}
+SEMESTER_LABELS = {"fa": "Fall", "sp": "Spring", "su": "Summer"}
 
 
 @dataclass
@@ -35,20 +36,20 @@ class ValidationResult:
     Attributes:
         is_valid: Whether the name passes all rules
         error: Human-readable error message (None if valid)
-        subject: Parsed SUBJECT component
-        course: Parsed COURSE component (e.g., CS3030)
+        program: Parsed optional PROGRAM component (e.g., soc, web)
+        course: Parsed COURSE component (e.g., cs3030)
         section: Parsed optional SECTION digit (None if absent)
-        lastname: Parsed LASTNAME component
-        semester: Parsed semester code (FA/SP/SU)
+        last_name: Parsed LAST_NAME component (e.g., valle)
+        semester: Parsed semester code (fa/sp/su)
         year: Parsed 2-digit year string
     """
 
     is_valid: bool
     error: Optional[str] = None
-    subject: Optional[str] = None
+    program: Optional[str] = None
     course: Optional[str] = None
     section: Optional[str] = None
-    lastname: Optional[str] = None
+    last_name: Optional[str] = None
     semester: Optional[str] = None
     year: Optional[str] = None
 
@@ -70,8 +71,8 @@ class ValidationResult:
 class OrgNameValidator:
     """Validates and constructs GitHub organization names per ClassDock convention."""
 
-    FORMAT = "[SUBJECT]-[COURSE][-SECTION]-[LASTNAME]-[SEMESTER][YEAR]"
-    EXAMPLE = "SOC-CS3030-Valle-SU26"
+    FORMAT = "[program-][course][-section]-[last_name]-[semester][year]"
+    EXAMPLE = "soc-cs3030-valle-su26"
 
     @staticmethod
     def validate(name: str) -> ValidationResult:
@@ -99,42 +100,42 @@ class OrgNameValidator:
                     f"'{name}' does not match the required format: {OrgNameValidator.FORMAT}\n"
                     f"  Example: {OrgNameValidator.EXAMPLE}\n"
                     f"  Rules:\n"
-                    f"    SUBJECT  — 3–4 uppercase letters (e.g., SOC, WEB, CS)\n"
-                    f"    COURSE   — uppercase letters + 4-digit number (e.g., CS3030)\n"
-                    f"    SECTION  — optional single digit (e.g., 2)\n"
-                    f"    LASTNAME — capitalized last name (e.g., Valle)\n"
-                    f"    SEMESTER — FA, SP, or SU followed by 2-digit year (e.g., SU26)"
+                    f"    program   — optional 3–4 lowercase letters (e.g., soc, web, cs)\n"
+                    f"    course    — lowercase letters + 4-digit number (e.g., cs3030)\n"
+                    f"    section   — optional single digit (e.g., 2)\n"
+                    f"    last_name — lowercase last name (e.g., valle)\n"
+                    f"    semester  — fa, sp, or su followed by 2-digit year (e.g., su26)"
                 ),
             )
 
         return ValidationResult(
             is_valid=True,
-            subject=m.group("subject"),
+            program=m.group("program"),
             course=m.group("course"),
             section=m.group("section"),
-            lastname=m.group("lastname"),
+            last_name=m.group("last_name"),
             semester=m.group("semester"),
             year=m.group("year"),
         )
 
     @staticmethod
     def build(
-        subject: str,
         course: str,
-        lastname: str,
+        last_name: str,
         semester: str,
         year: str,
+        program: Optional[str] = None,
         section: Optional[str] = None,
     ) -> str:
         """
         Build a compliant organization name from individual components.
 
         Args:
-            subject: 3–4 letter subject prefix (e.g., SOC)
-            course: Course code with number (e.g., CS3030)
-            lastname: Instructor's last name (e.g., Valle)
-            semester: Semester code — FA, SP, or SU
+            course: Course code with number (e.g., cs3030)
+            last_name: Instructor's last name (e.g., valle)
+            semester: Semester code — fa, sp, or su
             year: 2-digit year string (e.g., 26)
+            program: Optional 3–4 letter program prefix (e.g., soc)
             section: Optional single-digit section number
 
         Returns:
@@ -143,16 +144,20 @@ class OrgNameValidator:
         Raises:
             ValueError: If the resulting name fails validation
         """
-        subject = subject.upper().strip()
-        course = course.upper().strip()
-        lastname = lastname.strip().capitalize()
-        semester = semester.upper().strip()
+        if program:
+            program = re.sub(r"[^a-z]", "", program.lower().strip())[:4]
+        course = course.lower().strip()
+        last_name = last_name.lower().strip()
+        semester = semester.lower().strip()
         year = year.strip()
 
-        parts = [subject, course]
+        parts = []
+        if program:
+            parts.append(program)
+        parts.append(course)
         if section:
             parts.append(str(section).strip())
-        parts.append(lastname)
+        parts.append(last_name)
         parts.append(f"{semester}{year}")
 
         name = "-".join(parts)
@@ -165,11 +170,11 @@ class OrgNameValidator:
 
     @staticmethod
     def suggest(
-        subject: str,
         course_number: str,
-        lastname: str,
+        last_name: str,
         semester: str,
         year: str,
+        program: Optional[str] = None,
         section: Optional[str] = None,
     ) -> str:
         """
@@ -178,20 +183,24 @@ class OrgNameValidator:
         Useful for generating a preview before the user finalizes.
         Does not raise on invalid input — returns best-effort string.
         """
-        subject = re.sub(r"[^A-Za-z]", "", subject).upper()[:4]
-        course_number = re.sub(r"[^A-Za-z0-9]", "", course_number).upper()
-        lastname = re.sub(r"[^A-Za-z]", "", lastname).capitalize()
-        semester = semester.upper().strip()
+        if program:
+            program = re.sub(r"[^a-zA-Z]", "", program).lower()[:4]
+        course_number = re.sub(r"[^a-zA-Z0-9]", "", course_number).lower()
+        last_name = re.sub(r"[^a-zA-Z]", "", last_name).lower()
+        semester = semester.lower().strip()
         if semester not in VALID_SEMESTERS:
-            semester = "FA"
+            semester = "fa"
         year = re.sub(r"[^0-9]", "", year)[-2:]
 
-        parts = [subject, course_number]
+        parts = []
+        if program:
+            parts.append(program)
+        parts.append(course_number)
         if section:
             sec = re.sub(r"[^0-9]", "", str(section))
             if sec:
                 parts.append(sec)
-        parts.append(lastname)
+        parts.append(last_name)
         parts.append(f"{semester}{year}")
 
         return "-".join(parts)

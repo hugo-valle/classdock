@@ -8,7 +8,7 @@ The ClassDock workspace follows this convention:
     │   ├── .classdock-master               ← marker identifying master folder
     │   ├── python-basics/                   ← local git clone of template repo
     │   └── midterm-project/
-    └── SOC-CS3030-Valle-SU26/              ← semester org folder
+    └── soc-cs3030-valle-su26/              ← semester org folder
         ├── .classdock-org                  ← marker with org name
         ├── assignment.conf                  ← generated classdock config
         ├── python-basics/                   ← cloned from master

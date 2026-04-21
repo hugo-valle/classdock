@@ -176,7 +176,7 @@ class PathManager:
 
         Args:
             base: Base directory that contains all course/org folders.
-            org_name: GitHub organization name (e.g., SOC-CS3030-Valle-SU26).
+            org_name: GitHub organization name (e.g., soc-cs3030-valle-su26).
 
         Returns:
             Path pointing to ``<base>/<org_name>``.
