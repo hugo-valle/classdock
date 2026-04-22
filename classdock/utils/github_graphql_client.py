@@ -117,7 +117,9 @@ class GitHubGraphQLClient:
         try:
             response = self._session.post(GRAPHQL_ENDPOINT, json=payload, timeout=30)
         except requests.exceptions.ConnectionError as exc:
-            raise GitHubAPIError(f"Network error connecting to GitHub GraphQL: {exc}") from exc
+            raise GitHubAPIError(
+                f"Network error connecting to GitHub GraphQL: {exc}"
+            ) from exc
         except requests.exceptions.Timeout as exc:
             raise GitHubAPIError("GitHub GraphQL request timed out.") from exc
 
@@ -161,7 +163,7 @@ class GitHubGraphQLClient:
         Create a new GitHub organization.
 
         Args:
-            login: The organization login/slug (e.g., SOC-CS3030-Valle-SU26)
+            login: The organization login/slug (e.g., soc-cs3030-valle-su26)
             billing_email: Billing contact email for the organization
             admin_login: GitHub username to add as admin. Defaults to the
                          authenticated user's login (fetched automatically).
@@ -233,5 +235,7 @@ class GitHubGraphQLClient:
         data = self.execute(_VIEWER_SCOPES_QUERY)
         login = data.get("viewer", {}).get("login", "")
         if not login:
-            raise GitHubAPIError("Could not determine authenticated user's GitHub login.")
+            raise GitHubAPIError(
+                "Could not determine authenticated user's GitHub login."
+            )
         return login

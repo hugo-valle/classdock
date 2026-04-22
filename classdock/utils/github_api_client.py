@@ -609,9 +609,7 @@ class GitHubAPIClient:
                 timeout=60,
             )
             if response.status_code in (202, 200):
-                logger.info(
-                    "Forked '%s/%s' into '%s'", owner, repo, target_org
-                )
+                logger.info("Forked '%s/%s' into '%s'", owner, repo, target_org)
                 return response.json()
             logger.error(
                 "Fork failed for '%s/%s' → '%s': HTTP %s %s",
@@ -678,7 +676,10 @@ class GitHubAPIClient:
             if response.status_code in (201, 200):
                 logger.info(
                     "Created '%s/%s' from template '%s/%s'",
-                    target_owner, new_name, template_owner, template_repo,
+                    target_owner,
+                    new_name,
+                    template_owner,
+                    template_repo,
                 )
                 return response.json()
             if response.status_code == 422:
@@ -686,7 +687,9 @@ class GitHubAPIClient:
                 if "already exists" in body.lower():
                     logger.debug(
                         "'%s/%s' already exists in '%s'; skipping.",
-                        target_owner, new_name, target_owner,
+                        target_owner,
+                        new_name,
+                        target_owner,
                     )
                     raise RepoAlreadyExistsError(
                         f"'{target_owner}/{new_name}' already exists",
@@ -695,8 +698,10 @@ class GitHubAPIClient:
                     )
             logger.error(
                 "create_from_template failed for '%s/%s' → '%s/%s': HTTP %s %s",
-                template_owner, template_repo,
-                target_owner, new_name,
+                template_owner,
+                template_repo,
+                target_owner,
+                new_name,
                 response.status_code,
                 response.text[:300],
             )
@@ -706,7 +711,11 @@ class GitHubAPIClient:
         except Exception as exc:
             logger.error(
                 "Error creating '%s/%s' from template '%s/%s': %s",
-                target_owner, new_name, template_owner, template_repo, exc,
+                target_owner,
+                new_name,
+                template_owner,
+                template_repo,
+                exc,
             )
             return None
 
@@ -734,9 +743,7 @@ class GitHubAPIClient:
                 timeout=30,
             )
             if response.status_code == 200:
-                logger.info(
-                    "Set is_template=%s on '%s/%s'", is_template, owner, repo
-                )
+                logger.info("Set is_template=%s on '%s/%s'", is_template, owner, repo)
                 return True
             logger.error(
                 "Failed to set is_template on '%s/%s': HTTP %s %s",
@@ -747,9 +754,7 @@ class GitHubAPIClient:
             )
             return False
         except Exception as exc:
-            logger.error(
-                "Error setting template flag on '%s/%s': %s", owner, repo, exc
-            )
+            logger.error("Error setting template flag on '%s/%s': %s", owner, repo, exc)
             return False
 
     def _get_assignment_template_repo(self, assignment_id: int) -> str:

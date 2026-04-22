@@ -15,7 +15,7 @@ and each semester creates a new **semester org folder** linked to a GitHub organ
 │   ├── python-basics/                   # local git clone of template repo
 │   ├── midterm-project/
 │   └── final-project/
-└── SOC-CS3030-Valle-SU26/              # semester org folder (one per semester)
+└── soc-cs3030-valle-su26/              # semester org folder (one per semester)
     ├── .classdock-org                  # marker file (contains org name)
     ├── assignment.conf                  # generated ClassDock configuration
     ├── python-basics/                   # cloned from master
@@ -30,21 +30,22 @@ and each semester creates a new **semester org folder** linked to a GitHub organ
 GitHub organizations must follow this format:
 
 ```
-[SUBJECT]-[COURSE][-SECTION]-[LASTNAME]-[SEMESTER][YEAR]
+[program-][course][-section]-[last_name]-[semester][year]
 ```
 
 | Component | Rules | Example |
 |-----------|-------|---------|
-| SUBJECT | 3–4 uppercase letters | `SOC`, `WEB`, `CYBR` |
-| COURSE | Uppercase letters + 4-digit number | `CS3030`, `WEB1400` |
-| SECTION | Optional single digit | `2` (omit if only one section) |
-| LASTNAME | Capitalized last name | `Valle`, `Smith` |
-| SEMESTER | `FA` / `SP` / `SU` + 2-digit year | `SU26`, `FA25` |
+| program | Optional 3–4 lowercase letters | `soc`, `web`, `cybr` |
+| course | Lowercase letters + 4-digit number | `cs3030`, `web1400` |
+| section | Optional single digit | `2` (omit if only one section) |
+| last_name | Lowercase last name | `valle`, `smith` |
+| semester | `fa` / `sp` / `su` + 2-digit year | `su26`, `fa25` |
 
 **Valid examples:**
-- `SOC-CS3030-Valle-SU26` (single section)
-- `SOC-CS3550-2-Smith-SP26` (section 2)
-- `SOC-WEB1400-Valle-FA25`
+- `soc-cs3030-valle-su26` (with program, single section)
+- `cs3030-valle-su26` (no program)
+- `soc-cs3550-2-smith-sp26` (program + section 2)
+- `soc-web1400-valle-fa25`
 
 ---
 
@@ -105,19 +106,19 @@ Accepting generates:
 **Option B — No source classroom found (manual guidance)**
 
 1. Go to [classroom.github.com/classrooms/new](https://classroom.github.com/classrooms/new)
-2. Select your new organization (e.g., `SOC-CS3030-Valle-SU26`)
+2. Select your new organization (e.g., `soc-cs3030-valle-su26`)
 3. Name your classroom (e.g., "CS3030 Summer 2026")
 4. Create assignments using the template repos now in your org
 
 You can also generate a checklist later:
 ```bash
-classdock organizations classroom clone <SOURCE_CLASSROOM_ID> SOC-CS3030-Valle-SU26
+classdock organizations classroom clone <SOURCE_CLASSROOM_ID> soc-cs3030-valle-su26
 ```
 
 ### Step 4 — Configure and Run Assignments
 
 ```bash
-cd ~/courses/SOC-CS3030-Valle-SU26
+cd ~/courses/soc-cs3030-valle-su26
 classdock assignments setup    # configure the first assignment
 classdock assignments orchestrate  # run the full workflow
 ```
@@ -137,7 +138,7 @@ classdock organizations init --dry-run   # preview without making changes
 
 ```bash
 classdock organizations create \
-    --login SOC-CS3030-Valle-SU26 \
+    --login soc-cs3030-valle-su26 \
     --email instructor@weber.edu \
     --name "CS3030 Summer 2026"
 ```
@@ -150,12 +151,12 @@ Requires the `admin:org` scope on your GitHub token.
 # Clone all template repos from a source org
 classdock organizations clone-templates \
     --source-org CS3030-master \
-    --target-org SOC-CS3030-Valle-SU26
+    --target-org soc-cs3030-valle-su26
 
 # Clone specific repos only
 classdock organizations clone-templates \
     --source-org CS3030-master \
-    --target-org SOC-CS3030-Valle-SU26 \
+    --target-org soc-cs3030-valle-su26 \
     --repos python-basics \
     --repos midterm-project
 ```
@@ -163,7 +164,7 @@ classdock organizations clone-templates \
 The output is a per-repo status table:
 
 ```
-     Clone: CS3030-master → SOC-CS3030-Valle-SU26
+     Clone: CS3030-master → soc-cs3030-valle-su26
 ┏━━━━━━━━━━━━━━━━━━━┳━━━━━━━━━━┓
 ┃ Repository        ┃  Status  ┃
 ┡━━━━━━━━━━━━━━━━━━━╇━━━━━━━━━━┩
@@ -189,7 +190,7 @@ classdock organizations list
 ### Verify an Organization
 
 ```bash
-classdock organizations verify SOC-CS3030-Valle-SU26
+classdock organizations verify soc-cs3030-valle-su26
 ```
 
 Displays org details, total repo count, template repo count, and a per-repo table.
@@ -209,7 +210,7 @@ generates deep-link creation URLs.
 classdock organizations classroom list
 
 # Filtered to a specific organization
-classdock organizations classroom list SOC-CS3030-Valle-SU26
+classdock organizations classroom list soc-cs3030-valle-su26
 ```
 
 Output includes classroom name, linked organization, archived status, and URL.
@@ -221,15 +222,15 @@ Output includes classroom name, linked organization, archived status, and URL.
 classdock organizations classroom assignments
 
 # Filtered by org (fewer choices in the first menu)
-classdock organizations classroom assignments SOC-CS3030-Valle-SU26
+classdock organizations classroom assignments soc-cs3030-valle-su26
 ```
 
 The command presents three interactive menus in sequence:
 
 ```
-Classrooms in 'SOC-CS3030-Valle-SU26':
+Classrooms in 'soc-cs3030-valle-su26':
 
-  1. CS3030-Valle-SU26-classroom  (SOC-CS3030-Valle-SU26)
+  1. CS3030-Valle-SU26-classroom  (soc-cs3030-valle-su26)
 
 Select classroom [1-1] [1]:
 
@@ -251,7 +252,7 @@ Select assignment to view student repos [1-2] [1]:
 
 ```bash
 classdock organizations classroom grades
-classdock organizations classroom grades SOC-CS3030-Valle-SU26
+classdock organizations classroom grades soc-cs3030-valle-su26
 ```
 
 Same org → classroom → assignment selection flow, then displays:
@@ -268,11 +269,11 @@ Same org → classroom → assignment selection flow, then displays:
 
 ```bash
 # Get source classroom ID from: classdock organizations classroom list
-classdock organizations classroom clone 298811 SOC-CS3030-Valle-FA26
+classdock organizations classroom clone 298811 soc-cs3030-valle-fa26
 
 # Write classroom_setup.md to a specific workspace folder
-classdock organizations classroom clone 298811 SOC-CS3030-Valle-FA26 \
-    --workspace ~/courses/SOC-CS3030-Valle-FA26
+classdock organizations classroom clone 298811 soc-cs3030-valle-fa26 \
+    --workspace ~/courses/soc-cs3030-valle-fa26
 ```
 
 This command:
@@ -283,7 +284,7 @@ This command:
 
 Example output:
 ```
-    Assignment Checklist: CS3030-S26-classroom → SOC-CS3030-Valle-FA26
+    Assignment Checklist: CS3030-S26-classroom → soc-cs3030-valle-fa26
 ┏━━━━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━━━┳━━━━━━━━━━┳━━━━━━━━━━━━━━━━━━━━━━━━━━┓
 ┃ Assignment    ┃ Type       ┃ Deadline   ┃ Starter  ┃ Create URL               ┃
 ┡━━━━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━━━╇━━━━━━━━━━╇━━━━━━━━━━━━━━━━━━━━━━━━━━┩
@@ -333,15 +334,15 @@ classdock organizations init
 #      clone locally, create GitHub org, fork templates, generate checklist
 
 # 2. Verify the new org and its repos
-classdock organizations verify SOC-CS3030-Valle-FA26
+classdock organizations verify soc-cs3030-valle-fa26
 
 # 3. (If wizard found a source classroom) Follow the generated checklist
-#    classroom_setup.md is written to ~/courses/SOC-CS3030-Valle-FA26/
+#    classroom_setup.md is written to ~/courses/soc-cs3030-valle-fa26/
 
 # 4. (If no source classroom) Clone structure from a previous semester's classroom
 classdock organizations classroom list                  # find the source classroom ID
-classdock organizations classroom clone 298811 SOC-CS3030-Valle-FA26 \
-    --workspace ~/courses/SOC-CS3030-Valle-FA26
+classdock organizations classroom clone 298811 soc-cs3030-valle-fa26 \
+    --workspace ~/courses/soc-cs3030-valle-fa26
 
 # 5. Create the GitHub Classroom manually (API limitation)
 #    → Visit classroom.github.com/classrooms/new, select the new org
@@ -350,11 +351,11 @@ classdock organizations classroom clone 298811 SOC-CS3030-Valle-FA26 \
 # ── MID-SEMESTER MONITORING ───────────────────────────────────────────
 
 # Check student submission progress for any assignment
-classdock organizations classroom assignments SOC-CS3030-Valle-FA26
+classdock organizations classroom assignments soc-cs3030-valle-fa26
 #    → Select classroom → select assignment → student repos table
 
 # Review grades
-classdock organizations classroom grades SOC-CS3030-Valle-FA26
+classdock organizations classroom grades soc-cs3030-valle-fa26
 #    → Select classroom → select assignment → grades table
 
 # ── REPEAT NEXT SEMESTER ──────────────────────────────────────────────

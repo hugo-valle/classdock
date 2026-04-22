@@ -165,7 +165,9 @@ class PathManager:
                 return current
             current = current.parent
 
-        logger.debug("No master template folder found (no %s marker)", self._MASTER_MARKER)
+        logger.debug(
+            "No master template folder found (no %s marker)", self._MASTER_MARKER
+        )
         return None
 
     def get_org_folder(self, base: Path, org_name: str) -> Path:
@@ -174,7 +176,7 @@ class PathManager:
 
         Args:
             base: Base directory that contains all course/org folders.
-            org_name: GitHub organization name (e.g., SOC-CS3030-Valle-SU26).
+            org_name: GitHub organization name (e.g., soc-cs3030-valle-su26).
 
         Returns:
             Path pointing to ``<base>/<org_name>``.

@@ -40,7 +40,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
         with:
           fetch-depth: 0
 
@@ -57,7 +57,7 @@ jobs:
           virtualenvs-in-project: true
 
       - name: Cache Poetry dependencies
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .venv
           key: venv-perf-${{ runner.os }}-3.11-${{ hashFiles('**/poetry.lock') }}
@@ -190,7 +190,7 @@ jobs:
           export_performance_metrics "script_performance" "performance_results/metrics.json"
 
       - name: Upload Performance Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: script-performance-${{ matrix.scenario.name }}
@@ -207,7 +207,7 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Setup Python Environment
         uses: actions/setup-python@v5
@@ -272,9 +272,9 @@ jobs:
           start_step_timing "cli_secrets_benchmark"
 
           # Benchmark secrets management CLI command
-          benchmark_script "cli_secrets_manage" \
-            "poetry run classdock secrets --dry-run manage" \
-            "--config assignment.conf"
+          benchmark_script "cli_secrets_add" \
+            "poetry run classdock secrets --dry-run add" \
+            "--assignment-root assignment.conf"
 
           end_step_timing "cli_secrets_benchmark"
 
@@ -290,7 +290,7 @@ jobs:
           export_performance_metrics "cli_performance" "cli_results/metrics.json"
 
       - name: Upload CLI Performance Artifacts
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: cli-performance-results
@@ -306,10 +306,10 @@ jobs:
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Download All Performance Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v5
         with:
           pattern: "*-performance-*"
           path: all_performance_results/
@@ -347,7 +347,7 @@ jobs:
           export_performance_metrics "performance_monitoring" "aggregated_results/final_metrics.json"
 
       - name: Upload Final Performance Results
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v5
         if: always()
         with:
           name: performance-monitoring-final

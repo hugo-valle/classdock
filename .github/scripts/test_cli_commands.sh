@@ -35,7 +35,7 @@ $CLASSDOCK_CMD automation --help
 print_message "step" "Testing specific command help..."
 $CLASSDOCK_CMD assignments orchestrate --help
 $CLASSDOCK_CMD repos fetch --help
-$CLASSDOCK_CMD secrets manage --help
+$CLASSDOCK_CMD secrets add --help
 
 # Test error conditions
 print_message "step" "Testing error conditions..."

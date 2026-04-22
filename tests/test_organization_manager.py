@@ -47,12 +47,12 @@ class TestListUserOrganizations:
 class TestGetOrganization:
     def test_returns_organization(self, manager):
         manager._rest.get_organization.return_value = {
-            "login": "SOC-CS3030-Valle-SU26",
+            "login": "soc-cs3030-valle-su26",
             "id": 99,
         }
-        org = manager.get_organization("SOC-CS3030-Valle-SU26")
+        org = manager.get_organization("soc-cs3030-valle-su26")
         assert org is not None
-        assert org.login == "SOC-CS3030-Valle-SU26"
+        assert org.login == "soc-cs3030-valle-su26"
 
     def test_returns_none_when_not_found(self, manager):
         manager._rest.get_organization.return_value = None
@@ -76,31 +76,31 @@ class TestCreateOrganization:
         manager._graphql.get_token_scopes.return_value = ["repo"]
         with pytest.raises(PermissionError, match="admin:org"):
             manager.create_organization(
-                "SOC-CS3030-Valle-SU26", "instructor@example.com"
+                "soc-cs3030-valle-su26", "instructor@example.com"
             )
 
     def test_creates_org_when_scope_present(self, manager):
         manager._graphql.has_scope.return_value = True
         manager._graphql.create_organization.return_value = {
-            "login": "SOC-CS3030-Valle-SU26",
+            "login": "soc-cs3030-valle-su26",
             "name": "CS3030 Summer 2026",
-            "url": "https://github.com/SOC-CS3030-Valle-SU26",
+            "url": "https://github.com/soc-cs3030-valle-su26",
         }
         org = manager.create_organization(
-            "SOC-CS3030-Valle-SU26", "instructor@example.com", display_name="CS3030"
+            "soc-cs3030-valle-su26", "instructor@example.com", display_name="CS3030"
         )
-        assert org.login == "SOC-CS3030-Valle-SU26"
+        assert org.login == "soc-cs3030-valle-su26"
         assert org.name == "CS3030"
 
     def test_uses_login_as_name_fallback(self, manager):
         manager._graphql.has_scope.return_value = True
         manager._graphql.create_organization.return_value = {
-            "login": "SOC-CS3030-Valle-SU26",
+            "login": "soc-cs3030-valle-su26",
         }
         org = manager.create_organization(
-            "SOC-CS3030-Valle-SU26", "instructor@example.com"
+            "soc-cs3030-valle-su26", "instructor@example.com"
         )
-        assert org.name == "SOC-CS3030-Valle-SU26"
+        assert org.name == "soc-cs3030-valle-su26"
 
 
 class TestTokenHelpers:

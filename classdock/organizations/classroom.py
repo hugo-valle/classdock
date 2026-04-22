@@ -17,7 +17,9 @@ from .models import Classroom, ClassroomAssignment
 
 logger = logging.getLogger(__name__)
 
-_CLASSROOM_NEW_URL = "https://classroom.github.com/classrooms/{classroom_id}/assignments/new"
+_CLASSROOM_NEW_URL = (
+    "https://classroom.github.com/classrooms/{classroom_id}/assignments/new"
+)
 
 
 class ClassroomManager:

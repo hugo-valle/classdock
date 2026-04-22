@@ -51,9 +51,7 @@ class TemplateManager:
         raw = self._api.list_org_repos(org_login, templates_only=True)
         repos = [TemplateRepo.from_dict(r) for r in raw]
         repos.sort(key=lambda r: r.name.lower())
-        logger.debug(
-            "Found %d template repos in '%s'", len(repos), org_login
-        )
+        logger.debug("Found %d template repos in '%s'", len(repos), org_login)
         return repos
 
     def list_org_repos(
@@ -123,7 +121,8 @@ class TemplateManager:
         # Fallback: try fork (for repos not marked as templates)
         logger.debug(
             "generate-from-template returned None for '%s/%s'; falling back to fork.",
-            source_owner, repo_name,
+            source_owner,
+            repo_name,
         )
         raw = self._api.fork_repository(
             owner=source_owner,

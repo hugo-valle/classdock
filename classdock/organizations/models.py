@@ -94,7 +94,9 @@ class TemplateRepo:
     def from_dict(cls, data: dict) -> "TemplateRepo":
         """Create TemplateRepo from a GitHub API response dict."""
         owner_login = (
-            data["owner"]["login"] if isinstance(data.get("owner"), dict) else data.get("owner", "")
+            data["owner"]["login"]
+            if isinstance(data.get("owner"), dict)
+            else data.get("owner", "")
         )
         return cls(
             name=data.get("name", ""),

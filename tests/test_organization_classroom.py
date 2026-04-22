@@ -22,7 +22,7 @@ _CLASSROOM_DICT = {
     "name": "CS3030 Summer 2026",
     "url": "https://classroom.github.com/classrooms/100",
     "archived": False,
-    "organization": {"login": "SOC-CS3030-Valle-SU26"},
+    "organization": {"login": "soc-cs3030-valle-su26"},
 }
 
 _ASSIGNMENT_DICT = {
@@ -62,7 +62,7 @@ class TestClassroomModel:
         c = Classroom.from_dict(_CLASSROOM_DICT)
         assert c.id == 100
         assert c.name == "CS3030 Summer 2026"
-        assert c.org_login == "SOC-CS3030-Valle-SU26"
+        assert c.org_login == "soc-cs3030-valle-su26"
         assert c.archived is False
 
     def test_from_dict_archived(self):
@@ -79,7 +79,7 @@ class TestClassroomModel:
         c = Classroom.from_dict(_CLASSROOM_DICT)
         d = c.to_dict()
         assert d["id"] == 100
-        assert d["org_login"] == "SOC-CS3030-Valle-SU26"
+        assert d["org_login"] == "soc-cs3030-valle-su26"
 
 
 class TestClassroomAssignmentModel:
@@ -146,9 +146,9 @@ class TestListClassroomsForOrg:
             _CLASSROOM_DICT,
             {**_CLASSROOM_DICT, "id": 200, "organization": {"login": "other-org"}},
         ]
-        classrooms = manager.list_classrooms_for_org("SOC-CS3030-Valle-SU26")
+        classrooms = manager.list_classrooms_for_org("soc-cs3030-valle-su26")
         assert len(classrooms) == 1
-        assert classrooms[0].org_login == "SOC-CS3030-Valle-SU26"
+        assert classrooms[0].org_login == "soc-cs3030-valle-su26"
 
     def test_case_insensitive(self, manager):
         manager._api.get_classrooms_paginated.return_value = [_CLASSROOM_DICT]

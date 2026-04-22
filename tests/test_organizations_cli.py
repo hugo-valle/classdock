@@ -39,14 +39,14 @@ class TestOrgList:
         assert "No organizations found" in result.output
 
     def test_shows_org_table(self):
-        org = Organization(login="SOC-CS3030-Valle-SU26", name="CS3030", role="admin")
+        org = Organization(login="soc-cs3030-valle-su26", name="CS3030", role="admin")
         with patch(
             "classdock.commands.organizations.OrganizationManager",
             _mock_org_manager(orgs=[org]),
         ):
             result = runner.invoke(app, ["organizations", "list"])
         assert result.exit_code == 0
-        assert "SOC-CS3030-Valle-SU26" in result.output
+        assert "soc-cs3030-valle-su26" in result.output
 
 
 def _mock_template_manager(repos=None):
@@ -56,45 +56,45 @@ def _mock_template_manager(repos=None):
 
 
 _SAMPLE_REPOS = [
-    TemplateRepo(name="python-basics", owner="SOC-CS3030-Valle-SU26", is_template=True),
-    TemplateRepo(name="midterm-project", owner="SOC-CS3030-Valle-SU26", is_template=False),
+    TemplateRepo(name="python-basics", owner="soc-cs3030-valle-su26", is_template=True),
+    TemplateRepo(name="midterm-project", owner="soc-cs3030-valle-su26", is_template=False),
 ]
 
 
 class TestOrgVerify:
     def test_valid_org_found(self):
         org = Organization(
-            login="SOC-CS3030-Valle-SU26",
+            login="soc-cs3030-valle-su26",
             name="CS3030 SU26",
-            url="https://github.com/SOC-CS3030-Valle-SU26",
+            url="https://github.com/soc-cs3030-valle-su26",
             role="admin",
         )
         with (
             patch("classdock.commands.organizations.OrganizationManager", _mock_org_manager(org=org)),
             patch("classdock.commands.organizations.TemplateManager", _mock_template_manager(_SAMPLE_REPOS)),
         ):
-            result = runner.invoke(app, ["organizations", "verify", "SOC-CS3030-Valle-SU26"])
+            result = runner.invoke(app, ["organizations", "verify", "soc-cs3030-valle-su26"])
         assert result.exit_code == 0
         assert "verified" in result.output.lower()
 
     def test_shows_repo_count(self):
-        org = Organization(login="SOC-CS3030-Valle-SU26")
+        org = Organization(login="soc-cs3030-valle-su26")
         with (
             patch("classdock.commands.organizations.OrganizationManager", _mock_org_manager(org=org)),
             patch("classdock.commands.organizations.TemplateManager", _mock_template_manager(_SAMPLE_REPOS)),
         ):
-            result = runner.invoke(app, ["organizations", "verify", "SOC-CS3030-Valle-SU26"])
+            result = runner.invoke(app, ["organizations", "verify", "soc-cs3030-valle-su26"])
         assert result.exit_code == 0
         assert "2" in result.output   # total repos
         assert "1" in result.output   # template repos
 
     def test_shows_repo_names(self):
-        org = Organization(login="SOC-CS3030-Valle-SU26")
+        org = Organization(login="soc-cs3030-valle-su26")
         with (
             patch("classdock.commands.organizations.OrganizationManager", _mock_org_manager(org=org)),
             patch("classdock.commands.organizations.TemplateManager", _mock_template_manager(_SAMPLE_REPOS)),
         ):
-            result = runner.invoke(app, ["organizations", "verify", "SOC-CS3030-Valle-SU26"])
+            result = runner.invoke(app, ["organizations", "verify", "soc-cs3030-valle-su26"])
         assert "python-basics" in result.output
         assert "midterm-project" in result.output
 
@@ -115,12 +115,12 @@ class TestOrgVerify:
         assert "Warning" in result.output or result.exit_code in (0, 1)
 
     def test_no_repos_shows_empty(self):
-        org = Organization(login="SOC-CS3030-Valle-SU26")
+        org = Organization(login="soc-cs3030-valle-su26")
         with (
             patch("classdock.commands.organizations.OrganizationManager", _mock_org_manager(org=org)),
             patch("classdock.commands.organizations.TemplateManager", _mock_template_manager([])),
         ):
-            result = runner.invoke(app, ["organizations", "verify", "SOC-CS3030-Valle-SU26"])
+            result = runner.invoke(app, ["organizations", "verify", "soc-cs3030-valle-su26"])
         assert result.exit_code == 0
         assert "0" in result.output
 
@@ -142,7 +142,7 @@ class TestOrgCreate:
                     "organizations",
                     "create",
                     "--login",
-                    "SOC-CS3030-Valle-SU26",
+                    "soc-cs3030-valle-su26",
                     "--email",
                     "a@b.com",
                 ],
@@ -164,7 +164,7 @@ class TestOrgCreate:
                     "organizations",
                     "create",
                     "--login",
-                    "SOC-CS3030-Valle-SU26",
+                    "soc-cs3030-valle-su26",
                     "--email",
                     "a@b.com",
                 ],
@@ -192,7 +192,7 @@ class TestOrgCloneTemplates:
                     "--source-org",
                     "CS3030",
                     "--target-org",
-                    "SOC-CS3030-Valle-SU26",
+                    "soc-cs3030-valle-su26",
                     "--repos",
                     "python-basics",
                 ],
@@ -217,7 +217,7 @@ class TestOrgCloneTemplates:
                     "--source-org",
                     "CS3030",
                     "--target-org",
-                    "SOC-CS3030-Valle-SU26",
+                    "soc-cs3030-valle-su26",
                 ],
             )
         assert result.exit_code == 1
@@ -240,7 +240,7 @@ class TestOrgCloneTemplates:
                     "--source-org",
                     "CS3030",
                     "--target-org",
-                    "SOC-CS3030-Valle-SU26",
+                    "soc-cs3030-valle-su26",
                 ],
             )
         assert result.exit_code == 0
@@ -263,7 +263,7 @@ class TestOrgCloneTemplates:
                     "--source-org",
                     "CS3030",
                     "--target-org",
-                    "SOC-CS3030-Valle-SU26",
+                    "soc-cs3030-valle-su26",
                 ],
             )
         assert "No repositories" in result.output

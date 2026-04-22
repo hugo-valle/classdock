@@ -96,7 +96,7 @@ class OrganizationManager:
         making the API call.
 
         Args:
-            login: The organization slug (e.g., SOC-CS3030-Valle-SU26).
+            login: The organization slug (e.g., soc-cs3030-valle-su26).
             billing_email: Billing contact email for the new organization.
             display_name: Human-readable name for the organization.
                           Falls back to login if not provided.

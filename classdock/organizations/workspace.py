@@ -8,7 +8,7 @@ The ClassDock workspace follows this convention:
     │   ├── .classdock-master               ← marker identifying master folder
     │   ├── python-basics/                   ← local git clone of template repo
     │   └── midterm-project/
-    └── SOC-CS3030-Valle-SU26/              ← semester org folder
+    └── soc-cs3030-valle-su26/              ← semester org folder
         ├── .classdock-org                  ← marker with org name
         ├── assignment.conf                  ← generated classdock config
         ├── python-basics/                   ← cloned from master
@@ -48,7 +48,9 @@ class WorkspaceManager:
     # Master folder operations
     # ------------------------------------------------------------------
 
-    def find_master_folder(self, start: Optional[Path] = None) -> Optional[WorkspaceFolder]:
+    def find_master_folder(
+        self, start: Optional[Path] = None
+    ) -> Optional[WorkspaceFolder]:
         """
         Search for the nearest master template folder above the given path.
 
