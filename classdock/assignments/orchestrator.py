@@ -141,8 +141,6 @@ class AssignmentOrchestrator:
 
             # Check required fields
             required_fields = [
-                "classroom_url",
-                "template_repo_url",
                 "github_organization",
                 "assignment_name",
             ]
@@ -172,7 +170,6 @@ class AssignmentOrchestrator:
         table.add_row(
             "Template Repository", self.global_config.template_repo_url or "Not set"
         )
-        table.add_row("Classroom URL", self.global_config.classroom_url or "Not set")
         table.add_row(
             "Assignment File", self.global_config.assignment_file or "assignment.conf"
         )

@@ -18,7 +18,7 @@ class ConfigValidator:
     @staticmethod
     def validate_github_url(url: str) -> Tuple[bool, str]:
         """
-        Validate GitHub URL format.
+        Validate GitHub repository URL format.
 
         Args:
             url: URL to validate
@@ -30,14 +30,11 @@ class ConfigValidator:
             return False, "URL cannot be empty"
 
         github_pattern = r"^https://github\.com/.+/.+$"
-        classroom_pattern = (
-            r"^https://classroom\.github\.com/classrooms/.+/assignments/.+$"
-        )
 
-        if re.match(github_pattern, url) or re.match(classroom_pattern, url):
+        if re.match(github_pattern, url):
             return True, ""
         else:
-            return False, "Must be a valid GitHub or GitHub Classroom URL"
+            return False, "Must be a valid GitHub repository URL (https://github.com/owner/repo)"
 
     @staticmethod
     def validate_organization(org: str) -> Tuple[bool, str]:
@@ -73,7 +70,7 @@ class ConfigValidator:
             Tuple of (is_valid, error_message)
         """
         if not name:
-            return True, ""  # Allow empty assignment names
+            return False, "Assignment name cannot be empty"
 
         if re.match(r"^[a-zA-Z0-9]([a-zA-Z0-9_-]*[a-zA-Z0-9])?$", name):
             return True, ""
@@ -198,7 +195,7 @@ class ConfigValidator:
         Returns:
             List of missing required fields
         """
-        required_fields = ["CLASSROOM_URL", "TEMPLATE_REPO_URL", "GITHUB_ORGANIZATION"]
+        required_fields = ["ASSIGNMENT_NAME", "GITHUB_ORGANIZATION"]
 
         missing_fields = []
         for field in required_fields:
@@ -230,10 +227,12 @@ class ConfigValidator:
             errors.extend([f"Missing required field: {field}" for field in missing])
 
         # Validate specific fields if present
-        if config.get("CLASSROOM_URL"):
-            valid, error = ConfigValidator.validate_github_url(config["CLASSROOM_URL"])
+        if config.get("ASSIGNMENT_NAME"):
+            valid, error = ConfigValidator.validate_assignment_name(
+                config["ASSIGNMENT_NAME"]
+            )
             if not valid:
-                errors.append(f"CLASSROOM_URL: {error}")
+                errors.append(f"ASSIGNMENT_NAME: {error}")
 
         if config.get("TEMPLATE_REPO_URL"):
             valid, error = ConfigValidator.validate_github_url(
@@ -248,13 +247,6 @@ class ConfigValidator:
             )
             if not valid:
                 errors.append(f"GITHUB_ORGANIZATION: {error}")
-
-        if config.get("ASSIGNMENT_NAME"):
-            valid, error = ConfigValidator.validate_assignment_name(
-                config["ASSIGNMENT_NAME"]
-            )
-            if not valid:
-                errors.append(f"ASSIGNMENT_NAME: {error}")
 
         # Validate new STUDENT_FILES configuration (preferred)
         if config.get("STUDENT_FILES"):

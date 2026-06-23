@@ -2,7 +2,7 @@
 Data models for ClassDock organization management.
 
 Defines dataclasses for GitHub organizations, template repositories,
-local workspace folders, operation results, and GitHub Classroom data.
+local workspace folders, and operation results.
 """
 
 from dataclasses import dataclass, field
@@ -227,106 +227,3 @@ class SetupResult:
     success: bool = False
     error_message: Optional[str] = None
 
-
-@dataclass
-class Classroom:
-    """
-    Represents a GitHub Classroom.
-
-    Attributes:
-        id: GitHub Classroom numeric ID
-        name: Classroom display name
-        url: URL to the classroom on classroom.github.com
-        archived: Whether the classroom is archived
-        org_login: Login of the GitHub organization linked to this classroom
-    """
-
-    id: int
-    name: str
-    url: str = ""
-    archived: bool = False
-    org_login: str = ""
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "Classroom":
-        """Create a Classroom from a GitHub Classroom API response dict."""
-        org = data.get("organization") or {}
-        return cls(
-            id=data["id"],
-            name=data.get("name", ""),
-            url=data.get("url", ""),
-            archived=data.get("archived", False),
-            org_login=org.get("login", "") if isinstance(org, dict) else "",
-        )
-
-    def to_dict(self) -> Dict:
-        return {
-            "id": self.id,
-            "name": self.name,
-            "url": self.url,
-            "archived": self.archived,
-            "org_login": self.org_login,
-        }
-
-
-@dataclass
-class ClassroomAssignment:
-    """
-    Represents an assignment within a GitHub Classroom.
-
-    Attributes:
-        id: GitHub Classroom assignment numeric ID
-        title: Assignment title
-        type: Assignment type — "individual" or "group"
-        deadline: ISO-8601 deadline string, or None
-        accepted_count: Number of students who accepted
-        submitted_count: Number of students who submitted
-        passing_count: Number of submissions passing autograding
-        starter_code_repo: "owner/repo" of the starter code template, or None
-        invite_link: GitHub Classroom invite URL for students
-        classroom_id: ID of the parent classroom
-    """
-
-    id: int
-    title: str
-    type: str = "individual"
-    deadline: Optional[str] = None
-    accepted_count: int = 0
-    submitted_count: int = 0
-    passing_count: int = 0
-    starter_code_repo: Optional[str] = None
-    invite_link: Optional[str] = None
-    classroom_id: int = 0
-
-    @classmethod
-    def from_dict(cls, data: dict) -> "ClassroomAssignment":
-        """Create a ClassroomAssignment from a GitHub Classroom API response dict."""
-        starter = data.get("starter_code_repository") or {}
-        starter_repo = starter.get("full_name") if isinstance(starter, dict) else None
-        classroom = data.get("classroom") or {}
-        return cls(
-            id=data["id"],
-            title=data.get("title", ""),
-            type=data.get("type", "individual"),
-            deadline=data.get("deadline"),
-            accepted_count=data.get("accepted", 0),
-            submitted_count=data.get("submitted", 0),
-            passing_count=data.get("passing", 0),
-            starter_code_repo=starter_repo,
-            invite_link=data.get("invite_link"),
-            classroom_id=classroom.get("id", 0) if isinstance(classroom, dict) else 0,
-        )
-
-    def to_dict(self) -> Dict:
-        return {
-            "id": self.id,
-            "title": self.title,
-            "type": self.type,
-            "deadline": self.deadline,
-            "accepted_count": self.accepted_count,
-            "submitted_count": self.submitted_count,
-            "passing_count": self.passing_count,
-            "starter_code_repo": self.starter_code_repo,
-            "invite_link": self.invite_link,
-            "classroom_id": self.classroom_id,
-        }

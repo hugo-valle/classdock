@@ -38,11 +38,6 @@ def assignments_callback(
 @assignments_app.command("setup")
 def assignment_setup(
     ctx: typer.Context,
-    url: Optional[str] = typer.Option(
-        None,
-        "--url",
-        help="GitHub Classroom URL for simplified setup (auto-extracts organization and assignment info)",
-    ),
     simplified: bool = typer.Option(
         False, "--simplified", help="Use simplified setup wizard with minimal prompts"
     ),
@@ -53,7 +48,6 @@ def assignment_setup(
     Examples:
         $ classdock assignments setup
         $ classdock assignments setup --simplified
-        $ classdock assignments setup --url "https://classroom.github.com/..."
     """
     verbose, dry_run = get_global_options(ctx)
     setup_logging(verbose)
@@ -62,7 +56,7 @@ def assignment_setup(
         from ..services.assignment_service import AssignmentService
 
         service = AssignmentService(dry_run=dry_run, verbose=verbose)
-        ok, message = service.setup(url=url, simplified=simplified)
+        ok, message = service.setup(simplified=simplified)
 
         if not ok:
             logger.error(message)
@@ -190,7 +184,7 @@ def help_student(
     one_student: bool = typer.Option(
         False,
         "--one-student",
-        help="Use template directly (bypass classroom repository)",
+        help="Use template directly for this student",
     ),
     auto_confirm: bool = typer.Option(
         False, "--yes", "-y", help="Automatically confirm all prompts"
@@ -462,54 +456,6 @@ def student_instructions(
         raise typer.Exit(code=1)
     except Exception as e:
         logger.error(f"Failed to generate instructions: {e}")
-        raise typer.Exit(code=1)
-
-
-@assignments_app.command("check-classroom")
-def check_classroom(
-    ctx: typer.Context,
-    config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"
-    ),
-):
-    """
-    Check if the classroom repository is ready for student updates.
-
-    Example:
-        $ classdock assignments check-classroom
-    """
-    verbose, dry_run = get_global_options(ctx)
-    setup_logging(verbose=verbose)
-
-    if dry_run:
-        logger.info("DRY RUN: Would check classroom repository status")
-        return
-
-    logger.info("Checking classroom repository status")
-
-    try:
-        from ..assignments.student_helper import StudentUpdateHelper
-
-        config_path = Path(config_file) if config_file else None
-        helper = StudentUpdateHelper(config_path)
-
-        if not helper.validate_configuration():
-            logger.error("Configuration validation failed")
-            raise typer.Exit(code=1)
-
-        is_ready = helper.check_classroom_ready()
-
-        if is_ready:
-            logger.info("✅ Classroom repository is ready")
-        else:
-            logger.error("❌ Classroom repository is not ready")
-            raise typer.Exit(code=1)
-
-    except ImportError as e:
-        logger.error(f"Failed to import student helper: {e}")
-        raise typer.Exit(code=1)
-    except Exception as e:
-        logger.error(f"Classroom status check failed: {e}")
         raise typer.Exit(code=1)
 
 
@@ -811,108 +757,3 @@ def check_repository_access(
         raise typer.Exit(code=1)
 
 
-@assignments_app.command("push-to-classroom")
-def push_to_classroom(
-    ctx: typer.Context,
-    force: bool = typer.Option(
-        False, "--force", "-f", help="Force push without confirmation"
-    ),
-    interactive: bool = typer.Option(
-        True,
-        "--interactive/--non-interactive",
-        help="Enable interactive mode for confirmations",
-    ),
-    branch: str = typer.Option(
-        "main", "--branch", "-b", help="Branch to push to classroom repository"
-    ),
-    config_file: str = typer.Option(
-        "assignment.conf", "--config", "-c", help="Configuration file path"
-    ),
-):
-    """
-    Push template repository changes to the classroom repository.
-
-    Examples:
-        classdock assignments push-to-classroom
-        classdock assignments push-to-classroom --force
-        classdock assignments push-to-classroom --branch develop
-        classdock assignments push-to-classroom --non-interactive --force
-    """
-    from ..config.global_config import get_global_config
-
-    verbose, dry_run = get_global_options(ctx)
-
-    try:
-        from ..assignments.push_manager import ClassroomPushManager, PushResult
-
-        setup_logging(verbose=verbose)
-        logger.info("🚀 Starting classroom repository push workflow")
-
-        if dry_run:
-            logger.info("🔍 DRY RUN MODE - No changes will be made")
-
-        global_config = get_global_config()
-
-        manager = ClassroomPushManager(
-            global_config=global_config, assignment_root=Path.cwd()
-        )
-        manager.branch = branch
-
-        if dry_run:
-            push_steps = [
-                "Validate repository structure and configuration",
-                "Check for uncommitted changes",
-                "Setup classroom remote repository",
-                "Fetch latest classroom repository state",
-                "Analyze changes between local and classroom",
-                "Display changes summary and get confirmation",
-                "Push changes to classroom repository",
-                "Verify push completed successfully",
-                "Provide next steps guidance",
-            ]
-            logger.info("📋 Push workflow steps that would be executed:")
-            for i, step_desc in enumerate(push_steps, 1):
-                logger.info(f"  {i}. {step_desc}")
-            logger.info("✅ Dry run completed - use without --dry-run to execute")
-            return
-
-        result, message = manager.execute_push_workflow(
-            force=(force and not interactive),
-            interactive=interactive,
-        )
-
-        if result == PushResult.SUCCESS:
-            logger.info(f"✅ {message}")
-        elif result == PushResult.UP_TO_DATE:
-            logger.info(f"ℹ️ {message}")
-        elif result == PushResult.CANCELLED:
-            logger.info(f"❌ {message}")
-        elif result == PushResult.PERMISSION_ERROR:
-            logger.error(f"🔒 {message}")
-            logger.error("Check your GitHub permissions and authentication")
-            raise typer.Exit(code=1)
-        elif result == PushResult.NETWORK_ERROR:
-            logger.error(f"🌐 {message}")
-            logger.error("Check your network connection and try again")
-            raise typer.Exit(code=1)
-        elif result == PushResult.REPOSITORY_ERROR:
-            logger.error(f"📁 {message}")
-            logger.error("Fix repository issues and try again")
-            raise typer.Exit(code=1)
-        else:
-            logger.error(f"❌ Push failed: {message}")
-            raise typer.Exit(code=1)
-
-    except ImportError as e:
-        logger.error(f"Failed to import push manager: {e}")
-        raise typer.Exit(code=1)
-    except KeyboardInterrupt:
-        logger.info("❌ Push cancelled by user")
-        raise typer.Exit(code=1)
-    except Exception as e:
-        logger.error(f"Push workflow failed: {e}")
-        if verbose:
-            import traceback
-
-            logger.error(traceback.format_exc())
-        raise typer.Exit(code=1)

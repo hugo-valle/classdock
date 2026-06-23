@@ -90,9 +90,6 @@ class RepositoryFetcher:
         fetch_single_repository(repo_info):
             Fetches a single repository with detailed result information.
 
-        sync_template_repository():
-            Synchronizes changes from template repository to student repos.
-
         update_repositories():
             Updates all local repositories with latest changes.
 
@@ -190,7 +187,7 @@ class RepositoryFetcher:
 
         Example:
             >>> fetcher = RepositoryFetcher()
-            >>> repos = fetcher.discover_repositories("python-basics", "my-classroom")
+            >>> repos = fetcher.discover_repositories("python-basics", "my-org")
             >>> for repo in repos:
             ...     print(f"Found: {repo.name} ({'student' if repo.is_student_repo else 'other'})")
         """
@@ -489,66 +486,6 @@ class RepositoryFetcher:
             return FetchResult(
                 repository=repo_info, success=False, error_message=str(e)
             )
-
-    def sync_template_repository(self) -> bool:
-        """
-        Synchronize changes from template repository to student repositories.
-
-        Implements template repository synchronization by fetching the latest
-        template changes and providing mechanisms to apply them to student
-        repositories. This is useful for distributing updates, fixes, or
-        additional materials to all student repositories.
-
-        Returns:
-            bool: True if template synchronization successful, False otherwise.
-
-        Raises:
-            GitHubDiscoveryError: If template repository configuration is missing.
-
-        Example:
-            >>> fetcher = RepositoryFetcher()
-            >>> success = fetcher.sync_template_repository()
-            >>> if success:
-            ...     print("Template repository synchronized successfully")
-        """
-        logger.info("Synchronizing template repository")
-
-        try:
-            template_repo_url = self.config.get("TEMPLATE_REPO_URL")
-            if not template_repo_url:
-                logger.error(
-                    "No template repository URL configured (TEMPLATE_REPO_URL)"
-                )
-                return False
-
-            # Extract template repository name
-            template_name = template_repo_url.split("/")[-1].replace(".git", "")
-            template_path = (
-                self.path_manager.ensure_output_directory("templates") / template_name
-            )
-
-            # Fetch template repository
-            if template_path.exists() and (template_path / ".git").exists():
-                # Update existing template
-                git_manager = GitManager(template_path)
-                success = git_manager.pull_repo()
-                if success:
-                    logger.info(f"Template repository updated at: {template_path}")
-                else:
-                    logger.error("Failed to update template repository")
-                return success
-            else:
-                # Clone template repository
-                success = self.git_manager.clone_repo(template_repo_url, template_path)
-                if success:
-                    logger.info(f"Template repository cloned to: {template_path}")
-                else:
-                    logger.error("Failed to clone template repository")
-                return success
-
-        except Exception as e:
-            logger.error(f"Template sync failed: {e}")
-            return False
 
     def update_repositories(
         self, target_directory: str = "student-repos"

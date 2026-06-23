@@ -7,7 +7,7 @@ This module provides input prompting, validation functions, and URL parsing util
 import re
 import sys
 from getpass import getpass
-from typing import Callable, Optional
+from typing import Callable, Optional, Tuple
 
 from . import prompt as _prompt
 from .ui_components import Colors, print_colored, print_error
@@ -167,29 +167,14 @@ class Validators:
     """Collection of input validation functions."""
 
     @staticmethod
-    def validate_url(url: str) -> bool:
-        """Validate GitHub or GitHub Classroom URL."""
+    def validate_url(url: str) -> Tuple[bool, str]:
+        """Validate GitHub repository URL."""
         github_pattern = r"^https://github\.com/.+/.+$"
 
-        # Multiple classroom URL patterns to be more flexible
-        classroom_patterns = [
-            r"^https://classroom\.github\.com/classrooms/.+/assignments/.+$",
-            r"^https://classroom\.github\.com/a/.+$",
-            r"^https://classroom\.github\.com/assignment-invitations/.+$",
-            r"^https://classroom\.github\.com/assignments/.+$",
-        ]
-
-        # Check GitHub repository URL
         if re.match(github_pattern, url):
-            return True
+            return True, ""
 
-        # Check any of the classroom URL patterns
-        for pattern in classroom_patterns:
-            if re.match(pattern, url):
-                return True
-
-        print_error("Please enter a valid GitHub or GitHub Classroom URL")
-        return False
+        return False, "Please enter a valid GitHub repository URL (https://github.com/owner/repo)"
 
     @staticmethod
     def validate_organization(org: str) -> bool:
@@ -205,8 +190,9 @@ class Validators:
     @staticmethod
     def validate_assignment_name(name: str) -> bool:
         """Validate assignment name."""
-        if not name:  # Allow empty names
-            return True
+        if not name:
+            print_error("Assignment name cannot be empty")
+            return False
         if re.match(r"^[a-zA-Z0-9]([a-zA-Z0-9_-]*[a-zA-Z0-9])?$", name):
             return True
         else:
@@ -335,108 +321,3 @@ class URLParser:
         match = re.search(r"github\.com/([^/]+)/", url)
         return match.group(1) if match else ""
 
-    @staticmethod
-    def parse_classroom_url(url: str) -> dict:
-        """
-        Parse GitHub Classroom assignment URL and extract information.
-
-        Supports URLs like:
-        - https://classroom.github.com/classrooms/12345/assignments/assignment-name
-        - https://classroom.github.com/a/assignment-id
-        - https://classroom.github.com/assignment-invitations/assignment-id
-        - Direct GitHub repo URLs from classroom templates
-
-        Args:
-            url: GitHub Classroom assignment URL
-
-        Returns:
-            dict: Extracted information including assignment_id, organization, etc.
-        """
-        result = {
-            "assignment_id": "",
-            "organization": "",
-            "template_repo": "",
-            "assignment_name": "",
-            "classroom_id": "",
-            "is_classroom_url": False,
-            "is_repo_url": False,
-        }
-
-        # GitHub Classroom URL patterns
-        classroom_patterns = [
-            # Pattern: https://classroom.github.com/classrooms/ID/assignments/NAME
-            (
-                r"classroom\.github\.com/classrooms/([^/]+)/assignments/([^/?]+)",
-                "full_classroom",
-            ),
-            # Pattern: https://classroom.github.com/a/assignment-id
-            (r"classroom\.github\.com/a/([^/?]+)", "short_classroom"),
-            # Pattern: https://classroom.github.com/assignment-invitations/assignment-id
-            (r"classroom\.github\.com/assignment-invitations/([^/?]+)", "invitation"),
-            # Pattern: https://classroom.github.com/assignments/assignment-id
-            (r"classroom\.github\.com/assignments/([^/?]+)", "direct_assignment"),
-        ]
-
-        for pattern, pattern_type in classroom_patterns:
-            match = re.search(pattern, url)
-            if match:
-                result["is_classroom_url"] = True
-                if pattern_type == "full_classroom":
-                    result["classroom_id"] = match.group(1)
-                    result["assignment_name"] = match.group(2)
-                    result["assignment_id"] = match.group(2)
-
-                    # Try to extract organization from classroom ID if it contains org info
-                    classroom_id = match.group(1)
-                    if "-" in classroom_id:
-                        # Format like: 228391192-soc-simple-classroom-template
-                        parts = classroom_id.split("-", 1)
-                        if len(parts) > 1:
-                            # Extract potential organization from the second part
-                            org_part = parts[1]
-                            # Remove common classroom suffixes (classroom, template)
-                            # This handles cases like "soc-simple-classroom-template" -> "soc-simple"
-                            org_part = re.sub(
-                                r"(-classroom|-template)+.*$", "", org_part
-                            )
-                            if org_part:  # Only set if we have a valid org part left
-                                result["organization"] = org_part
-                else:
-                    result["assignment_id"] = match.group(1)
-                    result["assignment_name"] = match.group(1)
-                break
-
-        # Direct GitHub repository URL (template or student repo)
-        github_repo_pattern = r"github\.com/([^/]+)/([^/?]+)"
-        repo_match = re.search(github_repo_pattern, url)
-        if repo_match and not result["is_classroom_url"]:
-            result["organization"] = repo_match.group(1)
-            result["template_repo"] = repo_match.group(2)
-            result["assignment_name"] = repo_match.group(2)
-            result["is_repo_url"] = True
-
-        return result
-
-    @staticmethod
-    def validate_classroom_url(url: str) -> bool:
-        """Validate if URL is a valid GitHub Classroom or GitHub repository URL."""
-        if not url:
-            return False
-
-        # Check for GitHub Classroom URLs
-        classroom_patterns = [
-            r"classroom\.github\.com/classrooms/[^/]+/assignments/",
-            r"classroom\.github\.com/a/",
-            r"classroom\.github\.com/assignment-invitations/",
-            r"classroom\.github\.com/assignments/",
-        ]
-
-        for pattern in classroom_patterns:
-            if re.search(pattern, url):
-                return True
-
-        # Check for GitHub repository URLs
-        if re.search(r"github\.com/[^/]+/[^/?]+", url):
-            return True
-
-        return False

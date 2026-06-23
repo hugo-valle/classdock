@@ -2,7 +2,7 @@
 Comprehensive test suite for classdock.assignments.setup module.
 
 This test suite provides comprehensive coverage for the AssignmentSetup class,
-including unit tests for individual methods, integration tests for the complete 
+including unit tests for individual methods, integration tests for the complete
 workflow, error handling, edge cases, and proper mocking of external dependencies.
 """
 
@@ -22,7 +22,6 @@ def mock_dependencies():
         - PathManager
         - InputHandler
         - Validators
-        - URLParser
         - ConfigGenerator
         - FileManager
 
@@ -36,7 +35,6 @@ def mock_dependencies():
     with patch('classdock.assignments.setup.PathManager') as mock_path_mgr, \
             patch('classdock.assignments.setup.InputHandler') as mock_input, \
             patch('classdock.assignments.setup.Validators') as mock_validators, \
-            patch('classdock.assignments.setup.URLParser') as mock_url_parser, \
             patch('classdock.assignments.setup.ConfigGenerator') as mock_config_gen, \
             patch('classdock.assignments.setup.FileManager') as mock_file_mgr:
 
@@ -53,9 +51,6 @@ def mock_dependencies():
         mock_validators_instance = Mock()
         mock_validators.return_value = mock_validators_instance
 
-        mock_url_parser_instance = Mock()
-        mock_url_parser.return_value = mock_url_parser_instance
-
         mock_config_gen_instance = Mock()
         mock_config_gen.return_value = mock_config_gen_instance
 
@@ -66,7 +61,6 @@ def mock_dependencies():
             'path_manager': mock_path_instance,
             'input_handler': mock_input_instance,
             'validators': mock_validators_instance,
-            'url_parser': mock_url_parser_instance,
             'config_generator': mock_config_gen_instance,
             'file_manager': mock_file_mgr_instance
         }
@@ -83,7 +77,7 @@ class TestAssignmentSetupInitialization:
         Test that the AssignmentSetup class properly instantiates all required components.
 
         This test verifies that after initializing an AssignmentSetup instance, the following
-        attributes are present: 'path_manager', 'input_handler', 'validators', 'url_parser',
+        attributes are present: 'path_manager', 'input_handler', 'validators',
         'config_generator', and 'file_manager'. The presence of these attributes indicates
         that the corresponding components have been instantiated as part of the setup process.
         """
@@ -93,7 +87,6 @@ class TestAssignmentSetupInitialization:
         assert hasattr(setup, 'path_manager')
         assert hasattr(setup, 'input_handler')
         assert hasattr(setup, 'validators')
-        assert hasattr(setup, 'url_parser')
         assert hasattr(setup, 'config_generator')
         assert hasattr(setup, 'file_manager')
 
@@ -113,34 +106,37 @@ class TestAssignmentSetupInitialization:
 class TestCollectAssignmentInfo:
     """
     TestCollectAssignmentInfo contains unit tests for the assignment information collection process
-    within the AssignmentSetup class. It verifies that assignment URLs are correctly collected and
-    stored, and that logging occurs as expected during the collection process.
+    within the AssignmentSetup class. It verifies that assignment name and organization are correctly
+    collected and stored, and that logging occurs as expected during the collection process.
 
     Test Cases:
-    - test_collect_assignment_info_success: Ensures that a valid assignment URL is collected and
-        stored in the configuration, and that the input handler is called exactly once.
+    - test_collect_assignment_info_success: Ensures that a valid assignment name and organization are
+        collected and stored in the configuration, and that the input handler is called.
     - test_collect_assignment_info_with_logger: Checks that the logger's debug method is called
         with the appropriate message when collecting assignment information.
     """
 
     def test_collect_assignment_info_success(self, mock_dependencies):
         """
-        Test that the _collect_assignment_info method successfully collects the assignment URL
-        from user input and stores it in the config_values dictionary under the 'CLASSROOM_URL' key.
-        Also verifies that the input handler's prompt_input method is called exactly once.
+        Test that the _collect_assignment_info method successfully collects the assignment name
+        and GitHub organization from user input and stores them in the config_values dictionary
+        under 'ASSIGNMENT_NAME' and 'GITHUB_ORGANIZATION' keys.
+        Also verifies that the input handler's prompt_input method is called.
         """
         setup = AssignmentSetup()
-        test_url = "https://classroom.github.com/classrooms/12345/assignments/test-assignment"
+        test_name = "python-basics"
+        test_org = "my-org"
 
-        # Setup mock
-        setup.input_handler.prompt_input.return_value = test_url
+        # Setup mock to return assignment name then org
+        setup.input_handler.prompt_input.side_effect = [test_name, test_org]
 
         # Execute
         setup._collect_assignment_info()
 
         # Assert
-        assert setup.config_values['CLASSROOM_URL'] == test_url
-        setup.input_handler.prompt_input.assert_called_once()
+        assert setup.config_values['ASSIGNMENT_NAME'] == test_name
+        assert setup.config_values['GITHUB_ORGANIZATION'] == test_org
+        assert setup.input_handler.prompt_input.call_count == 2
 
     def test_collect_assignment_info_with_logger(self, mock_dependencies):
         """
@@ -151,8 +147,7 @@ class TestCollectAssignmentInfo:
         """
         with patch('classdock.assignments.setup.logger') as mock_logger:
             setup = AssignmentSetup()
-            test_url = "https://classroom.github.com/classrooms/12345/assignments/test"
-            setup.input_handler.prompt_input.return_value = test_url
+            setup.input_handler.prompt_input.side_effect = ["test-assignment", "test-org"]
 
             setup._collect_assignment_info()
 
@@ -166,147 +161,111 @@ class TestCollectRepositoryInfo:
     TestCollectRepositoryInfo contains unit tests for the repository information collection logic in the AssignmentSetup class.
 
     Test Cases:
-    - test_collect_repository_info_success: Verifies that repository information is correctly collected and stored in config_values when valid inputs are provided.
-    - test_collect_repository_info_empty_template_url_exits: Ensures that the process exits with code 1 if the template repository URL is empty during information collection.
+    - test_collect_repository_info_success: Verifies that template repository URL is correctly
+        collected and stored in config_values when a valid URL is provided.
+    - test_collect_repository_info_empty_template_url_skips: Ensures that an empty template URL
+        is silently skipped (no TEMPLATE_REPO_URL in config).
     """
 
     def test_collect_repository_info_success(self, mock_dependencies):
         """
         Test that the _collect_repository_info method successfully collects and stores
-        the GitHub organization and template repository URL in the config_values dictionary.
-        Verifies that the correct values are extracted, user input is prompted as expected,
-        and the resulting configuration is updated accordingly.
+        the template repository URL in the config_values dictionary.
+        Verifies that the correct value is stored after user input.
         """
         setup = AssignmentSetup()
         setup.config_values = {
-            'CLASSROOM_URL': 'https://classroom.github.com/classrooms/12345/assignments/test-assignment',
-            'GITHUB_ORGANIZATION': 'test-org',  # Pre-populated from URL parsing
+            'GITHUB_ORGANIZATION': 'test-org',
             'ASSIGNMENT_NAME': 'test-assignment'
         }
 
-        # Setup mocks
-        setup.url_parser.parse_classroom_url.return_value = {
-            'organization': 'test-org',
-            'assignment_name': 'test-assignment'
-        }
-        setup.url_parser.extract_org_from_url.return_value = "test-org"
-        setup.url_parser.extract_assignment_from_url.return_value = "test-assignment"
-        setup.input_handler.prompt_input.side_effect = [
-            "test-org",  # GitHub organization
-            "https://github.com/test-org/test-assignment-template.git",  # Template URL
-            ""  # Classroom repository URL (optional, empty to skip)
-        ]
+        # Mock validators.validate_url to return (True, None)
+        setup.validators.validate_url = Mock(return_value=(True, None))
+
+        # Setup mock: user provides a template URL
+        setup.input_handler.prompt_input.return_value = \
+            "https://github.com/test-org/test-assignment-template"
 
         # Execute
         setup._collect_repository_info()
 
         # Assert
-        assert setup.config_values['GITHUB_ORGANIZATION'] == "test-org"
-        assert setup.config_values['TEMPLATE_REPO_URL'] == "https://github.com/test-org/test-assignment-template.git"
-        assert setup.input_handler.prompt_input.call_count == 3
+        assert setup.config_values['TEMPLATE_REPO_URL'] == \
+            "https://github.com/test-org/test-assignment-template"
 
-    def test_collect_repository_info_empty_template_url_exits(self, mock_dependencies):
+    def test_collect_repository_info_empty_template_url_skips(self, mock_dependencies):
         """
-        Test that the _collect_repository_info method exits the system with code 1
-        when the user provides an empty template URL during repository information collection.
-
-        This test:
-        - Sets up a mock AssignmentSetup instance with a predefined CLASSROOM_URL.
-        - Mocks the URL parser to return fixed organization and assignment names.
-        - Simulates user input for organization and an empty template URL.
-        - Asserts that SystemExit is raised with exit code 1 when the template URL is empty.
+        Test that the _collect_repository_info method skips setting TEMPLATE_REPO_URL
+        when the user provides an empty value.
         """
         setup = AssignmentSetup()
         setup.config_values = {
-            'CLASSROOM_URL': 'https://classroom.github.com/classrooms/12345/assignments/test-assignment',
-            'GITHUB_ORGANIZATION': 'test-org',  # Pre-populated from URL parsing
+            'GITHUB_ORGANIZATION': 'test-org',
             'ASSIGNMENT_NAME': 'test-assignment'
         }
 
-        # Setup mocks
-        setup.url_parser.parse_classroom_url.return_value = {
-            'organization': 'test-org',
-            'assignment_name': 'test-assignment'
-        }
-        setup.url_parser.extract_org_from_url.return_value = "test-org"
-        setup.url_parser.extract_assignment_from_url.return_value = "test-assignment"
-        setup.input_handler.prompt_input.side_effect = [
-            "test-org",  # GitHub organization
-            "",  # Empty template URL (will trigger exit)
-            ""  # Classroom repository URL (won't be reached due to exit)
-        ]
+        # Setup mock: user leaves template URL empty
+        setup.input_handler.prompt_input.return_value = ""
 
-        # Execute and Assert
-        with pytest.raises(SystemExit) as excinfo:
-            setup._collect_repository_info()
+        # Execute
+        setup._collect_repository_info()
 
-        assert excinfo.value.code == 1
+        # Assert: TEMPLATE_REPO_URL should not be set when empty
+        assert 'TEMPLATE_REPO_URL' not in setup.config_values
 
 
 class TestCollectAssignmentDetails:
     """
     TestCollectAssignmentDetails contains test cases for verifying the behavior of the assignment details
-    collection process in the AssignmentSetup class. It ensures that assignment details are correctly
-    collected from user input, both when using default values parsed from the classroom URL and when
-    custom values are provided by the user.
+    collection process in the AssignmentSetup class. It ensures that the main assignment file is correctly
+    collected from user input.
 
     Test Cases:
-    - test_collect_assignment_details_with_defaults: Verifies that the assignment name and main file are
-        set to default values when provided by the URL and user input.
-    - test_collect_assignment_details_custom_values: Verifies that custom assignment name and main file
-        values provided by the user are correctly set in the configuration.
+    - test_collect_assignment_details_with_defaults: Verifies that the main assignment file is
+        set from user input with default value.
+    - test_collect_assignment_details_custom_values: Verifies that custom main file values
+        provided by the user are correctly set in the configuration.
     """
 
     def test_collect_assignment_details_with_defaults(self, mock_dependencies):
         """
         Test that the _collect_assignment_details method correctly populates assignment details
-        using default values and user input. Verifies that the assignment name is extracted from
-        the URL, the main assignment file is set from user input, and the input handler is called
-        the expected number of times.
+        using user input. Verifies that the main assignment file is set from user input and
+        the input handler is called the expected number of times.
         """
         setup = AssignmentSetup()
         setup.config_values = {
-            'CLASSROOM_URL': 'https://classroom.github.com/classrooms/12345/assignments/test-assignment'
+            'ASSIGNMENT_NAME': 'test-assignment'
         }
 
         # Setup mocks
-        setup.url_parser.extract_assignment_from_url.return_value = "test-assignment"
-        setup.input_handler.prompt_input.side_effect = [
-            "test-assignment",  # Assignment name
-            "assignment.ipynb"  # Main file
-        ]
+        setup.input_handler.prompt_input.return_value = "assignment.ipynb"
 
         # Execute
         setup._collect_assignment_details()
 
         # Assert
-        assert setup.config_values['ASSIGNMENT_NAME'] == "test-assignment"
         assert setup.config_values['MAIN_ASSIGNMENT_FILE'] == "assignment.ipynb"
-        assert setup.input_handler.prompt_input.call_count == 2
+        assert setup.input_handler.prompt_input.call_count == 1
 
     def test_collect_assignment_details_custom_values(self, mock_dependencies):
         """
         Test that the assignment details collection method correctly handles custom user input values.
-        This test verifies that when the user provides custom values for the assignment name and main file,
-        these values are stored in the configuration as expected.
+        This test verifies that when the user provides a custom value for the main file,
+        the value is stored in the configuration as expected.
         """
         setup = AssignmentSetup()
         setup.config_values = {
-            'CLASSROOM_URL': 'https://classroom.github.com/classrooms/12345/assignments/homework'
+            'ASSIGNMENT_NAME': 'homework'
         }
 
         # Setup mocks
-        setup.url_parser.extract_assignment_from_url.return_value = "homework"
-        setup.input_handler.prompt_input.side_effect = [
-            "custom-homework",  # Custom assignment name
-            "main.py"  # Custom main file
-        ]
+        setup.input_handler.prompt_input.return_value = "main.py"
 
         # Execute
         setup._collect_assignment_details()
 
         # Assert
-        assert setup.config_values['ASSIGNMENT_NAME'] == "custom-homework"
         assert setup.config_values['MAIN_ASSIGNMENT_FILE'] == "main.py"
 
 
@@ -606,8 +565,6 @@ class TestEdgeCasesAndErrorHandling:
     This test class contains comprehensive test cases for the `AssignmentSetup` wizard, focusing on edge cases and error handling scenarios. The tests ensure that the setup wizard behaves correctly under various failure conditions, unexpected inputs, and state management requirements. Covered scenarios include:
 
     - Handling of unexpected exceptions during the wizard workflow, ensuring proper exit codes.
-    - Robustness when repository URL parsing fails, including fallback mechanisms for organization and template URLs.
-    - Correct handling when assignment name extraction from URLs returns empty values, requiring manual input.
     - Error propagation and handling when file creation or configuration generation fails due to permission or file system errors.
     - Token configuration logic, including cases where empty tokens are provided.
     - Input handling with leading/trailing whitespace and ensuring values are stored as received.
@@ -637,64 +594,43 @@ class TestEdgeCasesAndErrorHandling:
             # Assert - should return False to indicate failure
             assert result is False
 
-    def test_collect_repository_info_url_extraction_failure(self, mock_dependencies):
+    def test_collect_repository_info_invalid_url_skips(self, mock_dependencies):
         """
-        Test that _collect_repository_info correctly falls back to user input when URL parsing fails.
-
-        This test simulates a scenario where the provided CLASSROOM_URL is in an invalid format,
-        causing the URL parser to return None for both organization and assignment extraction.
-        It verifies that the method prompts the user for fallback values and updates the config_values
-        with the user-provided organization and template repository URL.
+        Test that _collect_repository_info skips setting TEMPLATE_REPO_URL when the provided
+        URL is invalid (validators.validate_url returns False).
         """
         setup = AssignmentSetup()
         setup.config_values = {
-            'CLASSROOM_URL': 'invalid-url-format',
-            'ASSIGNMENT_NAME': ''  # Empty after parsing failure
+            'ASSIGNMENT_NAME': 'test-assignment',
+            'GITHUB_ORGANIZATION': 'test-org',
         }
 
-        # Setup mocks to simulate parsing failure
-        setup.url_parser.parse_classroom_url.return_value = {
-            'organization': '',  # Empty when parsing fails
-            'assignment_name': ''
-        }
-        setup.url_parser.extract_org_from_url.return_value = None
-        setup.url_parser.extract_assignment_from_url.return_value = None
-        setup.input_handler.prompt_input.side_effect = [
-            "fallback-org",  # GitHub organization fallback
-            "https://github.com/fallback-org/test-template.git",  # Template URL
-            ""  # Classroom repository URL (optional)
-        ]
+        # Mock validators to indicate invalid URL
+        setup.validators.validate_url = Mock(return_value=(False, "bad URL"))
+        setup.input_handler.prompt_input.return_value = "not-a-valid-url"
 
-        # Execute
-        setup._collect_repository_info()
+        with patch('classdock.assignments.setup.print_error'):
+            setup._collect_repository_info()
 
-        # Assert fallback values were used
-        assert setup.config_values['GITHUB_ORGANIZATION'] == "fallback-org"
-        assert setup.config_values['TEMPLATE_REPO_URL'] == "https://github.com/fallback-org/test-template.git"
+        # TEMPLATE_REPO_URL should not be set because URL was invalid
+        assert 'TEMPLATE_REPO_URL' not in setup.config_values
 
-    def test_collect_assignment_details_with_empty_extracted_name(self, mock_dependencies):
+    def test_collect_assignment_details_stores_main_file(self, mock_dependencies):
         """
-        Test that _collect_assignment_details correctly prompts the user for the assignment name and main file
-        when the assignment name cannot be extracted from the provided Classroom URL (i.e., extraction returns an empty string).
-        Ensures that user input is used to populate 'ASSIGNMENT_NAME' and 'MAIN_ASSIGNMENT_FILE' in config_values.
+        Test that _collect_assignment_details correctly stores the main file name
+        provided by the user.
         """
         setup = AssignmentSetup()
         setup.config_values = {
-            'CLASSROOM_URL': 'https://classroom.github.com/malformed/url'
+            'ASSIGNMENT_NAME': 'test-assignment'
         }
 
-        # Setup mocks
-        setup.url_parser.extract_assignment_from_url.return_value = ""
-        setup.input_handler.prompt_input.side_effect = [
-            "manual-assignment-name",  # Manually entered assignment name
-            "custom.py"  # Custom main file
-        ]
+        setup.input_handler.prompt_input.return_value = "custom.py"
 
         # Execute
         setup._collect_assignment_details()
 
         # Assert
-        assert setup.config_values['ASSIGNMENT_NAME'] == "manual-assignment-name"
         assert setup.config_values['MAIN_ASSIGNMENT_FILE'] == "custom.py"
 
     def test_create_files_config_generator_failure(self, mock_dependencies):
@@ -772,38 +708,28 @@ class TestEdgeCasesAndErrorHandling:
             assert 'INSTRUCTOR_TESTS_TOKEN_VALUE' not in setup.config_values
             assert len(setup.token_validation) == 0
 
-    def test_collect_repository_info_whitespace_handling(self, mock_dependencies):
+    def test_collect_repository_info_whitespace_in_url(self, mock_dependencies):
         """
-        Test that the _collect_repository_info method correctly stores user inputs containing leading and trailing whitespace.
-        Ensures that the organization name and template repository URL are saved with whitespace preserved, 
-        leaving any trimming or normalization to be handled by validators or subsequent processing.
+        Test that the _collect_repository_info method correctly handles whitespace in template URL input.
+        The URL is validated and stored as-is (trimming is the responsibility of validators if needed).
         """
         setup = AssignmentSetup()
         setup.config_values = {
-            'CLASSROOM_URL': 'https://classroom.github.com/classrooms/12345/assignments/test-assignment',
             'GITHUB_ORGANIZATION': 'test-org',
             'ASSIGNMENT_NAME': 'test-assignment'
         }
 
-        # Setup mocks
-        setup.url_parser.parse_classroom_url.return_value = {
-            'organization': 'test-org',
-            'assignment_name': 'test-assignment'
-        }
-        setup.url_parser.extract_org_from_url.return_value = "test-org"
-        setup.url_parser.extract_assignment_from_url.return_value = "test-assignment"
-        setup.input_handler.prompt_input.side_effect = [
-            "  test-org  ",  # Organization with whitespace
-            "  https://github.com/test-org/test-assignment-template.git  ",  # URL with whitespace
-            ""  # Classroom repository URL (optional)
-        ]
+        # Mock validators to accept the whitespace URL
+        setup.validators.validate_url = Mock(return_value=(True, None))
+        setup.input_handler.prompt_input.return_value = \
+            "  https://github.com/test-org/test-assignment-template  "
 
         # Execute
         setup._collect_repository_info()
 
-        # Assert values are stored as-is (trimming handled by validators if needed)
-        assert setup.config_values['GITHUB_ORGANIZATION'] == "  test-org  "
-        assert setup.config_values['TEMPLATE_REPO_URL'] == "  https://github.com/test-org/test-assignment-template.git  "
+        # Assert value stored as returned by input handler
+        assert setup.config_values['TEMPLATE_REPO_URL'] == \
+            "  https://github.com/test-org/test-assignment-template  "
 
     def test_multiple_consecutive_wizard_runs(self, mock_dependencies):
         """
@@ -881,210 +807,104 @@ class TestInputValidationEdgeCases:
 
     This test class ensures:
     - The system correctly handles validation failures followed by user retries during assignment information collection.
-    - Organization names with special characters (such as dashes, dots, and underscores) are properly validated and accepted during repository information collection.
+    - Organization names with special characters (such as dashes, dots, and underscores) are properly accepted.
 
     Mocks are used to simulate user input and validation behaviors, and assertions verify that configuration values are set as expected after handling these edge cases.
     """
 
-    def test_collect_assignment_info_validation_failure_retry(self, mock_dependencies):
+    def test_collect_assignment_info_stores_name_and_org(self, mock_dependencies):
         """
-        Test that the assignment info collection process handles validation failures by retrying input.
-        Simulates a scenario where the URL validation fails on the first attempt and succeeds on the second,
-        ensuring that the method prompts the user again and ultimately stores the valid URL in the configuration.
+        Test that the assignment info collection process stores assignment name and org.
+        Simulates providing both an assignment name and a GitHub organization.
         """
         setup = AssignmentSetup()
 
-        # Setup mock to fail validation first, then succeed
-        def validation_side_effect(*args):
-            if not hasattr(validation_side_effect, 'called'):
-                validation_side_effect.called = True
-                return False  # First call fails
-            return True  # Second call succeeds
-
-        setup.validators.validate_url = Mock(
-            side_effect=validation_side_effect)
-        setup.input_handler.prompt_input.return_value = "https://classroom.github.com/valid/url"
+        setup.input_handler.prompt_input.side_effect = [
+            "python-basics",  # assignment name
+            "my-github-org",  # GitHub organization
+        ]
 
         # Execute
         setup._collect_assignment_info()
 
         # Assert
-        assert setup.config_values['CLASSROOM_URL'] == "https://classroom.github.com/valid/url"
+        assert setup.config_values['ASSIGNMENT_NAME'] == "python-basics"
+        assert setup.config_values['GITHUB_ORGANIZATION'] == "my-github-org"
         assert setup.input_handler.prompt_input.called
 
     def test_collect_repository_info_organization_validation_edge_cases(self, mock_dependencies):
         """
-        Test that the _collect_repository_info method correctly handles edge cases for organization names,
-        such as names containing dashes, underscores, and dots. Ensures that the organization name is
-        properly validated and stored in the configuration, and that the template repository URL reflects
-        the provided organization name.
+        Test that the _collect_repository_info method correctly handles edge cases for template URLs,
+        such as URLs containing dashes, underscores, and dots. Ensures that the template repository URL
+        is properly stored in the configuration.
         """
         setup = AssignmentSetup()
         setup.config_values = {
-            'CLASSROOM_URL': 'https://classroom.github.com/classrooms/12345/assignments/test',
-            'GITHUB_ORGANIZATION': 'org-with-dashes',
+            'GITHUB_ORGANIZATION': 'Org.With.Dots',
             'ASSIGNMENT_NAME': 'assignment_with_underscores'
         }
 
-        # Setup mocks for edge case organization names
-        setup.url_parser.parse_classroom_url.return_value = {
-            'organization': 'org-with-dashes',
-            'assignment_name': 'assignment_with_underscores'
-        }
-        setup.url_parser.extract_org_from_url.return_value = "org-with-dashes"
-        setup.url_parser.extract_assignment_from_url.return_value = "assignment_with_underscores"
-        setup.input_handler.prompt_input.side_effect = [
-            "Org.With.Dots",  # Organization with dots
-            "https://github.com/Org.With.Dots/assignment_with_underscores-template.git",  # Template URL
-            ""  # Classroom repository URL (optional)
-        ]
+        # Mock validators to accept the URL
+        setup.validators.validate_url = Mock(return_value=(True, None))
+
+        setup.input_handler.prompt_input.return_value = \
+            "https://github.com/Org.With.Dots/assignment_with_underscores-template.git"
 
         # Execute
         setup._collect_repository_info()
 
         # Assert
-        assert setup.config_values['GITHUB_ORGANIZATION'] == "Org.With.Dots"
         assert "Org.With.Dots" in setup.config_values['TEMPLATE_REPO_URL']
 
 
 class TestAssignmentSetupURLMethods:
-    """Test URL-based setup methods."""
+    """Test that removed URL-based setup methods no longer exist on AssignmentSetup."""
 
-    def test_run_wizard_with_url_success(self, mock_dependencies):
-        """Test successful setup with URL."""
+    def test_run_wizard_with_url_method_removed(self, mock_dependencies):
+        """Verify run_wizard_with_url has been removed from AssignmentSetup."""
         setup = AssignmentSetup()
-        url = "https://classroom.github.com/classrooms/12345/assignments/test-assignment"
+        assert not hasattr(setup, 'run_wizard_with_url'), \
+            "run_wizard_with_url should have been removed"
 
-        # Mock URL validation and parsing
-        def mock_populate(url_param):
-            """Mock _populate_from_url to set CLASSROOM_URL like the real method does."""
-            setup.config_values['CLASSROOM_URL'] = url_param
-            setup.config_values['GITHUB_ORGANIZATION'] = 'test-org'
-            setup.config_values['ASSIGNMENT_NAME'] = 'test-assignment'
-            return True
+    def test_populate_from_url_method_removed(self, mock_dependencies):
+        """Verify _populate_from_url has been removed from AssignmentSetup."""
+        setup = AssignmentSetup()
+        assert not hasattr(setup, '_populate_from_url'), \
+            "_populate_from_url should have been removed"
 
-        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=True), \
-                patch.object(setup, '_populate_from_url', side_effect=mock_populate), \
-                patch.object(setup, '_collect_repository_info'), \
-                patch.object(setup, '_collect_assignment_details'), \
-                patch.object(setup, '_configure_secret_management'), \
-                patch.object(setup, '_create_files'), \
-                patch('classdock.assignments.setup.show_welcome'), \
+    def test_url_parser_attribute_removed(self, mock_dependencies):
+        """Verify url_parser attribute has been removed from AssignmentSetup."""
+        setup = AssignmentSetup()
+        assert not hasattr(setup, 'url_parser'), \
+            "url_parser attribute should have been removed"
+
+    def test_run_wizard_succeeds_without_url(self, mock_dependencies):
+        """Test that run_wizard works correctly without any URL input."""
+        with patch('classdock.assignments.setup.show_welcome'), \
                 patch('classdock.assignments.setup.show_completion'), \
-                patch('classdock.assignments.setup.print_colored'):
+                patch('classdock.assignments.setup.print_success'), \
+                patch('classdock.assignments.setup.logger'):
 
-            setup.url_parser.parse_classroom_url.return_value = {
-                'organization': 'test-org',
-                'assignment_name': 'test-assignment'
-            }
-            setup.url_parser.extract_org_from_url.return_value = "test-org"
-            setup.url_parser.extract_assignment_from_url.return_value = "test-assignment"
+            setup = AssignmentSetup()
+            setup._collect_assignment_info = Mock()
+            setup._collect_repository_info = Mock()
+            setup._collect_assignment_details = Mock()
+            setup._configure_secret_management = Mock()
+            setup._create_files = Mock()
 
-            result = setup.run_wizard_with_url(url)
-
-            assert result is True
-            assert setup.config_values['CLASSROOM_URL'] == url
-
-    def test_run_wizard_with_url_invalid_url(self, mock_dependencies):
-        """Test setup with invalid URL."""
-        setup = AssignmentSetup()
-        url = "https://invalid-url.com"
-
-        # Mock URL validation to return False
-        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=False), \
-                patch('classdock.assignments.setup.print_error'):
-
-            result = setup.run_wizard_with_url(url)
-
-            assert result is False
-            assert 'CLASSROOM_URL' not in setup.config_values
-
-    def test_run_wizard_with_url_user_cancel(self, mock_dependencies):
-        """Test setup with URL when user cancels."""
-        setup = AssignmentSetup()
-        url = "https://classroom.github.com/classrooms/12345/assignments/test"
-
-        # Mock URL validation but simulate user cancellation
-        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=True), \
-                patch.object(setup, '_collect_repository_info', side_effect=KeyboardInterrupt), \
-                patch('classdock.assignments.setup.show_welcome'), \
-                patch('classdock.assignments.setup.print_error'), \
-                patch('classdock.assignments.setup.print_colored'):
-
-            setup.url_parser.extract_org_from_url.return_value = "test-org"
-            setup.url_parser.extract_assignment_from_url.return_value = "test-assignment"
-
-            result = setup.run_wizard_with_url(url)
-
-            assert result is False
-
-    def test_populate_from_url_success(self, mock_dependencies):
-        """Test successful URL parsing and population."""
-        setup = AssignmentSetup()
-        url = "https://classroom.github.com/classrooms/12345/assignments/test-assignment"
-
-        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=True):
-            setup.url_parser.parse_classroom_url.return_value = {
-                'organization': 'test-org',
-                'assignment_name': 'test-assignment'
-            }
-            setup.url_parser.extract_org_from_url.return_value = "test-org"
-            setup.url_parser.extract_assignment_from_url.return_value = "test-assignment"
-
-            result = setup._populate_from_url(url)
+            result = setup.run_wizard()
 
             assert result is True
-            assert setup.config_values['CLASSROOM_URL'] == url
 
-    def test_populate_from_url_invalid_url(self, mock_dependencies):
-        """Test URL population with invalid URL."""
+    def test_collect_assignment_info_uses_assignment_name_key(self, mock_dependencies):
+        """Test that _collect_assignment_info stores ASSIGNMENT_NAME (not CLASSROOM_URL)."""
         setup = AssignmentSetup()
-        url = "https://invalid-url.com"
+        setup.input_handler.prompt_input.side_effect = ["my-assignment", "my-org"]
 
-        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=False), \
-                patch('classdock.assignments.setup.print_error'):
+        setup._collect_assignment_info()
 
-            result = setup._populate_from_url(url)
-
-            assert result is False
-            assert 'CLASSROOM_URL' not in setup.config_values
-
-    def test_populate_from_url_extraction_failure(self, mock_dependencies):
-        """Test URL population when extraction fails."""
-        setup = AssignmentSetup()
-        url = "https://classroom.github.com/classrooms/12345/assignments/test"
-
-        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=True), \
-                patch('classdock.assignments.setup.print_error'):
-
-            # Mock extraction to raise an exception
-            setup.url_parser.extract_org_from_url.side_effect = Exception(
-                "Extraction failed")
-
-            result = setup._populate_from_url(url)
-
-            assert result is False
-
-    def test_populate_from_url_partial_extraction(self, mock_dependencies):
-        """Test URL population with partial extraction (some values None)."""
-        setup = AssignmentSetup()
-        url = "https://classroom.github.com/classrooms/12345/assignments/test"
-
-        # Set API mode to 'never' to prevent GitHub API fallback when assignment_name is empty
-        with patch('classdock.assignments.setup.URLParser.validate_classroom_url', return_value=True), \
-             patch.dict('os.environ', {'CLASSROOM_API_MODE': 'never'}):
-            # Only organization extraction succeeds
-            setup.url_parser.parse_classroom_url.return_value = {
-                'organization': 'test-org',
-                'assignment_name': ''  # Partial - no assignment name
-            }
-            setup.url_parser.extract_org_from_url.return_value = "test-org"
-            setup.url_parser.extract_assignment_from_url.return_value = None
-
-            result = setup._populate_from_url(url)
-
-            assert result is True
-            assert setup.config_values['CLASSROOM_URL'] == url
+        assert 'ASSIGNMENT_NAME' in setup.config_values
+        assert 'CLASSROOM_URL' not in setup.config_values
 
 
 if __name__ == "__main__":

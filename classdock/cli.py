@@ -342,7 +342,6 @@ def shortcut_run(
 @app.command("setup")
 def shortcut_setup(
     ctx: typer.Context,
-    url: Optional[str] = typer.Option(None, "--url", help="GitHub Classroom URL"),
     simplified: bool = typer.Option(False, "--simplified", help="Minimal-prompt setup"),
 ) -> None:
     """Configure a new assignment (shortcut for [cyan]assignments setup[/cyan])."""
@@ -352,7 +351,7 @@ def shortcut_setup(
         from .services.assignment_service import AssignmentService
 
         service = AssignmentService(dry_run=dry_run, verbose=verbose)
-        ok, message = service.setup(url=url, simplified=simplified)
+        ok, message = service.setup(simplified=simplified)
         if not ok:
             logger.error(message)
             raise typer.Exit(code=1)

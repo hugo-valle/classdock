@@ -2,7 +2,7 @@
 Comprehensive CLI tests for assignment setup command options.
 
 This test suite focuses specifically on the assignment setup command and its various
-options: --url, --simplified, and regular interactive mode.
+options: --simplified and regular interactive mode.
 """
 
 import pytest
@@ -55,7 +55,6 @@ class TestAssignmentSetupCLI:
         output = re.sub(r'\x1b\[[0-9;]*m', '', output)
 
         # Check that all options are documented
-        assert "--url" in output, f"--url option not shown in help. Output: {output[:500]}"
         assert "--simplified" in output, f"--simplified option not shown in help. Output: {output[:500]}"
 
     def test_setup_dry_run_basic(self):
@@ -66,20 +65,6 @@ class TestAssignmentSetupCLI:
         assert success, f"Basic setup dry-run failed: {stderr}"
         assert "DRY RUN" in stderr, "Dry run message not found"
         assert "assignment setup wizard" in stderr, "Setup wizard message not found"
-
-    def test_setup_dry_run_with_url(self):
-        """Test setup with --url option in dry-run mode."""
-        test_url = "https://classroom.github.com/classrooms/12345/assignments/test-assignment"
-        success, stdout, stderr = run_cli_command(
-            f'python -m classdock assignments --dry-run setup --url "{test_url}"')
-
-        assert success, f"URL setup dry-run failed: {stderr}"
-        assert "DRY RUN" in stderr, "Dry run message not found"
-        # Should mention using assignment setup wizard with GitHub Classroom URL
-        assert "assignment setup wizard" in stderr, "Setup wizard message not found"
-        # URL might be wrapped or truncated in output, so just check for key parts
-        assert "classroom" in stderr.lower() and (
-            "url" in stderr.lower() or "12345" in stderr), "URL information not found"
 
     def test_setup_dry_run_with_simplified(self):
         """Test setup with --simplified option in dry-run mode."""
@@ -105,29 +90,6 @@ class TestAssignmentSetupCLI:
         assert not success, "Simplified setup should fail when not implemented"
         assert "Simplified setup mode not yet implemented" in stderr, "Implementation error message not found"
 
-    def test_setup_dry_run_with_both_options(self):
-        """Test setup with both --url and --simplified options."""
-        test_url = "https://classroom.github.com/classrooms/12345/assignments/test-assignment"
-        success, stdout, stderr = run_cli_command(
-            f'python -m classdock assignments --dry-run setup --url "{test_url}" --simplified')
-
-        # When simplified is specified, it's checked first and returns "not implemented"
-        # even if URL is also provided
-        assert not success, f"Combined options should fail (simplified not implemented): {stderr}"
-        assert "DRY RUN" in stderr, "Dry run message not found"
-        assert "Simplified setup mode not yet implemented" in stderr, "Not implemented message not found"
-
-    def test_setup_url_format_validation(self):
-        """Test that URL format is validated (when implemented)."""
-        # Test with invalid URL
-        invalid_url = "not-a-valid-url"
-        success, stdout, stderr = run_cli_command(
-            f'python -m classdock assignments --dry-run setup --url "{invalid_url}"')
-
-        # Should still succeed in dry-run mode, but may show validation warnings
-        # This test is for future URL validation implementation
-        assert success is True or "invalid" in stderr.lower(), "URL validation not implemented"
-
     def test_setup_verbose_output(self):
         """Test setup with verbose output."""
         success, stdout, stderr = run_cli_command(
@@ -137,19 +99,6 @@ class TestAssignmentSetupCLI:
         assert "DRY RUN" in stderr, "Dry run message not found"
         # Verbose mode should provide more detailed output
         # This is a placeholder for when verbose logging is implemented
-
-    @pytest.mark.parametrize("url", [
-        "https://classroom.github.com/classrooms/12345/assignments/test",
-        "https://classroom.github.com/classrooms/67890/assignments/project-1",
-        "https://classroom.github.com/classrooms/11111/assignments/final-exam",
-    ])
-    def test_setup_various_urls(self, url):
-        """Test setup with various valid GitHub Classroom URLs."""
-        success, stdout, stderr = run_cli_command(
-            f'python -m classdock assignments --dry-run setup --url "{url}"')
-
-        assert success, f"Setup with URL {url} failed: {stderr}"
-        assert "DRY RUN" in stderr, "Dry run message not found"
 
 
 class TestAssignmentSetupService:
@@ -166,14 +115,10 @@ class TestAssignmentSetupService:
         assert "DRY RUN" in message
 
     def test_service_setup_parameters(self):
-        """Test that service setup method needs to accept URL and simplified parameters."""
+        """Test that service setup method accepts simplified parameter."""
         from classdock.services.assignment_service import AssignmentService
 
         service = AssignmentService(dry_run=True)
-
-        # This test will fail until we implement the parameters
-        # success, message = service.setup(url="test-url", simplified=True)
-        # For now, just test the current implementation
         success, message = service.setup()
         assert success is True
 
@@ -254,39 +199,25 @@ class TestAssignmentSetupExamples:
         assert not success, f"Simplified example should fail: {stderr}"
         assert "Simplified setup mode not yet implemented" in stderr
 
-    def test_example_url_setup(self):
-        """Test: classdock assignments setup --url "https://classroom.github.com/..."""""
-        test_url = "https://classroom.github.com/classrooms/225080578-soc-cs3550-f25/assignments/project3"
+    def test_example_simplified_not_implemented(self):
+        """Test: classdock assignments setup --simplified (not yet implemented)."""
         success, stdout, stderr = run_cli_command(
-            f'python -m classdock assignments --dry-run setup --url "{test_url}"')
+            "python -m classdock assignments --dry-run setup --simplified")
 
-        assert success, f"URL example failed: {stderr}"
+        assert not success, f"Simplified example should fail: {stderr}"
+        assert "Simplified setup mode not yet implemented" in stderr
 
 
 class TestAssignmentSetupFutureFeatures:
-    """Tests for features that should be implemented for --url and --simplified options."""
-
-    def test_url_parsing_functionality(self):
-        """Test that URL parsing extracts classroom and assignment info (future feature)."""
-        # This is a placeholder for when URL parsing is implemented
-        # The --url option should extract:
-        # - Classroom ID
-        # - Assignment name
-        # - Organization info
-        # And use this to pre-populate the setup wizard
-        pass
+    """Tests for features that should be implemented for --simplified option."""
 
     def test_simplified_wizard_flow(self):
         """Test that simplified option provides minimal prompts (future feature)."""
         # This is a placeholder for when simplified flow is implemented
-        # The --simplified option should:
-        # - Skip optional configuration steps
-        # - Use sensible defaults
-        # - Provide a streamlined experience
         pass
 
     def test_github_api_integration(self):
-        """Test GitHub API integration for URL-based setup (future feature)."""
+        """Test GitHub API integration for setup (future feature)."""
         # This is a placeholder for when GitHub API integration is implemented
         # URL-based setup should:
         # - Validate the classroom URL

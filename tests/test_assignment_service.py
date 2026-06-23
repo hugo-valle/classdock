@@ -41,17 +41,6 @@ class TestAssignmentServiceSetup:
         assert "DRY RUN" in message
         assert "assignment setup wizard" in message
 
-    def test_setup_with_url_dry_run(self):
-        """Test setup with URL in dry-run mode."""
-        service = AssignmentService(dry_run=True)
-        url = "https://classroom.github.com/classrooms/12345/assignments/test"
-        success, message = service.setup(url=url)
-
-        assert success is True
-        assert "DRY RUN" in message
-        assert "GitHub Classroom URL" in message
-        assert url in message
-
     def test_setup_with_simplified_dry_run(self):
         """Test setup with simplified option in dry-run mode."""
         service = AssignmentService(dry_run=True)
@@ -133,76 +122,6 @@ class TestAssignmentServiceSetup:
         assert success is False
         assert "Assignment setup failed" in message
 
-    @patch('classdock.utils.token_manager.GitHubTokenManager')
-    @patch('classdock.assignments.setup.AssignmentSetup')
-    def test_setup_with_url_success(self, mock_assignment_setup, mock_token_manager):
-        """Test successful setup with GitHub Classroom URL."""
-        # Mock the token manager to return a valid token
-        mock_token_instance = Mock()
-        mock_token_instance.get_github_token.return_value = "test_token"
-        mock_token_instance.config_file.exists.return_value = True
-        mock_token_manager.return_value = mock_token_instance
-
-        # Mock the AssignmentSetup class
-        mock_wizard = Mock()
-        mock_wizard.run_wizard_with_url.return_value = True
-        mock_assignment_setup.return_value = mock_wizard
-
-        service = AssignmentService(dry_run=False)
-        url = "https://classroom.github.com/classrooms/12345/assignments/test"
-        success, message = service.setup(url=url)
-
-        assert success is True
-        assert "Assignment setup completed successfully with GitHub Classroom URL" in message
-        mock_assignment_setup.assert_called_once()
-        mock_wizard.run_wizard_with_url.assert_called_once_with(url)
-
-    @patch('classdock.utils.token_manager.GitHubTokenManager')
-    @patch('classdock.assignments.setup.AssignmentSetup')
-    def test_setup_with_url_cancelled(self, mock_assignment_setup, mock_token_manager):
-        """Test setup with URL cancelled by user."""
-        # Mock the token manager to return a valid token
-        mock_token_instance = Mock()
-        mock_token_instance.get_github_token.return_value = "test_token"
-        mock_token_instance.config_file.exists.return_value = True
-        mock_token_manager.return_value = mock_token_instance
-
-        # Mock the AssignmentSetup class
-        mock_wizard = Mock()
-        mock_wizard.run_wizard_with_url.return_value = False
-        mock_assignment_setup.return_value = mock_wizard
-
-        service = AssignmentService(dry_run=False)
-        url = "https://classroom.github.com/classrooms/12345/assignments/test"
-        success, message = service.setup(url=url)
-
-        assert success is False
-        assert "setup was cancelled or failed" in message
-        mock_wizard.run_wizard_with_url.assert_called_once_with(url)
-
-    @patch('classdock.utils.token_manager.GitHubTokenManager')
-    @patch('classdock.assignments.setup.AssignmentSetup')
-    def test_setup_with_url_exception(self, mock_assignment_setup, mock_token_manager):
-        """Test setup with URL when wizard raises exception."""
-        # Mock the token manager to return a valid token
-        mock_token_instance = Mock()
-        mock_token_instance.get_github_token.return_value = "test_token"
-        mock_token_instance.config_file.exists.return_value = True
-        mock_token_manager.return_value = mock_token_instance
-
-        # Mock the AssignmentSetup class
-        mock_wizard = Mock()
-        mock_wizard.run_wizard_with_url.side_effect = Exception(
-            "URL parsing failed")
-        mock_assignment_setup.return_value = mock_wizard
-
-        service = AssignmentService(dry_run=False)
-        url = "https://classroom.github.com/classrooms/12345/assignments/test"
-        success, message = service.setup(url=url)
-
-        assert success is False
-        assert "Assignment setup failed" in message
-        mock_wizard.run_wizard_with_url.assert_called_once_with(url)
 
 
 class TestAssignmentServiceOrchestrate:
@@ -256,7 +175,7 @@ class TestAssignmentServiceValidateConfig:
         # Create a temporary config file
         config_file = tmp_path / "assignment.conf"
         config_file.write_text("""
-CLASSROOM_URL=https://classroom.github.com/test
+ASSIGNMENT_NAME=test-assignment
 TEMPLATE_REPO_URL=https://github.com/test/template
 GITHUB_ORGANIZATION=test-org
 """)

@@ -167,13 +167,12 @@ class AssignmentService:
             return False, f"Assignment orchestration failed: {e}"
 
     def setup(
-        self, url: Optional[str] = None, simplified: bool = False
+        self, simplified: bool = False
     ) -> Tuple[bool, str]:
         """
         Run interactive assignment setup wizard.
 
         Args:
-            url: GitHub Classroom assignment URL for auto-discovery
             simplified: Enable simplified setup with fewer prompts
 
         Returns:
@@ -188,10 +187,7 @@ class AssignmentService:
             if self.dry_run:
                 if simplified:
                     return False, "DRY RUN: Simplified setup mode not yet implemented"
-                msg = "DRY RUN: Would run assignment setup wizard"
-                if url:
-                    msg += f" with GitHub Classroom URL: {url}"
-                return True, msg
+                return True, "DRY RUN: Would run assignment setup wizard"
 
             from ..utils.token_manager import GitHubTokenManager
 
@@ -288,20 +284,6 @@ class AssignmentService:
             from ..assignments.setup import AssignmentSetup
 
             setup_wizard = AssignmentSetup()
-
-            # TODO: Implement URL parsing for GitHub Classroom integration
-            if url:
-                # Parse GitHub Classroom URL and extract assignment info
-                # This would populate assignment name, org, etc. automatically
-                success = setup_wizard.run_wizard_with_url(url)
-
-                if success:
-                    return (
-                        True,
-                        "Assignment setup completed successfully with GitHub Classroom URL",
-                    )
-                else:
-                    return False, "Assignment setup was cancelled or failed"
 
             # Run the setup wizard (simplified or full)
             if simplified:

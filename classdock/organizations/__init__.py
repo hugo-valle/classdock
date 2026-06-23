@@ -7,13 +7,9 @@ Provides GitHub organization lifecycle management including:
 - Local workspace folder management (master folder + semester org folder)
 - Interactive setup wizard
 - Naming convention validation
-- GitHub Classroom integration (list, inspect, clone classroom structure)
 """
 
-from .classroom import ClassroomManager
 from .models import (
-    Classroom,
-    ClassroomAssignment,
     CloneResult,
     Organization,
     SetupResult,
@@ -30,7 +26,4 @@ __all__ = [
     "SetupResult",
     "OrgNameValidator",
     "ValidationResult",
-    "Classroom",
-    "ClassroomAssignment",
-    "ClassroomManager",
 ]
