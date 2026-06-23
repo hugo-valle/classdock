@@ -165,33 +165,19 @@ STUDENT_FILES="{config_values.get('STUDENT_FILES', config_values.get('MAIN_ASSIG
 
         # Add secrets configuration
         if config_values.get("USE_SECRETS") == "true":
-            section += """# Secrets to add to student repositories
-# NEW Format (v3.1+): SECRET_NAME:description:validate_format
-# Uses centralized token management - no separate token files needed!
-# validate_format: true for GitHub tokens (ghp_), false for other secrets
-# 
-# Use this when you have a separate private instructor repository with tests
-# that students need access to via GitHub secrets.
+            secret_name = config_values.get("SECRET_NAME", "INSTRUCTOR_TESTS_TOKEN")
+            description = config_values.get(
+                "SECRET_DESCRIPTION", "Token for accessing instructor test repository"
+            )
+            validation = token_validation.get(secret_name, True)
+
+            section += f"""# Secrets to add to student repositories
+# Format: SECRET_NAME:description:validate_format
+# validate_format: true for GitHub tokens (ghp_/github_pat_), false for other strings
 SECRETS_CONFIG="
+{secret_name}:{description}:{str(validation).lower()}
+"
 """
-
-            # Add instructor tests token using new simplified format
-            validation = token_validation.get("INSTRUCTOR_TESTS_TOKEN", True)
-            section += f"INSTRUCTOR_TESTS_TOKEN:Token for accessing instructor test repository:{str(validation).lower()}\n"
-
-            # Add additional secrets
-            for secret_name, token_file in token_files.items():
-                if secret_name != "INSTRUCTOR_TESTS_TOKEN":
-                    validation = token_validation.get(secret_name, True)
-                    description = config_values.get(
-                        f"{secret_name}_DESCRIPTION",
-                        f"{secret_name} for assignment functionality",
-                    )
-                    section += (
-                        f"{secret_name}:{description}:{str(validation).lower()}\n"
-                    )
-
-            section += '"\n'
         else:
             section += """# Secrets to add to student repositories
 # NEW Format (v3.1+): SECRET_NAME:description:validate_format
@@ -242,7 +228,7 @@ SECRETS_CONFIG=""
 # Workflow steps to execute (true/false)
 STEP_SYNC_TEMPLATE=true
 STEP_DISCOVER_REPOS=true
-STEP_MANAGE_SECRETS={config_values.get('USE_SECRETS', 'false')}   # Set to false if tests are in template repo (no separate instructor repo)
+STEP_MANAGE_SECRETS={config_values.get('USE_SECRETS', 'false')}
 STEP_ASSIST_STUDENTS=false
 
 # Output directory for generated files

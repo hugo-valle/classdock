@@ -286,45 +286,38 @@ class TestConfigureTokens:
     """
 
     def test_configure_tokens_with_validation(self, mock_dependencies):
-        """
-        Test that the _configure_tokens method informs user about centralized token management.
-
-        With centralized tokens, this method no longer prompts for token values or creates token files.
-        Instead, it informs the user that the centralized GitHub token will be used.
-        """
+        """Test that _configure_tokens prompts for secret name, description, and validation."""
         with patch('classdock.assignments.setup.print_colored') as mock_print:
             setup = AssignmentSetup()
+            setup.input_handler.prompt_input.side_effect = [
+                'INSTRUCTOR_TESTS_TOKEN',
+                'Token for accessing instructor test repository',
+            ]
+            setup.input_handler.prompt_yes_no.return_value = True
 
-            # Execute
             setup._configure_tokens()
 
-            # Assert - should inform about centralized token, not prompt for values
-            # No longer creates token_files mapping or stores token values
-            # Token no longer stored in config
-            assert 'INSTRUCTOR_TESTS_TOKEN_VALUE' not in setup.config_values
-            assert len(setup.token_files) == 0  # No token files created
-            # Verify user was informed (print_colored should be called)
+            assert setup.config_values['SECRET_NAME'] == 'INSTRUCTOR_TESTS_TOKEN'
+            assert setup.config_values['SECRET_DESCRIPTION'] == 'Token for accessing instructor test repository'
+            assert setup.token_validation['INSTRUCTOR_TESTS_TOKEN'] is True
+            assert len(setup.token_files) == 0  # No token files (centralized token)
             assert mock_print.called
 
     def test_configure_tokens_without_validation(self, mock_dependencies):
-        """
-        Test that the token configuration process uses centralized token management.
-
-        With centralized tokens, validation is handled by the token manager, not the setup wizard.
-        The wizard simply informs the user that centralized tokens will be used.
-        """
-        with patch('classdock.assignments.setup.print_colored') as mock_print:
+        """Test that _configure_tokens stores validation=False when user declines GitHub token format."""
+        with patch('classdock.assignments.setup.print_colored'):
             setup = AssignmentSetup()
+            setup.input_handler.prompt_input.side_effect = [
+                'MY_SECRET',
+                'Some description',
+            ]
+            setup.input_handler.prompt_yes_no.return_value = False
 
-            # Execute
             setup._configure_tokens()
 
-            # Assert - centralized approach doesn't store tokens or create files
-            assert 'INSTRUCTOR_TESTS_TOKEN_VALUE' not in setup.config_values  # No token in config
-            assert len(setup.token_files) == 0  # No token files
-            assert len(setup.token_validation) == 0  # No validation mapping
-            # Verify user was informed
-            assert mock_print.called
+            assert setup.config_values['SECRET_NAME'] == 'MY_SECRET'
+            assert setup.token_validation['MY_SECRET'] is False
+            assert len(setup.token_files) == 0
 
 
 class TestCreateFiles:
@@ -691,22 +684,20 @@ class TestEdgeCasesAndErrorHandling:
             setup._create_files()
 
     def test_configure_tokens_empty_token_input(self, mock_dependencies):
-        """
-        Test that the token configuration process uses centralized token management.
-
-        With centralized tokens, this method no longer prompts for token input,
-        so empty token scenarios are not applicable to the setup wizard.
-        Tokens are validated by the centralized token manager.
-        """
+        """Test that _configure_tokens correctly uses the prompted secret name."""
         with patch('classdock.assignments.setup.print_colored'):
             setup = AssignmentSetup()
+            setup.input_handler.prompt_input.side_effect = [
+                'INSTRUCTOR_TESTS_TOKEN',
+                'Token for accessing instructor test repository',
+            ]
+            setup.input_handler.prompt_yes_no.return_value = True
 
-            # Execute
             setup._configure_tokens()
 
-            # Assert - no token values are stored in config with centralized approach
             assert 'INSTRUCTOR_TESTS_TOKEN_VALUE' not in setup.config_values
-            assert len(setup.token_validation) == 0
+            assert len(setup.token_validation) == 1
+            assert 'INSTRUCTOR_TESTS_TOKEN' in setup.token_validation
 
     def test_collect_repository_info_whitespace_in_url(self, mock_dependencies):
         """

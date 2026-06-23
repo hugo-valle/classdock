@@ -200,16 +200,38 @@ class AssignmentSetup:
             )
 
     def _configure_tokens(self):
-        """Inform the user about centralized token management for secrets."""
+        """Prompt for the secret name to distribute to student repositories."""
         logger.debug("Configuring token settings for secrets")
 
         print_colored(
-            "Secrets will use your centralized GitHub token from GitHubTokenManager",
+            "ClassDock will distribute your stored GitHub token as a repository secret.",
             Colors.BLUE,
         )
         print_colored(
-            "Token is stored in: ~/.config/classdock/token_config.json", Colors.CYAN
+            "Token is read from: ~/.config/classdock/token_config.json", Colors.CYAN
         )
+
+        secret_name = self.input_handler.prompt_input(
+            "Secret name (as referenced in the workflow file)",
+            "INSTRUCTOR_TESTS_TOKEN",
+            self.validators.validate_assignment_name,
+            "Must match secrets.<NAME> in your student repo .github/workflows/*.yml",
+        )
+
+        description = self.input_handler.prompt_input(
+            "Secret description",
+            "Token for accessing instructor test repository",
+            None,
+            "Human-readable description shown in classdock status output",
+        )
+
+        validate = self.input_handler.prompt_yes_no(
+            "Is this a GitHub token (starts with ghp_/github_pat_)?", True
+        )
+
+        self.config_values["SECRET_NAME"] = secret_name
+        self.config_values["SECRET_DESCRIPTION"] = description
+        self.token_validation[secret_name] = validate
 
     def _create_files(self):
         """Create configuration and .gitignore files."""

@@ -279,21 +279,18 @@ class TestConfigGeneratorSecretsSection:
         """
         Test secrets section generation when secrets management is enabled.
 
-        This test verifies that when USE_SECRETS is set to 'true', the secrets section
-        properly configures INSTRUCTOR_TESTS_TOKEN and additional secrets with correct
-        token file paths, validation settings, and format specifications.
+        The wizard prompts for a single secret name/description; the generator
+        writes that one entry into SECRETS_CONFIG.
         """
         generator = ConfigGenerator(Path("/test/config.conf"))
 
-        config_values = {'USE_SECRETS': 'true'}
-        token_files = {
-            'INSTRUCTOR_TESTS_TOKEN': 'instructor_token.txt',
-            'API_KEY': 'api_key.txt'
+        config_values = {
+            'USE_SECRETS': 'true',
+            'SECRET_NAME': 'INSTRUCTOR_TESTS_TOKEN',
+            'SECRET_DESCRIPTION': 'Token for accessing instructor test repository',
         }
-        token_validation = {
-            'INSTRUCTOR_TESTS_TOKEN': True,
-            'API_KEY': False
-        }
+        token_files = {}
+        token_validation = {'INSTRUCTOR_TESTS_TOKEN': True}
 
         section = generator._generate_secrets_section(
             config_values, token_files, token_validation)
@@ -304,9 +301,6 @@ class TestConfigGeneratorSecretsSection:
 
         # Check instructor token configuration (new 3-field format)
         assert 'INSTRUCTOR_TESTS_TOKEN:Token for accessing instructor test repository:true' in section
-
-        # Check additional secret configuration (new 3-field format)
-        assert 'API_KEY:API_KEY for assignment functionality:false' in section
 
     def test_generate_secrets_section_without_secrets(self):
         """
@@ -334,31 +328,25 @@ class TestConfigGeneratorSecretsSection:
 
     def test_generate_secrets_section_custom_descriptions(self):
         """
-        Test secrets section generation with custom secret descriptions.
+        Test secrets section generation with a custom secret name and description.
 
-        This test validates that custom descriptions for secrets (provided via configuration
-        values like DATABASE_TOKEN_DESCRIPTION) are properly incorporated into the secrets
-        configuration format instead of using default generated descriptions.
+        When SECRET_NAME and SECRET_DESCRIPTION are set in config_values (as collected
+        by the setup wizard), the generator uses those values.
         """
         generator = ConfigGenerator(Path("/test/config.conf"))
 
         config_values = {
             'USE_SECRETS': 'true',
-            'DATABASE_TOKEN_DESCRIPTION': 'Database access token for student queries'
+            'SECRET_NAME': 'DATABASE_TOKEN',
+            'SECRET_DESCRIPTION': 'Database access token for student queries',
         }
-        token_files = {
-            'INSTRUCTOR_TESTS_TOKEN': 'instructor_token.txt',
-            'DATABASE_TOKEN': 'db_token.txt'
-        }
-        token_validation = {
-            'INSTRUCTOR_TESTS_TOKEN': True,
-            'DATABASE_TOKEN': False
-        }
+        token_files = {}
+        token_validation = {'DATABASE_TOKEN': False}
 
         section = generator._generate_secrets_section(
             config_values, token_files, token_validation)
 
-        # Check custom description is used (new 3-field format)
+        # Custom secret name and description should appear in the output
         assert 'DATABASE_TOKEN:Database access token for student queries:false' in section
 
     def test_generate_secrets_section_missing_use_secrets(self):
@@ -843,7 +831,6 @@ class TestConfigGeneratorIntegration:
             # Verify secrets configuration
             assert 'STEP_MANAGE_SECRETS=true' in full_content
             assert 'INSTRUCTOR_TESTS_TOKEN:Token for accessing instructor test repository:true' in full_content
-            assert 'DATABASE_ACCESS_TOKEN:DATABASE_ACCESS_TOKEN for assignment functionality:false' in full_content
 
     @patch('classdock.config.generator.print_header')
     @patch('classdock.config.generator.print_success')
