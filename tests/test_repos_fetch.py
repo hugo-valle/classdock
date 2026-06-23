@@ -441,11 +441,14 @@ class TestRepositoryFetcherDiscovery:
         mock_config_instance.load.return_value = self.mock_config
         mock_config_loader.return_value = mock_config_instance
 
-        # Mock subprocess output
-        cli_output = """test-org/python-basics-student1\tStudent repo\tprivate
-test-org/python-basics-student2\tStudent repo\tprivate
-test-org/python-basics-template\tTemplate repo\tpublic
-test-org/other-assignment-student1\tOther repo\tprivate"""
+        # Mock JSON subprocess output (new format)
+        import json as _json
+        cli_output = _json.dumps([
+            {"name": "python-basics-student1", "url": "https://github.com/test-org/python-basics-student1", "isTemplate": False},
+            {"name": "python-basics-student2", "url": "https://github.com/test-org/python-basics-student2", "isTemplate": False},
+            {"name": "python-basics-template", "url": "https://github.com/test-org/python-basics-template", "isTemplate": True},
+            {"name": "other-assignment-student1", "url": "https://github.com/test-org/other-assignment-student1", "isTemplate": False},
+        ])
 
         mock_result = Mock()
         mock_result.stdout = cli_output
@@ -463,7 +466,7 @@ test-org/other-assignment-student1\tOther repo\tprivate"""
 
         assert len(repositories) == 3
         mock_subprocess.assert_called_once_with(
-            ['gh', 'repo', 'list', 'test-org', '--limit', '1000'],
+            ['gh', 'repo', 'list', 'test-org', '--limit', '1000', '--json', 'name,url,isTemplate'],
             capture_output=True, text=True, check=True
         )
 
@@ -1099,7 +1102,9 @@ class TestRepositoryFetcherFetchAllRepositories:
         with patch.object(fetcher, 'discover_repositories', return_value=[]):
             result = fetcher.fetch_all_repositories(verbose=False)
 
-            assert result is False
+            # No repos found is a warning, not a failure — students may not have
+            # accepted the assignment yet.
+            assert result is True
 
     @patch('classdock.repos.fetch.PathManager')
     @patch('classdock.repos.fetch.GitManager')

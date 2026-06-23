@@ -48,6 +48,38 @@ class AssignmentSetup:
         self.token_files = {}
         self.token_validation = {}
 
+    def prefill_from_url(self, template_url: str) -> None:
+        """Pre-populate wizard values from a GitHub template repository URL.
+
+        Given https://github.com/ORG/REPO-template, sets:
+          GITHUB_ORGANIZATION = ORG
+          TEMPLATE_REPO_URL   = full URL
+          ASSIGNMENT_NAME     = REPO with '-template' suffix stripped
+        """
+        try:
+            # Strip trailing .git and whitespace
+            url = template_url.strip().rstrip("/").removesuffix(".git")
+            parts = url.rstrip("/").split("/")
+            if len(parts) >= 2 and parts[-3] in ("github.com",):
+                org = parts[-2]
+                repo = parts[-1]
+            elif len(parts) >= 2:
+                org = parts[-2]
+                repo = parts[-1]
+            else:
+                return
+
+            assignment_name = repo.removesuffix("-template")
+
+            self.config_values["GITHUB_ORGANIZATION"] = org
+            self.config_values["TEMPLATE_REPO_URL"] = template_url.strip()
+            self.config_values["ASSIGNMENT_NAME"] = assignment_name
+            logger.info(
+                f"Pre-filled from URL: org={org}, assignment={assignment_name}"
+            )
+        except Exception as e:
+            logger.warning(f"Could not parse template URL '{template_url}': {e}")
+
     def run_wizard(self):
         """Run the complete setup wizard for assignment configuration."""
         try:
@@ -82,7 +114,7 @@ class AssignmentSetup:
 
         assignment_name = self.input_handler.prompt_input(
             "Assignment name",
-            "",
+            self.config_values.get("ASSIGNMENT_NAME", ""),
             self.validators.validate_assignment_name,
             "Used as the prefix when discovering student repos. "
             "Example: if students have 'python-basics-jdoe', enter 'python-basics'",
@@ -91,7 +123,7 @@ class AssignmentSetup:
 
         github_org = self.input_handler.prompt_input(
             "GitHub organization name",
-            "",
+            self.config_values.get("GITHUB_ORGANIZATION", ""),
             self.validators.validate_organization,
             "The GitHub organization where student repositories live",
         )
@@ -103,7 +135,8 @@ class AssignmentSetup:
 
         assignment_name = self.config_values.get("ASSIGNMENT_NAME", "")
         github_org = self.config_values.get("GITHUB_ORGANIZATION", "")
-        default_template = (
+        pre_filled_template = self.config_values.get("TEMPLATE_REPO_URL", "")
+        default_template = pre_filled_template or (
             f"https://github.com/{github_org}/{assignment_name}-template"
             if github_org and assignment_name
             else ""

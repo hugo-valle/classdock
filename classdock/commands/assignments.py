@@ -41,12 +41,18 @@ def assignment_setup(
     simplified: bool = typer.Option(
         False, "--simplified", help="Use simplified setup wizard with minimal prompts"
     ),
+    url: str = typer.Option(
+        None,
+        "--url",
+        help="GitHub template repo URL to auto-fill org, assignment name, and template URL",
+    ),
 ):
     """
     Launch interactive wizard to configure a new assignment.
 
     Examples:
         $ classdock assignments setup
+        $ classdock assignments setup --url https://github.com/my-org/project3-template
         $ classdock assignments setup --simplified
     """
     verbose, dry_run = get_global_options(ctx)
@@ -56,7 +62,7 @@ def assignment_setup(
         from ..services.assignment_service import AssignmentService
 
         service = AssignmentService(dry_run=dry_run, verbose=verbose)
-        ok, message = service.setup(simplified=simplified)
+        ok, message = service.setup(simplified=simplified, template_url=url)
 
         if not ok:
             logger.error(message)

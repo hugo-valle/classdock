@@ -167,7 +167,7 @@ class AssignmentService:
             return False, f"Assignment orchestration failed: {e}"
 
     def setup(
-        self, simplified: bool = False
+        self, simplified: bool = False, template_url: str = None
     ) -> Tuple[bool, str]:
         """
         Run interactive assignment setup wizard.
@@ -284,6 +284,10 @@ class AssignmentService:
             from ..assignments.setup import AssignmentSetup
 
             setup_wizard = AssignmentSetup()
+
+            # Pre-fill from template URL if provided
+            if template_url:
+                setup_wizard.prefill_from_url(template_url)
 
             # Run the setup wizard (simplified or full)
             if simplified:

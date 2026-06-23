@@ -219,7 +219,7 @@ class TestShowVersion:
         output = mock_stdout.getvalue()
 
         # Should have version info
-        assert "GitHub Classroom" in output
+        assert "ClassDock" in output
         assert "v" in output.lower() or "version" in output.lower()
 
     @patch('sys.stdout', new_callable=StringIO)

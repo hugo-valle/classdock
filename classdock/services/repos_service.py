@@ -48,7 +48,7 @@ class ReposService:
             success = fetcher.fetch_all_repositories(verbose=self.verbose)
             if not success:
                 return False, "Repository fetch failed"
-            return True, "Repository fetch completed successfully"
+            return True, "Repository fetch completed"
         except Exception as e:
             logger.error(f"ReposService.fetch failed: {e}")
             return False, str(e)

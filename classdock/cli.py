@@ -343,6 +343,12 @@ def shortcut_run(
 def shortcut_setup(
     ctx: typer.Context,
     simplified: bool = typer.Option(False, "--simplified", help="Minimal-prompt setup"),
+    url: str = typer.Option(
+        None,
+        "--url",
+        help="GitHub template repo URL to auto-fill org, assignment name, and template URL "
+             "(e.g. https://github.com/my-org/project3-template)",
+    ),
 ) -> None:
     """Configure a new assignment (shortcut for [cyan]assignments setup[/cyan])."""
     verbose, dry_run = get_global_options(ctx)
@@ -351,7 +357,7 @@ def shortcut_setup(
         from .services.assignment_service import AssignmentService
 
         service = AssignmentService(dry_run=dry_run, verbose=verbose)
-        ok, message = service.setup(simplified=simplified)
+        ok, message = service.setup(simplified=simplified, template_url=url)
         if not ok:
             logger.error(message)
             raise typer.Exit(code=1)
