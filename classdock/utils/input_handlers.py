@@ -174,7 +174,10 @@ class Validators:
         if re.match(github_pattern, url):
             return True, ""
 
-        return False, "Please enter a valid GitHub repository URL (https://github.com/owner/repo)"
+        return (
+            False,
+            "Please enter a valid GitHub repository URL (https://github.com/owner/repo)",
+        )
 
     @staticmethod
     def validate_organization(org: str) -> bool:
@@ -320,4 +323,3 @@ class URLParser:
         """Extract organization from GitHub URL."""
         match = re.search(r"github\.com/([^/]+)/", url)
         return match.group(1) if match else ""
-

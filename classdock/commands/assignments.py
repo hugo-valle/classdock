@@ -761,5 +761,3 @@ def check_repository_access(
     except Exception as e:
         logger.error(f"Repository access check failed: {e}")
         raise typer.Exit(code=1)
-
-

@@ -283,13 +283,19 @@ class RepositoryFetcher:
         try:
             # Use JSON output for reliable parsing (avoids tab/space formatting issues)
             cmd = [
-                "gh", "repo", "list", organization,
-                "--limit", "1000",
-                "--json", "name,url,isTemplate",
+                "gh",
+                "repo",
+                "list",
+                organization,
+                "--limit",
+                "1000",
+                "--json",
+                "name,url,isTemplate",
             ]
             result = subprocess.run(cmd, capture_output=True, text=True, check=True)
 
             import json
+
             try:
                 all_repos = json.loads(result.stdout)
             except json.JSONDecodeError:
@@ -301,7 +307,13 @@ class RepositoryFetcher:
                     parts = line.split("\t")
                     repo_full_name = parts[0].strip()
                     repo_name = repo_full_name.split("/")[-1]
-                    all_repos.append({"name": repo_name, "url": f"https://github.com/{repo_full_name}", "isTemplate": False})
+                    all_repos.append(
+                        {
+                            "name": repo_name,
+                            "url": f"https://github.com/{repo_full_name}",
+                            "isTemplate": False,
+                        }
+                    )
 
             repositories = []
             for repo_data in all_repos:
@@ -309,13 +321,16 @@ class RepositoryFetcher:
                 if not repo_name.startswith(assignment_prefix):
                     continue
 
-                repo_url = repo_data.get("url", f"https://github.com/{organization}/{repo_name}")
+                repo_url = repo_data.get(
+                    "url", f"https://github.com/{organization}/{repo_name}"
+                )
 
                 repo_info = RepositoryInfo(
                     name=repo_name,
                     url=repo_url,
                     clone_url=f"{repo_url}.git",
-                    is_template=repo_data.get("isTemplate", False) or repo_name.endswith("-template"),
+                    is_template=repo_data.get("isTemplate", False)
+                    or repo_name.endswith("-template"),
                     is_student_repo=self._is_student_repository(
                         repo_name, assignment_prefix
                     ),
@@ -701,9 +716,7 @@ class RepositoryFetcher:
                 logger.warning("No student repositories found to fetch")
                 if all_repositories:
                     names = [r.name for r in all_repositories[:10]]
-                    logger.warning(
-                        f"Discovered repos (first {len(names)}): {names}"
-                    )
+                    logger.warning(f"Discovered repos (first {len(names)}): {names}")
                     logger.warning(
                         f"Check that ASSIGNMENT_NAME='{assignment_prefix}' matches "
                         "the prefix used in student repo names. "

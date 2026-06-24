@@ -99,11 +99,17 @@ def show_welcome() -> None:
             "Welcome! This wizard will help you configure ClassDock for managing\n",
             "white",
         ),
-        ("a GitHub assignment: fetching student repos, secrets, and more.\n\n", "white"),
+        (
+            "a GitHub assignment: fetching student repos, secrets, and more.\n\n",
+            "white",
+        ),
         ("✨ What this wizard will do:\n", "bold green"),
         ("   • Create assignment configuration file (assignment.conf)\n", "white"),
         ("   • Configure .gitignore to protect sensitive files\n", "white"),
-        ("   • Set up secret management for instructor-only tests (optional)\n\n", "white"),
+        (
+            "   • Set up secret management for instructor-only tests (optional)\n\n",
+            "white",
+        ),
         ("📋 You'll need:\n", "bold blue"),
         ("   • Assignment name — the prefix used in student repo names\n", "white"),
         (

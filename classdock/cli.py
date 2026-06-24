@@ -347,7 +347,7 @@ def shortcut_setup(
         None,
         "--url",
         help="GitHub template repo URL to auto-fill org, assignment name, and template URL "
-             "(e.g. https://github.com/my-org/project3-template)",
+        "(e.g. https://github.com/my-org/project3-template)",
     ),
 ) -> None:
     """Configure a new assignment (shortcut for [cyan]assignments setup[/cyan])."""

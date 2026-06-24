@@ -505,7 +505,9 @@ class GitHubSecretsManager:
                 organization=self.global_config.github_organization,
             )
 
-            repositories = [r.clone_url or r.url for r in repo_infos if r.clone_url or r.url]
+            repositories = [
+                r.clone_url or r.url for r in repo_infos if r.clone_url or r.url
+            ]
 
             if not repositories:
                 logger.warning("No student repositories found")

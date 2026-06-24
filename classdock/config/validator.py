@@ -34,7 +34,10 @@ class ConfigValidator:
         if re.match(github_pattern, url):
             return True, ""
         else:
-            return False, "Must be a valid GitHub repository URL (https://github.com/owner/repo)"
+            return (
+                False,
+                "Must be a valid GitHub repository URL (https://github.com/owner/repo)",
+            )
 
     @staticmethod
     def validate_organization(org: str) -> Tuple[bool, str]:

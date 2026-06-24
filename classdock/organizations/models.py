@@ -226,4 +226,3 @@ class SetupResult:
     clone_result: Optional[CloneResult] = None
     success: bool = False
     error_message: Optional[str] = None
-

@@ -171,8 +171,10 @@ class AssignmentOrchestrator:
             "Template Repository", self.global_config.template_repo_url or "Not set"
         )
         student_files = getattr(self.global_config, "student_files", None)
-        file_display = ", ".join(student_files) if student_files else (
-            self.global_config.assignment_file or "Not set"
+        file_display = (
+            ", ".join(student_files)
+            if student_files
+            else (self.global_config.assignment_file or "Not set")
         )
         table.add_row("Student Files", file_display)
 
@@ -387,7 +389,11 @@ class AssignmentOrchestrator:
                         "Students may not have accepted the assignment yet."
                     )
                     self.discovered_repos = []
-                    return True, "No student repositories found (skipped)", {"repositories": [], "count": 0}
+                    return (
+                        True,
+                        "No student repositories found (skipped)",
+                        {"repositories": [], "count": 0},
+                    )
                 return False, f"Repository discovery failed: {fetch_message}", None
 
             student_repos_file = Path("student-repos.txt")

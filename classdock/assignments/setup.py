@@ -74,9 +74,7 @@ class AssignmentSetup:
             self.config_values["GITHUB_ORGANIZATION"] = org
             self.config_values["TEMPLATE_REPO_URL"] = template_url.strip()
             self.config_values["ASSIGNMENT_NAME"] = assignment_name
-            logger.info(
-                f"Pre-filled from URL: org={org}, assignment={assignment_name}"
-            )
+            logger.info(f"Pre-filled from URL: org={org}, assignment={assignment_name}")
         except Exception as e:
             logger.warning(f"Could not parse template URL '{template_url}': {e}")
 

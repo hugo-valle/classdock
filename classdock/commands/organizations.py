@@ -337,5 +337,3 @@ def org_verify(
     except Exception as exc:
         logger.error("Organization verification failed: %s", exc)
         raise typer.Exit(code=1)
-
-

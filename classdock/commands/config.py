@@ -13,7 +13,11 @@ logger = get_logger("cli")
 def _check_token_expiration(token_data: dict) -> dict:
     """Build expiration info from token_manager data."""
     if not token_data:
-        return {"is_valid": False, "is_expired": False, "error": "Token verification failed"}
+        return {
+            "is_valid": False,
+            "is_expired": False,
+            "error": "Token verification failed",
+        }
     from datetime import datetime, timezone
 
     expires_at = token_data.get("expires_at")
@@ -42,7 +46,9 @@ def _validate_token_scopes(token_data: dict) -> dict:
         return {"valid": False, "scopes": [], "has_repo": False, "has_read_org": False}
     scopes = token_data.get("scopes", [])
     has_repo = "repo" in scopes or any(s.startswith("contents") for s in scopes)
-    has_read_org = any(s in scopes for s in ("read:org", "admin:org", "write:org", "members"))
+    has_read_org = any(
+        s in scopes for s in ("read:org", "admin:org", "write:org", "members")
+    )
     return {
         "valid": True,
         "scopes": scopes,
@@ -126,7 +132,9 @@ def config_set_token(
             logger.info("Validating token...")
             _token_data = GitHubTokenManager()._verify_and_get_token_info(token)
             if not _token_data:
-                logger.error("❌ Token validation failed: unable to verify token with GitHub API")
+                logger.error(
+                    "❌ Token validation failed: unable to verify token with GitHub API"
+                )
                 raise typer.Exit(1)
 
             expiration_info = _check_token_expiration(_token_data)
@@ -282,7 +290,9 @@ def config_check_token(ctx: typer.Context):
 
         _token_data = token_manager._verify_and_get_token_info(token)
         if not _token_data:
-            logger.error("❌ Token validation failed: unable to verify token with GitHub API")
+            logger.error(
+                "❌ Token validation failed: unable to verify token with GitHub API"
+            )
             raise typer.Exit(1)
 
         logger.info("📅 Token Expiration:")
