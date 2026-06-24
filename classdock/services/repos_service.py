@@ -19,7 +19,6 @@ class ReposService:
         dry_run: bool = False,
         verbose: bool = False,
         fetcher_factory=None,
-        push_manager_factory=None,
         cycle_manager_factory=None,
     ):
         """
@@ -27,13 +26,11 @@ class ReposService:
             dry_run: If True, skip real API calls.
             verbose: Enable verbose logging.
             fetcher_factory: Optional callable ``(config_path) -> RepositoryFetcher``.
-            push_manager_factory: Optional callable ``() -> ClassroomPushManager``.
             cycle_manager_factory: Optional callable ``(config_path) -> CycleCollaboratorManager``.
         """
         self.dry_run = dry_run
         self.verbose = verbose
         self._fetcher_factory = fetcher_factory
-        self._push_manager_factory = push_manager_factory
         self._cycle_manager_factory = cycle_manager_factory
 
     def fetch(self, config_file: Optional[str] = None) -> Tuple[bool, str]:
@@ -51,7 +48,7 @@ class ReposService:
             success = fetcher.fetch_all_repositories(verbose=self.verbose)
             if not success:
                 return False, "Repository fetch failed"
-            return True, "Repository fetch completed successfully"
+            return True, "Repository fetch completed"
         except Exception as e:
             logger.error(f"ReposService.fetch failed: {e}")
             return False, str(e)
@@ -72,30 +69,6 @@ class ReposService:
             return True, message
         except Exception as e:
             logger.error(f"ReposService.update failed: {e}")
-            return False, str(e)
-
-    def push(self, config_file: Optional[str] = None) -> Tuple[bool, str]:
-        try:
-            from ..assignments.push_manager import PushResult
-
-            if self._push_manager_factory is not None:
-                manager = self._push_manager_factory()
-            else:
-                from ..assignments.push_manager import ClassroomPushManager
-
-                manager = ClassroomPushManager(assignment_root=Path.cwd())
-
-            result, message = manager.execute_push_workflow(
-                force=False, interactive=False
-            )
-
-            if result == PushResult.SUCCESS:
-                return True, message
-            if result == PushResult.UP_TO_DATE:
-                return True, message
-            return False, message
-        except Exception as e:
-            logger.error(f"ReposService.push failed: {e}")
             return False, str(e)
 
     def cycle_collaborator(

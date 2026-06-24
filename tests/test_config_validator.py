@@ -2,14 +2,14 @@
 Comprehensive test suite for classdock.config.validator module.
 
 This test suite provides comprehensive coverage for the ConfigValidator class,
-which is responsible for validating GitHub Classroom assignment configuration values.
+which is responsible for validating ClassDock assignment configuration values.
 The tests include unit tests for individual validation methods, integration tests for
 complete configuration validation, error handling, edge cases, and proper validation
 of URLs, organization names, file paths, and configuration completeness.
 
 Test Categories:
-1. URL Validation Tests - GitHub and Classroom URL format validation
-2. Organization Validation Tests - GitHub organization name validation  
+1. URL Validation Tests - GitHub repository URL format validation
+2. Organization Validation Tests - GitHub organization name validation
 3. Assignment Name Validation Tests - Assignment naming convention validation
 4. File Path Validation Tests - Assignment file extension and format validation
 5. Required Fields Validation Tests - Configuration completeness validation
@@ -18,7 +18,7 @@ Test Categories:
 8. Error Message Validation Tests - Detailed error message verification
 
 The ConfigValidator class provides static methods for validating:
-- GitHub repository URLs and GitHub Classroom assignment URLs
+- GitHub repository URLs (https://github.com/owner/repo format only)
 - Organization names following GitHub naming conventions
 - Assignment names with appropriate character restrictions
 - File paths with supported programming language extensions
@@ -36,13 +36,13 @@ from classdock.config.validator import ConfigValidator
 class TestConfigValidatorURLValidation:
     """
     TestConfigValidatorURLValidation contains unit tests for GitHub URL validation
-    functionality within the ConfigValidator class. It verifies that both GitHub
-    repository URLs and GitHub Classroom assignment URLs are correctly validated
-    according to their respective format requirements.
+    functionality within the ConfigValidator class. It verifies that GitHub
+    repository URLs are correctly validated according to the required format
+    (https://github.com/owner/repo).
 
     Test Cases:
     - test_validate_github_url_valid_repository_urls: Tests valid GitHub repository URLs
-    - test_validate_github_url_valid_classroom_urls: Tests valid GitHub Classroom URLs
+    - test_validate_github_url_classroom_urls_are_invalid: Tests that classroom URLs are rejected
     - test_validate_github_url_invalid_formats: Tests various invalid URL formats
     - test_validate_github_url_empty_and_none: Tests empty string and None inputs
     - test_validate_github_url_protocol_validation: Tests HTTP vs HTTPS protocol requirements
@@ -72,15 +72,15 @@ class TestConfigValidatorURLValidation:
             assert is_valid, f"URL should be valid: {url}, but got error: {error_message}"
             assert error_message == "", f"No error message expected for valid URL: {url}"
 
-    def test_validate_github_url_valid_classroom_urls(self):
+    def test_validate_github_url_classroom_urls_are_invalid(self):
         """
-        Test that valid GitHub Classroom assignment URLs are correctly validated.
+        Test that GitHub Classroom URLs are rejected by validate_github_url.
 
-        This test verifies that GitHub Classroom assignment URLs with proper format
-        (https://classroom.github.com/classrooms/ID/assignments/name) are accepted
-        as valid, including various classroom and assignment name formats.
+        Since validate_github_url only accepts https://github.com/owner/repo format,
+        classroom.github.com URLs must be treated as invalid. ASSIGNMENT_NAME is
+        used instead of classroom URLs for assignment identification.
         """
-        valid_classroom_urls = [
+        classroom_urls = [
             "https://classroom.github.com/classrooms/12345/assignments/test-assignment",
             "https://classroom.github.com/classrooms/98765/assignments/data_analysis",
             "https://classroom.github.com/classrooms/111/assignments/homework-1",
@@ -88,10 +88,10 @@ class TestConfigValidatorURLValidation:
             "https://classroom.github.com/classrooms/12345/assignments/assignment_with_underscores"
         ]
 
-        for url in valid_classroom_urls:
+        for url in classroom_urls:
             is_valid, error_message = ConfigValidator.validate_github_url(url)
-            assert is_valid, f"Classroom URL should be valid: {url}, but got error: {error_message}"
-            assert error_message == "", f"No error message expected for valid classroom URL: {url}"
+            assert not is_valid, f"Classroom URL should be INVALID (use ASSIGNMENT_NAME instead): {url}"
+            assert error_message != "", f"Error message expected for classroom URL: {url}"
 
     def test_validate_github_url_invalid_formats(self):
         """
@@ -107,8 +107,8 @@ class TestConfigValidatorURLValidation:
             "https://gitlab.com/user/repo",  # Wrong domain
             "https://github.com/user",  # Missing repository
             "https://github.com/",  # Missing user and repository
-            "https://classroom.github.com/classrooms/12345",  # Missing assignment
-            "https://classroom.github.com/",  # Incomplete classroom URL
+            "https://classroom.github.com/classrooms/12345/assignments/test",  # classroom URL not accepted
+            "https://classroom.github.com/",  # classroom URL not accepted
             "ftp://github.com/user/repo",  # Wrong protocol
             "github.com/user/repo",  # Missing protocol
             "https://github.io/user/repo"  # Wrong domain
@@ -117,8 +117,8 @@ class TestConfigValidatorURLValidation:
         for url in invalid_urls:
             is_valid, error_message = ConfigValidator.validate_github_url(url)
             assert not is_valid, f"URL should be invalid: {url}"
-            assert error_message == "Must be a valid GitHub or GitHub Classroom URL", \
-                f"Expected standard error message for invalid URL: {url}"
+            assert error_message == "Must be a valid GitHub repository URL (https://github.com/owner/repo)", \
+                f"Expected standard error message for invalid URL: {url}, got: {error_message}"
 
     def test_validate_github_url_empty_and_none(self):
         """
@@ -162,7 +162,7 @@ class TestConfigValidatorURLValidation:
                 assert error_message == ""
             else:
                 assert not is_valid, f"URL without HTTPS should be invalid: {url}"
-                assert "Must be a valid GitHub or GitHub Classroom URL" in error_message
+                assert "Must be a valid GitHub repository URL" in error_message
 
     def test_validate_github_url_subdomain_validation(self):
         """
@@ -174,7 +174,7 @@ class TestConfigValidatorURLValidation:
         """
         subdomain_test_cases = [
             ("https://github.com/user/repo", True),
-            ("https://classroom.github.com/classrooms/123/assignments/test", True),
+            ("https://classroom.github.com/classrooms/123/assignments/test", False),  # classroom URLs not accepted
             ("https://api.github.com/user/repo", False),  # Wrong subdomain
             # Different GitHub service
             ("https://gist.github.com/user/123", False),
@@ -208,16 +208,11 @@ class TestConfigValidatorURLValidation:
             ("https://github.com/", False),  # Missing owner and repo
             ("https://github.com", False),  # No path
 
-            # Valid Classroom paths
-            ("https://classroom.github.com/classrooms/123/assignments/test", True),
-            ("https://classroom.github.com/classrooms/cs101/assignments/hw1", True),
-
-            # Invalid Classroom paths
-            # Missing assignment
+            # Classroom URLs are all invalid (use ASSIGNMENT_NAME instead)
+            ("https://classroom.github.com/classrooms/123/assignments/test", False),
+            ("https://classroom.github.com/classrooms/cs101/assignments/hw1", False),
             ("https://classroom.github.com/classrooms/123", False),
-            # Missing ID and assignment
             ("https://classroom.github.com/classrooms", False),
-            # Missing all path components
             ("https://classroom.github.com/", False),
         ]
 
@@ -434,17 +429,17 @@ class TestConfigValidatorAssignmentNameValidation:
             assert is_valid, f"Assignment name should be valid: {name}, but got error: {error_message}"
             assert error_message == "", f"No error message expected for valid assignment: {name}"
 
-    def test_validate_assignment_name_empty_allowed(self):
+    def test_validate_assignment_name_empty_rejected(self):
         """
-        Test that empty assignment names are allowed and properly validated.
+        Test that empty assignment names are rejected.
 
-        This test verifies that empty assignment names are accepted as valid since
-        assignment names can be auto-extracted from URLs or generated automatically
-        by the system when not explicitly provided.
+        Since ASSIGNMENT_NAME is now a required field that replaces CLASSROOM_URL,
+        empty assignment names must be rejected with an appropriate error message.
         """
         is_valid, error_message = ConfigValidator.validate_assignment_name("")
-        assert is_valid, "Empty assignment name should be valid (auto-extraction allowed)"
-        assert error_message == "", "No error message expected for empty assignment name"
+        assert not is_valid, "Empty assignment name should be invalid"
+        assert error_message == "Assignment name cannot be empty", \
+            f"Expected empty name error, got: {error_message}"
 
     def test_validate_assignment_name_invalid_characters(self):
         """
@@ -760,21 +755,25 @@ class TestConfigValidatorRequiredFieldsValidation:
 
         This test verifies that when all required configuration fields are present
         and have non-empty values, the validation returns an empty list indicating
-        no missing fields.
+        no missing fields. Required fields are: ASSIGNMENT_NAME, GITHUB_ORGANIZATION,
+        and either STUDENT_FILES or ASSIGNMENT_FILE.
         """
         complete_configs = [
             {
-                'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test',
-                'TEMPLATE_REPO_URL': 'https://github.com/test/template',
+                'ASSIGNMENT_NAME': 'test-assignment',
                 'GITHUB_ORGANIZATION': 'test-org',
                 'ASSIGNMENT_FILE': 'assignment.ipynb'
             },
             {
-                'CLASSROOM_URL': 'https://classroom.github.com/classrooms/456/assignments/homework',
-                'TEMPLATE_REPO_URL': 'https://github.com/university/homework-template',
+                'ASSIGNMENT_NAME': 'homework',
                 'GITHUB_ORGANIZATION': 'university-cs',
                 'ASSIGNMENT_FILE': 'main.py',
                 'EXTRA_FIELD': 'extra_value'  # Extra fields should not affect validation
+            },
+            {
+                'ASSIGNMENT_NAME': 'lab1',
+                'GITHUB_ORGANIZATION': 'cs-dept',
+                'STUDENT_FILES': 'main.py,tests/',  # STUDENT_FILES also satisfies the requirement
             }
         ]
 
@@ -791,34 +790,25 @@ class TestConfigValidatorRequiredFieldsValidation:
 
         This test verifies that when exactly one required field is missing from
         the configuration, it is correctly identified and returned in the missing
-        fields list.
+        fields list. Required fields are: ASSIGNMENT_NAME, GITHUB_ORGANIZATION,
+        and STUDENT_FILES or ASSIGNMENT_FILE.
         """
         single_missing_tests = [
-            # Missing CLASSROOM_URL
+            # Missing ASSIGNMENT_NAME
             ({
-                'TEMPLATE_REPO_URL': 'https://github.com/test/template',
                 'GITHUB_ORGANIZATION': 'test-org',
                 'ASSIGNMENT_FILE': 'assignment.ipynb'
-            }, 'CLASSROOM_URL'),
-
-            # Missing TEMPLATE_REPO_URL
-            ({
-                'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test',
-                'GITHUB_ORGANIZATION': 'test-org',
-                'ASSIGNMENT_FILE': 'assignment.ipynb'
-            }, 'TEMPLATE_REPO_URL'),
+            }, 'ASSIGNMENT_NAME'),
 
             # Missing GITHUB_ORGANIZATION
             ({
-                'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test',
-                'TEMPLATE_REPO_URL': 'https://github.com/test/template',
+                'ASSIGNMENT_NAME': 'test-assignment',
                 'ASSIGNMENT_FILE': 'assignment.ipynb'
             }, 'GITHUB_ORGANIZATION'),
 
-            # Missing ASSIGNMENT_FILE
+            # Missing ASSIGNMENT_FILE / STUDENT_FILES
             ({
-                'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test',
-                'TEMPLATE_REPO_URL': 'https://github.com/test/template',
+                'ASSIGNMENT_NAME': 'test-assignment',
                 'GITHUB_ORGANIZATION': 'test-org'
             }, 'STUDENT_FILES or ASSIGNMENT_FILE')
         ]
@@ -836,23 +826,22 @@ class TestConfigValidatorRequiredFieldsValidation:
 
         This test verifies that when multiple required fields are missing from
         the configuration, all missing fields are correctly identified and returned
-        in the missing fields list.
+        in the missing fields list. Required fields are: ASSIGNMENT_NAME,
+        GITHUB_ORGANIZATION, and STUDENT_FILES or ASSIGNMENT_FILE.
         """
         multiple_missing_tests = [
-            # Missing two fields
+            # Missing two fields: ASSIGNMENT_NAME and STUDENT_FILES/ASSIGNMENT_FILE
             ({
-                'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test',
-                'TEMPLATE_REPO_URL': 'https://github.com/test/template'
+                'GITHUB_ORGANIZATION': 'test-org'
+            }, {'ASSIGNMENT_NAME', 'STUDENT_FILES or ASSIGNMENT_FILE'}),
+
+            # Missing two fields: GITHUB_ORGANIZATION and STUDENT_FILES/ASSIGNMENT_FILE
+            ({
+                'ASSIGNMENT_NAME': 'test-assignment'
             }, {'GITHUB_ORGANIZATION', 'STUDENT_FILES or ASSIGNMENT_FILE'}),
 
-            # Missing three fields
-            ({
-                'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test'
-            }, {'TEMPLATE_REPO_URL', 'GITHUB_ORGANIZATION', 'STUDENT_FILES or ASSIGNMENT_FILE'}),
-
-            # Missing all fields (empty config)
-            ({}, {'CLASSROOM_URL', 'TEMPLATE_REPO_URL',
-             'GITHUB_ORGANIZATION', 'STUDENT_FILES or ASSIGNMENT_FILE'})
+            # Missing all three required fields (empty config)
+            ({}, {'ASSIGNMENT_NAME', 'GITHUB_ORGANIZATION', 'STUDENT_FILES or ASSIGNMENT_FILE'})
         ]
 
         for config, expected_missing_set in multiple_missing_tests:
@@ -872,26 +861,24 @@ class TestConfigValidatorRequiredFieldsValidation:
         for configuration purposes.
         """
         empty_value_configs = [
-            # All fields present but some empty
+            # ASSIGNMENT_NAME empty
             {
-                'CLASSROOM_URL': '',  # Empty string
-                'TEMPLATE_REPO_URL': 'https://github.com/test/template',
+                'ASSIGNMENT_NAME': '',  # Empty string
                 'GITHUB_ORGANIZATION': 'test-org',
                 'ASSIGNMENT_FILE': 'assignment.ipynb'
             },
 
             # Multiple empty fields
             {
-                'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test',
-                'TEMPLATE_REPO_URL': '',  # Empty string
+                'ASSIGNMENT_NAME': 'test-assignment',
                 'GITHUB_ORGANIZATION': '',  # Empty string
                 'ASSIGNMENT_FILE': 'assignment.ipynb'
             }
         ]
 
         expected_missing = [
-            ['CLASSROOM_URL'],
-            ['TEMPLATE_REPO_URL', 'GITHUB_ORGANIZATION']
+            ['ASSIGNMENT_NAME'],
+            ['GITHUB_ORGANIZATION']
         ]
 
         for config, expected in zip(empty_value_configs, expected_missing):
@@ -910,16 +897,14 @@ class TestConfigValidatorRequiredFieldsValidation:
         identified as missing, ensuring that null values don't pass validation.
         """
         none_value_config = {
-            'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test',
-            'TEMPLATE_REPO_URL': None,  # None value
+            'ASSIGNMENT_NAME': None,    # None value
             'GITHUB_ORGANIZATION': 'test-org',
             'ASSIGNMENT_FILE': None     # None value
         }
 
         missing_fields = ConfigValidator.validate_required_fields(
             none_value_config)
-        expected_missing = {'TEMPLATE_REPO_URL',
-                            'STUDENT_FILES or ASSIGNMENT_FILE'}
+        expected_missing = {'ASSIGNMENT_NAME', 'STUDENT_FILES or ASSIGNMENT_FILE'}
         missing_set = set(missing_fields)
 
         assert len(missing_fields) == 2, \
@@ -936,11 +921,11 @@ class TestConfigValidatorRequiredFieldsValidation:
         interfere with required field checking.
         """
         config_with_extras = {
-            'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test',
-            'TEMPLATE_REPO_URL': 'https://github.com/test/template',
+            'ASSIGNMENT_NAME': 'test-assignment',
             'GITHUB_ORGANIZATION': 'test-org',
             'ASSIGNMENT_FILE': 'assignment.ipynb',
             # Extra fields that shouldn't affect validation
+            'TEMPLATE_REPO_URL': 'https://github.com/test/template',
             'OPTIONAL_FIELD': 'optional_value',
             'EXTRA_CONFIG': 'extra_value',
             'ADDITIONAL_SETTING': 'additional_value'
@@ -974,21 +959,25 @@ class TestConfigValidatorFullConfigValidation:
 
         This test verifies that configurations with all required fields present
         and all field values valid according to their respective validation rules
-        pass the comprehensive validation without any errors.
+        pass the comprehensive validation without any errors. Required fields are:
+        ASSIGNMENT_NAME, GITHUB_ORGANIZATION, and STUDENT_FILES or ASSIGNMENT_FILE.
         """
         valid_configs = [
             {
-                'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test',
-                'TEMPLATE_REPO_URL': 'https://github.com/test/template',
+                'ASSIGNMENT_NAME': 'test-assignment',
                 'GITHUB_ORGANIZATION': 'test-org',
                 'ASSIGNMENT_FILE': 'assignment.ipynb'
             },
             {
-                'CLASSROOM_URL': 'https://github.com/instructor/assignment-repo',
-                'TEMPLATE_REPO_URL': 'https://github.com/university/assignment-template',
+                'ASSIGNMENT_NAME': 'homework-1',
                 'GITHUB_ORGANIZATION': 'university-cs',
                 'ASSIGNMENT_FILE': 'main.py',
-                'ASSIGNMENT_NAME': 'homework-1'  # Optional field with valid value
+                'TEMPLATE_REPO_URL': 'https://github.com/university/assignment-template'
+            },
+            {
+                'ASSIGNMENT_NAME': 'lab1',
+                'GITHUB_ORGANIZATION': 'cs-dept',
+                'STUDENT_FILES': 'main.py,tests/'
             }
         ]
 
@@ -1005,23 +994,23 @@ class TestConfigValidatorFullConfigValidation:
 
         This test verifies that when required fields are missing from the configuration,
         the full validation correctly identifies them and includes appropriate error
-        messages for each missing field.
+        messages for each missing field. Required fields are: ASSIGNMENT_NAME,
+        GITHUB_ORGANIZATION, and STUDENT_FILES or ASSIGNMENT_FILE.
         """
         missing_field_configs = [
-            # Missing one field
+            # Missing ASSIGNMENT_NAME only
             ({
-                'TEMPLATE_REPO_URL': 'https://github.com/test/template',
                 'GITHUB_ORGANIZATION': 'test-org',
                 'ASSIGNMENT_FILE': 'assignment.ipynb'
             }, 1),  # Expected number of errors
 
-            # Missing multiple fields
+            # Missing GITHUB_ORGANIZATION and STUDENT_FILES/ASSIGNMENT_FILE
             ({
-                'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test'
-            }, 3),  # Expected number of errors
+                'ASSIGNMENT_NAME': 'test-assignment'
+            }, 2),  # Expected number of errors
 
-            # Missing all fields
-            ({}, 4)  # Expected number of errors
+            # Missing all three required fields
+            ({}, 3)  # Expected number of errors
         ]
 
         for config, expected_error_count in missing_field_configs:
@@ -1044,26 +1033,24 @@ class TestConfigValidatorFullConfigValidation:
         them and provides specific error messages for each invalid field.
         """
         invalid_value_config = {
-            'CLASSROOM_URL': 'invalid-url',                    # Invalid URL
-            'TEMPLATE_REPO_URL': 'http://github.com/test/template',  # HTTP instead of HTTPS
-            'GITHUB_ORGANIZATION': 'invalid!org',             # Invalid characters
-            'ASSIGNMENT_FILE': 'assignment.xyz',              # Unsupported extension
-            'ASSIGNMENT_NAME': 'invalid!name'                 # Invalid characters
+            'ASSIGNMENT_NAME': 'invalid!name',                         # Invalid characters
+            'TEMPLATE_REPO_URL': 'http://github.com/test/template',   # HTTP instead of HTTPS
+            'GITHUB_ORGANIZATION': 'invalid!org',                      # Invalid characters
+            'ASSIGNMENT_FILE': 'assignment.xyz',                       # Unsupported extension
         }
 
         is_valid, errors = ConfigValidator.validate_full_config(
             invalid_value_config)
         assert not is_valid, "Configuration with invalid values should be invalid"
         assert len(
-            errors) == 5, f"Expected 5 validation errors, got {len(errors)}: {errors}"
+            errors) == 4, f"Expected 4 validation errors, got {len(errors)}: {errors}"
 
         # Verify specific error messages
         error_text = " ".join(errors)
-        assert "CLASSROOM_URL:" in error_text, "Should have CLASSROOM_URL error"
+        assert "ASSIGNMENT_NAME:" in error_text, "Should have ASSIGNMENT_NAME error"
         assert "TEMPLATE_REPO_URL:" in error_text, "Should have TEMPLATE_REPO_URL error"
         assert "GITHUB_ORGANIZATION:" in error_text, "Should have GITHUB_ORGANIZATION error"
         assert "ASSIGNMENT_FILE:" in error_text, "Should have ASSIGNMENT_FILE error"
-        assert "ASSIGNMENT_NAME:" in error_text, "Should have ASSIGNMENT_NAME error"
 
     def test_validate_full_config_mixed_errors(self):
         """
@@ -1074,10 +1061,10 @@ class TestConfigValidatorFullConfigValidation:
         required fields and invalid values in present fields.
         """
         mixed_error_config = {
-            'CLASSROOM_URL': 'invalid-url',        # Invalid value
-            'GITHUB_ORGANIZATION': 'invalid!org',  # Invalid value
-            # TEMPLATE_REPO_URL missing
-            # ASSIGNMENT_FILE missing
+            # ASSIGNMENT_NAME missing
+            'GITHUB_ORGANIZATION': 'invalid!org',   # Invalid value (present but wrong)
+            'TEMPLATE_REPO_URL': 'not-a-valid-url', # Invalid value (optional field)
+            # STUDENT_FILES / ASSIGNMENT_FILE missing
         }
 
         is_valid, errors = ConfigValidator.validate_full_config(
@@ -1101,14 +1088,13 @@ class TestConfigValidatorFullConfigValidation:
         """
         Test that optional fields are validated when present but don't cause errors when absent.
 
-        This test verifies that optional configuration fields (like ASSIGNMENT_NAME)
+        This test verifies that optional configuration fields (like TEMPLATE_REPO_URL)
         are properly validated when provided but don't cause validation failures
         when omitted from the configuration.
         """
         # Config without optional fields - should be valid
         config_without_optional = {
-            'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test',
-            'TEMPLATE_REPO_URL': 'https://github.com/test/template',
+            'ASSIGNMENT_NAME': 'test-assignment',
             'GITHUB_ORGANIZATION': 'test-org',
             'ASSIGNMENT_FILE': 'assignment.ipynb'
         }
@@ -1117,24 +1103,24 @@ class TestConfigValidatorFullConfigValidation:
             config_without_optional)
         assert is_valid, f"Configuration without optional fields should be valid, got errors: {errors}"
 
-        # Config with valid optional fields - should be valid
+        # Config with valid optional TEMPLATE_REPO_URL - should be valid
         config_with_valid_optional = config_without_optional.copy()
-        config_with_valid_optional['ASSIGNMENT_NAME'] = 'valid-assignment'
+        config_with_valid_optional['TEMPLATE_REPO_URL'] = 'https://github.com/test/template'
 
         is_valid, errors = ConfigValidator.validate_full_config(
             config_with_valid_optional)
         assert is_valid, f"Configuration with valid optional fields should be valid, got errors: {errors}"
 
-        # Config with invalid optional fields - should be invalid
+        # Config with invalid optional TEMPLATE_REPO_URL - should be invalid
         config_with_invalid_optional = config_without_optional.copy()
-        config_with_invalid_optional['ASSIGNMENT_NAME'] = 'invalid!assignment'
+        config_with_invalid_optional['TEMPLATE_REPO_URL'] = 'not-a-valid-url'
 
         is_valid, errors = ConfigValidator.validate_full_config(
             config_with_invalid_optional)
         assert not is_valid, "Configuration with invalid optional fields should be invalid"
         assert len(
             errors) == 1, f"Expected 1 error for invalid optional field, got {len(errors)}: {errors}"
-        assert "ASSIGNMENT_NAME:" in errors[0], "Error should be about ASSIGNMENT_NAME"
+        assert "TEMPLATE_REPO_URL:" in errors[0], "Error should be about TEMPLATE_REPO_URL"
 
     def test_validate_full_config_error_message_format(self):
         """
@@ -1145,11 +1131,10 @@ class TestConfigValidatorFullConfigValidation:
         making it easy for users to understand and fix configuration issues.
         """
         invalid_config = {
-            'CLASSROOM_URL': 'invalid-url',
+            'ASSIGNMENT_NAME': 'invalid!name',
             'TEMPLATE_REPO_URL': 'also-invalid',
             'GITHUB_ORGANIZATION': 'invalid!org',
             'ASSIGNMENT_FILE': 'invalid.xyz',
-            'ASSIGNMENT_NAME': 'invalid!name'
         }
 
         is_valid, errors = ConfigValidator.validate_full_config(invalid_config)
@@ -1165,8 +1150,8 @@ class TestConfigValidatorFullConfigValidation:
             error_message = parts[1].strip()
 
             # Verify field name is valid
-            assert field_name in ['CLASSROOM_URL', 'TEMPLATE_REPO_URL', 'GITHUB_ORGANIZATION',
-                                  'ASSIGNMENT_FILE', 'ASSIGNMENT_NAME'], \
+            assert field_name in ['ASSIGNMENT_NAME', 'TEMPLATE_REPO_URL', 'GITHUB_ORGANIZATION',
+                                  'ASSIGNMENT_FILE', 'STUDENT_FILES'], \
                 f"Invalid field name in error: {field_name}"
 
             # Verify error message is not empty

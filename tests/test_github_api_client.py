@@ -383,174 +383,32 @@ class TestOrganizationValidation:
 
 
 class TestEnhancedAPIIntegration:
-    """Test the enhanced API integration modes."""
+    """Tests for enhanced API integration — classroom URL modes removed (Classroom deprecated).
 
-    @patch('os.getenv')
-    @patch('classdock.assignments.setup.print_status')
-    @patch('classdock.assignments.setup.logger')
-    @patch('classdock.assignments.setup.URLParser.validate_classroom_url')
-    def test_api_mode_always(self, mock_validate, mock_logger, mock_print_status, mock_getenv):
-        """Test CLASSROOM_API_MODE=always forces API usage."""
-        from classdock.assignments.setup import AssignmentSetup
+    These tests existed when AssignmentSetup supported a --url option that parsed
+    classroom.github.com URLs. That workflow has been removed; the tests below are
+    kept as empty stubs so the class is not orphaned.
+    """
 
-        # Mock environment variable
-        def getenv_side_effect(key, default=None):
-            if key == 'CLASSROOM_API_MODE':
-                return 'always'
-            return default
-        mock_getenv.side_effect = getenv_side_effect
+    def test_api_mode_always_stub(self):
+        """Classroom URL API mode tests removed — GitHub Classroom deprecated."""
+        pass
 
-        mock_validate.return_value = True
+    def test_api_mode_never_stub(self):
+        """Classroom URL API mode tests removed — GitHub Classroom deprecated."""
+        pass
 
-        with patch('classdock.utils.github_api_client.GitHubAPIClient') as mock_api_client_class:
-            mock_api_client = Mock()
-            mock_api_client.verify_token.return_value = True
-            mock_api_client.extract_classroom_data_from_url.return_value = {
-                'success': True,
-                'organization': 'real-github-org',
-                'assignment_name': 'project3',
-                'classroom_name': 'Test Classroom',
-                'classroom_id': '12345'
-            }
-            mock_api_client_class.return_value = mock_api_client
-
-            setup = AssignmentSetup()
-            setup.url_parser.parse_classroom_url.return_value = {
-                'organization': 'normal-org',  # Looks like real org
-                'assignment_name': 'project3'
-            }
-
-            test_url = "https://classroom.github.com/classrooms/12345-test/assignments/project3"
-            result = setup._populate_from_url(test_url)
-
-            # Should use API even though URL parsing looks good
-            assert result is True
-            assert setup.config_values['GITHUB_ORGANIZATION'] == 'real-github-org'
-            mock_api_client.verify_token.assert_called_once()
-
-    @patch('os.getenv')
-    @patch('classdock.assignments.setup.URLParser.validate_classroom_url')
-    def test_api_mode_never(self, mock_validate, mock_getenv):
-        """Test CLASSROOM_API_MODE=never skips API usage."""
-        from classdock.assignments.setup import AssignmentSetup
-
-        # Mock environment variable
-        def getenv_side_effect(key, default=None):
-            if key == 'CLASSROOM_API_MODE':
-                return 'never'
-            return default
-        mock_getenv.side_effect = getenv_side_effect
-
-        mock_validate.return_value = True
-
-        setup = AssignmentSetup()
-        setup.url_parser.parse_classroom_url.return_value = {
-            'organization': '225080578-soc-cs3550-f25',  # Looks like classroom name
-            'assignment_name': 'project3'
-        }
-
-        test_url = "https://classroom.github.com/classrooms/225080578-soc-cs3550-f25/assignments/project3"
-
-        with patch('classdock.assignments.setup.logger'):
-            result = setup._populate_from_url(test_url)
-
-        # Should use URL parsing result without API validation
-        assert result is True
-        # URLParser returns 'organization' field as 'soc-cs3550-f25', not the full classroom_id
-        assert setup.config_values['GITHUB_ORGANIZATION'] == 'soc-cs3550-f25'
-
-    @patch('os.getenv')
-    @patch('classdock.assignments.setup.print_status')
-    @patch('classdock.assignments.setup.logger')
-    @patch('classdock.assignments.setup.URLParser.validate_classroom_url')
-    def test_api_mode_auto_with_classroom_name(self, mock_validate, mock_logger, mock_print_status, mock_getenv):
-        """Test CLASSROOM_API_MODE=auto triggers API when org looks like classroom name."""
-        from classdock.assignments.setup import AssignmentSetup
-
-        # Mock environment variable (auto is default)
-        def getenv_side_effect(key, default=None):
-            if key == 'CLASSROOM_API_MODE':
-                return 'auto'
-            return default
-        mock_getenv.side_effect = getenv_side_effect
-
-        mock_validate.return_value = True
-
-        with patch('classdock.utils.github_api_client.GitHubAPIClient') as mock_api_client_class:
-            mock_api_client = Mock()
-            mock_api_client.verify_token.return_value = True
-            mock_api_client.extract_classroom_data_from_url.return_value = {
-                'success': True,
-                'organization': 'real-github-org',
-                'assignment_name': 'project3',
-                'classroom_name': 'SOC CS3550 Fall 25',
-                'classroom_id': '225080578'
-            }
-            mock_api_client_class.return_value = mock_api_client
-
-            setup = AssignmentSetup()
-            setup.url_parser.parse_classroom_url.return_value = {
-                'organization': '225080578-soc-cs3550-f25',  # Looks like classroom name
-                'assignment_name': 'project3'
-            }
-
-            test_url = "https://classroom.github.com/classrooms/225080578-soc-cs3550-f25/assignments/project3"
-            result = setup._populate_from_url(test_url)
-
-            # Should use API because organization looks like classroom name
-            assert result is True
-            assert setup.config_values['GITHUB_ORGANIZATION'] == 'real-github-org'
-            mock_api_client.verify_token.assert_called_once()
+    def test_api_mode_auto_stub(self):
+        """Classroom URL API mode tests removed — GitHub Classroom deprecated."""
+        pass
 
 
 class TestAssignmentSetupIntegration:
-    """Test integration with AssignmentSetup._populate_from_url method."""
+    """Integration stubs — classroom URL flow removed (GitHub Classroom deprecated)."""
 
-    @patch('classdock.assignments.setup.print_status')
-    @patch('classdock.assignments.setup.logger')
-    @patch('classdock.assignments.setup.URLParser.validate_classroom_url')
-    def test_api_fallback_integration(self, mock_validate, mock_logger, mock_print_status):
-        """Test that AssignmentSetup uses API fallback when URL parsing is insufficient."""
-        from classdock.assignments.setup import AssignmentSetup
-
-        # Setup mocks
-        mock_validate.return_value = True
-
-        # Mock the GitHubAPIClient at the module level where it's imported
-        with patch('classdock.utils.github_api_client.GitHubAPIClient') as mock_api_client_class:
-            mock_api_client = Mock()
-            mock_api_client.verify_token.return_value = True
-            mock_api_client.extract_classroom_data_from_url.return_value = {
-                'success': True,
-                'organization': 'real-github-org',
-                'assignment_name': 'project3',
-                'classroom_name': 'SOC CS3550 Fall 25',
-                'classroom_id': '225080578'
-            }
-            mock_api_client_class.return_value = mock_api_client
-
-            # Create setup instance and mock URL parser to return classroom name as org
-            setup = AssignmentSetup()
-            setup.url_parser.parse_classroom_url.return_value = {
-                'organization': '',  # Empty organization triggers API fallback
-                'assignment_name': 'project3'
-            }
-
-            # Test the integration
-            test_url = "https://classroom.github.com/classrooms/225080578-soc-cs3550-f25/assignments/project3"
-
-            result = setup._populate_from_url(test_url)
-
-            # Should succeed and use API-extracted organization
-            assert result is True
-            assert setup.config_values['GITHUB_ORGANIZATION'] == 'real-github-org'
-            assert setup.config_values['ASSIGNMENT_NAME'] == 'project3'
-            assert setup.config_values['CLASSROOM_URL'] == test_url
-
-            # Verify API client was called
-            mock_api_client.verify_token.assert_called_once()
-            mock_api_client.extract_classroom_data_from_url.assert_called_once_with(
-                test_url)
+    def test_api_fallback_integration_stub(self):
+        """_populate_from_url removed; GitHub Classroom workflow is no longer supported."""
+        pass
 
 
 if __name__ == "__main__":

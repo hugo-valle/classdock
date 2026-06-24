@@ -6,12 +6,11 @@ that helps instructors assist students with repository updates, template syncing
 git operations, and conflict resolution.
 
 Key Features:
-- Check student repository status against template/classroom
+- Check student repository status against template
 - Help individual students with updates
 - Batch process multiple students
 - Automatic conflict resolution preserving student work
 - Generate update instructions for students
-- Support for both classroom and direct template modes
 
 Author: ClassDock Team
 """
@@ -48,7 +47,6 @@ class UpdateMode(Enum):
     ONE_STUDENT = "one-student"
     BATCH = "batch"
     STATUS = "status"
-    CHECK_CLASSROOM = "check-classroom"
     INSTRUCTIONS = "instructions"
 
 
@@ -72,7 +70,6 @@ class StudentStatus:
     needs_update: bool
     student_commit: Optional[str] = None
     template_commit: Optional[str] = None
-    classroom_commit: Optional[str] = None
     error_message: Optional[str] = None
 
 
@@ -128,7 +125,6 @@ class StudentUpdateHelper:
 
         # Configuration
         self.template_remote = "origin"
-        self.classroom_remote = "classroom"
         self.branch = "main"
         self.temp_dir = Path(tempfile.gettempdir()) / "student-helper"
 
@@ -327,7 +323,6 @@ class StudentUpdateHelper:
         # Get commit information
         student_commit = self.get_remote_commit(repo_url)
         template_commit = None
-        classroom_commit = None
 
         # Get template commit
         if self.global_config and self.global_config.template_repo_url:
@@ -335,26 +330,10 @@ class StudentUpdateHelper:
                 self.global_config.template_repo_url
             )
 
-        # Get classroom commit if available
-        if self.global_config and self.global_config.classroom_repo_url:
-            classroom_commit = self.get_remote_commit(
-                self.global_config.classroom_repo_url
-            )
-
-        # Determine if update is needed by checking if student has the latest commits in their history
+        # Determine if update is needed
         needs_update = True
 
-        # Check if student has classroom commit in their history
-        if classroom_commit:
-            if student_commit == classroom_commit:
-                # Exact match - student is at same commit as classroom
-                needs_update = False
-            elif self.check_commit_in_history(repo_url, classroom_commit, self.branch):
-                # Classroom commit is in student's history (merged)
-                needs_update = False
-
-        # Fallback to template check if no classroom or student doesn't have classroom updates
-        if needs_update and template_commit:
+        if template_commit:
             if student_commit == template_commit:
                 # Exact match with template
                 needs_update = False
@@ -369,7 +348,6 @@ class StudentUpdateHelper:
             needs_update=needs_update,
             student_commit=student_commit,
             template_commit=template_commit,
-            classroom_commit=classroom_commit,
         )
 
     def display_student_status(self, status: StudentStatus) -> None:
@@ -387,69 +365,10 @@ class StudentUpdateHelper:
                 table.add_row("Student Commit", status.student_commit[:8])
             if status.template_commit:
                 table.add_row("Template Commit", status.template_commit[:8])
-            if status.classroom_commit:
-                table.add_row("Classroom Commit", status.classroom_commit[:8])
         else:
             table.add_row("Error", status.error_message or "Unknown error")
 
         self.console.print(table)
-
-    def check_classroom_ready(self) -> bool:
-        """Check if classroom repository is ready for updates."""
-        if not self.global_config or not self.global_config.classroom_repo_url:
-            self.logger.warning("No classroom repository URL configured")
-            return False
-
-        classroom_url = self.global_config.classroom_repo_url
-
-        self.console.print(
-            Panel("📋 Checking Classroom Repository Status", style="blue")
-        )
-
-        # Check accessibility
-        if not self.check_repo_access(classroom_url):
-            self.console.print("❌ Cannot access classroom repository", style="red")
-            self.console.print(f"URL: {classroom_url}", style="dim")
-            return False
-
-        self.console.print("✅ Classroom repository is accessible", style="green")
-
-        # Compare commits
-        classroom_commit = self.get_remote_commit(classroom_url)
-        template_commit = None
-
-        if self.global_config.template_repo_url:
-            template_commit = self.get_remote_commit(
-                self.global_config.template_repo_url
-            )
-
-        table = Table()
-        table.add_column("Repository", style="bold")
-        table.add_column("Commit", style="cyan")
-
-        if classroom_commit:
-            table.add_row("Classroom", classroom_commit[:8])
-        if template_commit:
-            table.add_row("Template", template_commit[:8])
-
-        self.console.print(table)
-
-        if classroom_commit and template_commit:
-            if classroom_commit == template_commit:
-                self.console.print(
-                    "✅ Classroom repository is up to date", style="green"
-                )
-                return True
-            else:
-                self.console.print(
-                    "⚠️ Classroom repository may need updates", style="yellow"
-                )
-                self.console.print(
-                    "Consider running template push operations", style="dim"
-                )
-                return True
-
-        return True
 
     def help_single_student(
         self, repo_url: str, use_template_direct: bool = False
@@ -524,21 +443,14 @@ class StudentUpdateHelper:
 
             try:
                 # Add upstream remote
-                upstream_url = (
-                    self.global_config.template_repo_url
-                    if use_template_direct
-                    else self.global_config.classroom_repo_url
-                )
-
-                if not upstream_url:
-                    upstream_url = self.global_config.template_repo_url
+                upstream_url = self.global_config.template_repo_url
 
                 if not upstream_url:
                     return UpdateResult(
                         student_name=student_name,
                         repo_url=repo_url,
                         result=OperationResult.GENERAL_ERROR,
-                        message="No template or classroom repository URL configured",
+                        message="No template repository URL configured (set TEMPLATE_REPO_URL in assignment.conf)",
                     )
 
                 subprocess.run(
@@ -864,8 +776,9 @@ class StudentUpdateHelper:
         """Generate update instructions for a student."""
         student_name = self.extract_student_name(repo_url)
 
-        classroom_url = getattr(
-            self.global_config, "classroom_repo_url", "CLASSROOM_REPO_URL"
+        template_url = (
+            getattr(self.global_config, "template_repo_url", None)
+            or "TEMPLATE_REPO_URL"
         )
 
         instructions = f"""
@@ -886,7 +799,7 @@ OPTION 2 - Manual Process:
    git commit -m "Save work before template update"
 
 2. Add the template as a remote (one-time setup):
-   git remote add upstream {classroom_url}
+   git remote add upstream {template_url}
 
 3. Get the updates:
    git fetch upstream
@@ -947,11 +860,6 @@ Instructional Team
             if not self.validate_configuration():
                 return False, "Configuration validation failed"
 
-            # Check if classroom is ready
-            if not self.check_classroom_ready():
-                return False, "Classroom repository not ready for updates"
-
-            # Return success with message
             return True, "Update workflow validated successfully"
 
         except Exception as e:

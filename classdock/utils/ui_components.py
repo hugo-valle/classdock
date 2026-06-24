@@ -94,25 +94,31 @@ def show_welcome() -> None:
         os.system("clear" if os.name == "posix" else "cls")
 
     content = Text.assemble(
-        ("🚀 GitHub Classroom Assignment Setup Wizard\n\n", "bold magenta"),
+        ("🚀 ClassDock Assignment Setup Wizard\n\n", "bold magenta"),
         (
-            "Welcome! This wizard will help you configure your GitHub Classroom\n",
+            "Welcome! This wizard will help you configure ClassDock for managing\n",
             "white",
         ),
-        ("assignment with automated tools for seamless management.\n\n", "white"),
+        (
+            "a GitHub assignment: fetching student repos, secrets, and more.\n\n",
+            "white",
+        ),
         ("✨ What this wizard will do:\n", "bold green"),
-        ("   • Create assignment configuration file\n", "white"),
-        ("   • Set up secure token files for GitHub API access\n", "white"),
+        ("   • Create assignment configuration file (assignment.conf)\n", "white"),
         ("   • Configure .gitignore to protect sensitive files\n", "white"),
-        ("   • Validate GitHub CLI access and permissions\n\n", "white"),
-        ("📋 You'll need:\n", "bold blue"),
-        ("   • GitHub Classroom assignment URL\n", "white"),
         (
-            "   • Template repository URL (students fork this - has starter code)\n",
+            "   • Set up secret management for instructor-only tests (optional)\n\n",
             "white",
         ),
-        ("   • Classroom repository URL (optional - for pushing updates)\n", "white"),
-        ("   • GitHub personal access token with repo permissions\n", "white"),
+        ("📋 You'll need:\n", "bold blue"),
+        ("   • Assignment name — the prefix used in student repo names\n", "white"),
+        (
+            "   • GitHub organization name where student repos live\n",
+            "white",
+        ),
+        ("   • Template repository URL (optional — for reference)\n", "white"),
+        ("   • GitHub personal access token with repo and org permissions\n", "white"),
+        ("\nTip: run with --url <template-repo-url> to auto-fill org & name.\n", "dim"),
     )
     _console.print(Panel(content, border_style="cyan"))
     _console.print("[green]Press Enter to continue...[/green]")
@@ -131,10 +137,10 @@ def show_completion(config_values: dict, token_files: dict) -> None:
     lines = [
         ("🎉 Assignment Setup Complete!\n\n", "bold magenta"),
         (
-            "Your GitHub Classroom assignment has been successfully configured\n",
+            "Your assignment has been successfully configured\n",
             "white",
         ),
-        ("with automated tools. Here's what was created:\n\n", "white"),
+        ("with ClassDock. Here's what was created:\n\n", "white"),
         ("📁 Files Created:\n", "bold cyan"),
         ("   • assignment.conf - Complete assignment configuration\n", "white"),
     ]
@@ -223,4 +229,4 @@ def show_version():
     from classdock import __version__
 
     _console.print(f"ClassDock v{__version__}")
-    _console.print("Part of the GitHub Classroom automation tools suite (Python)")
+    _console.print("GitHub assignment management automation CLI (Python)")

@@ -441,11 +441,14 @@ class TestRepositoryFetcherDiscovery:
         mock_config_instance.load.return_value = self.mock_config
         mock_config_loader.return_value = mock_config_instance
 
-        # Mock subprocess output
-        cli_output = """test-org/python-basics-student1\tStudent repo\tprivate
-test-org/python-basics-student2\tStudent repo\tprivate
-test-org/python-basics-template\tTemplate repo\tpublic
-test-org/other-assignment-student1\tOther repo\tprivate"""
+        # Mock JSON subprocess output (new format)
+        import json as _json
+        cli_output = _json.dumps([
+            {"name": "python-basics-student1", "url": "https://github.com/test-org/python-basics-student1", "isTemplate": False},
+            {"name": "python-basics-student2", "url": "https://github.com/test-org/python-basics-student2", "isTemplate": False},
+            {"name": "python-basics-template", "url": "https://github.com/test-org/python-basics-template", "isTemplate": True},
+            {"name": "other-assignment-student1", "url": "https://github.com/test-org/other-assignment-student1", "isTemplate": False},
+        ])
 
         mock_result = Mock()
         mock_result.stdout = cli_output
@@ -463,7 +466,7 @@ test-org/other-assignment-student1\tOther repo\tprivate"""
 
         assert len(repositories) == 3
         mock_subprocess.assert_called_once_with(
-            ['gh', 'repo', 'list', 'test-org', '--limit', '1000'],
+            ['gh', 'repo', 'list', 'test-org', '--limit', '1000', '--json', 'name,url,isTemplate'],
             capture_output=True, text=True, check=True
         )
 
@@ -878,89 +881,11 @@ class TestRepositoryFetcherBatchFetch:
 
 
 class TestRepositoryFetcherTemplateSync:
-    """
-    TestRepositoryFetcherTemplateSync contains unit tests for template repository
-    synchronization functionality. It verifies that template repositories are
-    correctly fetched, updated, and managed for distribution to student repositories.
+    """sync_template_repository removed — GitHub Classroom deprecated."""
 
-    Test Cases:
-    - test_sync_template_repository_clone: Tests cloning template repositories
-    - test_sync_template_repository_update: Tests updating existing template repositories
-    - test_sync_template_repository_no_config: Tests behavior with missing template config
-    - test_sync_template_repository_error: Tests error handling during template sync
-    """
-
-    @patch('classdock.repos.fetch.PathManager')
-    @patch('classdock.repos.fetch.GitManager')
-    @patch('classdock.repos.fetch.ConfigLoader')
-    def test_sync_template_repository_clone(self, mock_config_loader, mock_git_manager, mock_path_manager):
-        """
-        Test cloning a template repository.
-
-        This test verifies that when a template repository doesn't exist locally,
-        the sync_template_repository method correctly clones it from the configured
-        template repository URL.
-        """
-        config_with_template = {
-            'TEMPLATE_REPO_URL': 'https://github.com/test-org/python-basics-template.git'
-        }
-        mock_config_instance = Mock()
-        mock_config_instance.load.return_value = config_with_template
-        mock_config_loader.return_value = mock_config_instance
-
-        mock_path_manager_instance = Mock()
-        mock_template_path = Mock()
-        mock_template_path.exists.return_value = False
-        mock_base_path = Mock()
-        # Handle / operator for base_path / template_name
-        mock_base_path.__truediv__ = Mock(return_value=mock_template_path)
-        mock_path_manager_instance.ensure_output_directory.return_value = mock_base_path
-        mock_path_manager.return_value = mock_path_manager_instance
-
-        mock_git_manager_instance = Mock()
-        mock_git_manager_instance.clone_repo.return_value = True
-        mock_git_manager.return_value = mock_git_manager_instance
-
-        fetcher = RepositoryFetcher.__new__(RepositoryFetcher)
-        fetcher.config_loader = mock_config_instance
-        fetcher.config = config_with_template
-        fetcher.git_manager = mock_git_manager_instance
-        fetcher.path_manager = mock_path_manager_instance
-        fetcher.github_client = None
-
-        result = fetcher.sync_template_repository()
-
-        assert result is True
-        mock_git_manager_instance.clone_repo.assert_called_once_with(
-            'https://github.com/test-org/python-basics-template.git',
-            mock_template_path
-        )
-
-    @patch('classdock.repos.fetch.PathManager')
-    @patch('classdock.repos.fetch.GitManager')
-    @patch('classdock.repos.fetch.ConfigLoader')
-    def test_sync_template_repository_no_config(self, mock_config_loader, mock_git_manager, mock_path_manager):
-        """
-        Test template sync behavior with missing template configuration.
-
-        This test verifies that when no template repository URL is configured,
-        the sync_template_repository method returns False and logs appropriate
-        error messages.
-        """
-        mock_config_instance = Mock()
-        mock_config_instance.load.return_value = {}  # No template config
-        mock_config_loader.return_value = mock_config_instance
-
-        fetcher = RepositoryFetcher.__new__(RepositoryFetcher)
-        fetcher.config_loader = mock_config_instance
-        fetcher.config = {}
-        fetcher.git_manager = mock_git_manager.return_value
-        fetcher.path_manager = mock_path_manager.return_value
-        fetcher.github_client = None
-
-        result = fetcher.sync_template_repository()
-
-        assert result is False
+    def test_sync_template_removed_stub(self):
+        """sync_template_repository was tied to classroom template-push workflow; now removed."""
+        pass
 
 
 class TestRepositoryFetcherErrorHandling:
@@ -1177,7 +1102,9 @@ class TestRepositoryFetcherFetchAllRepositories:
         with patch.object(fetcher, 'discover_repositories', return_value=[]):
             result = fetcher.fetch_all_repositories(verbose=False)
 
-            assert result is False
+            # No repos found is a warning, not a failure — students may not have
+            # accepted the assignment yet.
+            assert result is True
 
     @patch('classdock.repos.fetch.PathManager')
     @patch('classdock.repos.fetch.GitManager')

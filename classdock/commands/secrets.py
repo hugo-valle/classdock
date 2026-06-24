@@ -91,7 +91,16 @@ def secrets_add(
 
     if not global_config.secrets_config:
         logger.error("No secrets configuration found in assignment.conf")
-        logger.error("Please configure SECRETS_CONFIG in your assignment.conf file")
+        logger.error(
+            "Add a SECRETS_CONFIG block to assignment.conf, for example:\n\n"
+            '  SECRETS_CONFIG="\n'
+            "  INSTRUCTOR_TESTS_TOKEN:Token for accessing instructor test repo:true\n"
+            '  "\n\n'
+            "Each line: SECRET_NAME:description:validate_format\n"
+            "  validate_format=true  → expects a GitHub token (ghp_...)\n"
+            "  validate_format=false → any string value\n\n"
+            "Also set STEP_MANAGE_SECRETS=true in the WORKFLOW CONFIGURATION section."
+        )
         raise typer.Exit(code=1)
 
     target_repos = None

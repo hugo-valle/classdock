@@ -21,7 +21,7 @@ class TestConfigLoader:
         config = loader.load()
 
         assert config is not None
-        assert config['CLASSROOM_URL'] == test_config_data['CLASSROOM_URL']
+        assert config['ASSIGNMENT_NAME'] == test_config_data['ASSIGNMENT_NAME']
         assert config['TEMPLATE_REPO_URL'] == test_config_data['TEMPLATE_REPO_URL']
         assert config['GITHUB_ORGANIZATION'] == test_config_data['GITHUB_ORGANIZATION']
 
@@ -37,7 +37,7 @@ class TestConfigLoader:
         loader = ConfigLoader(temp_config_file)
 
         # Test existing value
-        value = loader.get_value('CLASSROOM_URL')
+        value = loader.get_value('ASSIGNMENT_NAME')
         assert value is not None
 
         # Test non-existing value with default
@@ -50,7 +50,7 @@ class TestConfigLoader:
 
         updates = {
             'NEW_KEY': 'new_value',
-            'CLASSROOM_URL': 'updated_url'
+            'ASSIGNMENT_NAME': 'updated-assignment'
         }
 
         success = loader.update_config(updates)
@@ -59,7 +59,7 @@ class TestConfigLoader:
         # Verify updates
         updated_config = loader.load()
         assert updated_config['NEW_KEY'] == 'new_value'
-        assert updated_config['CLASSROOM_URL'] == 'updated_url'
+        assert updated_config['ASSIGNMENT_NAME'] == 'updated-assignment'
 
     def test_load_malformed_config(self, temp_directory):
         """Test loading a malformed configuration file."""
@@ -86,13 +86,15 @@ class TestConfigValidator:
         assert ConfigValidator.validate_github_url(
             "https://github.com/user/repo")[0] is True
         assert ConfigValidator.validate_github_url(
-            "https://classroom.github.com/classrooms/123/assignments/test")[0] is True
+            "https://github.com/org/template-repo")[0] is True
 
         # Invalid URLs
         assert ConfigValidator.validate_github_url("")[0] is False
         assert ConfigValidator.validate_github_url("invalid-url")[0] is False
         assert ConfigValidator.validate_github_url(
             "http://github.com/user/repo")[0] is False  # http not https
+        assert ConfigValidator.validate_github_url(
+            "https://classroom.github.com/classrooms/123/assignments/test")[0] is False
 
     def test_validate_organization(self):
         """Test GitHub organization validation."""
@@ -110,14 +112,14 @@ class TestConfigValidator:
 
     def test_validate_assignment_name(self):
         """Test assignment name validation."""
-        # Valid names (including empty)
-        assert ConfigValidator.validate_assignment_name("")[0] is True
+        # Valid names
         assert ConfigValidator.validate_assignment_name(
             "valid-assignment")[0] is True
         assert ConfigValidator.validate_assignment_name("assignment_123")[
             0] is True
 
-        # Invalid names
+        # Invalid names (including empty)
+        assert ConfigValidator.validate_assignment_name("")[0] is False
         assert ConfigValidator.validate_assignment_name("invalid!name")[
             0] is False
         assert ConfigValidator.validate_assignment_name("-invalid")[0] is False
@@ -140,21 +142,18 @@ class TestConfigValidator:
         """Test required fields validation."""
         # Complete config
         complete_config = {
-            'CLASSROOM_URL': 'https://classroom.github.com/test',
-            'TEMPLATE_REPO_URL': 'https://github.com/test/template',
+            'ASSIGNMENT_NAME': 'test-assignment',
             'GITHUB_ORGANIZATION': 'test-org',
-            'ASSIGNMENT_FILE': 'assignment.ipynb'
+            'STUDENT_FILES': 'assignment.ipynb',
         }
         missing = ConfigValidator.validate_required_fields(complete_config)
         assert len(missing) == 0
 
         # Missing fields
-        incomplete_config = {
-            'CLASSROOM_URL': 'https://classroom.github.com/test'
-        }
+        incomplete_config = {}
         missing = ConfigValidator.validate_required_fields(incomplete_config)
         assert len(missing) == 3
-        assert 'TEMPLATE_REPO_URL' in missing
+        assert 'ASSIGNMENT_NAME' in missing
         assert 'GITHUB_ORGANIZATION' in missing
         assert 'STUDENT_FILES or ASSIGNMENT_FILE' in missing
 
@@ -162,21 +161,18 @@ class TestConfigValidator:
         """Test full configuration validation."""
         # Valid config
         valid_config = {
-            'CLASSROOM_URL': 'https://classroom.github.com/classrooms/123/assignments/test',
-            'TEMPLATE_REPO_URL': 'https://github.com/test/template',
+            'ASSIGNMENT_NAME': 'test-assignment',
             'GITHUB_ORGANIZATION': 'test-org',
-            'ASSIGNMENT_FILE': 'assignment.ipynb'
+            'STUDENT_FILES': 'assignment.ipynb',
         }
         is_valid, errors = ConfigValidator.validate_full_config(valid_config)
         assert is_valid is True
         assert len(errors) == 0
 
-        # Invalid config
+        # Invalid config — missing required fields
         invalid_config = {
-            'CLASSROOM_URL': 'invalid-url',
-            'TEMPLATE_REPO_URL': 'also-invalid',
+            'ASSIGNMENT_NAME': '',
             'GITHUB_ORGANIZATION': 'invalid!org',
-            'ASSIGNMENT_FILE': 'invalid.xyz'
         }
         is_valid, errors = ConfigValidator.validate_full_config(invalid_config)
         assert is_valid is False
@@ -192,7 +188,7 @@ class TestConfigGenerator:
         generator = ConfigGenerator(config_file)
 
         config_values = {
-            'CLASSROOM_URL': 'https://classroom.github.com/test',
+            'ASSIGNMENT_NAME': 'test-assignment',
             'TEMPLATE_REPO_URL': 'https://github.com/test/template',
             'GITHUB_ORGANIZATION': 'test-org',
             'MAIN_ASSIGNMENT_FILE': 'assignment.ipynb',
@@ -215,10 +211,10 @@ class TestConfigGenerator:
 
         # Verify content
         content = config_file.read_text()
-        assert 'CLASSROOM_URL="https://classroom.github.com/test"' in content
+        assert 'ASSIGNMENT_NAME="test-assignment"' in content
         assert 'TEMPLATE_REPO_URL="https://github.com/test/template"' in content
         assert 'GITHUB_ORGANIZATION="test-org"' in content
-        assert 'ASSIGNMENT_FILE="assignment.ipynb"' in content
+        assert 'STUDENT_FILES="assignment.ipynb"' in content
 
     def test_config_file_sections(self, temp_directory):
         """Test that all configuration sections are generated."""
@@ -226,7 +222,7 @@ class TestConfigGenerator:
         generator = ConfigGenerator(config_file)
 
         config_values = {
-            'CLASSROOM_URL': 'https://classroom.github.com/test',
+            'ASSIGNMENT_NAME': 'test-assignment',
             'TEMPLATE_REPO_URL': 'https://github.com/test/template',
             'GITHUB_ORGANIZATION': 'test-org',
             'MAIN_ASSIGNMENT_FILE': 'assignment.ipynb',
@@ -267,7 +263,7 @@ class TestConfigIntegration:
         generator = ConfigGenerator(config_file)
 
         original_values = {
-            'CLASSROOM_URL': 'https://classroom.github.com/test',
+            'ASSIGNMENT_NAME': 'test-assignment',
             'TEMPLATE_REPO_URL': 'https://github.com/test/template',
             'GITHUB_ORGANIZATION': 'test-org',
             'MAIN_ASSIGNMENT_FILE': 'assignment.ipynb',
@@ -282,10 +278,9 @@ class TestConfigIntegration:
         loaded_config = loader.load()
 
         # Verify roundtrip
-        assert loaded_config['CLASSROOM_URL'] == original_values['CLASSROOM_URL']
+        assert loaded_config['ASSIGNMENT_NAME'] == original_values['ASSIGNMENT_NAME']
         assert loaded_config['TEMPLATE_REPO_URL'] == original_values['TEMPLATE_REPO_URL']
         assert loaded_config['GITHUB_ORGANIZATION'] == original_values['GITHUB_ORGANIZATION']
-        # Note: key changes - generator uses STUDENT_FILES instead of ASSIGNMENT_FILE
         assert loaded_config['STUDENT_FILES'] == original_values['MAIN_ASSIGNMENT_FILE']
 
 
@@ -314,7 +309,7 @@ class TestGlobalConfigManager:
             # Should load config from current directory
             config = load_global_config()
             assert config is not None
-            assert config.classroom_url == test_config_data['CLASSROOM_URL']
+            assert config.assignment_name == test_config_data['ASSIGNMENT_NAME']
             assert config.github_organization == test_config_data['GITHUB_ORGANIZATION']
         finally:
             os.chdir(original_cwd)
@@ -337,7 +332,7 @@ class TestGlobalConfigManager:
         config = load_global_config(assignment_root=config_dir)
 
         assert config is not None
-        assert config.classroom_url == test_config_data['CLASSROOM_URL']
+        assert config.assignment_name == test_config_data['ASSIGNMENT_NAME']
         assert config.github_organization == test_config_data['GITHUB_ORGANIZATION']
         assert config.template_repo_url == test_config_data['TEMPLATE_REPO_URL']
 
@@ -352,7 +347,7 @@ class TestGlobalConfigManager:
         assignment_dir.mkdir()
         assignment_config = assignment_dir / "assignment.conf"
         assignment_config.write_text('''# Assignment Root Config
-CLASSROOM_URL="https://classroom.github.com/assignment-root/test"
+ASSIGNMENT_NAME="assignment-root-test"
 TEMPLATE_REPO_URL="https://github.com/assignment-root/template"
 GITHUB_ORGANIZATION="assignment-root-org"
 ASSIGNMENT_FILE="assignment.ipynb"
@@ -363,7 +358,7 @@ ASSIGNMENT_FILE="assignment.ipynb"
         cwd_dir.mkdir()
         cwd_config = cwd_dir / "assignment.conf"
         cwd_config.write_text('''# Current Directory Config
-CLASSROOM_URL="https://classroom.github.com/current-dir/test"
+ASSIGNMENT_NAME="current-dir-test"
 TEMPLATE_REPO_URL="https://github.com/current-dir/template"
 GITHUB_ORGANIZATION="current-dir-org"
 ASSIGNMENT_FILE="assignment.ipynb"
@@ -377,7 +372,7 @@ ASSIGNMENT_FILE="assignment.ipynb"
             # Should load from assignment_root, not current directory
             config = load_global_config(assignment_root=assignment_dir)
 
-            assert config.classroom_url == "https://classroom.github.com/assignment-root/test"
+            assert config.assignment_name == "assignment-root-test"
             assert config.github_organization == "assignment-root-org"
             assert "assignment-root" in config.template_repo_url
         finally:
@@ -392,7 +387,7 @@ ASSIGNMENT_FILE="assignment.ipynb"
         assignment_dir.mkdir()
         custom_config = assignment_dir / "custom.conf"
         custom_config.write_text('''# Custom Config
-CLASSROOM_URL="https://classroom.github.com/custom/test"
+ASSIGNMENT_NAME="custom-test"
 TEMPLATE_REPO_URL="https://github.com/custom/template"
 GITHUB_ORGANIZATION="custom-org"
 ASSIGNMENT_FILE="assignment.ipynb"
@@ -403,7 +398,7 @@ ASSIGNMENT_FILE="assignment.ipynb"
             config_file="custom.conf", assignment_root=assignment_dir)
 
         assert config is not None
-        assert config.classroom_url == "https://classroom.github.com/custom/test"
+        assert config.assignment_name == "custom-test"
         assert config.github_organization == "custom-org"
 
     def test_load_global_config_assignment_root_not_found(self, tmp_path):
@@ -446,7 +441,7 @@ ASSIGNMENT_FILE="assignment.ipynb"
         sub_dir.mkdir()
         config_file = sub_dir / "assignment.conf"
         config_file.write_text('''# Relative Path Config
-CLASSROOM_URL="https://classroom.github.com/relative/test"
+ASSIGNMENT_NAME="relative-test"
 TEMPLATE_REPO_URL="https://github.com/relative/template"
 GITHUB_ORGANIZATION="relative-org"
 ASSIGNMENT_FILE="assignment.ipynb"
@@ -461,7 +456,7 @@ ASSIGNMENT_FILE="assignment.ipynb"
             config = load_global_config(assignment_root=Path("subdir"))
 
             assert config is not None
-            assert config.classroom_url == "https://classroom.github.com/relative/test"
+            assert config.assignment_name == "relative-test"
             assert config.github_organization == "relative-org"
         finally:
             os.chdir(original_cwd)

@@ -15,10 +15,6 @@ import requests
 
 from ..config.global_config import get_global_config
 from ..utils import logger
-from ..utils.github_classroom_api import (
-    GitHubClassroomAPIError,
-    create_classroom_api_client,
-)
 
 
 class GitHubSecretsManager:
@@ -483,17 +479,11 @@ class GitHubSecretsManager:
             return False
 
     def _discover_repositories(self) -> List[str]:
-        """
-        Discover student repositories from GitHub Classroom assignment.
-
-        Returns:
-            List of repository URLs
-        """
+        """Discover student repositories using assignment name and organization."""
         try:
-            # Validate required configuration
-            if not self.global_config.classroom_url:
+            if not self.global_config.assignment_name:
                 logger.error(
-                    "CLASSROOM_URL not configured - cannot discover repositories"
+                    "ASSIGNMENT_NAME not configured - cannot discover repositories"
                 )
                 return []
 
@@ -503,56 +493,37 @@ class GitHubSecretsManager:
                 )
                 return []
 
-            logger.info("Starting repository auto-discovery using GitHub Classroom API")
-            logger.info(f"Classroom URL: {self.global_config.classroom_url}")
+            logger.info("Starting repository auto-discovery")
+            logger.info(f"Assignment: {self.global_config.assignment_name}")
             logger.info(f"Organization: {self.global_config.github_organization}")
 
-            # Create GitHub Classroom API client
-            try:
-                classroom_api = create_classroom_api_client(self.github_token)
-            except Exception as e:
-                logger.error(f"Failed to create GitHub Classroom API client: {e}")
-                logger.error("Ensure your GitHub token has classroom scope permissions")
-                return []
+            from ..repos.fetch import RepositoryFetcher
 
-            # Discover student repositories
-            repositories = classroom_api.discover_student_repositories(
-                classroom_url=self.global_config.classroom_url,
-                github_organization=self.global_config.github_organization,
-                exclude_template=self.global_config.exclude_instructor_repos,
+            fetcher = RepositoryFetcher()
+            repo_infos = fetcher.discover_repositories(
+                assignment_prefix=self.global_config.assignment_name,
+                organization=self.global_config.github_organization,
             )
+
+            repositories = [
+                r.clone_url or r.url for r in repo_infos if r.clone_url or r.url
+            ]
 
             if not repositories:
                 logger.warning("No student repositories found")
                 logger.info("This could be because:")
                 logger.info("  - The assignment has no student submissions yet")
-                logger.info("  - Your GitHub token lacks classroom scope permissions")
-                logger.info("  - The classroom URL or organization is incorrect")
+                logger.info("  - ASSIGNMENT_NAME or GITHUB_ORGANIZATION is incorrect")
                 return []
 
-            logger.info(f"✅ Auto-discovered {len(repositories)} student repositories")
-
-            # Log discovered repositories for debugging
-            for i, repo_url in enumerate(repositories[:5]):  # Show first 5
+            logger.info(f"Auto-discovered {len(repositories)} student repositories")
+            for i, repo_url in enumerate(repositories[:5]):
                 logger.debug(f"  {i+1}. {repo_url}")
             if len(repositories) > 5:
                 logger.debug(f"  ... and {len(repositories) - 5} more")
 
             return repositories
 
-        except GitHubClassroomAPIError as e:
-            logger.error(f"GitHub Classroom API error: {e}")
-            if e.status_code == 401:
-                logger.error(
-                    "Authentication failed - check your GitHub token permissions"
-                )
-            elif e.status_code == 403:
-                logger.error("Access denied - ensure your token has classroom scope")
-            elif e.status_code == 404:
-                logger.error(
-                    "Assignment not found - check CLASSROOM_URL and GITHUB_ORGANIZATION"
-                )
-            return []
         except Exception as e:
             logger.error(f"Unexpected error during repository discovery: {e}")
             return []
@@ -664,20 +635,16 @@ def add_secrets_to_students(
                 logger.error("GITHUB_ORGANIZATION not found in configuration")
                 return False
 
-            # Get classroom URL for future repository discovery
-            classroom_url = config.get("CLASSROOM_URL")
-            if not classroom_url:
-                logger.error("CLASSROOM_URL not found in configuration")
-                logger.info(
-                    "CLASSROOM_URL is required for student repository discovery"
-                )
+            assignment_name = config.get("ASSIGNMENT_NAME")
+            if not assignment_name:
+                logger.error("ASSIGNMENT_NAME not found in configuration")
                 return False
 
             logger.info("Configuration validated:")
             logger.info(f"  - Secret: {secret_name}")
             logger.info(f"  - Token file: {instructor_token_file}")
             logger.info(f"  - Organization: {github_org}")
-            logger.info(f"  - Classroom URL: {classroom_url}")
+            logger.info(f"  - Assignment: {assignment_name}")
 
             # Validate token file exists
             token_path = Path(instructor_token_file)

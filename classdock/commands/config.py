@@ -9,6 +9,54 @@ from ._helpers import get_global_options
 
 logger = get_logger("cli")
 
+
+def _check_token_expiration(token_data: dict) -> dict:
+    """Build expiration info from token_manager data."""
+    if not token_data:
+        return {
+            "is_valid": False,
+            "is_expired": False,
+            "error": "Token verification failed",
+        }
+    from datetime import datetime, timezone
+
+    expires_at = token_data.get("expires_at")
+    days_remaining = None
+    is_expired = False
+    if expires_at:
+        try:
+            expires_dt = datetime.fromisoformat(expires_at.replace("Z", "+00:00"))
+            now = datetime.now(timezone.utc)
+            days_remaining = (expires_dt - now).days
+            is_expired = days_remaining < 0
+        except Exception:
+            pass
+    return {
+        "is_valid": True,
+        "is_expired": is_expired,
+        "days_remaining": days_remaining,
+        "expires_at": expires_at,
+        "token_type": token_data.get("token_type", "classic"),
+    }
+
+
+def _validate_token_scopes(token_data: dict) -> dict:
+    """Build scope info from token_manager data."""
+    if not token_data:
+        return {"valid": False, "scopes": [], "has_repo": False, "has_read_org": False}
+    scopes = token_data.get("scopes", [])
+    has_repo = "repo" in scopes or any(s.startswith("contents") for s in scopes)
+    has_read_org = any(
+        s in scopes for s in ("read:org", "admin:org", "write:org", "members")
+    )
+    return {
+        "valid": True,
+        "scopes": scopes,
+        "has_repo": has_repo,
+        "has_read_org": has_read_org,
+    }
+
+
 config_app = typer.Typer(help="Configuration and token management commands")
 
 
@@ -63,7 +111,6 @@ def config_set_token(
     setup_logging()
 
     try:
-        from ..utils.github_classroom_api import GitHubClassroomAPI
         from ..utils.token_manager import GitHubTokenManager
 
         logger.info("🔑 Updating GitHub Personal Access Token...")
@@ -83,9 +130,14 @@ def config_set_token(
 
         if not force:
             logger.info("Validating token...")
-            api_client = GitHubClassroomAPI(token)
+            _token_data = GitHubTokenManager()._verify_and_get_token_info(token)
+            if not _token_data:
+                logger.error(
+                    "❌ Token validation failed: unable to verify token with GitHub API"
+                )
+                raise typer.Exit(1)
 
-            expiration_info = api_client.check_token_expiration()
+            expiration_info = _check_token_expiration(_token_data)
 
             if expiration_info.get("is_expired"):
                 logger.error("❌ Token has already expired!")
@@ -113,7 +165,7 @@ def config_set_token(
             else:
                 logger.info("✓ Token is valid (classic token with no expiration)")
 
-            scope_info = api_client.validate_token_scopes()
+            scope_info = _validate_token_scopes(_token_data)
 
             if not scope_info.get("valid"):
                 logger.error("❌ Token validation failed")
@@ -219,7 +271,6 @@ def config_check_token(ctx: typer.Context):
         return
 
     try:
-        from ..utils.github_classroom_api import GitHubClassroomAPI
         from ..utils.token_manager import GitHubTokenManager
 
         logger.info("🔍 Checking GitHub token status...")
@@ -237,10 +288,15 @@ def config_check_token(ctx: typer.Context):
             logger.error("Generate tokens at: https://github.com/settings/tokens")
             raise typer.Exit(1)
 
-        api_client = GitHubClassroomAPI(token)
+        _token_data = token_manager._verify_and_get_token_info(token)
+        if not _token_data:
+            logger.error(
+                "❌ Token validation failed: unable to verify token with GitHub API"
+            )
+            raise typer.Exit(1)
 
         logger.info("📅 Token Expiration:")
-        expiration_info = api_client.check_token_expiration()
+        expiration_info = _check_token_expiration(_token_data)
 
         if expiration_info.get("is_expired"):
             expires_at = expiration_info.get("expires_at")
@@ -343,7 +399,7 @@ def config_check_token(ctx: typer.Context):
         logger.info("")
 
         logger.info("🔐 Token Scopes:")
-        scope_info = api_client.validate_token_scopes()
+        scope_info = _validate_token_scopes(_token_data)
 
         if not scope_info.get("valid"):
             logger.error("  ❌ Could not validate token scopes")

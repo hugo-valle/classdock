@@ -141,22 +141,6 @@ class TestReposServiceDI:
         fake_fetcher.fetch_all_repositories.assert_called_once()
         assert ok
 
-    def test_push_manager_factory_is_called(self):
-        """push_manager_factory is used instead of ClassroomPushManager."""
-        from classdock.services.repos_service import ReposService
-        from classdock.assignments.push_manager import PushResult
-
-        fake_manager = MagicMock()
-        fake_manager.execute_push_workflow.return_value = (PushResult.SUCCESS, "pushed")
-        factory = MagicMock(return_value=fake_manager)
-
-        service = ReposService(push_manager_factory=factory)
-        ok, _ = service.push()
-
-        factory.assert_called_once()
-        fake_manager.execute_push_workflow.assert_called_once()
-        assert ok
-
     def test_cycle_manager_factory_is_called(self):
         """cycle_manager_factory is used instead of CycleCollaboratorManager."""
         from classdock.services.repos_service import ReposService
@@ -180,7 +164,6 @@ class TestReposServiceDI:
 
         service = ReposService()
         assert service._fetcher_factory is None
-        assert service._push_manager_factory is None
         assert service._cycle_manager_factory is None
 
 

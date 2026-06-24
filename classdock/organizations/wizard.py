@@ -28,7 +28,6 @@ from rich.table import Table
 from rich.text import Text
 
 from ..utils.ui_components import print_error, print_status, print_success
-from .classroom import ClassroomManager
 from .manager import OrganizationManager
 from .models import Organization, SetupResult, TemplateRepo, WorkspaceFolder
 from .templates import TemplateManager
@@ -131,12 +130,7 @@ class OrganizationSetupWizard:
                 repos=selected_repos,
             )
 
-        # Step 9 — classroom guidance
-        self._step_classroom_guidance(
-            org_name, org_folder=org_folder, source_org=source_org
-        )
-
-        # Step 10 — generate assignment.conf
+        # Step 9 — generate assignment.conf
         self._step_generate_config(org_folder, org_name, github_org)
 
         console.print()
@@ -182,7 +176,8 @@ class OrganizationSetupWizard:
             ("   • Create a local semester org folder\n", "white"),
             ("   • Clone selected templates locally\n", "white"),
             ("   • Guide you to create the GitHub organization\n", "white"),
-            ("   • Fork templates into the new org as GitHub templates\n\n", "white"),
+            ("   • Fork templates into the new org as GitHub templates\n", "white"),
+            ("   • Generate an assignment.conf starter file\n\n", "white"),
             ("📋 You'll need:\n", "bold blue"),
             ("   • A master template folder with cloned assignment repos\n", "white"),
             ("   • New organization name (e.g., soc-cs3030-valle-su26)\n", "white"),
@@ -571,159 +566,6 @@ class OrganizationSetupWizard:
         )
         return result
 
-    def _step_classroom_guidance(
-        self,
-        org_name: str,
-        org_folder: Optional[WorkspaceFolder] = None,
-        source_org: Optional[str] = None,
-    ) -> None:
-        """
-        Guide the instructor through GitHub Classroom setup.
-
-        If the source org has an accessible classroom, offer to pre-populate
-        a clone checklist.  Otherwise fall back to static guidance.
-        """
-        # Try to find a source classroom to clone from
-        source_classroom_id: Optional[int] = None
-        if source_org and self.token:
-            try:
-                classroom_mgr = ClassroomManager(token=self.token)
-                source_classrooms = classroom_mgr.list_classrooms_for_org(source_org)
-                if source_classrooms:
-                    sc = source_classrooms[0]
-                    console.print(
-                        f"\nFound classroom [cyan]{sc.name}[/cyan] in source org "
-                        f"[bold]{source_org}[/bold]."
-                    )
-                    clone_it = typer.confirm(
-                        "Generate assignment checklist from this classroom?",
-                        default=True,
-                    )
-                    if clone_it:
-                        source_classroom_id = sc.id
-            except Exception as exc:
-                logger.debug("Could not check source classrooms: %s", exc)
-
-        if source_classroom_id and self.token:
-            self._generate_classroom_checklist(
-                source_classroom_id=source_classroom_id,
-                target_org=org_name,
-                org_folder=org_folder,
-            )
-        else:
-            # Static fallback guidance
-            console.print(
-                Panel(
-                    "[bold]GitHub Classroom — Manual Setup Required[/bold]\n\n"
-                    "The GitHub Classroom API does not support classroom creation.\n"
-                    "Please follow these steps:\n\n"
-                    f"  1. Go to [link=https://classroom.github.com/classrooms/new]"
-                    f"https://classroom.github.com/classrooms/new[/link]\n"
-                    f"  2. Select organization: [cyan]{org_name}[/cyan]\n"
-                    f"  3. Name your classroom (e.g., 'CS3030 Fall 2026')\n"
-                    f"  4. Click 'Create classroom'\n"
-                    f"  5. Create assignments using the template repos now in '{org_name}'\n\n"
-                    f"  Once done, run: [bold]classdock assignments setup[/bold]\n\n"
-                    f"  To clone an existing classroom structure later:\n"
-                    f"  [bold]classdock organizations classroom clone <ID> {org_name}[/bold]",
-                    title="Next Steps",
-                    border_style="blue",
-                )
-            )
-
-    def _generate_classroom_checklist(
-        self,
-        source_classroom_id: int,
-        target_org: str,
-        org_folder: Optional[WorkspaceFolder] = None,
-    ) -> None:
-        """Clone starter repos from a source classroom and generate a setup checklist."""
-        from pathlib import Path as _Path
-
-        classroom_mgr = ClassroomManager(token=self.token)
-        assignments = classroom_mgr.list_assignments(source_classroom_id)
-        if not assignments:
-            console.print("[yellow]No assignments found in source classroom.[/yellow]")
-            return
-
-        # Find target classroom (may not exist yet)
-        target_classrooms = classroom_mgr.list_classrooms_for_org(target_org)
-        target_classroom_id = target_classrooms[0].id if target_classrooms else None
-
-        rows = []
-        for a in assignments:
-            starter = a.starter_code_repo
-            cloned_status = "—"
-            new_repo: Optional[str] = None
-
-            if starter and not self.dry_run:
-                owner, _, repo_name = starter.partition("/")
-                try:
-                    result = self._template_manager.copy_template_repository(
-                        source_owner=owner,
-                        repo_name=repo_name,
-                        target_org=target_org,
-                    )
-                    new_repo = f"{target_org}/{repo_name}"
-                    cloned_status = "✓ cloned" if result else "✗ failed"
-                except Exception:
-                    new_repo = f"{target_org}/{repo_name}"
-                    cloned_status = "↩ exists"
-            elif starter:
-                _, _, repo_name = starter.partition("/")
-                new_repo = f"{target_org}/{repo_name}"
-                cloned_status = "[dry-run]"
-
-            create_url = (
-                ClassroomManager.assignment_creation_url(target_classroom_id, new_repo)
-                if target_classroom_id
-                else ClassroomManager.new_classroom_url()
-            )
-            rows.append((a.title, a.type, a.deadline or "—", cloned_status, create_url))
-
-        # Display table
-        table = Table(title=f"Assignment Checklist → {target_org}", show_header=True)
-        table.add_column("Assignment", style="cyan")
-        table.add_column("Type", justify="center")
-        table.add_column("Deadline")
-        table.add_column("Starter Repo", justify="center")
-        table.add_column("Create URL")
-        for title, atype, deadline, status, url in rows:
-            table.add_row(title, atype, deadline, status, url)
-        console.print(table)
-
-        # Write classroom_setup.md
-        ws_path = org_folder.path if org_folder else _Path.cwd()
-        ws_path.mkdir(parents=True, exist_ok=True)
-        md_path = ws_path / "classroom_setup.md"
-        if not self.dry_run:
-            lines = [
-                f"# Classroom Setup → {target_org}\n\n",
-                "Create the following assignments in your GitHub Classroom.\n\n",
-                "| Assignment | Type | Deadline | Create URL |\n",
-                "|---|---|---|---|\n",
-            ]
-            for title, atype, deadline, _, url in rows:
-                lines.append(f"| {title} | {atype} | {deadline} | {url} |\n")
-            md_path.write_text("".join(lines), encoding="utf-8")
-
-        console.print(
-            Panel(
-                "[bold]Next steps:[/bold]\n\n"
-                + (
-                    f"  A classroom already exists for {target_org}.\n"
-                    f"  Use the Create URLs above to add each assignment.\n"
-                    if target_classroom_id
-                    else f"  1. Create a classroom for [cyan]{target_org}[/cyan]:\n"
-                    f"     {ClassroomManager.new_classroom_url()}\n"
-                    f"  2. Use the Create URLs in the checklist above.\n"
-                )
-                + (f"\n  Checklist saved to: {md_path}" if not self.dry_run else ""),
-                title="GitHub Classroom",
-                border_style="blue",
-            )
-        )
-
     def _step_generate_config(
         self,
         org_folder: WorkspaceFolder,
@@ -744,12 +586,10 @@ class OrganizationSetupWizard:
             "# ClassDock Assignment Configuration\n"
             f"# Generated for organization: {org_name}\n\n"
             f"GITHUB_ORGANIZATION={org_name}\n"
-            "CLASSROOM_URL=\n"
-            "TEMPLATE_REPO_URL=\n"
             "ASSIGNMENT_NAME=\n"
+            "TEMPLATE_REPO_URL=\n"
             "STUDENT_FILES=\n\n"
             "# Workflow\n"
-            "STEP_SYNC_TEMPLATE=true\n"
             "STEP_DISCOVER_REPOS=true\n"
             "STEP_MANAGE_SECRETS=false\n"
             "STEP_ASSIST_STUDENTS=false\n"
