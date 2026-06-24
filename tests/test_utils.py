@@ -262,9 +262,9 @@ class TestInputHandlers:
 
     def test_validators(self):
         """Test validation functions."""
-        # URL validation
-        assert Validators.validate_url("https://github.com/user/repo") is True
-        assert Validators.validate_url("invalid-url") is False
+        # URL validation — returns (bool, str)
+        assert Validators.validate_url("https://github.com/user/repo")[0] is True
+        assert Validators.validate_url("invalid-url")[0] is False
 
         # Organization validation
         assert Validators.validate_organization("valid-org") is True

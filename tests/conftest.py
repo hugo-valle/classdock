@@ -18,14 +18,12 @@ from classdock.config.loader import ConfigLoader
 def test_config_data() -> Dict[str, Any]:
     """Provide test configuration data."""
     return {
-        'CLASSROOM_URL': 'https://classroom.github.com/classrooms/test/assignments/test',
+        'ASSIGNMENT_NAME': 'test-assignment',
         'TEMPLATE_REPO_URL': 'https://github.com/test/template',
         'GITHUB_ORGANIZATION': 'test-org',
-        'CLASSROOM_REPO_URL': 'https://github.com/test-org/test-assignment',
         'ASSIGNMENT_FILE': 'assignment.ipynb',  # Required field
         'SECRETS_JSON': '{"TEST_SECRET": "test-value"}',
         'INSTRUCTOR_HANDLE': 'instructor',
-        'ASSIGNMENT_NAME': 'test-assignment',
         'SEMESTER': 'fall2025'
     }
 

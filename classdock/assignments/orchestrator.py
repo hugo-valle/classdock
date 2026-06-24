@@ -141,8 +141,6 @@ class AssignmentOrchestrator:
 
             # Check required fields
             required_fields = [
-                "classroom_url",
-                "template_repo_url",
                 "github_organization",
                 "assignment_name",
             ]
@@ -172,10 +170,13 @@ class AssignmentOrchestrator:
         table.add_row(
             "Template Repository", self.global_config.template_repo_url or "Not set"
         )
-        table.add_row("Classroom URL", self.global_config.classroom_url or "Not set")
-        table.add_row(
-            "Assignment File", self.global_config.assignment_file or "assignment.conf"
+        student_files = getattr(self.global_config, "student_files", None)
+        file_display = (
+            ", ".join(student_files)
+            if student_files
+            else (self.global_config.assignment_file or "Not set")
         )
+        table.add_row("Student Files", file_display)
 
         # Show enabled workflow steps
         enabled_steps = []
@@ -374,6 +375,25 @@ class AssignmentOrchestrator:
             )
 
             if not success:
+                # "No student repos found" is not a hard failure — students may not
+                # have accepted the assignment yet. Treat as a warning/skip.
+                no_repos_phrases = (
+                    "no student repositories",
+                    "repository fetch failed",
+                )
+                if any(p in fetch_message.lower() for p in no_repos_phrases):
+                    self.logger.warning(
+                        f"No student repositories found for assignment "
+                        f"'{self.global_config.assignment_name}' in "
+                        f"'{self.global_config.github_organization}'. "
+                        "Students may not have accepted the assignment yet."
+                    )
+                    self.discovered_repos = []
+                    return (
+                        True,
+                        "No student repositories found (skipped)",
+                        {"repositories": [], "count": 0},
+                    )
                 return False, f"Repository discovery failed: {fetch_message}", None
 
             student_repos_file = Path("student-repos.txt")

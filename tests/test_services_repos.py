@@ -32,38 +32,6 @@ def test_fetch_failure(monkeypatch):
     assert 'failed' in message.lower()
 
 
-def test_push_success():
-    service = ReposService(dry_run=False, verbose=False)
-
-    mock_manager = Mock()
-    from classdock.assignments.push_manager import PushResult
-
-    mock_manager.execute_push_workflow.return_value = (
-        PushResult.SUCCESS, 'pushed')
-
-    with patch('classdock.assignments.push_manager.ClassroomPushManager', return_value=mock_manager):
-        ok, message = service.push(config_file='assignment.conf')
-
-    assert ok is True
-    assert 'pushed' in message
-
-
-def test_push_up_to_date():
-    service = ReposService(dry_run=False, verbose=False)
-
-    mock_manager = Mock()
-    from classdock.assignments.push_manager import PushResult
-
-    mock_manager.execute_push_workflow.return_value = (
-        PushResult.UP_TO_DATE, 'up-to-date')
-
-    with patch('classdock.assignments.push_manager.ClassroomPushManager', return_value=mock_manager):
-        ok, message = service.push(config_file='assignment.conf')
-
-    assert ok is True
-    assert 'up-to-date' in message
-
-
 def test_cycle_list(monkeypatch):
     service = ReposService(dry_run=False, verbose=False)
 

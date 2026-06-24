@@ -67,7 +67,18 @@ class SecretsService:
                     return False, "Global configuration not loaded"
 
                 if not global_config.secrets_config:
-                    return False, "No secrets configuration found in assignment.conf"
+                    return (
+                        False,
+                        "No secrets configuration found in assignment.conf.\n"
+                        "Add a SECRETS_CONFIG block to your assignment.conf, for example:\n\n"
+                        '  SECRETS_CONFIG="\n'
+                        "  MY_SECRET_TOKEN:Token description:true\n"
+                        '  "\n\n'
+                        "Each line: SECRET_NAME:description:validate_format\n"
+                        "  validate_format=true  → expects a GitHub token (ghp_...)\n"
+                        "  validate_format=false → any string value\n\n"
+                        "Also ensure STEP_MANAGE_SECRETS=true in the WORKFLOW CONFIGURATION section.",
+                    )
 
                 from ..secrets.github_secrets import GitHubSecretsManager
 

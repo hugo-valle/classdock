@@ -96,8 +96,8 @@ class ConfigLoader:
         Example:
             >>> loader = ConfigLoader(Path("assignment.conf"))
             >>> config = loader.load()
-            >>> print(config['CLASSROOM_URL'])
-            'https://classroom.github.com/assignment-id'
+            >>> print(config['ASSIGNMENT_NAME'])
+            'python-basics'
         """
         if not self.config_path or not self.config_path.exists():
             logger.warning("No configuration file found")
@@ -149,7 +149,7 @@ class ConfigLoader:
 
         Example:
             >>> loader = ConfigLoader()
-            >>> url = loader.get_value('CLASSROOM_URL', 'https://default.example.com')
+            >>> name = loader.get_value('ASSIGNMENT_NAME', 'python-basics')
             >>> timeout = loader.get_value('TIMEOUT', 30)
         """
         config = self.load()
@@ -184,7 +184,7 @@ class ConfigLoader:
         Example:
             >>> loader = ConfigLoader(Path("assignment.conf"))
             >>> success = loader.update_config({
-            ...     'CLASSROOM_URL': 'https://classroom.github.com/new-assignment',
+            ...     'ASSIGNMENT_NAME': 'python-basics',
             ...     'TIMEOUT': '60'
             ... })
             >>> print(f"Update {'succeeded' if success else 'failed'}")

@@ -33,8 +33,6 @@ class GlobalConfig:
     """Global configuration container for all ClassDock settings."""
 
     # Assignment Information
-    classroom_url: Optional[str] = None
-    classroom_repo_url: Optional[str] = None
     template_repo_url: Optional[str] = None
     github_organization: Optional[str] = None
     assignment_name: Optional[str] = None
@@ -241,8 +239,6 @@ class ConfigurationManager:
 
         config = GlobalConfig(
             # Assignment Information
-            classroom_url=raw_config.get("CLASSROOM_URL"),
-            classroom_repo_url=raw_config.get("CLASSROOM_REPO_URL"),
             template_repo_url=raw_config.get("TEMPLATE_REPO_URL"),
             github_organization=raw_config.get("GITHUB_ORGANIZATION"),
             assignment_name=raw_config.get("ASSIGNMENT_NAME"),
