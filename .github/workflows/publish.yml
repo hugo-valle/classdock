@@ -43,11 +43,23 @@ jobs:
         COMMIT_MSG=$(git log -1 --pretty=%B)
         echo "Commit message: $COMMIT_MSG"
         
-        # Check if this is a merge commit from a release or hotfix branch
-        if [[ $COMMIT_MSG =~ (from .*/(release|hotfix)/) ]] || [[ $COMMIT_MSG =~ "Merge branch '(release|hotfix)/" ]]; then
+        # Check if this is a merge commit from a release or hotfix branch.
+        # Matches:
+        #   - Default GitHub PR merge: "Merge pull request #N from org/release/vX.Y.Z"
+        #   - Local merge:             "Merge branch 'release/vX.Y.Z'"
+        #   - Custom PR subject:       "Release vX.Y.Z" or "Hotfix vX.Y.Z"
+        if [[ $COMMIT_MSG =~ (from .*/(release|hotfix)/) ]] || \
+           [[ $COMMIT_MSG =~ "Merge branch '"(release|hotfix)"/" ]] || \
+           [[ $COMMIT_MSG =~ ^[Rr]elease\ v?[0-9] ]] || \
+           [[ $COMMIT_MSG =~ ^[Hh]otfix\ v?[0-9] ]]; then
           echo "is-release=true" >> $GITHUB_OUTPUT
-          # Extract branch name from commit message
-          BRANCH_NAME=$(echo "$COMMIT_MSG" | grep -oE "(release|hotfix)/[^'\"]*" | head -1)
+          # Try to extract branch name from commit message
+          BRANCH_NAME=$(echo "$COMMIT_MSG" | grep -oE "(release|hotfix)/[^'\" ]+" | head -1)
+          if [[ -z "$BRANCH_NAME" ]]; then
+            # Fall back: derive branch name from pyproject.toml version
+            VERSION=$(grep -E '^version\s*=' pyproject.toml | grep -oE '[0-9]+\.[0-9]+\.[0-9]+[a-zA-Z0-9.]*' | head -1)
+            BRANCH_NAME="release/v$VERSION"
+          fi
           echo "branch-name=$BRANCH_NAME" >> $GITHUB_OUTPUT
           # Determine release type
           if [[ $BRANCH_NAME == release/* ]]; then
