@@ -177,6 +177,11 @@ If issues are found:
 - **Features**: Automated release workflow
 - **PyPI**: https://pypi.org/project/classdock/0.4.1/
 
+### v0.4.2 (June 24, 2026)
+- **Status**: ✅ Published via GitHub Actions
+- **Features**: Automated release workflow
+- **PyPI**: https://pypi.org/project/classdock/0.4.2/
+
 ### Future Releases
 - `v3.0.0-alpha.2`: API improvements and additional testing
 - `v3.0.0-beta.1`: Feature complete, stability testing
