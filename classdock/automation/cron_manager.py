@@ -1,5 +1,5 @@
 """
-Cron job management for automated GitHub Classroom workflows.
+Cron job management for automated workflows.
 
 This module provides Python-based cron job management,
 handling cron job installation, removal, status checking, and validation
@@ -93,7 +93,7 @@ class CronStatus:
 
 
 class CronManager:
-    """Manages cron jobs for automated GitHub Classroom workflows."""
+    """Manages cron jobs for automated workflows."""
 
     def __init__(self, global_config: Optional[GlobalConfig] = None):
         """Initialize cron manager with configuration."""

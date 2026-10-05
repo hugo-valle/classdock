@@ -1,5 +1,5 @@
 """
-UI Components for the GitHub Classroom Setup Wizard.
+UI Components for the Assignment Setup Wizard.
 
 This module provides consistent user interface components including
 colors, progress indicators, and display screens. Uses Rich for output.
@@ -174,10 +174,10 @@ def show_completion(config_values: dict, token_files: dict) -> None:
 def show_help():
     """Show help information."""
     help_text = """
-GitHub Classroom Assignment Setup Wizard
+Assignment Setup Wizard
 
 DESCRIPTION:
-    Interactive setup wizard for instructors to configure a new GitHub Classroom
+    Interactive setup wizard for instructors to configure a new
     assignment with automated tools. Creates configuration files, sets up secure
     token storage, and configures .gitignore for instructor-only files.
 

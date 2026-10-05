@@ -690,7 +690,7 @@ GITHUB_ORGANIZATION=test-org"""
 
             # Verify proper format
             full_content = ''.join(written_content)
-            assert '# GitHub Classroom Assignment Configuration' in full_content
+            assert '# ClassDock Assignment Configuration' in full_content
             assert '# Updated by ConfigLoader' in full_content
             assert 'CLASSROOM_URL="https://classroom.github.com/test"' in full_content
             assert 'NEW_KEY="new_value"' in full_content

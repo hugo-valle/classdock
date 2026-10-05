@@ -49,8 +49,8 @@ def automation_cron_install(
     """
     Install cron job for automated workflow steps.
 
-    Install cron jobs to automate GitHub Classroom workflow operations like
-    template synchronization, secret management, and repository access cycling.
+    Install cron jobs to automate workflow operations like
+    repository discovery, secret management, and repository access cycling.
 
     Supports universal options: --verbose, --dry-run
 
@@ -310,7 +310,6 @@ def automation_cron_sync(
     cron job automation.
 
     Available workflow steps:
-    - sync: Synchronize template with classroom repository
     - discover: Discover and update student repositories
     - secrets: Manage repository secrets
     - assist: Provide automated student assistance

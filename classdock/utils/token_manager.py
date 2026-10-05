@@ -350,9 +350,11 @@ class GitHubTokenManager:
                     "company": user_data.get("company"),
                     "public_repos": user_data.get("public_repos"),
                     "private_repos": user_data.get("total_private_repos"),
-                    "plan": user_data.get("plan", {}).get("name")
-                    if user_data.get("plan")
-                    else None,
+                    "plan": (
+                        user_data.get("plan", {}).get("name")
+                        if user_data.get("plan")
+                        else None
+                    ),
                 },
                 # API response headers for debugging
                 "api_headers": {
@@ -682,7 +684,7 @@ class GitHubTokenManager:
             )
 
     def validate_token_permissions(self, token):
-        """Validate that token has required permissions for classroom operations."""
+        """Validate that token has required permissions for ClassDock operations."""
         required_scopes = ["repo", "read:org"]
 
         token_data = self._verify_and_get_token_info(token)

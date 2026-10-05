@@ -1,5 +1,5 @@
 """
-Repository Collaborator Management for GitHub Classroom Operations.
+Repository Collaborator Management for GitHub Operations.
 
 This module handles:
 - Collaborator permission management and access control for student repositories

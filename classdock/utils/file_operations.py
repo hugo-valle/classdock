@@ -1,5 +1,5 @@
 """
-File Operations for the GitHub Classroom Setup Wizard.
+File Operations for the Assignment Setup Wizard.
 
 This module handles file creation, token file management, and .gitignore updates.
 """
@@ -89,7 +89,7 @@ GITHUB_TOKEN={github_token}
         if "# Instructor-only files" not in gitignore_content:
             gitignore_addition = """
 # =============================================================================
-# Instructor-only files (GitHub Classroom automation)
+# Instructor-only files (ClassDock automation)
 # =============================================================================
 # Token files for GitHub API access
 *token*.txt

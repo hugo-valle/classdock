@@ -1,7 +1,7 @@
 """
 ClassDock - Python CLI Package
 
-A comprehensive automation suite for managing Classroom assignments
+A comprehensive automation suite for managing assignments in GitHub-based courses
 with advanced workflow orchestration, repository discovery, and secret management capabilities.
 """
 

@@ -1,5 +1,5 @@
 """
-Automated Workflow Cron Job Manager for GitHub Classroom Assignments.
+Automated Workflow Cron Job Manager for Assignments.
 
 This module provides automated synchronization and workflow execution designed
 to run as scheduled tasks (cron jobs) for assignment management workflows.

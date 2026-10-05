@@ -1,7 +1,7 @@
 """
-Cycle Collaborator Management for GitHub Classroom Operations.
+Cycle Collaborator Management for GitHub Operations.
 
-This module provides comprehensive collaborator permission cycling to fix GitHub Classroom
+This module provides comprehensive collaborator permission cycling to fix repository
 access issues. It intelligently detects when cycling is needed and safely restores
 student access to their repositories.
 

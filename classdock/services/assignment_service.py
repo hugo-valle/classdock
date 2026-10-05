@@ -364,7 +364,7 @@ class AssignmentService:
 
         Args:
             repo_url: URL of the student repository to help
-            one_student: Use template repository directly instead of classroom
+            one_student: Use template repository directly instead of the student repository
             auto_confirm: Skip confirmation prompts
             config_file: Path to configuration file
 
@@ -374,7 +374,7 @@ class AssignmentService:
         try:
             # Early return for dry run mode
             if self.dry_run:
-                mode = "Template direct" if one_student else "Classroom"
+                mode = "Template direct" if one_student else "Student repository"
                 return True, f"DRY RUN: Would help student {repo_url} (Mode: {mode})"
 
             from ..assignments.student_helper import (

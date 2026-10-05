@@ -2,14 +2,13 @@
 Assignment Orchestrator - Python Implementation
 
 This module provides a comprehensive Python implementation
-that coordinates the complete workflow for managing GitHub Classroom assignments.
+that coordinates the complete workflow for managing assignments.
 
 Main workflow steps:
-1. Template synchronization with classroom
-2. Student repository discovery
-3. Secret management across repositories
-4. Optional student assistance
-5. Optional collaborator cycling
+1. Student repository discovery
+2. Secret management across repositories
+3. Optional student assistance
+4. Optional collaborator cycling
 
 Author: ClassDock Team
 """
@@ -93,7 +92,7 @@ class WorkflowCommand:
 
 class AssignmentOrchestrator:
     """
-    Main workflow coordinator for GitHub Classroom assignments.
+    Main workflow coordinator for assignments.
 
     Orchestrates discovery, secrets, and assistance steps
     using the Python implementations we've already created.
@@ -315,7 +314,7 @@ class AssignmentOrchestrator:
     # ------------------------------------------------------------------
 
     def step_discover_repos(self, dry_run: bool = False) -> StepResult:
-        """Step 2: Discover student repositories using GitHub Classroom API."""
+        """Step 2: Discover student repositories."""
 
         def body(dry_run: bool) -> Tuple[bool, str, Optional[Dict]]:
             if dry_run:

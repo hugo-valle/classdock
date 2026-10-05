@@ -1,5 +1,5 @@
 """
-Configuration File Loader for the GitHub Classroom Setup Wizard.
+Configuration File Loader for the Assignment Setup Wizard.
 
 This module handles the loading, parsing, and updating of assignment configuration files
 in shell variable format. It provides robust parsing capabilities with error handling
@@ -16,7 +16,7 @@ logger = get_logger("config.loader")
 
 class ConfigLoader:
     """
-    ConfigLoader is responsible for loading and parsing configuration files for GitHub Classroom assignments.
+    ConfigLoader is responsible for loading and parsing configuration files for assignments.
 
     This class provides methods to read configuration files in shell variable format (KEY=value),
     parse their contents while handling comments and various quote styles, retrieve individual
@@ -202,7 +202,7 @@ class ConfigLoader:
 
             # Write back to file
             with open(self.config_path, "w") as f:
-                f.write("# GitHub Classroom Assignment Configuration\n")
+                f.write("# ClassDock Assignment Configuration\n")
                 f.write("# Updated by ConfigLoader\n\n")
 
                 for key, value in existing_config.items():
