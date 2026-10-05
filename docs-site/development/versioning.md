@@ -97,7 +97,7 @@ Our versioning follows [PEP 440](https://peps.python.org/pep-0440/) to ensure:
 
 ## Release Process
 
-Work happens on short-lived topic branches merged into `main`. A release is a GitHub Release whose tag matches the version in `pyproject.toml`; publishing it runs `release.yml`, which tests, builds and publishes to PyPI. See the [release steps in the contributing guide](https://github.com/hugo-valle/classdock/blob/main/docs/CONTRIBUTING.md#-releasing).
+Work happens on short-lived topic branches merged into `main`. A release is a GitHub Release whose tag matches the version in `pyproject.toml`; publishing it runs `release.yml`, which tests, builds and publishes to PyPI. See the [release steps in the contributing guide](https://github.com/hugo-valle/classdock/blob/main/CONTRIBUTING.md#releasing).
 
 ## Version Checking
 

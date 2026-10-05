@@ -21,7 +21,7 @@ Welcome to the documentation for ClassDock - a modern Python CLI tool for automa
 ## 🔧 Development
 
 ### Project Information
-- **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to the project
+- **[Contributing Guide](../CONTRIBUTING.md)** - How to contribute to the project
 - **[Development Setup](../README.md#development)** - Local development environment setup
 
 ### Release & Publishing

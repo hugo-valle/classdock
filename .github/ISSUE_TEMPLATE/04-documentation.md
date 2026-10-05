@@ -109,7 +109,7 @@ Describe the gap between current and needed documentation.
 
 **Files to Update/Create:**
 - [ ] `README.md`
-- [ ] `docs/CONTRIBUTING.md`
+- [ ] `CONTRIBUTING.md`
 - [ ] `docs/CHANGELOG.md`
 - [ ] CLI help text (`cli.py`)
 - [ ] Function docstrings
