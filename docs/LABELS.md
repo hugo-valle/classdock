@@ -23,7 +23,7 @@ These labels are automatically applied by issue templates:
 
 ### Priority Labels
 
-Use these to indicate issue priority (referenced in hotfix template):
+Use these to indicate issue priority:
 
 | Label | Description | Color | When to Use |
 |-------|-------------|-------|-------------|

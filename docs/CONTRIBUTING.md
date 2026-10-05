@@ -236,6 +236,7 @@ Versions follow [PEP 440](https://peps.python.org/pep-0440/) semantic versioning
 3. **Create the GitHub Release** with a bare semver tag (no `v` prefix):
    ```bash
    gh release create 1.2.3 --generate-notes            # add --draft to review notes first
+   gh release create 1.3.0a1 --generate-notes --prerelease   # pre-releases
    ```
 4. **Publishing the release** runs `.github/workflows/release.yml`. It fails if the tag doesn't match `pyproject.toml`, then runs the tests, builds with Poetry and publishes to PyPI through trusted publishing (OIDC, no API tokens).
 
