@@ -4,9 +4,7 @@
 
 This guide provides comprehensive documentation for automating QA functional tests in the `classdock` project. The QA test automation infrastructure enables running functional tests individually, in groups, or as complete test suites with flexible orchestration options.
 
-**Relationship to QA_TESTING_GUIDE.md:**
-- **QA_TESTING_GUIDE.md**: Manual testing guide focused on test development, fixtures, patterns, and execution
-- **QA_AUTOMATION_GUIDE.md**: Automation guide focused on orchestration, CI/CD integration, and batch execution
+**Relationship to the testing guide:** the [testing guide](../../docs-site/development/testing.md) covers how to run and write tests; this guide covers orchestration, CI/CD integration, and batch execution of the QA suite.
 
 **Key Features:**
 - 🎯 **Modular Execution**: Run individual test suites or complete QA test battery
@@ -123,7 +121,6 @@ test_project_repos/
 │       ├── test_assignment_config.conf # Test configs
 │       └── test_student_lists/        # Student fixtures
 └── docs/
-    ├── QA_TESTING_GUIDE.md     # Manual testing guide
     └── QA_AUTOMATION_GUIDE.md  # This automation guide
 ```
 
@@ -695,9 +692,8 @@ vim docs/QA_AUTOMATION_GUIDE.md
 
 ## Related Documentation
 
-- **[QA_TESTING_GUIDE.md](QA_TESTING_GUIDE.md)**: Manual testing guide for test development
+- **[Testing guide](../../docs-site/development/testing.md)**: Contributor testing guide
 - **[QA_TEST_CERTIFICATION_RESULTS.md](QA_TEST_CERTIFICATION_RESULTS.md)**: Latest test certification results
-- **[TESTING.md](TESTING.md)**: Overall testing strategy and architecture
 - **[README.md](../README.md)**: Main project documentation with quick start
 
 ---

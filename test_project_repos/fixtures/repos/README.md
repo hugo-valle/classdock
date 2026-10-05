@@ -321,7 +321,7 @@ classdock repos fetch --config new_config.conf --dry-run
 
 ## Related Documentation
 
-- **`docs/QA_TESTING_GUIDE.md`** - Comprehensive QA testing guide for repos commands (lines 971-1150)
+- **`docs-site/development/testing.md`** - Contributor testing guide
 - **`test_project_repos/qa_tests/test_repos_commands.sh`** - Main test suite using these fixtures
 - **`test_project_repos/lib/test_helpers.sh`** - Test helper functions and assertions
 - **`test_project_repos/lib/mock_helpers.sh`** - Mocking utilities for GitHub API and file system

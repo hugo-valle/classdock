@@ -38,7 +38,7 @@ click = ">=8.0.0,<8.2.0"      # Must be compatible with typer
 
 - `docs-site/development/architecture.md` - Typer-based command structure
 - `docs-site/development/error-handling.md` - Error handling system
-- `docs/TESTING.md` - Testing framework and patterns
+- `docs-site/development/testing.md` - Testing framework and patterns
 - `docs-site/workflows/roster-sync.md` - Roster management and sync integration guide
 
 ## Agent skills

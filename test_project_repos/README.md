@@ -8,7 +8,6 @@ This directory contains comprehensive testing tools and documentation for valida
 test_project_repos/
 ├── README.md                    # This file - overview and usage
 ├── docs/                        # Comprehensive documentation
-│   ├── TESTING_GUIDE.md         # Detailed testing procedures (430+ lines)
 │   ├── TEST_SCENARIOS.md        # Test scenario documentation (320+ lines)
 │   └── TROUBLESHOOTING.md       # Issue resolution guide (490+ lines)
 ├── scripts/                     # Test automation scripts (all executable)
@@ -181,7 +180,7 @@ cd ../scripts
 - **Reports**: `reports/` (Markdown, HTML, JUnit XML formats)
 
 **Documentation:**
-- **[QA_TESTING_GUIDE.md](docs/QA_TESTING_GUIDE.md)**: Manual testing guide for test development
+- **[Testing guide](../docs-site/development/testing.md)**: The single contributor testing guide (unit and E2E tiers)
 - **[QA_AUTOMATION_GUIDE.md](docs/QA_AUTOMATION_GUIDE.md)**: Automation guide for CI/CD integration
 - **[QA_TEST_CERTIFICATION_RESULTS.md](docs/QA_TEST_CERTIFICATION_RESULTS.md)**: Latest test results
 
@@ -300,9 +299,8 @@ To add new test scenarios:
 
 ## 📚 Documentation
 
-- [`docs/TESTING_GUIDE.md`](docs/TESTING_GUIDE.md) - Comprehensive testing documentation
+- [Testing guide](../docs-site/development/testing.md) - The single contributor testing guide
 - [`docs/TEST_SCENARIOS.md`](docs/TEST_SCENARIOS.md) - Detailed test scenarios
-- [`docs/QA_TESTING_GUIDE.md`](docs/QA_TESTING_GUIDE.md) - QA functional test development guide
 - [`docs/QA_AUTOMATION_GUIDE.md`](docs/QA_AUTOMATION_GUIDE.md) - QA test automation and CI/CD integration
 - [`docs/QA_TEST_CERTIFICATION_RESULTS.md`](docs/QA_TEST_CERTIFICATION_RESULTS.md) - Latest QA test results and certification
 - [`docs/TROUBLESHOOTING.md`](docs/TROUBLESHOOTING.md) - Solutions for common issues

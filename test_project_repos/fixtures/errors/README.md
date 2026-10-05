@@ -144,7 +144,7 @@ Suggestion: Check ~/.config/classdock/token_config.json for syntax errors
 
 ## Related Documentation
 
-- `docs/QA_TESTING_GUIDE.md` - Comprehensive QA testing guide (lines 1691-1705 for error scenarios, lines 1748-1804 for troubleshooting)
+- `docs-site/development/testing.md` - Contributor testing guide
 - `test_project_repos/qa_tests/test_error_scenarios.sh` - Main error scenarios test suite
 - `classdock/utils/github_exceptions.py` - Custom exception classes and error handling
 - `classdock/services/` - Service layer error handling patterns

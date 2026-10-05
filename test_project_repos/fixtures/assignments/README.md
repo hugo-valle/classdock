@@ -258,7 +258,7 @@ Before committing new fixtures:
 
 ## Related Documentation
 
-- `docs/QA_TESTING_GUIDE.md` - Comprehensive QA testing guide for assignments commands
+- `docs-site/development/testing.md` - Contributor testing guide
 - `test_project_repos/qa_tests/test_assignments_commands.sh` - Main test suite using these fixtures
 - `test_project_repos/lib/test_helpers.sh` - Test helper functions and assertions
 - `test_project_repos/lib/mock_helpers.sh` - Mocking utilities for GitHub API and file system

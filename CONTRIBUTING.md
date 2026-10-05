@@ -43,7 +43,7 @@ CI (`ci.yml`) must pass before merge: `test (3.10)`, `test (3.14)` and `lint`. M
 - Follow PEP 8, use type hints, and prefer f-strings.
 - New CLI commands use Typer, grouped in the matching sub-app, with helpful `--help` text and informative errors.
 - GitHub API errors go through `classdock/utils/github_exceptions.py`.
-- Write tests for new behaviour and keep the pass rate at 100%. Mock GitHub API calls and reuse fixtures from `tests/conftest.py`. See [docs/TESTING.md](docs/TESTING.md).
+- Write tests for new behaviour and keep the pass rate at 100%. Mock GitHub API calls and reuse fixtures from `tests/conftest.py`. See [the testing guide](docs-site/development/testing.md).
 
 ## Releasing
 
