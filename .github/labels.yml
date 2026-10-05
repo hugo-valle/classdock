@@ -141,6 +141,14 @@
   color: "d876e3"
 
 # Triage Labels
+- name: "needs-triage"
+  description: "Maintainer needs to evaluate this issue"
+  color: "d4c5f9"
+
+- name: "needs-info"
+  description: "Waiting on reporter for more information"
+  color: "d876e3"
+
 - name: "ready-for-agent"
   description: "Fully specified, ready for an AFK agent"
   color: "0e8a16"
