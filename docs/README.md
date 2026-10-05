@@ -21,7 +21,6 @@ Welcome to the documentation for ClassDock - a modern Python CLI tool for automa
 ## 🔧 Development
 
 ### Project Information
-- **[Project Status](PROJECT_STATUS_V3_ALPHA1.md)** - Current project status and metrics
 - **[Contributing Guide](CONTRIBUTING.md)** - How to contribute to the project
 - **[Development Setup](../README.md#development)** - Local development environment setup
 
@@ -30,7 +29,6 @@ Welcome to the documentation for ClassDock - a modern Python CLI tool for automa
 
 ### Architecture
 - **[CLI Architecture](CLI_ARCHITECTURE.md)** - Command-line interface design
-- **[Modular Architecture](MODULAR_ARCHITECTURE_COMPLETE.md)** - Package structure and organization
 
 ## 🚀 Advanced Features
 

@@ -111,7 +111,6 @@ The QA test suite provides end-to-end validation of the classdock CLI tool throu
 ## Related Documentation
 
 ### Main Documentation (project root)
-- **`IMPLEMENTATION_SUMMARY.md`** - Overall implementation summary (now in project root)
 - **`docs/QA_TESTING_GUIDE.md`** - Comprehensive QA testing guide
 - **`docs/TESTING.md`** - General testing documentation
 
