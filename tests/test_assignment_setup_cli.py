@@ -220,7 +220,7 @@ class TestAssignmentSetupFutureFeatures:
         """Test GitHub API integration for setup (future feature)."""
         # This is a placeholder for when GitHub API integration is implemented
         # URL-based setup should:
-        # - Validate the classroom URL
+        # - Validate the assignment name
         # - Fetch assignment details from GitHub API
         # - Auto-discover template repository
         # - Pre-populate configuration

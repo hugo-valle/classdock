@@ -174,7 +174,6 @@ $ poetry run classdock documented-feature
 - [ ] Table of contents updated
 
 **External References:**
-- [ ] GitHub Classroom documentation
 - [ ] GitHub API documentation
 - [ ] Python/Poetry documentation
 - [ ] Related tools/projects

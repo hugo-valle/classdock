@@ -2,7 +2,7 @@
 Comprehensive test suite for classdock.repos.fetch module.
 
 This test suite provides comprehensive coverage for the RepositoryFetcher class,
-which handles GitHub Classroom repository operations including discovery, fetching,
+which handles student repository operations including discovery, fetching,
 and management. The tests include unit tests for individual methods, integration
 tests for GitHub API operations, error handling, and comprehensive mocking
 scenarios for reliable test execution.
@@ -570,7 +570,7 @@ class TestRepositoryFetcherFiltering:
 
         This test verifies that the _extract_student_identifier method correctly
         extracts student usernames or identifiers from repository names following
-        the standard GitHub Classroom naming pattern.
+        the standard student repository naming pattern.
         """
         mock_config_instance = Mock()
         mock_config_instance.load.return_value = {}

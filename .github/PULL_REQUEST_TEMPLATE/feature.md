@@ -222,4 +222,4 @@ classdock new-command --new-option
 **Ready for Review:** <!-- ✅ or ❌ -->
 **Ready for Merge:** <!-- ✅ or ❌ -->
 
-*Thank you for contributing to ClassDock! This feature will help make GitHub Classroom management even better for educators.*
+*Thank you for contributing to ClassDock! This feature will help make assignment management even better for educators.*

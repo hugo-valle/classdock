@@ -1,6 +1,6 @@
 # Configuration Guide
 
-This guide covers how to configure ClassDock for your GitHub Classroom environment.
+This guide covers how to configure ClassDock for your GitHub environment.
 
 ## Configuration Overview
 
@@ -25,10 +25,9 @@ Create a configuration file in YAML format:
 
 ```yaml
 # classdock.yaml
-classroom:
-  url: "https://classroom.github.com/classrooms/123456"
-  assignment_prefix: "assignment-"
-  organization: "my-classroom-org"
+assignment:
+  name: "assignment-1"
+  organization: "my-github-org"
 
 github:
   token: "${GITHUB_TOKEN}"
@@ -55,9 +54,8 @@ secrets:
 
 ```yaml
 # Extended configuration with all options
-classroom:
-  url: "https://classroom.github.com/classrooms/123456"
-  assignment_prefix: "hw-"
+assignment:
+  name: "hw-1"
   organization: "cs101-fall2024"
   default_branch: "main"
   
@@ -121,10 +119,10 @@ logging:
 export GITHUB_TOKEN="ghp_your_token_here"
 
 # Optional: GitHub organization
-export GITHUB_ORG="my-classroom-org"
+export GITHUB_ORG="my-github-org"
 
-# Optional: Classroom URL
-export CLASSROOM_URL="https://classroom.github.com/classrooms/123456"
+# Optional: assignment name
+export ASSIGNMENT_NAME="homework-1"
 ```
 
 ### Advanced Environment Variables
@@ -262,7 +260,7 @@ classdock config validate --schema config-schema.json
 # dev-config.yaml
 github:
   token: "${GITHUB_TOKEN}"
-  organization: "test-classroom"
+  organization: "test-org"
 
 assignments:
   base_directory: "./dev-assignments"
@@ -364,8 +362,8 @@ access_control:
 
 ```bash
 # Initialize configuration repository
-git init classroom-config
-cd classroom-config
+git init course-config
+cd course-config
 
 # Add configuration files
 cp ~/.config/classdock/config.yaml .
@@ -373,15 +371,15 @@ git add config.yaml
 git commit -m "Initial configuration"
 
 # Use versioned configuration
-classdock --config ./classroom-config/config.yaml
+classdock --config ./course-config/config.yaml
 ```
 
 ### Configuration Templates
 
 ```yaml
 # template-config.yaml
-classroom:
-  url: "{{ CLASSROOM_URL }}"
+assignment:
+  name: "{{ ASSIGNMENT_NAME }}"
   organization: "{{ GITHUB_ORG }}"
 
 github:
@@ -419,7 +417,7 @@ classdock config show --env-only
 classdock auth check
 
 # Verify organization access
-classdock auth check --org my-classroom-org
+classdock auth check --org my-github-org
 ```
 
 ### Debug Configuration Loading

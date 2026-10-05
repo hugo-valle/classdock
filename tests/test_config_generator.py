@@ -2,7 +2,7 @@
 Comprehensive test suite for classdock.config.generator module.
 
 This test suite provides comprehensive coverage for the ConfigGenerator class,
-which is responsible for generating GitHub Classroom assignment configuration files.
+which is responsible for generating assignment configuration files.
 The tests include unit tests for individual methods, integration tests for complete
 configuration generation, error handling, edge cases, and proper validation of
 generated configuration file content.

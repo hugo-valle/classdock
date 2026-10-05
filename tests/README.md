@@ -1,6 +1,6 @@
 # Tests Directory
 
-This directory contains all tests for the classroom-pilot Python wrapper.
+This directory contains all tests for the classdock Python wrapper.
 
 ## 📁 Test Organization
 
@@ -65,7 +65,7 @@ make check-all
 
 ### With Coverage
 ```bash
-pytest tests/ --cov=classroom_pilot --cov-report=html
+pytest tests/ --cov=classdock --cov-report=html
 ```
 
 ## 🔧 Test Configuration
@@ -174,4 +174,4 @@ Tests are automatically run in CI/CD via:
 3. **Before committing**: Run `make test-unit` for full unit test suite
 4. **Before pushing**: Run `make check-all` for comprehensive validation
 
-This test organization ensures reliable, maintainable, and comprehensive testing of the classroom-pilot Python wrapper.
+This test organization ensures reliable, maintainable, and comprehensive testing of the classdock Python wrapper.

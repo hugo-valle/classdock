@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**ClassDock** is a Python CLI tool for automating GitHub Classroom assignment management. It handles assignment setup, repository discovery, secret distribution, automated scheduling, and collaborator management.
+**ClassDock** is a Python CLI tool for automating assignment management for GitHub-based courses. It handles assignment setup, repository discovery, secret distribution, automated scheduling, and collaborator management.
 
 - **Package**: `classdock` on PyPI
 - **Python**: 3.10+

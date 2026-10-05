@@ -1,6 +1,6 @@
 # Repository Commands
 
-Repository commands provide comprehensive tools for managing student repositories in GitHub Classroom assignments.
+Repository commands provide comprehensive tools for managing student repositories in assignments.
 
 ## Overview
 

@@ -3,7 +3,7 @@ Comprehensive test suite for classdock.secrets.manager module.
 
 This test suite provides comprehensive coverage for the SecretsManager class,
 which handles GitHub repository secrets management, token deployment, and
-secure configuration for GitHub Classroom assignments. The tests include
+secure configuration for assignments. The tests include
 unit tests for individual methods, integration tests for GitHub API operations,
 error handling scenarios, and comprehensive mocking for reliable test execution.
 
@@ -24,7 +24,7 @@ The SecretsManager class provides methods for:
 - Secure token management and credential handling
 - Progress tracking for large-scale secrets operations
 - Comprehensive error handling with detailed logging
-- Integration with GitHub Classroom repository patterns
+- Integration with repository naming patterns
 - Configuration-driven secrets management workflows
 
 Dependencies and Integration:
@@ -32,7 +32,7 @@ Dependencies and Integration:
 - Uses classdock.utils.paths for file and path operations
 - Leverages GitHub API for repository secrets management
 - Supports both file-based and environment-based token sources
-- Compatible with GitHub Classroom repository naming conventions
+- Compatible with student repository naming conventions
 """
 
 import pytest

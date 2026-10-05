@@ -172,7 +172,7 @@ class TestConfigLoaderFileLoading:
         containing properly formatted key=value pairs and returns a dictionary
         with the expected configuration values.
         """
-        config_content = """CLASSROOM_URL=https://classroom.github.com/test
+        config_content = """ASSIGNMENT_NAME=test
 TEMPLATE_REPO_URL=https://github.com/test/template
 GITHUB_ORGANIZATION=test-org
 ASSIGNMENT_FILE=assignment.ipynb"""
@@ -186,7 +186,7 @@ ASSIGNMENT_FILE=assignment.ipynb"""
             loader = ConfigLoader(config_path)
             config = loader.load()
 
-            assert config['CLASSROOM_URL'] == 'https://classroom.github.com/test'
+            assert config['ASSIGNMENT_NAME'] == 'test'
             assert config['TEMPLATE_REPO_URL'] == 'https://github.com/test/template'
             assert config['GITHUB_ORGANIZATION'] == 'test-org'
             assert config['ASSIGNMENT_FILE'] == 'assignment.ipynb'
@@ -201,7 +201,7 @@ ASSIGNMENT_FILE=assignment.ipynb"""
         configuration lines.
         """
         config_content = """# This is a comment
-CLASSROOM_URL=https://classroom.github.com/test
+ASSIGNMENT_NAME=test
 # Another comment line
 TEMPLATE_REPO_URL=https://github.com/test/template
 # Final comment
@@ -217,7 +217,7 @@ TEMPLATE_REPO_URL=https://github.com/test/template
             config = loader.load()
 
             assert len(config) == 2
-            assert config['CLASSROOM_URL'] == 'https://classroom.github.com/test'
+            assert config['ASSIGNMENT_NAME'] == 'test'
             assert config['TEMPLATE_REPO_URL'] == 'https://github.com/test/template'
             # Verify comments are not included
             assert '# This is a comment' not in config
@@ -231,7 +231,7 @@ TEMPLATE_REPO_URL=https://github.com/test/template
         quoted values by removing the surrounding quotes while preserving the
         inner content, including any special characters or spaces.
         """
-        config_content = '''CLASSROOM_URL="https://classroom.github.com/test"
+        config_content = '''ASSIGNMENT_NAME="test"
 TEMPLATE_REPO_URL='https://github.com/test/template'
 GITHUB_ORGANIZATION="test-org-with-spaces and special chars"
 ASSIGNMENT_FILE=unquoted_value
@@ -247,7 +247,7 @@ MIXED_QUOTES="value with inner quotes"'''
             config = loader.load()
 
             # Verify quotes are removed
-            assert config['CLASSROOM_URL'] == 'https://classroom.github.com/test'
+            assert config['ASSIGNMENT_NAME'] == 'test'
             assert config['TEMPLATE_REPO_URL'] == 'https://github.com/test/template'
             assert config['GITHUB_ORGANIZATION'] == 'test-org-with-spaces and special chars'
             assert config['ASSIGNMENT_FILE'] == 'unquoted_value'
@@ -263,7 +263,7 @@ MIXED_QUOTES="value with inner quotes"'''
         """
         config_content = """
 
-CLASSROOM_URL=https://classroom.github.com/test
+ASSIGNMENT_NAME=test
 
    
 TEMPLATE_REPO_URL=https://github.com/test/template
@@ -283,7 +283,7 @@ GITHUB_ORGANIZATION=test-org
             config = loader.load()
 
             assert len(config) == 3
-            assert config['CLASSROOM_URL'] == 'https://classroom.github.com/test'
+            assert config['ASSIGNMENT_NAME'] == 'test'
             assert config['TEMPLATE_REPO_URL'] == 'https://github.com/test/template'
             assert config['GITHUB_ORGANIZATION'] == 'test-org'
 
@@ -363,7 +363,7 @@ class TestConfigLoaderValueRetrieval:
         configuration values from loaded configuration files and returns the
         expected values without modification.
         """
-        config_content = """CLASSROOM_URL=https://classroom.github.com/test
+        config_content = """ASSIGNMENT_NAME=test
 GITHUB_ORGANIZATION=test-org"""
 
         config_path = Path("/test/config.conf")
@@ -374,10 +374,10 @@ GITHUB_ORGANIZATION=test-org"""
 
             loader = ConfigLoader(config_path)
 
-            value1 = loader.get_value('CLASSROOM_URL')
+            value1 = loader.get_value('ASSIGNMENT_NAME')
             value2 = loader.get_value('GITHUB_ORGANIZATION')
 
-            assert value1 == 'https://classroom.github.com/test'
+            assert value1 == 'test'
             assert value2 == 'test-org'
 
     def test_get_value_nonexistent_key_with_default(self):
@@ -388,7 +388,7 @@ GITHUB_ORGANIZATION=test-org"""
         exist in the loaded configuration, the get_value method returns the
         provided default value instead of None or raising an exception.
         """
-        config_content = """CLASSROOM_URL=https://classroom.github.com/test"""
+        config_content = """ASSIGNMENT_NAME=test"""
 
         config_path = Path("/test/config.conf")
 
@@ -410,7 +410,7 @@ GITHUB_ORGANIZATION=test-org"""
         exist and no default value is specified, the get_value method returns None
         as the fallback value.
         """
-        config_content = """CLASSROOM_URL=https://classroom.github.com/test"""
+        config_content = """ASSIGNMENT_NAME=test"""
 
         config_path = Path("/test/config.conf")
 
@@ -498,7 +498,7 @@ class TestConfigLoaderUpdateConfig:
         key-value pairs to a configuration file while preserving existing values
         and maintaining the proper file format.
         """
-        initial_config = """CLASSROOM_URL=https://classroom.github.com/test
+        initial_config = """ASSIGNMENT_NAME=test
 GITHUB_ORGANIZATION=test-org"""
 
         config_path = Path("/test/config.conf")
@@ -529,7 +529,7 @@ GITHUB_ORGANIZATION=test-org"""
             full_content = ''.join(written_content)
             assert 'NEW_KEY="new_value"' in full_content
             assert 'ANOTHER_KEY="another_value"' in full_content
-            assert 'CLASSROOM_URL="https://classroom.github.com/test"' in full_content
+            assert 'ASSIGNMENT_NAME="test"' in full_content
             assert 'GITHUB_ORGANIZATION="test-org"' in full_content
 
     def test_update_config_existing_values(self):
@@ -540,7 +540,7 @@ GITHUB_ORGANIZATION=test-org"""
         existing configuration values while preserving other values and maintaining
         the proper file structure and format.
         """
-        initial_config = """CLASSROOM_URL=https://classroom.github.com/old-test
+        initial_config = """ASSIGNMENT_NAME=old-test
 GITHUB_ORGANIZATION=old-org"""
 
         config_path = Path("/test/config.conf")
@@ -559,7 +559,7 @@ GITHUB_ORGANIZATION=old-org"""
             loader = ConfigLoader(config_path)
 
             updates = {
-                'CLASSROOM_URL': 'https://classroom.github.com/new-test',
+                'ASSIGNMENT_NAME': 'new-test',
                 'GITHUB_ORGANIZATION': 'new-org'
             }
 
@@ -569,7 +569,7 @@ GITHUB_ORGANIZATION=old-org"""
 
             # Verify content was updated
             full_content = ''.join(written_content)
-            assert 'CLASSROOM_URL="https://classroom.github.com/new-test"' in full_content
+            assert 'ASSIGNMENT_NAME="new-test"' in full_content
             assert 'GITHUB_ORGANIZATION="new-org"' in full_content
             # Ensure old values are not present
             assert 'old-test' not in full_content
@@ -583,7 +583,7 @@ GITHUB_ORGANIZATION=old-org"""
         involving both adding new configuration values and updating existing ones
         in a single operation.
         """
-        initial_config = """CLASSROOM_URL=https://classroom.github.com/test
+        initial_config = """ASSIGNMENT_NAME=test
 GITHUB_ORGANIZATION=test-org"""
 
         config_path = Path("/test/config.conf")
@@ -602,7 +602,7 @@ GITHUB_ORGANIZATION=test-org"""
             loader = ConfigLoader(config_path)
 
             updates = {
-                'CLASSROOM_URL': 'https://classroom.github.com/updated-test',  # Update existing
+                'ASSIGNMENT_NAME': 'updated-test',  # Update existing
                 'NEW_KEY': 'new_value',  # Add new
                 'ASSIGNMENT_FILE': 'assignment.ipynb'  # Add new
             }
@@ -613,7 +613,7 @@ GITHUB_ORGANIZATION=test-org"""
 
             # Verify mixed operations
             full_content = ''.join(written_content)
-            assert 'CLASSROOM_URL="https://classroom.github.com/updated-test"' in full_content
+            assert 'ASSIGNMENT_NAME="updated-test"' in full_content
             assert 'GITHUB_ORGANIZATION="test-org"' in full_content  # Preserved
             assert 'NEW_KEY="new_value"' in full_content  # Added
             assert 'ASSIGNMENT_FILE="assignment.ipynb"' in full_content  # Added
@@ -666,7 +666,7 @@ GITHUB_ORGANIZATION=test-org"""
         file formatting including header comments, proper quoting, and standard
         key=value structure when writing updated configuration files.
         """
-        initial_config = """CLASSROOM_URL=https://classroom.github.com/test"""
+        initial_config = """ASSIGNMENT_NAME=test"""
 
         config_path = Path("/test/config.conf")
         written_content = []
@@ -692,7 +692,7 @@ GITHUB_ORGANIZATION=test-org"""
             full_content = ''.join(written_content)
             assert '# ClassDock Assignment Configuration' in full_content
             assert '# Updated by ConfigLoader' in full_content
-            assert 'CLASSROOM_URL="https://classroom.github.com/test"' in full_content
+            assert 'ASSIGNMENT_NAME="test"' in full_content
             assert 'NEW_KEY="new_value"' in full_content
 
             # Verify all values are quoted
@@ -893,7 +893,7 @@ class TestConfigLoaderEdgeCases:
         without performance issues or buffer overflows.
         """
         long_value = "https://example.com/" + "very-long-path/" * 100 + "endpoint"
-        config_content = f"""CLASSROOM_URL={long_value}
+        config_content = f"""ASSIGNMENT_NAME={long_value}
 NORMAL_KEY=normal_value"""
 
         config_path = Path("/test/config.conf")
@@ -905,10 +905,10 @@ NORMAL_KEY=normal_value"""
             loader = ConfigLoader(config_path)
             config = loader.load()
 
-            assert config['CLASSROOM_URL'] == long_value
+            assert config['ASSIGNMENT_NAME'] == long_value
             assert config['NORMAL_KEY'] == 'normal_value'
             # Verify it's actually long
-            assert len(config['CLASSROOM_URL']) > 1000
+            assert len(config['ASSIGNMENT_NAME']) > 1000
 
     def test_load_config_special_characters(self):
         """
@@ -1011,10 +1011,10 @@ KEY4 = "value with spaces"
         multiple times in a file, the loader handles it consistently
         (typically the last occurrence should take precedence).
         """
-        config_content = """CLASSROOM_URL=first_value
+        config_content = """ASSIGNMENT_NAME=first_value
 GITHUB_ORGANIZATION=test-org
-CLASSROOM_URL=second_value
-CLASSROOM_URL=final_value"""
+ASSIGNMENT_NAME=second_value
+ASSIGNMENT_NAME=final_value"""
 
         config_path = Path("/test/config.conf")
 
@@ -1026,10 +1026,10 @@ CLASSROOM_URL=final_value"""
             config = loader.load()
 
             # Last occurrence should win
-            assert config['CLASSROOM_URL'] == 'final_value'
+            assert config['ASSIGNMENT_NAME'] == 'final_value'
             assert config['GITHUB_ORGANIZATION'] == 'test-org'
             # Only one key in dict
-            assert len([k for k in config.keys() if k == 'CLASSROOM_URL']) == 1
+            assert len([k for k in config.keys() if k == 'ASSIGNMENT_NAME']) == 1
 
     def test_load_config_case_sensitivity(self):
         """
@@ -1039,8 +1039,8 @@ CLASSROOM_URL=final_value"""
         and that keys differing only in case are treated as separate configuration
         entries.
         """
-        config_content = """classroom_url=lowercase_value
-CLASSROOM_URL=uppercase_value
+        config_content = """assignment_name=lowercase_value
+ASSIGNMENT_NAME=uppercase_value
 Classroom_Url=mixedcase_value"""
 
         config_path = Path("/test/config.conf")
@@ -1053,8 +1053,8 @@ Classroom_Url=mixedcase_value"""
             config = loader.load()
 
             # All should be treated as separate keys
-            assert config['classroom_url'] == 'lowercase_value'
-            assert config['CLASSROOM_URL'] == 'uppercase_value'
+            assert config['assignment_name'] == 'lowercase_value'
+            assert config['ASSIGNMENT_NAME'] == 'uppercase_value'
             assert config['Classroom_Url'] == 'mixedcase_value'
             assert len(config) == 3
 
@@ -1083,7 +1083,7 @@ class TestConfigLoaderIntegration:
         path is provided, ensuring seamless file discovery functionality.
         """
         found_config_path = Path("/workspace/assignment.conf")
-        config_content = """CLASSROOM_URL=https://classroom.github.com/test"""
+        config_content = """ASSIGNMENT_NAME=test"""
 
         with patch('classdock.config.loader.PathManager') as mock_path_manager_class:
             mock_path_manager = Mock()
@@ -1099,7 +1099,7 @@ class TestConfigLoaderIntegration:
                 # Verify PathManager was used
                 mock_path_manager.find_config_file.assert_called_once()
                 assert loader.config_path == found_config_path
-                assert config['CLASSROOM_URL'] == 'https://classroom.github.com/test'
+                assert config['ASSIGNMENT_NAME'] == 'test'
 
     def test_roundtrip_load_update_load(self):
         """
@@ -1109,7 +1109,7 @@ class TestConfigLoaderIntegration:
         making updates, and then loading the updated configuration works correctly
         and preserves all data through the roundtrip process.
         """
-        initial_config = """CLASSROOM_URL=https://classroom.github.com/test
+        initial_config = """ASSIGNMENT_NAME=test
 GITHUB_ORGANIZATION=test-org"""
 
         config_path = Path("/test/config.conf")
@@ -1131,12 +1131,12 @@ GITHUB_ORGANIZATION=test-org"""
 
             # First load
             config1 = loader.load()
-            assert config1['CLASSROOM_URL'] == 'https://classroom.github.com/test'
+            assert config1['ASSIGNMENT_NAME'] == 'test'
             assert config1['GITHUB_ORGANIZATION'] == 'test-org'
 
             # Update
             updates = {
-                'CLASSROOM_URL': 'https://classroom.github.com/updated-test',
+                'ASSIGNMENT_NAME': 'updated-test',
                 'NEW_KEY': 'new_value'
             }
             result = loader.update_config(updates)
@@ -1145,7 +1145,7 @@ GITHUB_ORGANIZATION=test-org"""
             # Verify content was written
             assert len(written_content) > 0
             full_content = ''.join(written_content)
-            assert 'CLASSROOM_URL="https://classroom.github.com/updated-test"' in full_content
+            assert 'ASSIGNMENT_NAME="updated-test"' in full_content
             assert 'NEW_KEY="new_value"' in full_content
 
     def test_integration_real_file_operations(self):
@@ -1160,7 +1160,7 @@ GITHUB_ORGANIZATION=test-org"""
             config_path = Path(temp_dir) / "test_config.conf"
 
             # Create initial config file
-            initial_content = """CLASSROOM_URL=https://classroom.github.com/test
+            initial_content = """ASSIGNMENT_NAME=test
 GITHUB_ORGANIZATION=test-org"""
 
             config_path.write_text(initial_content)
@@ -1170,7 +1170,7 @@ GITHUB_ORGANIZATION=test-org"""
 
                 # Test loading
                 config = loader.load()
-                assert config['CLASSROOM_URL'] == 'https://classroom.github.com/test'
+                assert config['ASSIGNMENT_NAME'] == 'test'
                 assert config['GITHUB_ORGANIZATION'] == 'test-org'
 
                 # Test updating
@@ -1181,7 +1181,7 @@ GITHUB_ORGANIZATION=test-org"""
                 # Verify file was actually updated
                 updated_content = config_path.read_text()
                 assert 'NEW_KEY="new_value"' in updated_content
-                assert 'CLASSROOM_URL="https://classroom.github.com/test"' in updated_content
+                assert 'ASSIGNMENT_NAME="test"' in updated_content
 
     def test_integration_multiple_loaders_same_file(self):
         """
@@ -1191,7 +1191,7 @@ GITHUB_ORGANIZATION=test-org"""
         the same configuration file and that updates from one loader are visible
         to other loaders, ensuring proper file sharing behavior.
         """
-        config_content = """CLASSROOM_URL=https://classroom.github.com/test"""
+        config_content = """ASSIGNMENT_NAME=test"""
         config_path = Path("/test/config.conf")
 
         with patch('classdock.config.loader.PathManager'), \
@@ -1206,8 +1206,8 @@ GITHUB_ORGANIZATION=test-org"""
             config2 = loader2.load()
 
             assert config1 == config2
-            assert config1['CLASSROOM_URL'] == 'https://classroom.github.com/test'
-            assert config2['CLASSROOM_URL'] == 'https://classroom.github.com/test'
+            assert config1['ASSIGNMENT_NAME'] == 'test'
+            assert config2['ASSIGNMENT_NAME'] == 'test'
 
 
 if __name__ == '__main__':

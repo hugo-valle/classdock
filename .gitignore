@@ -1,4 +1,4 @@
-# GitHub Classroom Tools - Git Ignore
+# ClassDock - Git Ignore
 
 # Generated files from tool execution
 test_project_repos/reports/
@@ -101,7 +101,7 @@ docs-site/.mkdocs_cache/
 # Ignore test environment directories
 test_project_repos/test_environments/*
 # =============================================================================
-# Instructor-only files (GitHub Classroom automation)
+# Instructor-only files (ClassDock automation)
 # =============================================================================
 # Token files for GitHub API access
 *token*.txt
@@ -137,6 +137,6 @@ workflow_health/
 workflow_status_aggregation/
 workflow_trends/
 
-# GitHub Classroom student repositories (auto-generated)
+# Student repositories (auto-generated)
 student-repos/
 student-repos.txt
