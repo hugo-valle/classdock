@@ -634,7 +634,7 @@ class GitHubCircuitBreaker:
 
 - [CLI Architecture](CLI_ARCHITECTURE.md) - Command-line interface integration
 - [Testing Framework](TESTING.md) - Comprehensive testing patterns
-- [Contributing Guide](CONTRIBUTING.md) - Development guidelines
+- [Contributing Guide](../CONTRIBUTING.md) - Development guidelines
 - [Configuration System](CONFIG.md) - Configuration management
 
 ---

@@ -6,29 +6,14 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 **ClassDock** is a Python CLI tool for automating assignment management for GitHub-based courses. It handles assignment setup, repository discovery, secret distribution, automated scheduling, and collaborator management.
 
-> **📋 Workflow**: See the [Workflow](#workflow) section below for branches, PRs and releases.
-
 ## Workflow
 
-Trunk-based: `main` is the only long-lived branch (see `docs/adr/0002-trunk-based-development.md`).
+Full guide: [CONTRIBUTING.md](CONTRIBUTING.md). Rules not to forget:
 
-1. **Issue first**: find or create a GitHub issue (`gh issue list --search ...`, `gh issue create`).
-2. **Branch from `main`**, named `<type>/<issue>-<slug>` where type is `feature`, `bugfix`, `docs`, `chore` or `claude`:
-   ```bash
-   git checkout main && git pull
-   git checkout -b feature/123-short-description
-   ```
-3. **Commit** with Conventional Commits (`feat|fix|docs|refactor|test|chore|ci(scope): ...`) and reference the issue.
-4. **PR into `main`**: `gh pr create --base main --fill`, body includes `Closes #123`. CI (`ci.yml`: `test (3.10)`, `test (3.14)`, `lint`) must pass. Merging never publishes.
-
-**Releasing** (the version lives only in `pyproject.toml`):
-
-1. On a `chore/<issue>-release-X.Y.Z` branch, run `poetry version X.Y.Z`, then PR and merge into `main`.
-2. `git checkout main && git pull`
-3. `gh release create X.Y.Z --generate-notes` (bare semver tag, no `v`; add `--draft` to review notes first)
-4. Publishing the release runs `release.yml`: it checks the tag matches `pyproject.toml`, runs tests, builds, and publishes to PyPI via **trusted publishing** (OIDC, no tokens).
-
-A hotfix is an ordinary `bugfix/` PR followed by a patch release.
+- **Issue first**: find or create a GitHub issue before starting work.
+- **Branch from `main`**, named `<type>/<issue>-<slug>` (type: `feature`, `bugfix`, `docs`, `chore`, `claude`).
+- **Conventional Commits**, and PRs target `main` with `Closes #123` (or `Part of #123`).
+- **Merging never publishes**; a release is a separate GitHub Release (see CONTRIBUTING.md).
 
 ## Architecture
 

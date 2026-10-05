@@ -125,14 +125,14 @@ See **[Roster Sync Guide](https://hugo-valle.github.io/classdock/workflows/roste
 | [Full Command Reference](https://hugo-valle.github.io/classdock/cli/commands/) | Every command, subcommand, and option |
 | [Roster Sync Guide](https://hugo-valle.github.io/classdock/workflows/roster-sync/) | Roster management and orchestrator integration |
 | [Error Handling](docs/ERROR_HANDLING.md) | GitHub API resilience and retry patterns |
-| [Contributing Guide](docs/CONTRIBUTING.md) | Development workflow and guidelines |
+| [Contributing Guide](CONTRIBUTING.md) | Development workflow and guidelines |
 | [Changelog](docs/CHANGELOG.md) | Release history |
 
 ---
 
 ## Contributing
 
-Contributions are welcome. Please read the [Contributing Guide](docs/CONTRIBUTING.md) before opening a pull request.
+Contributions are welcome. Please read the [Contributing Guide](CONTRIBUTING.md) before opening a pull request.
 
 ---
 
