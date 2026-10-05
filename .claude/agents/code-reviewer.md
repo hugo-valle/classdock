@@ -40,9 +40,9 @@ You are an expert Code Reviewer specializing in Python development with deep kno
      - `classroom_pilot/cli.py`
 
 6. **Project Standards Compliance**
-   - Check that error handling follows `docs/ERROR_HANDLING.md` guidelines
+   - Check that error handling follows `docs-site/development/error-handling.md` guidelines
    - Ensure testing patterns align with `docs/TESTING.md`
-   - Validate CLI commands follow `docs/CLI_ARCHITECTURE.md` structure
+   - Validate CLI commands follow `docs-site/development/architecture.md` structure
 
 ## Your Review Process
 

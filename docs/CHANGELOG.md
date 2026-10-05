@@ -31,7 +31,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### 📝 Documentation
 
 - Complete documentation rebrand to ClassDock
-- Added comprehensive [migration guide](MIGRATION.md)
+- Added comprehensive [migration guide](https://hugo-valle.github.io/classdock/about/migration/)
 - Updated all examples and tutorials
 - Updated all CLI command references
 
@@ -39,7 +39,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 - Old package `classroom-pilot` marked as deprecated (v3.1.3)
 - Automatic GitHub URL redirects from old repository name
-- See [MIGRATION.md](MIGRATION.md) for complete migration instructions
+- See [migration guide](https://hugo-valle.github.io/classdock/about/migration/) for complete migration instructions
 
 ---
 

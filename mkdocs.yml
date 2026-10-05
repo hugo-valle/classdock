@@ -62,9 +62,12 @@ nav:
     - Contributing: development/contributing.md
     - Architecture: development/architecture.md
     - Testing: development/testing.md
+    - Error Handling: development/error-handling.md
+    - Labels: development/labels.md
     - Versioning: development/versioning.md
   - About:
     - Changelog: about/changelog.md
+    - Migration from classroom-pilot: about/migration.md
     - License: about/license.md
 
 plugins:

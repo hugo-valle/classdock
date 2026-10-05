@@ -604,8 +604,8 @@ def test_large_repository_discovery_performance():
 
 ## 🔗 Related Documentation
 
-- [Error Handling System](ERROR_HANDLING.md) - Centralized error management
-- [CLI Architecture](CLI_ARCHITECTURE.md) - Command-line interface structure
+- [Error Handling System](../docs-site/development/error-handling.md) - Centralized error management
+- [Architecture](../docs-site/development/architecture.md) - Command-line interface structure
 - [Contributing Guide](../CONTRIBUTING.md) - Development workflow including testing requirements
 - [Configuration System](CONFIG.md) - Configuration management and validation
 

@@ -20,7 +20,7 @@ classdock/
 │   ├── scripts/             # Shell scripts
 │   └── secrets/             # Secret management
 ├── tests/                   # Comprehensive test suite (153 tests)
-├── docs/                    # Documentation
+├── docs-site/               # Published documentation
 ├── .github/workflows/       # CI/CD automation
 └── pyproject.toml          # Poetry configuration
 ```
@@ -106,6 +106,30 @@ Scheduled and batch operations:
 - **Scheduling**: Cron-based automation
 - **Batch processing**: Bulk operations
 - **Monitoring**: Operation tracking
+
+## 🛡️ Error Handling Integration
+
+All GitHub API access goes through `classdock/utils/github_exceptions.py`, which provides retry logic and rate limit handling. See [Error Handling](error-handling.md) for the full system.
+
+```python
+from classdock.utils.github_exceptions import github_api_retry, GitHubAPIError
+
+@assignments_app.command()
+@github_api_retry(max_attempts=3, base_delay=1.0)
+def orchestrate(dry_run: bool = typer.Option(False, "--dry-run")):
+    """Run the assignment workflow."""
+    try:
+        ...
+    except GitHubAPIError as e:
+        console.print(f"[bold red]GitHub API Error: {e.message}")
+        raise typer.Exit(code=1)
+```
+
+Commands report failures through Rich console output and exit non-zero.
+
+## 🎨 Rich Console Output
+
+Commands print through a Rich `Console`: tables for listings (such as discovered repositories), progress bars and spinners for long operations, and colored status messages. Shared UI helpers live in `classdock/utils/ui_components.py` and `classdock/utils/error_display.py`.
 
 ## 🧪 Testing Architecture
 
