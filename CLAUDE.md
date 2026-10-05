@@ -60,8 +60,8 @@ gh issue create                        # Create new issue
 gh issue view <number>                 # View issue details
 
 # Branch Management
-git checkout develop                   # Switch to develop
-git pull origin develop                # Update develop
+git checkout main                      # Switch to main
+git pull origin main                   # Update main
 git checkout -b feature/123-description # Create feature branch
 
 # Testing
@@ -85,7 +85,7 @@ poetry run classdock --help               # Run CLI locally
 python -m classdock --help                # Alternative
 
 # Pull Request Management
-gh pr create --base develop --fill     # Create PR
+gh pr create --base main --fill        # Create PR
 gh pr checks                          # Check PR status
 gh pr view                            # View current PR
 gh pr list                            # List all PRs
@@ -162,21 +162,21 @@ When using plan mode for complex tasks:
 ### Branch Strategy Quick Reference
 
 **Branch Types & Naming**:
-- `feature/<issue>-brief-description` → New features (from develop)
-- `bugfix/<issue>-brief-description` → Bug fixes (from develop)
+- `feature/<issue>-brief-description` → New features (from main)
+- `bugfix/<issue>-brief-description` → Bug fixes (from main)
 - `hotfix/<issue>-brief-description` → Critical fixes (from main)
 - `release/vX.Y.Z` → Release preparation (from develop)
 
 **Examples**:
 ```bash
 # Feature branch for issue #68
-git checkout develop
-git pull origin develop
+git checkout main
+git pull origin main
 git checkout -b feature/68-fix-global-cli-options
 
 # Bugfix branch for issue #123
-git checkout develop
-git pull origin develop
+git checkout main
+git pull origin main
 git checkout -b bugfix/123-fix-token-validation
 
 # Hotfix branch for issue #456 (critical production issue)
@@ -189,9 +189,9 @@ git checkout -b hotfix/456-fix-security-vulnerability
 
 1. **Create Your Branch**
    ```bash
-   # Start from develop (or main for hotfix)
-   git checkout develop
-   git pull origin develop
+   # Start from main
+   git checkout main
+   git pull origin main
    git checkout -b feature/<issue>-description
    ```
 
@@ -227,10 +227,10 @@ git checkout -b hotfix/456-fix-security-vulnerability
    git push -u origin feature/<issue>-description
 
    # Create PR (will auto-populate from template)
-   gh pr create --base develop --fill
+   gh pr create --base main --fill
 
    # Or create with specific details
-   gh pr create --title "Title" --body "Description" --base develop
+   gh pr create --title "Title" --body "Description" --base main
    ```
 
 5. **PR Requirements**
@@ -243,7 +243,7 @@ git checkout -b hotfix/456-fix-security-vulnerability
 6. **After Merge**
    - Branch auto-deletes
    - Issue auto-closes (if using Closes/Fixes keywords)
-   - Switch back to develop: `git checkout develop && git pull`
+   - Switch back to main: `git checkout main && git pull`
 
 ### Hotfix Emergency Workflow
 
@@ -308,7 +308,7 @@ gh run view <id>    # View specific run details
 **Common Issues**:
 - **Tests failing locally**: Ensure `poetry install` is up to date
 - **CI failing but local passes**: Check Python version (3.10+)
-- **Branch protection blocks push**: Never force push to develop/main
+- **Branch protection blocks push**: Never force push to main
 - **PR blocked**: Ensure 2 approvals and all CI checks pass
 - **Version mismatch**: Update all 3 version locations
 
