@@ -164,7 +164,10 @@ def show_completion(config_values: dict, token_files: dict) -> None:
         ("📚 Documentation:\n", "bold blue"),
         ("   • docs/ORCHESTRATOR-WORKFLOW.md - Complete workflow guide\n", "white"),
         ("   • docs/TOOLS-USAGE.md - Individual tool documentation\n", "white"),
-        ("   • https://hugo-valle.github.io/classdock/workflows/secrets-management/ - Secret management guide\n", "white"),
+        (
+            "   • https://hugo-valle.github.io/classdock/workflows/secrets-management/ - Secret management guide\n",
+            "white",
+        ),
     ]
 
     content = Text.assemble(*lines)
