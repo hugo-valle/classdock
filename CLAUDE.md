@@ -34,6 +34,13 @@ click = ">=8.0.0,<8.2.0"      # Must be compatible with typer
 - Use pytest with mocking for GitHub API calls
 - Run `poetry run pytest tests/ -v` before submitting changes
 
+## Where docs go
+
+- User and developer docs live on the published site, in `docs-site/` (add a `mkdocs.yml` nav entry for new pages).
+- `docs/` is for ADRs (`docs/adr/`) and agent docs (`docs/agents/`) only.
+- No status, summary or progress files. See `docs/adr/0004-published-site-is-the-sole-docs-home.md`.
+- CI runs `mkdocs build --strict`; run it locally after editing docs.
+
 ## Key Documentation
 
 - `docs-site/development/architecture.md` - Typer-based command structure
