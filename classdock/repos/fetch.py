@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Dict, List, Optional
 
 try:
-    from github import Github, GithubException
+    from github import Auth, Github, GithubException
 
     GITHUB_AVAILABLE = True
 except ImportError:
@@ -148,7 +148,7 @@ class RepositoryFetcher:
         for token in token_sources:
             if token:
                 try:
-                    self.github_client = Github(token)
+                    self.github_client = Github(auth=Auth.Token(token))
                     # Test authentication by getting user info
                     user = self.github_client.get_user()
                     logger.info(

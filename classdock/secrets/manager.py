@@ -15,7 +15,7 @@ from typing import Dict, List, Optional
 
 # GitHub API integration with fallback handling
 try:
-    from github import Github, GithubException
+    from github import Auth, Github, GithubException
 
     # Repository import unused in this module; avoid unused import lint error
     GITHUB_AVAILABLE = True
@@ -119,7 +119,7 @@ class SecretsManager:
 
             try:
                 with github_api_context("github_client_initialization"):
-                    client = Github(token)
+                    client = Github(auth=Auth.Token(token))
                     # Test authentication by getting user info
                     client.get_user().login
                     logger.info("GitHub API client initialized successfully")
@@ -259,7 +259,7 @@ class SecretsManager:
         try:
             with github_api_context("token_validation"):
                 # Create temporary client to test token
-                test_client = Github(token)
+                test_client = Github(auth=Auth.Token(token))
                 # Test authentication by getting user info
                 user = test_client.get_user()
                 username = user.login

@@ -15,7 +15,7 @@ from typing import Dict, List, Optional
 
 # GitHub API integration with fallback handling
 try:
-    from github import Github, GithubException, Repository
+    from github import Auth, Github, GithubException, Repository
 
     GITHUB_AVAILABLE = True
 except ImportError:
@@ -121,7 +121,7 @@ class CollaboratorManager:
 
             try:
                 with github_api_context("github_client_initialization"):
-                    client = Github(token)
+                    client = Github(auth=Auth.Token(token))
                     # Test authentication by getting user info
                     client.get_user().login
                     logger.info("GitHub API client initialized successfully")

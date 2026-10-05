@@ -242,7 +242,7 @@ class TestRepositoryFetcherAuthentication:
 
         assert result is True
         assert fetcher.github_client == mock_github_client
-        mock_github_class.assert_called_once_with('test_token')
+        assert mock_github_class.call_args.kwargs['auth'].token == 'test_token'
         mock_github_client.get_user.assert_called_once()
 
     @patch('classdock.repos.fetch.GITHUB_AVAILABLE', True)
@@ -284,7 +284,7 @@ class TestRepositoryFetcherAuthentication:
         result = fetcher.authenticate_github()
 
         assert result is True
-        mock_github_class.assert_called_once_with('config_token')
+        assert mock_github_class.call_args.kwargs['auth'].token == 'config_token'
 
     @patch('classdock.repos.fetch.GITHUB_AVAILABLE', True)
     @patch('classdock.repos.fetch.Github')

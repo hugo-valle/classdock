@@ -10,7 +10,7 @@ PyYAML>=6.0.1
 
 # HTTP and GitHub API
 requests>=2.31.0
-PyGithub>=1.59.0
+PyGithub>=2.0
 
 # Secret encryption
 cryptography>=41.0.0
