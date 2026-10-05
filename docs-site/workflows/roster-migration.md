@@ -283,7 +283,7 @@ The roster system has **minimal performance impact**:
 If you encounter issues during migration:
 
 1. **Check roster status**: `classdock roster status`
-2. **View documentation**: `docs/ROSTER_SYNC.md`
+2. **View documentation**: the [Roster Sync Guide](roster-sync.md)
 3. **Check logs**: Run with `--verbose` flag
 4. **File an issue**: https://github.com/hugo-valle/classdock/issues
 

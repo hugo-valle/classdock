@@ -461,4 +461,4 @@ classdock --debug config validate
 - [Installation Guide](installation.md)
 - [Quick Start Guide](quick-start.md)
 - [CLI Reference](../cli/overview.md)
-- [Security Best Practices](../development/security.md)
+- [Secrets Management](../workflows/secrets-management.md)

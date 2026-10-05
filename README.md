@@ -71,7 +71,7 @@ For full control, every feature is available through organized command groups:
 | `classdock automation` | Cron scheduling for automated workflow steps |
 | `classdock config` | GitHub token configuration and validation |
 
-See the **[Full Command Reference](docs/COMMANDS.md)** for every subcommand and option.
+See the **[Full Command Reference](https://hugo-valle.github.io/classdock/cli/commands/)** for every subcommand and option.
 
 ---
 
@@ -114,7 +114,7 @@ classdock roster sync --assignment=homework-1 --org=cs101-fall2025
 classdock roster status --org=cs101-fall2025
 ```
 
-See **[Roster Sync Guide](docs/ROSTER_SYNC.md)** for detailed setup.
+See **[Roster Sync Guide](https://hugo-valle.github.io/classdock/workflows/roster-sync/)** for detailed setup.
 
 ---
 
@@ -122,8 +122,8 @@ See **[Roster Sync Guide](docs/ROSTER_SYNC.md)** for detailed setup.
 
 | Document | Description |
 |----------|-------------|
-| [Full Command Reference](docs/COMMANDS.md) | Every command, subcommand, and option |
-| [Roster Sync Guide](docs/ROSTER_SYNC.md) | Roster management and orchestrator integration |
+| [Full Command Reference](https://hugo-valle.github.io/classdock/cli/commands/) | Every command, subcommand, and option |
+| [Roster Sync Guide](https://hugo-valle.github.io/classdock/workflows/roster-sync/) | Roster management and orchestrator integration |
 | [Error Handling](docs/ERROR_HANDLING.md) | GitHub API resilience and retry patterns |
 | [Contributing Guide](docs/CONTRIBUTING.md) | Development workflow and guidelines |
 | [Changelog](docs/CHANGELOG.md) | Release history |

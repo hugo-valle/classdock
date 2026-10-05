@@ -496,4 +496,4 @@ classdock secrets add \
 - [Assignment Commands](assignments.md)
 - [Repository Commands](repositories.md)
 - [Automation Commands](automation.md)
-- [Security Best Practices](../development/security.md)
+- [Secrets Management](../workflows/secrets-management.md)
