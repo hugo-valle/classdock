@@ -17,7 +17,7 @@ from classdock.organizations.models import (
     TemplateRepo,
 )
 
-runner = CliRunner(mix_stderr=False)
+runner = CliRunner()
 
 
 def _mock_org_manager(orgs=None, org=None, exists=True):

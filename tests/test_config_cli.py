@@ -56,10 +56,10 @@ class TestConfigSetToken:
         """Test that set-token command shows help."""
         result = runner.invoke(app, ["config", "set-token", "--help"])
         assert result.exit_code == 0
-        assert "Update the GitHub Personal Access Token" in result.stdout
-        assert "Required token scopes:" in result.stdout
-        assert "repo" in result.stdout
-        assert "read:org" in result.stdout
+        assert "Update the GitHub Personal Access Token" in result.output
+        assert "Required token scopes:" in result.output
+        assert "repo" in result.output
+        assert "read:org" in result.output
 
     def test_set_token_with_valid_token(self, runner, mock_token_manager):
         """Test setting a valid token with all required scopes."""
@@ -72,7 +72,7 @@ class TestConfigSetToken:
             ])
 
         assert result.exit_code == 0
-        assert "✅ Token updated successfully!" in result.stdout
+        assert "✅ Token updated successfully!" in result.output
         mock_token_manager.save_token.assert_called_once()
 
     def test_set_token_with_expired_token(self, runner, mock_token_manager):
@@ -91,7 +91,7 @@ class TestConfigSetToken:
             ])
 
         assert result.exit_code == 1
-        assert "❌ Token has already expired!" in result.stdout
+        assert "❌ Token has already expired!" in result.output
         mock_token_manager.save_token.assert_not_called()
 
     def test_set_token_with_invalid_token(self, runner, mock_token_manager):
@@ -103,7 +103,7 @@ class TestConfigSetToken:
         ])
 
         assert result.exit_code == 1
-        assert "❌ Token validation failed" in result.stdout
+        assert "❌ Token validation failed" in result.output
         mock_token_manager.save_token.assert_not_called()
 
     def test_set_token_missing_repo_scope(self, runner, mock_token_manager):
@@ -124,8 +124,8 @@ class TestConfigSetToken:
             ], input="n\n")
 
         assert result.exit_code == 1
-        assert "⚠️ Token lacks 'repo' scope" in result.stdout
-        assert "Token update cancelled" in result.stdout
+        assert "⚠️ Token lacks 'repo' scope" in result.output
+        assert "Token update cancelled" in result.output
         mock_token_manager.save_token.assert_not_called()
 
     def test_set_token_missing_scopes_with_confirmation(self, runner, mock_token_manager):
@@ -147,7 +147,7 @@ class TestConfigSetToken:
             ], input="y\n")
 
         assert result.exit_code == 0
-        assert "✅ Token updated successfully!" in result.stdout
+        assert "✅ Token updated successfully!" in result.output
         mock_token_manager.save_token.assert_called_once()
 
     def test_set_token_with_force_flag(self, runner, mock_token_manager):
@@ -160,7 +160,7 @@ class TestConfigSetToken:
         ])
 
         assert result.exit_code == 0
-        assert "✅ Token updated successfully!" in result.stdout
+        assert "✅ Token updated successfully!" in result.output
         mock_token_manager.save_token.assert_called_once()
         mock_token_manager._verify_and_get_token_info.assert_not_called()
 
@@ -177,7 +177,7 @@ class TestConfigSetToken:
             ], input="y\n")
 
         assert result.exit_code == 0
-        assert "⚠️ Token doesn't start with 'ghp_' or 'github_pat_'" in result.stdout
+        assert "⚠️ Token doesn't start with 'ghp_' or 'github_pat_'" in result.output
         mock_token_manager.save_token.assert_called_once()
 
     def test_set_token_expiring_soon_warning(self, runner, mock_token_manager):
@@ -198,8 +198,8 @@ class TestConfigSetToken:
             ])
 
         assert result.exit_code == 0
-        assert "⚠️ Token expires in 6 days!" in result.stdout
-        assert "✅ Token updated successfully!" in result.stdout
+        assert "⚠️ Token expires in 6 days!" in result.output
+        assert "✅ Token updated successfully!" in result.output
         mock_token_manager.save_token.assert_called_once()
 
     def test_set_token_with_expires_at_parameter(self, runner, mock_token_manager):
@@ -221,8 +221,8 @@ class TestConfigSetToken:
             ])
 
         assert result.exit_code == 0
-        assert "✓ Expiration date set to: 2026-10-19T00:00:00+00:00" in result.stdout
-        assert "✅ Token updated successfully!" in result.stdout
+        assert "✓ Expiration date set to: 2026-10-19T00:00:00+00:00" in result.output
+        assert "✅ Token updated successfully!" in result.output
         call_args = mock_token_manager.save_token.call_args
         assert call_args[1]['expires_at'] == "2026-10-19T00:00:00+00:00"
 
@@ -244,8 +244,8 @@ class TestConfigSetToken:
             ])
 
         assert result.exit_code == 1
-        assert "❌ Invalid date format" in result.stdout
-        assert "Expected ISO format: YYYY-MM-DDTHH:MM:SS+00:00" in result.stdout
+        assert "❌ Invalid date format" in result.output
+        assert "Expected ISO format: YYYY-MM-DDTHH:MM:SS+00:00" in result.output
         mock_token_manager.save_token.assert_not_called()
 
 
@@ -256,9 +256,9 @@ class TestConfigCheckToken:
         """Test that check-token command shows help."""
         result = runner.invoke(app, ["config", "check-token", "--help"])
         assert result.exit_code == 0
-        assert "Check the current GitHub token status" in result.stdout
-        assert "expiration" in result.stdout.lower()
-        assert "scopes" in result.stdout.lower()
+        assert "Check the current GitHub token status" in result.output
+        assert "expiration" in result.output.lower()
+        assert "scopes" in result.output.lower()
 
     def test_check_token_no_token_found(self, runner, mock_token_manager):
         """Test check-token when no token is configured."""
@@ -267,8 +267,8 @@ class TestConfigCheckToken:
         result = runner.invoke(app, ["config", "check-token"])
 
         assert result.exit_code == 1
-        assert "❌ No GitHub token found!" in result.stdout
-        assert "classdock config set-token" in result.stdout
+        assert "❌ No GitHub token found!" in result.output
+        assert "classdock config set-token" in result.output
 
     def test_check_token_valid_with_expiration(self, runner, mock_token_manager):
         """Test check-token with valid token that has expiration."""
@@ -292,11 +292,11 @@ class TestConfigCheckToken:
             result = runner.invoke(app, ["config", "check-token"])
 
         assert result.exit_code == 0
-        assert "📅 Token Expiration:" in result.stdout
-        assert "Valid for 74 more days" in result.stdout
-        assert "🔐 Token Scopes:" in result.stdout
-        assert "repo, read:org, workflow" in result.stdout
-        assert "✅ Token is properly configured" in result.stdout
+        assert "📅 Token Expiration:" in result.output
+        assert "Valid for 74 more days" in result.output
+        assert "🔐 Token Scopes:" in result.output
+        assert "repo, read:org, workflow" in result.output
+        assert "✅ Token is properly configured" in result.output
 
     def test_check_token_expired(self, runner, mock_token_manager):
         """Test check-token with expired token."""
@@ -313,10 +313,10 @@ class TestConfigCheckToken:
             result = runner.invoke(app, ["config", "check-token"])
 
         assert result.exit_code == 1
-        assert "❌ Token has EXPIRED!" in result.stdout
-        assert "October 17, 2025" in result.stdout
-        assert "(2 days ago)" in result.stdout
-        assert "classdock config set-token" in result.stdout
+        assert "❌ Token has EXPIRED!" in result.output
+        assert "October 17, 2025" in result.output
+        assert "(2 days ago)" in result.output
+        assert "classdock config set-token" in result.output
 
     def test_check_token_expiring_soon(self, runner, mock_token_manager):
         """Test check-token with token expiring soon."""
@@ -335,8 +335,8 @@ class TestConfigCheckToken:
             result = runner.invoke(app, ["config", "check-token"])
 
         assert result.exit_code == 0
-        assert "⚠️ Expires in 6 days" in result.stdout
-        assert "Consider generating a new token soon!" in result.stdout
+        assert "⚠️ Expires in 6 days" in result.output
+        assert "Consider generating a new token soon!" in result.output
 
     def test_check_token_classic_no_expiration(self, runner, mock_token_manager):
         """Test check-token with classic token (no expiration)."""
@@ -356,9 +356,9 @@ class TestConfigCheckToken:
             result = runner.invoke(app, ["config", "check-token"])
 
         assert result.exit_code == 0
-        assert "✓ Token is valid" in result.stdout
-        assert "classic (no expiration set)" in result.stdout
-        assert "⚠️ Consider setting an expiration date for tracking" in result.stdout
+        assert "✓ Token is valid" in result.output
+        assert "classic (no expiration set)" in result.output
+        assert "⚠️ Consider setting an expiration date for tracking" in result.output
 
     def test_check_token_missing_repo_scope(self, runner, mock_token_manager):
         """Test check-token with token missing repo scope."""
@@ -377,8 +377,8 @@ class TestConfigCheckToken:
             result = runner.invoke(app, ["config", "check-token"])
 
         assert result.exit_code == 0
-        assert "❌ repo - MISSING!" in result.stdout
-        assert "⚠️ Token is missing some required scopes" in result.stdout
+        assert "❌ repo - MISSING!" in result.output
+        assert "⚠️ Token is missing some required scopes" in result.output
 
     def test_check_token_missing_read_org_scope(self, runner, mock_token_manager):
         """Test check-token with token missing read:org scope."""
@@ -397,8 +397,8 @@ class TestConfigCheckToken:
             result = runner.invoke(app, ["config", "check-token"])
 
         assert result.exit_code == 0
-        assert "❌ read:org - MISSING!" in result.stdout
-        assert "⚠️ Token is missing some required scopes" in result.stdout
+        assert "❌ read:org - MISSING!" in result.output
+        assert "⚠️ Token is missing some required scopes" in result.output
 
     def test_check_token_invalid(self, runner, mock_token_manager):
         """Test check-token when token cannot be verified."""
@@ -408,7 +408,7 @@ class TestConfigCheckToken:
         result = runner.invoke(app, ["config", "check-token"])
 
         assert result.exit_code == 1
-        assert "❌ Token validation failed" in result.stdout
+        assert "❌ Token validation failed" in result.output
 
 
 class TestConfigAppIntegration:
@@ -419,9 +419,9 @@ class TestConfigAppIntegration:
         result = runner.invoke(app, ["config", "--help"])
 
         assert result.exit_code == 0
-        assert "Configuration and token management commands" in result.stdout
-        assert "set-token" in result.stdout
-        assert "check-token" in result.stdout
+        assert "Configuration and token management commands" in result.output
+        assert "set-token" in result.output
+        assert "check-token" in result.output
 
     def test_config_no_command_shows_help(self, runner):
         """Test that config without subcommand shows help."""
