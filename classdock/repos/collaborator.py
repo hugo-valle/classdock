@@ -416,9 +416,7 @@ class CollaboratorManager:
             # 2. Remove collaborator from all repositories
             # 3. Add collaborator to next repository in cycle
 
-            logger.warning(
-                "Permission cycling not yet implemented"
-            )
+            logger.warning("Permission cycling not yet implemented")
             results[assignment_prefix] = True
 
         except Exception as e:

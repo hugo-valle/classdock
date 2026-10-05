@@ -38,9 +38,7 @@ class AutomationScheduler:
             # 2. Add entries to user's crontab
             # 3. Verify installation
 
-            logger.warning(
-                "Cron job installation not yet implemented"
-            )
+            logger.warning("Cron job installation not yet implemented")
             results["sync_job"] = True
             results["orchestrator_job"] = True
 
@@ -84,9 +82,7 @@ class AutomationScheduler:
             # 2. Find classdock entries
             # 3. Check execution logs
 
-            logger.warning(
-                "Cron status checking not yet implemented"
-            )
+            logger.warning("Cron status checking not yet implemented")
 
         except Exception as e:
             logger.error(f"Cron status check failed: {e}")
