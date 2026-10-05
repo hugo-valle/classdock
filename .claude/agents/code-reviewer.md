@@ -41,7 +41,7 @@ You are an expert Code Reviewer specializing in Python development with deep kno
 
 6. **Project Standards Compliance**
    - Check that error handling follows `docs-site/development/error-handling.md` guidelines
-   - Ensure testing patterns align with `docs/TESTING.md`
+   - Ensure testing patterns align with `docs-site/development/testing.md`
    - Validate CLI commands follow `docs-site/development/architecture.md` structure
 
 ## Your Review Process

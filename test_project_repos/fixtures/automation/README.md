@@ -132,7 +132,7 @@ Log entries follow the format:
 
 ## Related Documentation
 
-- `docs/QA_TESTING_GUIDE.md` - Comprehensive QA testing guide for automation commands (lines 1234-1635)
+- `docs-site/development/testing.md` - Contributor testing guide
 - `test_project_repos/qa_tests/test_automation_commands.sh` - Main test suite using these fixtures
 - `classdock/automation/cron_manager.py` - CronManager implementation
 - `classdock/automation/cron_sync.py` - CronSyncManager implementation

@@ -202,7 +202,7 @@ not-a-url                           # Malformed
 
 ## Related Documentation
 
-- `docs/QA_TESTING_GUIDE.md` - Comprehensive QA testing guide for secrets commands (lines 1151-1233)
+- `docs-site/development/testing.md` - Contributor testing guide
 - `test_project_repos/qa_tests/test_secrets_commands.sh` - Main test suite using these fixtures
 - `classdock/secrets/github_secrets.py` - GitHubSecretsManager implementation
 - `classdock/services/secrets_service.py` - SecretsService layer

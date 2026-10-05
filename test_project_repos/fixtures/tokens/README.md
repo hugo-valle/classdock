@@ -228,7 +228,7 @@ When creating additional token test fixtures:
 ## Related Documentation
 
 - `classdock/utils/token_manager.py` - Token management implementation
-- `docs/QA_TESTING_GUIDE.md` - Comprehensive QA testing guide
+- `docs-site/development/testing.md` - Contributor testing guide
 - `test_project_repos/lib/test_helpers.sh` - Test helper functions
 - `test_project_repos/lib/mock_helpers.sh` - Mocking utilities
 - `test_project_repos/qa_tests/test_token_management.sh` - Token management tests

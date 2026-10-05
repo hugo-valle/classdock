@@ -138,6 +138,6 @@ conda --version && conda info
 ## 📚 More Information
 
 - **Setup Guide**: `sample_projects/real_repo/README.md`
-- **Full Documentation**: `docs/TESTING_GUIDE.md`
+- **Full Documentation**: [testing guide](../../docs-site/development/testing.md)
 - **Troubleshooting**: `docs/TROUBLESHOOTING.md`
 - **Test Scenarios**: `docs/TEST_SCENARIOS.md`
