@@ -575,7 +575,9 @@ class AssignmentOrchestrator:
         # Show workflow header
         if workflow_config.dry_run:
             self.console.print(
-                Panel("🧪 DRY RUN MODE - No actual changes will be made", style="yellow")
+                Panel(
+                    "🧪 DRY RUN MODE - No actual changes will be made", style="yellow"
+                )
             )
 
         try:
