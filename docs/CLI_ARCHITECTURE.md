@@ -517,7 +517,6 @@ For questions, issues, or contributions:
 
 - **GitHub Issues**: https://github.com/hugo-valle/classdock/issues
 - **Documentation**: See `docs/` directory for detailed documentation
-- **Legacy Documentation**: See `docs/README_LEGACY.md` for v1.x documentation
 
 ## License
 
