@@ -17,7 +17,7 @@ logger = get_logger("roster_sync")
 
 class RosterSynchronizer:
     """
-    Synchronizes roster with GitHub Classroom repositories.
+    Synchronizes roster with discovered GitHub repositories.
 
     Coordinates between discovered GitHub repositories and the roster database,
     creating links between students and their assignment repositories.
@@ -282,40 +282,3 @@ class RosterSynchronizer:
             "students_without_repos": without_repos,
             "acceptance_rate": acceptance_rate,
         }
-
-    def sync_from_classroom_api(
-        self, assignment_id: int, classroom_assignment_id: int, classroom_api_client
-    ) -> SyncResult:
-        """
-        Sync assignment data from GitHub Classroom API.
-
-        Retrieves assignment and student data directly from GitHub Classroom API
-        and synchronizes with roster.
-
-        Args:
-            assignment_id: Local assignment ID in roster
-            classroom_assignment_id: GitHub Classroom assignment ID
-            classroom_api_client: GitHubClassroomAPI client instance
-
-        Returns:
-            SyncResult with synchronization statistics
-
-        Note:
-            This is a placeholder for future GitHub Classroom API integration.
-            Currently not implemented as it requires the GitHub Classroom API client.
-        """
-        result = SyncResult(sync_type="github_classroom")
-
-        # TODO: Implement when GitHub Classroom API integration is available
-        # This would query the classroom API for:
-        # - Assignment details (deadline, points, etc.)
-        # - Student acceptance status
-        # - Repository URLs
-        # And sync this data to the roster
-
-        logger.warning(
-            "GitHub Classroom API sync not yet implemented. "
-            "Use sync_repositories() with discovered repos instead."
-        )
-
-        return result
