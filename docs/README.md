@@ -27,9 +27,6 @@ Welcome to the documentation for ClassDock - a modern Python CLI tool for automa
 ### Release & Publishing
 - **[Changelog](CHANGELOG.md)** - Version history and release notes
 
-### Architecture
-- **[CLI Architecture](CLI_ARCHITECTURE.md)** - Command-line interface design
-
 ## 🚀 Advanced Features
 
 ### Automation & Workflows

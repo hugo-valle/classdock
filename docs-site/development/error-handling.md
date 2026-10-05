@@ -632,10 +632,10 @@ class GitHubCircuitBreaker:
 
 ## 🔗 Related Documentation
 
-- [CLI Architecture](CLI_ARCHITECTURE.md) - Command-line interface integration
-- [Testing Framework](TESTING.md) - Comprehensive testing patterns
-- [Contributing Guide](../CONTRIBUTING.md) - Development guidelines
-- [Configuration System](CONFIG.md) - Configuration management
+- [Architecture](architecture.md) - Command-line interface integration
+- [Testing](testing.md) - Comprehensive testing patterns
+- [Contributing](contributing.md) - Development guidelines
+- [Configuration](../getting-started/configuration.md) - Configuration management
 
 ---
 
