@@ -668,7 +668,7 @@ def add_secrets_to_students(
                 return False
 
             # For now, we don't have specific repositories to process
-            # TODO: Implement GitHub Classroom API integration to discover student repositories
+            # TODO: Implement student repository discovery here
             logger.warning("Student repository auto-discovery not yet implemented")
             logger.info(
                 "To process specific repositories, provide repo URLs or batch file"

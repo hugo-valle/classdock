@@ -106,7 +106,7 @@ class AutomationService:
             manager = CronSyncManager(assignment_root=None)
 
             if not steps:
-                steps = ["sync"]
+                steps = ["discover"]
 
             if dry_run:
                 # Provide manager info useful for dry-run
@@ -136,7 +136,7 @@ class AutomationService:
                     f"DRY RUN: Would run scheduled sync (config: {config_file})",
                 )
 
-            result = manager.execute_cron_sync(["sync"], verbose=verbose)
+            result = manager.execute_cron_sync(["discover"], verbose=verbose)
 
             if result.overall_result == CronSyncResult.SUCCESS:
                 return True, "Scheduled sync completed successfully"

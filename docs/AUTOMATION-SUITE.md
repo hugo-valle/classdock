@@ -1,16 +1,15 @@
-# Automation Suite - Comprehensive GitHub Classroom Management
+# Automation Suite - Comprehensive Assignment Management
 
-This document describes the complete automation suite for managing GitHub Classroom assignments through the modern Python CLI interface.
+This document describes the complete automation suite for managing assignments through the modern Python CLI interface.
 
 ## 🎯 Overview
 
 The automation suite provides instructors with powerful tools to:
 
-- **Automated Repository Discovery** - Find student repositories from GitHub Classroom
+- **Automated Repository Discovery** - Find student repositories from the organization
 - **Batch Secret Management** - Distribute secrets across multiple repositories
 - **Student Assistance Tools** - Help students with repository issues and conflicts
 - **Permission Management** - Fix access issues through intelligent permission cycling
-- **Template Synchronization** - Keep assignment templates updated across classrooms
 - **Scheduling & Automation** - Set up automated workflows with cron jobs
 
 ## 📦 Installation
@@ -125,8 +124,8 @@ classdock automation batch [OPTIONS]
 Create `assignment.conf` with your assignment settings:
 
 ```bash
-# GitHub Classroom Configuration
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/456"
+# Assignment Configuration
+ASSIGNMENT_NAME="homework-1"
 TEMPLATE_REPO_URL="https://github.com/instructor/assignment-template"
 ASSIGNMENT_FILE="homework.py"
 
@@ -277,7 +276,7 @@ CONFIG="assignment.conf"
 
 echo "Starting weekly assignment update..."
 
-# 1. Sync template changes
+# 1. Update assignment
 classdock assignments manage --config "$CONFIG"
 
 # 2. Update secrets if needed
@@ -348,7 +347,7 @@ echo "Midterm preparation complete!"
 
 2. **Repository Discovery Issues**:
    ```bash
-   # Verify classroom URL format
+   # Verify assignment name and organization
    classdock --dry-run repos fetch --config assignment.conf
    ```
 
@@ -374,4 +373,4 @@ classdock --verbose --dry-run assignments orchestrate --config assignment.conf
 
 ---
 
-The Automation Suite provides comprehensive tools for efficient GitHub Classroom management through modern Python CLI commands.
+The Automation Suite provides comprehensive tools for efficient assignment management through modern Python CLI commands.

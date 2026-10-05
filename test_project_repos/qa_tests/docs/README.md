@@ -1,10 +1,10 @@
 # QA Tests Documentation
 
-This directory contains comprehensive documentation for the QA test infrastructure of the classroom-pilot project.
+This directory contains comprehensive documentation for the QA test infrastructure of the classdock project.
 
 ## Overview
 
-The QA test suite provides end-to-end validation of the classroom-pilot CLI tool through bash-based integration tests. These tests complement the Python unit tests in the main `tests/` directory.
+The QA test suite provides end-to-end validation of the classdock CLI tool through bash-based integration tests. These tests complement the Python unit tests in the main `tests/` directory.
 
 ---
 

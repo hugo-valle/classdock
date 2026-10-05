@@ -2,14 +2,13 @@
 Assignment Orchestrator - Python Implementation
 
 This module provides a comprehensive Python implementation
-that coordinates the complete workflow for managing GitHub Classroom assignments.
+that coordinates the complete workflow for managing assignments.
 
 Main workflow steps:
-1. Template synchronization with classroom 
-2. Student repository discovery
-3. Secret management across repositories
-4. Optional student assistance 
-5. Optional collaborator cycling
+1. Student repository discovery
+2. Secret management across repositories
+3. Optional student assistance
+4. Optional collaborator cycling
 
 Author: ClassDock Team
 """
@@ -36,7 +35,6 @@ logger = get_logger("assignments.orchestrator")
 class WorkflowStep(Enum):
     """Available workflow steps."""
 
-    SYNC = "sync"
     DISCOVER = "discover"
     SYNC_ROSTER = "sync_roster"
     SECRETS = "secrets"
@@ -94,9 +92,9 @@ class WorkflowCommand:
 
 class AssignmentOrchestrator:
     """
-    Main workflow coordinator for GitHub Classroom assignments.
+    Main workflow coordinator for assignments.
 
-    Orchestrates template sync, discovery, secrets, and assistance steps
+    Orchestrates discovery, secrets, and assistance steps
     using the Python implementations we've already created.
     """
 
@@ -180,8 +178,6 @@ class AssignmentOrchestrator:
 
         # Show enabled workflow steps
         enabled_steps = []
-        if getattr(self.global_config, "step_sync_template", True):
-            enabled_steps.append("✓ Sync Template")
         if getattr(self.global_config, "step_discover_repos", True):
             enabled_steps.append("✓ Discover Repos")
         if getattr(self.global_config, "step_sync_roster", False):
@@ -208,11 +204,6 @@ class AssignmentOrchestrator:
         iterates the plan and logs ``command.description`` without executing.
         """
         all_commands = [
-            WorkflowCommand(
-                WorkflowStep.SYNC,
-                "Synchronize template with classroom",
-                self.step_sync_template,
-            ),
             WorkflowCommand(
                 WorkflowStep.DISCOVER,
                 "Discover student repositories",
@@ -322,32 +313,8 @@ class AssignmentOrchestrator:
     # Workflow step methods — each delegates to _run_step
     # ------------------------------------------------------------------
 
-    def step_sync_template(self, dry_run: bool = False) -> StepResult:
-        """
-        Step 1: Synchronize template with classroom.
-
-        Note: This step requires template push functionality that will be
-        implemented in the push manager component.
-        For now, we'll provide a placeholder that logs the action.
-        """
-
-        def body(dry_run: bool) -> Tuple[bool, str, None]:
-            if dry_run:
-                self.logger.info("DRY RUN: Would synchronize template with classroom")
-                self.logger.info(
-                    f"Template repo: {self.global_config.template_repo_url}"
-                )
-                return True, "DRY RUN: Template sync simulated", None
-            self.logger.warning("Template sync requires push manager integration")
-            self.logger.info("Use 'classdock repos push' for template synchronization")
-            return True, "Template sync available via push manager", None
-
-        return self._run_step(
-            WorkflowStep.SYNC, "step_sync_template", True, dry_run, body
-        )
-
     def step_discover_repos(self, dry_run: bool = False) -> StepResult:
-        """Step 2: Discover student repositories using GitHub Classroom API."""
+        """Step 2: Discover student repositories."""
 
         def body(dry_run: bool) -> Tuple[bool, str, Optional[Dict]]:
             if dry_run:
@@ -586,7 +553,6 @@ class AssignmentOrchestrator:
         self.logger.info(f"Executing single step: {step.value}")
 
         step_methods = {
-            WorkflowStep.SYNC: self.step_sync_template,
             WorkflowStep.DISCOVER: self.step_discover_repos,
             WorkflowStep.SYNC_ROSTER: self.step_sync_roster,
             WorkflowStep.SECRETS: self.step_manage_secrets,
@@ -623,7 +589,6 @@ class AssignmentOrchestrator:
 
             # Execute full workflow
             steps_to_run = [
-                (WorkflowStep.SYNC, self.step_sync_template),
                 (WorkflowStep.DISCOVER, self.step_discover_repos),
                 (WorkflowStep.SYNC_ROSTER, self.step_sync_roster),
                 (WorkflowStep.SECRETS, self.step_manage_secrets),
@@ -740,11 +705,6 @@ class AssignmentOrchestrator:
         )
         return self.execute_workflow(workflow_config)
 
-    def sync_template(self):
-        """Legacy method - use step_sync_template instead."""
-        logger.info("Syncing template repository")
-        return self.step_sync_template(dry_run=False)
-
     def discover_repositories(self):
         """Legacy method - use step_discover_repos instead."""
         logger.info("Discovering student repositories")
@@ -795,11 +755,6 @@ class NullOrchestrator:
     def confirm_execution(self, workflow_config) -> bool:
         return True
 
-    def step_sync_template(self, dry_run: bool = False) -> StepResult:
-        return self._dry_step(
-            WorkflowStep.SYNC, "Would synchronize template with classroom"
-        )
-
     def step_discover_repos(self, dry_run: bool = False) -> StepResult:
         return self._dry_step(
             WorkflowStep.DISCOVER, "Would discover student repositories"
@@ -825,7 +780,6 @@ class NullOrchestrator:
         self, step: WorkflowStep, dry_run: bool = False
     ) -> StepResult:
         step_methods = {
-            WorkflowStep.SYNC: self.step_sync_template,
             WorkflowStep.DISCOVER: self.step_discover_repos,
             WorkflowStep.SYNC_ROSTER: self.step_sync_roster,
             WorkflowStep.SECRETS: self.step_manage_secrets,
@@ -839,7 +793,6 @@ class NullOrchestrator:
         _log.info("DRY RUN: Workflow execution simulated — no changes made")
         self.start_time = time.time()
         steps = [
-            WorkflowStep.SYNC,
             WorkflowStep.DISCOVER,
             WorkflowStep.SYNC_ROSTER,
             WorkflowStep.SECRETS,

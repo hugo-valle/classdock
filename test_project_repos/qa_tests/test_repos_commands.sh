@@ -8,7 +8,7 @@
 # Commands tested:
 # - fetch: Discover and fetch student repositories
 # - update: Update assignment configuration and student repositories
-# - push: Sync template repository to GitHub Classroom repository
+# - push: Sync template repository to GitHub repository
 # - cycle-collaborator: Cycle repository collaborator permissions
 #
 # Usage:

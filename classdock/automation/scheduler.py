@@ -38,9 +38,7 @@ class AutomationScheduler:
             # 2. Add entries to user's crontab
             # 3. Verify installation
 
-            logger.warning(
-                "Cron job installation not yet implemented - using bash wrapper"
-            )
+            logger.warning("Cron job installation not yet implemented")
             results["sync_job"] = True
             results["orchestrator_job"] = True
 
@@ -62,7 +60,7 @@ class AutomationScheduler:
             # 2. Remove entries from crontab
             # 3. Verify removal
 
-            logger.warning("Cron job removal not yet implemented - using bash wrapper")
+            logger.warning("Cron job removal not yet implemented")
             results["sync_job"] = True
             results["orchestrator_job"] = True
 
@@ -84,9 +82,7 @@ class AutomationScheduler:
             # 2. Find classdock entries
             # 3. Check execution logs
 
-            logger.warning(
-                "Cron status checking not yet implemented - using bash wrapper"
-            )
+            logger.warning("Cron status checking not yet implemented")
 
         except Exception as e:
             logger.error(f"Cron status check failed: {e}")
@@ -103,7 +99,7 @@ class AutomationScheduler:
             # 2. Update student repositories
             # 3. Log execution results
 
-            logger.warning("Scheduled sync not yet implemented - using bash wrapper")
+            logger.warning("Scheduled sync not yet implemented")
             return True
 
         except Exception as e:

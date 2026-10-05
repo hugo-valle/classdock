@@ -3,25 +3,22 @@
 # Test Suite: Assignments Commands
 #
 # Comprehensive QA testing for all classdock assignments commands.
-# Tests 13 commands with various options, error scenarios, and edge cases.
+# Tests 11 commands with various options, error scenarios, and edge cases.
 #
 # Commands tested:
-# - setup, validate-config, orchestrate
+# - validate-config, orchestrate
 # - help-student, help-students, check-student, student-instructions
-# - check-classroom, cycle-collaborator, cycle-collaborators
-# - check-repository-access, push-to-classroom
+# - cycle-collaborator, cycle-collaborators, check-repository-access
 #
 # Usage:
-#   ./test_assignments_commands.sh [--setup|--validate|--orchestrate|--help|--check|--cycle|--push|--all]
+#   ./test_assignments_commands.sh [--validate|--orchestrate|--help|--check|--cycle|--all]
 #
 # Options:
-#   --setup       Run only setup command tests
 #   --validate    Run only validate-config tests
 #   --orchestrate Run only orchestrate tests
 #   --help        Run only help-student/help-students tests
 #   --check       Run only check commands tests
 #   --cycle       Run only cycle-collaborator tests
-#   --push        Run only push-to-classroom tests
 #   --all         Run all tests (default)
 #
 # Requirements:
@@ -113,91 +110,11 @@ create_test_config() {
     echo "$dest_path"
 }
 
-################################################################################
-# Section 1: Setup Command Tests
-################################################################################
-
-run_setup_tests() {
-    log_info "Testing: assignments setup command"
-    
-    test_setup_with_url
-    test_setup_dry_run
-    test_setup_verbose
-}
-
-test_setup_with_url() {
-    log_step "Testing setup with --url option"
-    
-    local test_url="https://classroom.github.com/classrooms/123456/assignments/test-assignment"
-    local output
-    local exit_code=0
-    
-    cd "$TEST_TEMP_DIR" || return 1
-    
-    # Run setup with URL (in dry-run mode to avoid actual file creation in real scenario)
-    # Note: --dry-run must come BEFORE the subcommand
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run setup --url "$test_url" 2>&1) || exit_code=$?
-    
-    if [ $exit_code -eq 0 ]; then
-        mark_test_passed "Setup with --url option"
-    else
-        mark_test_failed "Setup with --url option" "Command failed with exit code $exit_code: $output"
-    fi
-    
-    cd "$ORIGINAL_PWD" || true
-}
-
-test_setup_dry_run() {
-    log_step "Testing setup with --dry-run option"
-    
-    local output
-    local exit_code=0
-    
-    # Run in project root but scope CLI to TEST_TEMP_DIR so any generated assignment.conf would appear there
-    # Note: poetry must run from project root (where pyproject.toml lives)
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock --assignment-root "$TEST_TEMP_DIR" assignments --dry-run setup --url "https://classroom.github.com/a/test" 2>&1) || exit_code=$?
-    
-    # Verify no config file was created
-    if [ ! -f "$TEST_TEMP_DIR/assignment.conf" ] && echo "$output" | grep -q "DRY RUN:"; then
-        mark_test_passed "Setup with --dry-run (no files created)"
-    else
-        mark_test_failed "Setup with --dry-run" "Files were created or dry-run not indicated"
-    fi
-    
-    cd "$ORIGINAL_PWD" || true
-}
-
-test_setup_verbose() {
-    log_step "Testing setup with --verbose option"
-    
-    cd "$TEST_TEMP_DIR" || return 1
-    
-    local output
-    local exit_code=0
-    
-    # Run with verbose flag
-        # Note: --verbose and --dry-run are subcommand-level options (after assignments, before setup)
-        output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run setup --url "https://classroom.github.com/a/test" 2>&1) || exit_code=$?
-    
-    if [ $exit_code -eq 0 ]; then
-        mark_test_passed "Setup with --verbose option"
-    else
-        mark_test_failed "Setup with --verbose option" "Command failed: $output"
-    fi
-    
-    cd "$ORIGINAL_PWD" || true
-}
-
-################################################################################
-# Section 2: Validate-Config Command Tests
-################################################################################
-
 run_validate_config_tests() {
     log_info "Testing: assignments validate-config command"
     
     test_validate_config_valid
     test_validate_config_minimal
-    test_validate_config_missing_classroom_url
     test_validate_config_missing_template_url
     test_validate_config_missing_file
     test_validate_config_invalid_urls
@@ -237,24 +154,6 @@ test_validate_config_minimal() {
         mark_test_passed "Validate-config with minimal config"
     else
         mark_test_failed "Validate-config with minimal config" "Validation failed: $output"
-    fi
-}
-
-test_validate_config_missing_classroom_url() {
-    log_step "Testing validate-config with missing CLASSROOM_URL"
-    
-    local config_file
-    config_file=$(create_test_config "invalid_no_classroom_url.conf")
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments validate-config --config-file "$config_file" 2>&1) || exit_code=$?
-    
-    if [ $exit_code -ne 0 ] && echo "$output" | grep -qi "classroom"; then
-        mark_test_passed "Validate-config detects missing CLASSROOM_URL"
-    else
-        mark_test_failed "Validate-config missing CLASSROOM_URL" "Should have failed with classroom error"
     fi
 }
 
@@ -913,13 +812,12 @@ test_student_instructions_save_file() {
 }
 
 test_student_instructions_invalid_url() {
-    log_step "Testing student-instructions with invalid CLASSROOM_URL"
+    log_step "Testing student-instructions with invalid TEMPLATE_REPO_URL"
     
     # Create a temp config with invalid URL
     local temp_config="$TEST_TEMP_DIR/invalid_url_config.conf"
     cat > "$temp_config" <<EOF
-CLASSROOM_URL=htp://invalid-protocol.com
-TEMPLATE_REPO_URL=https://github.com/test-org/template
+TEMPLATE_REPO_URL=htp://invalid-protocol.com
 GITHUB_ORGANIZATION=test-org
 ASSIGNMENT_NAME=test-assignment
 ASSIGNMENT_FILE=students.txt
@@ -983,96 +881,6 @@ test_student_instructions_verbose() {
         mark_test_failed "Student-instructions --verbose" "Command failed: $output"
     fi
 }
-
-################################################################################
-# Section 8: Check-Classroom Command Tests
-################################################################################
-
-run_check_classroom_tests() {
-    log_info "Testing: assignments check-classroom command"
-    
-    test_check_classroom_basic
-    test_check_classroom_dry_run
-    test_check_classroom_verbose
-    test_check_classroom_missing_config
-}
-
-test_check_classroom_basic() {
-    log_step "Testing check-classroom with valid config"
-    
-    local config_file
-    config_file=$(create_test_config "with_classroom_repo.conf")
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments check-classroom --config "$config_file" 2>&1) || exit_code=$?
-    
-    # Command should execute (may fail due to mocking, but should run)
-    if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "classroom\|repository\|check"; then
-        mark_test_passed "Check-classroom with valid config"
-    else
-        mark_test_failed "Check-classroom" "Unexpected failure: $output"
-    fi
-}
-
-test_check_classroom_dry_run() {
-    log_step "Testing check-classroom with --dry-run"
-    
-    local config_file
-    config_file=$(create_test_config "with_classroom_repo.conf")
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run check-classroom --config "$config_file" 2>&1) || exit_code=$?
-    
-    # Current CLI performs actual status check even with --dry-run;
-    # accept successful run or informative status output
-    if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "classroom repository\|status\|ready"; then
-        mark_test_passed "Check-classroom with --dry-run"
-    else
-        mark_test_failed "Check-classroom --dry-run" "Unexpected behavior: $output"
-    fi
-}
-
-test_check_classroom_verbose() {
-    log_step "Testing check-classroom with --verbose"
-    
-    local config_file
-    config_file=$(create_test_config "with_classroom_repo.conf")
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose check-classroom --config "$config_file" 2>&1) || exit_code=$?
-    
-    # Command should execute (may fail due to mocking)
-    if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "classroom\|repository\|check\|verbose"; then
-        mark_test_passed "Check-classroom with --verbose"
-    else
-        mark_test_failed "Check-classroom --verbose" "Command failed: $output"
-    fi
-}
-
-test_check_classroom_missing_config() {
-    log_step "Testing check-classroom with missing config file"
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments check-classroom --config /nonexistent.conf 2>&1) || exit_code=$?
-    
-    if [ $exit_code -ne 0 ] && echo "$output" | grep -qi "not found\|file.*not.*exist\|no such file\|error"; then
-        mark_test_passed "Check-classroom detects missing config"
-    else
-        mark_test_failed "Check-classroom missing config" "Should have failed with clear error"
-    fi
-}
-
-################################################################################
-# Section 10: Cycle-Collaborator Command Tests
-################################################################################
 
 run_cycle_collaborator_tests() {
     log_info "Testing: assignments cycle-collaborator command"
@@ -1344,170 +1152,17 @@ test_check_access_basic() {
     fi
 }
 
-################################################################################
-# Section 13: Push-to-Classroom Command Tests
-################################################################################
-
-run_push_to_classroom_tests() {
-    log_info "Testing: assignments push-to-classroom command"
-    
-    test_push_to_classroom_dry_run
-    test_push_to_classroom_with_force
-    test_push_to_classroom_interactive
-    test_push_to_classroom_non_interactive
-    test_push_to_classroom_branch
-    test_push_to_classroom_verbose
-    test_push_to_classroom_combined
-}
-
-test_push_to_classroom_dry_run() {
-    log_step "Testing push-to-classroom with --dry-run"
-    
-    local config_file
-    config_file=$(create_test_config "with_classroom_repo.conf")
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run push-to-classroom --config "$config_file" 2>&1) || exit_code=$?
-    
-    if echo "$output" | grep -qi "DRY RUN MODE\|DRY RUN:"; then
-        mark_test_passed "Push-to-classroom with --dry-run"
-    else
-        mark_test_failed "Push-to-classroom --dry-run" "Dry-run workflow not shown"
-    fi
-}
-
-test_push_to_classroom_with_force() {
-    log_step "Testing push-to-classroom with --force flag"
-    
-    local config_file
-    config_file=$(create_test_config "with_classroom_repo.conf")
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run push-to-classroom --config "$config_file" --force 2>&1) || exit_code=$?
-    
-    if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "force\|DRY RUN:"; then
-        mark_test_passed "Push-to-classroom with --force"
-    else
-        mark_test_failed "Push-to-classroom --force" "Command failed: $output"
-    fi
-}
-
-test_push_to_classroom_interactive() {
-    log_step "Testing push-to-classroom in interactive mode with --yes"
-    
-    local config_file
-    config_file=$(create_test_config "with_classroom_repo.conf")
-    
-    local output
-    local exit_code=0
-    
-    # Interactive mode is default; in DRY RUN no confirmation is required
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run push-to-classroom --config "$config_file" 2>&1) || exit_code=$?
-    
-    if [ $exit_code -eq 0 ] || echo "$output" | grep -q "DRY RUN:"; then
-        mark_test_passed "Push-to-classroom interactive mode with --yes"
-    else
-        mark_test_failed "Push-to-classroom interactive" "Command failed: $output"
-    fi
-}
-
-test_push_to_classroom_non_interactive() {
-    log_step "Testing push-to-classroom with --non-interactive"
-    
-    local config_file
-    config_file=$(create_test_config "with_classroom_repo.conf")
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run push-to-classroom --config "$config_file" --non-interactive 2>&1) || exit_code=$?
-    
-    if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "non.*interactive\|DRY RUN MODE\|DRY RUN:"; then
-        mark_test_passed "Push-to-classroom with --non-interactive"
-    else
-        mark_test_failed "Push-to-classroom --non-interactive" "Command failed: $output"
-    fi
-}
-
-test_push_to_classroom_branch() {
-    log_step "Testing push-to-classroom with custom --branch"
-    
-    local config_file
-    config_file=$(create_test_config "with_classroom_repo.conf")
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run push-to-classroom --config "$config_file" --branch custom-branch 2>&1) || exit_code=$?
-    
-    # The current CLI does not echo the branch in dry-run; validate dry-run mode instead
-    if [ $exit_code -eq 0 ] && echo "$output" | grep -qi "DRY RUN MODE\|DRY RUN:\|Dry run completed"; then
-        mark_test_passed "Push-to-classroom with custom --branch"
-    else
-        mark_test_failed "Push-to-classroom --branch" "Dry-run indicated but branch not explicitly echoed (expected per current CLI)"
-    fi
-}
-
-test_push_to_classroom_verbose() {
-    log_step "Testing push-to-classroom with --verbose"
-    
-    local config_file
-    config_file=$(create_test_config "with_classroom_repo.conf")
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --verbose --dry-run push-to-classroom --config "$config_file" 2>&1) || exit_code=$?
-    
-    if [ $exit_code -eq 0 ] || echo "$output" | grep -qi "DRY RUN MODE\|DRY RUN:"; then
-        mark_test_passed "Push-to-classroom with --verbose"
-    else
-        mark_test_failed "Push-to-classroom --verbose" "Command failed: $output"
-    fi
-}
-
-test_push_to_classroom_combined() {
-    log_step "Testing push-to-classroom with combined --force, --branch, --dry-run"
-    
-    local config_file
-    config_file=$(create_test_config "with_classroom_repo.conf")
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run push-to-classroom --config "$config_file" --force --branch test-branch 2>&1) || exit_code=$?
-    
-    # Current CLI dry-run output does not echo --force or branch; validate dry-run mode
-    if [ $exit_code -eq 0 ] && echo "$output" | grep -qi "DRY RUN MODE\|DRY RUN:\|Dry run completed"; then
-        mark_test_passed "Push-to-classroom with combined options"
-    else
-        mark_test_failed "Push-to-classroom combined" "Dry-run not indicated"
-    fi
-}
-
-################################################################################
-# Main Test Execution
-################################################################################
-
 run_all_tests() {
     log_info "Running all assignments command tests"
-    
-    run_setup_tests
     run_validate_config_tests
     run_orchestrate_tests
     run_help_student_tests
     run_help_students_tests
     run_check_student_tests
     run_student_instructions_tests
-    run_check_classroom_tests
     run_cycle_collaborator_tests
     run_cycle_collaborators_tests
     run_check_repository_access_tests
-    run_push_to_classroom_tests
 }
 
 main() {
@@ -1520,9 +1175,6 @@ main() {
     local run_mode="${1:---all}"
     
     case "$run_mode" in
-        --setup)
-            run_setup_tests
-            ;;
         --validate)
             run_validate_config_tests
             ;;
@@ -1536,15 +1188,11 @@ main() {
         --check)
             run_check_student_tests
             run_student_instructions_tests
-            run_check_classroom_tests
             run_check_repository_access_tests
             ;;
         --cycle)
             run_cycle_collaborator_tests
             run_cycle_collaborators_tests
-            ;;
-        --push)
-            run_push_to_classroom_tests
             ;;
         --all|*)
             run_all_tests

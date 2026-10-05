@@ -475,9 +475,9 @@ def realistic_github_response():
     return {
         'id': 123456789,
         'name': 'assignment-1-student1',
-        'full_name': 'classroom/assignment-1-student1',
-        'clone_url': 'https://github.com/classroom/assignment-1-student1.git',
-        'ssh_url': 'git@github.com:classroom/assignment-1-student1.git',
+        'full_name': 'course-org/assignment-1-student1',
+        'clone_url': 'https://github.com/course-org/assignment-1-student1.git',
+        'ssh_url': 'git@github.com:course-org/assignment-1-student1.git',
         'created_at': '2024-01-15T10:00:00Z',
         'updated_at': '2024-01-16T15:30:00Z'
     }

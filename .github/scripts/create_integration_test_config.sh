@@ -17,7 +17,6 @@ case "$CONFIG_TYPE" in
         print_message "step" "Creating basic test configuration"
         cat > "$OUTPUT_DIR/test_assignment.conf" << 'EOF'
 # Basic test assignment configuration
-CLASSROOM_URL="https://classroom.github.com/classrooms/123456/assignments/test-assignment"
 TEMPLATE_REPO_URL="https://github.com/test-org/assignment-template"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="test-assignment"
@@ -33,7 +32,6 @@ EOF
         print_message "step" "Creating minimal test configuration"
         cat > "$OUTPUT_DIR/minimal_assignment.conf" << 'EOF'
 # Minimal test assignment configuration
-CLASSROOM_URL="https://classroom.github.com/classrooms/123456/assignments/minimal-test"
 TEMPLATE_REPO_URL="https://github.com/test-org/minimal-template"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="minimal-test"
@@ -44,7 +42,6 @@ EOF
         print_message "step" "Creating advanced test configuration"
         cat > "$OUTPUT_DIR/advanced_assignment.conf" << 'EOF'
 # Advanced test assignment configuration with all options
-CLASSROOM_URL="https://classroom.github.com/classrooms/123456/assignments/advanced-test"
 TEMPLATE_REPO_URL="https://github.com/test-org/advanced-template"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="advanced-test"
@@ -75,7 +72,6 @@ EOF
         print_message "step" "Creating edge case test configuration"
         cat > "$OUTPUT_DIR/edge_case_assignment.conf" << 'EOF'
 # Edge case test assignment configuration
-CLASSROOM_URL="https://classroom.github.com/classrooms/999999/assignments/edge-case-test"
 TEMPLATE_REPO_URL="https://github.com/edge-case-org/special-chars-template"
 GITHUB_ORGANIZATION="edge-case-org"
 ASSIGNMENT_NAME="edge-case-test"

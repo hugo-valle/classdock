@@ -1,10 +1,10 @@
 # Cycle Collaborator - Repository Access Fix Tool
 
-The Cycle Collaborator script is designed to fix student repository access issues commonly encountered in GitHub Classroom environments. It provides intelligent detection and resolution of permission problems by cycling collaborator access.
+The Cycle Collaborator script is designed to fix student repository access issues commonly encountered in GitHub environments. It provides intelligent detection and resolution of permission problems by cycling collaborator access.
 
 ## 🎯 Overview
 
-GitHub Classroom occasionally experiences permission glitches where students lose access to their repositories despite being properly enrolled. This script:
+GitHub occasionally experiences permission glitches where students lose access to their repositories despite being properly enrolled. This script:
 
 1. **Detects** repository access issues automatically
 2. **Intelligently decides** when cycling is needed vs when access is already correct
@@ -227,7 +227,7 @@ Status: ✅ Repository corruption fixed. New invitation sent to student via emai
 
 ### When to Use Cycle-Collaborator
 1. **Students report** they can't access their repositories
-2. **GitHub Classroom glitches** affect multiple students
+2. **GitHub permission glitches** affect multiple students
 3. **Permission issues** persist after standard troubleshooting
 4. **Batch processing** needed for entire class
 
@@ -246,4 +246,4 @@ Status: ✅ Repository corruption fixed. New invitation sent to student via emai
 
 ---
 
-**Note:** This tool is designed for GitHub Classroom environments where instructor has appropriate permissions to manage student repository access. Always test with dry-run mode first when using in new environments.
+**Note:** This tool is designed for GitHub environments where instructor has appropriate permissions to manage student repository access. Always test with dry-run mode first when using in new environments.

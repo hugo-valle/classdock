@@ -1,11 +1,11 @@
 """
-Automated Workflow Cron Job Manager for GitHub Classroom Assignments.
+Automated Workflow Cron Job Manager for Assignments.
 
-This module provides automated synchronization and workflow execution designed 
+This module provides automated synchronization and workflow execution designed
 to run as scheduled tasks (cron jobs) for assignment management workflows.
 
 Key capabilities:
-- Execute workflow steps (sync, discover, secrets, assist, cycle)
+- Execute workflow steps (discover, secrets, assist, cycle)
 - Comprehensive logging with automatic log rotation
 - Configuration validation and error handling
 - Support for multiple workflow steps in sequence
@@ -28,7 +28,6 @@ from ..utils import get_logger
 class WorkflowStep(Enum):
     """Valid workflow steps for automated execution."""
 
-    SYNC = "sync"
     DISCOVER = "discover"
     SECRETS = "secrets"
     ASSIST = "assist"
@@ -138,8 +137,8 @@ class CronSyncManager:
             Tuple of (is_valid, valid_steps, error_message)
         """
         if not steps:
-            # Default to sync step for backward compatibility
-            return True, [WorkflowStep.SYNC], "Using default sync step"
+            # Default to the discover step
+            return True, [WorkflowStep.DISCOVER], "Using default discover step"
 
         valid_steps = []
         invalid_steps = []

@@ -2,12 +2,12 @@
 
 ## Purpose
 
-This directory contains test fixtures for QA testing of repos commands in the classroom-pilot CLI. These fixtures provide realistic test data for validating repository management operations including fetching, updating, pushing, and collaborator cycling.
+This directory contains test fixtures for QA testing of repos commands in the classdock CLI. These fixtures provide realistic test data for validating repository management operations including fetching, updating, pushing, and collaborator cycling.
 
 The fixtures enable comprehensive testing of:
 - **fetch** - Discover and fetch student repositories
 - **update** - Update assignment configuration and student repositories  
-- **push** - Sync template repository to GitHub Classroom repository
+- **push** - Sync template repository to GitHub repository
 - **cycle-collaborator** - Cycle repository collaborator permissions
 
 ---
@@ -16,45 +16,8 @@ The fixtures enable comprehensive testing of:
 
 ### Configuration Files
 
-#### `valid_repos_config.conf`
-**Purpose**: Comprehensive valid configuration with all fields including CLASSROOM_REPO_URL
-
-**Contains**:
-- All required fields (CLASSROOM_URL, TEMPLATE_REPO_URL, GITHUB_ORGANIZATION, ASSIGNMENT_NAME, ASSIGNMENT_FILE)
-- Optional CLASSROOM_REPO_URL (required for push command)
-- Optional STUDENT_FILES
-- Optional COLLABORATOR_USERS
-
-**Use Cases**:
-- Testing fetch command with full configuration
-- Testing update command with student files preservation
-- Testing push command (requires CLASSROOM_REPO_URL)
-- Testing all commands with complete configuration
-
 #### `minimal_repos_config.conf`
 **Purpose**: Minimal valid configuration with only required fields
-
-**Contains**:
-- Only the 5 required fields (CLASSROOM_URL, TEMPLATE_REPO_URL, GITHUB_ORGANIZATION, ASSIGNMENT_NAME, ASSIGNMENT_FILE)
-- No optional fields
-
-**Use Cases**:
-- Testing commands with minimal configuration
-- Validating required field detection
-- Testing fetch and update with minimal setup
-- Note: push command may fail since CLASSROOM_REPO_URL is missing
-
-#### `no_classroom_repo.conf`
-**Purpose**: Configuration missing CLASSROOM_REPO_URL for testing push command error handling
-
-**Contains**:
-- All required fields except CLASSROOM_REPO_URL
-- Intentionally omits CLASSROOM_REPO_URL
-
-**Use Cases**:
-- Testing push command error handling
-- Validating error messages for missing CLASSROOM_REPO_URL
-- Ensuring clear user feedback for configuration errors
 
 ### Repository Lists
 
@@ -114,28 +77,17 @@ The fixtures enable comprehensive testing of:
 
 ### Test fetch with valid configuration
 ```bash
-classroom-pilot repos fetch --config fixtures/repos/valid_repos_config.conf
+classdock repos fetch --config fixtures/repos/valid_repos_config.conf
 ```
 
 ### Test update with minimal configuration
 ```bash
-classroom-pilot repos update --config fixtures/repos/minimal_repos_config.conf
-```
-
-### Test push with valid configuration (includes CLASSROOM_REPO_URL)
-```bash
-classroom-pilot repos push --config fixtures/repos/valid_repos_config.conf
-```
-
-### Test push error handling (missing CLASSROOM_REPO_URL)
-```bash
-classroom-pilot repos push --config fixtures/repos/no_classroom_repo.conf
-# Expected: Error message about missing CLASSROOM_REPO_URL
+classdock repos update --config fixtures/repos/minimal_repos_config.conf
 ```
 
 ### Test cycle-collaborator with parameters
 ```bash
-classroom-pilot repos cycle-collaborator \
+classdock repos cycle-collaborator \
   --assignment-prefix test-assignment \
   --username student1 \
   --organization test-org
@@ -143,7 +95,7 @@ classroom-pilot repos cycle-collaborator \
 
 ### Test cycle-collaborator list mode
 ```bash
-classroom-pilot repos cycle-collaborator \
+classdock repos cycle-collaborator \
   --list \
   --assignment-prefix test-assignment \
   --username student1 \
@@ -153,13 +105,13 @@ classroom-pilot repos cycle-collaborator \
 ### Test with global options
 ```bash
 # Verbose mode
-classroom-pilot --verbose repos fetch --config fixtures/repos/valid_repos_config.conf
+classdock --verbose repos fetch --config fixtures/repos/valid_repos_config.conf
 
 # Dry-run mode
-classroom-pilot repos --dry-run fetch --config fixtures/repos/valid_repos_config.conf
+classdock repos --dry-run fetch --config fixtures/repos/valid_repos_config.conf
 
 # Combined
-classroom-pilot --verbose repos --dry-run fetch --config fixtures/repos/valid_repos_config.conf
+classdock --verbose repos --dry-run fetch --config fixtures/repos/valid_repos_config.conf
 ```
 
 ---
@@ -167,10 +119,6 @@ classroom-pilot --verbose repos --dry-run fetch --config fixtures/repos/valid_re
 ## Configuration Field Reference
 
 ### Required Fields (for all repos commands)
-
-- **CLASSROOM_URL** - GitHub Classroom assignment URL
-  - Format: `https://classroom.github.com/classrooms/{id}/assignments/{name}`
-  - Example: `https://classroom.github.com/classrooms/123456/assignments/test-assignment`
 
 - **TEMPLATE_REPO_URL** - Source template repository URL
   - Format: `https://github.com/{org}/{repo}`
@@ -189,10 +137,6 @@ classroom-pilot --verbose repos --dry-run fetch --config fixtures/repos/valid_re
   - Example: `assignment.ipynb` or `README.md`
 
 ### Optional Fields
-
-- **CLASSROOM_REPO_URL** - Central classroom repository URL (required for push command)
-  - Format: `https://github.com/{org}/{repo}`
-  - Example: `https://github.com/test-org/classroom-test-assignment`
 
 - **STUDENT_FILES** - Files/directories to preserve during updates
   - Format: Comma-separated list
@@ -265,12 +209,6 @@ ta-username
 
 ### fetch command
 
-**Requires**:
-- CLASSROOM_URL
-- TEMPLATE_REPO_URL
-- GITHUB_ORGANIZATION
-- ASSIGNMENT_NAME
-
 **Optional**:
 - ASSIGNMENT_FILE
 
@@ -284,13 +222,6 @@ ta-username
 - `minimal_repos_config.conf` - Minimal required fields
 
 ### update command
-
-**Requires**:
-- CLASSROOM_URL
-- TEMPLATE_REPO_URL
-- GITHUB_ORGANIZATION
-- ASSIGNMENT_NAME
-- ASSIGNMENT_FILE
 
 **Optional**:
 - STUDENT_FILES (files to preserve during update)
@@ -306,24 +237,8 @@ ta-username
 
 ### push command
 
-**Requires**:
-- CLASSROOM_URL
-- TEMPLATE_REPO_URL
-- GITHUB_ORGANIZATION
-- ASSIGNMENT_NAME
-- CLASSROOM_REPO_URL (must be present)
-
 **Optional**:
 - ASSIGNMENT_FILE
-
-**Behavior**:
-- Pushes template changes to central classroom repository
-- Requires CLASSROOM_REPO_URL to be configured
-- Fails with clear error if CLASSROOM_REPO_URL is missing
-
-**Test Fixtures**:
-- `valid_repos_config.conf` - Includes CLASSROOM_REPO_URL
-- `no_classroom_repo.conf` - Missing CLASSROOM_REPO_URL (error test)
 
 ### cycle-collaborator command
 
@@ -355,9 +270,6 @@ ta-username
 
 1. **Valid configurations**: `valid_*.conf` or descriptive names
    - Example: `valid_repos_config.conf`, `full_config.conf`
-
-2. **Invalid configurations**: `invalid_*.conf` or `no_*.conf` with clear description
-   - Example: `no_classroom_repo.conf`, `invalid_urls.conf`
 
 3. **List files**: Descriptive names indicating content
    - Example: `student_repos.txt`, `usernames.txt`, `ta_list.txt`
@@ -395,19 +307,12 @@ cat > new_config.conf <<EOF
 # New Configuration Description
 # Explain the purpose and special characteristics
 
-# Required fields
-CLASSROOM_URL=https://classroom.github.com/classrooms/123456/assignments/new-test
-TEMPLATE_REPO_URL=https://github.com/test-org/new-template
-GITHUB_ORGANIZATION=test-org
-ASSIGNMENT_NAME=new-assignment
-ASSIGNMENT_FILE=new.ipynb
-
 # Special field for this test case
 SPECIAL_FIELD=special_value
 EOF
 
 # Test it
-classroom-pilot repos fetch --config new_config.conf --dry-run
+classdock repos fetch --config new_config.conf --dry-run
 
 # Document it (add to this README)
 ```
@@ -420,9 +325,9 @@ classroom-pilot repos fetch --config new_config.conf --dry-run
 - **`test_project_repos/qa_tests/test_repos_commands.sh`** - Main test suite using these fixtures
 - **`test_project_repos/lib/test_helpers.sh`** - Test helper functions and assertions
 - **`test_project_repos/lib/mock_helpers.sh`** - Mocking utilities for GitHub API and file system
-- **`classroom_pilot/cli.py`** - CLI implementation for repos commands (lines 974-1222)
-- **`classroom_pilot/services/repos_service.py`** - ReposService implementation
-- **`classroom_pilot/repos/`** - Repos module implementations (fetch.py, collaborator.py)
+- **`classdock/cli.py`** - CLI implementation for repos commands (lines 974-1222)
+- **`classdock/services/repos_service.py`** - ReposService implementation
+- **`classdock/repos/`** - Repos module implementations (fetch.py, collaborator.py)
 
 ---
 
@@ -437,22 +342,9 @@ classroom-pilot repos fetch --config new_config.conf --dry-run
 - Real student usernames
 - Production configuration files
 
-### Security Best Practices:
-- Use `test-org` or similar for organization names
-- Use `test-assignment` or similar for assignment names
-- Use `studentN` pattern for usernames
-- Keep all URLs in `github.com/test-org` namespace
-- Never use actual classroom URLs
-
 ---
 
 ## Testing Best Practices
-
-### 1. Use Appropriate Fixtures
-Select the fixture that matches your test scenario:
-- Valid operations → `valid_repos_config.conf`
-- Minimal setup → `minimal_repos_config.conf`
-- Error testing → `no_classroom_repo.conf`, `invalid_repos.txt`
 
 ### 2. Test Error Cases
 Use invalid fixtures to verify error handling:
@@ -526,12 +418,6 @@ For batch operations, test with:
 - update
 - push
 - cycle-collaborator
-
-**Test Coverage**:
-- Repository discovery and fetching
-- Repository updating with template sync
-- Pushing changes to classroom repository
-- Collaborator permission management
 
 ---
 

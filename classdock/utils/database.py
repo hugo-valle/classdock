@@ -151,6 +151,7 @@ class DatabaseManager:
                     CREATE TABLE IF NOT EXISTS assignments (
                         id INTEGER PRIMARY KEY AUTOINCREMENT,
                         name TEXT NOT NULL UNIQUE,
+                        -- legacy columns, unused; kept so existing roster.db files stay compatible
                         classroom_id INTEGER,
                         classroom_url TEXT,
                         template_repo_url TEXT,

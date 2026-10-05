@@ -88,9 +88,9 @@ classdock roster status --org=YOUR_GITHUB_ORG
 
 ---
 
-## Test with Real GitHub Classroom
+## Test with Real Repositories
 
-**Prerequisites**: Active GitHub Classroom assignment with student repos
+**Prerequisites**: An assignment with student repositories in your organization
 
 ```bash
 # Add to assignment.conf

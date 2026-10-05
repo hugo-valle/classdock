@@ -62,12 +62,6 @@ ClassDock depends on several open-source packages. Below are their respective li
 
 ## Attribution
 
-### GitHub Classroom
-This project is designed to work with GitHub Classroom, a service provided by GitHub, Inc.
-- **Service**: GitHub Classroom
-- **Provider**: GitHub, Inc.
-- **URL**: https://classroom.github.com/
-
 ### Documentation Theme
 The documentation site uses the Material theme for MkDocs:
 - **Theme**: Material for MkDocs
@@ -77,7 +71,7 @@ The documentation site uses the Material theme for MkDocs:
 
 ## Disclaimer
 
-ClassDock is an independent project and is not affiliated with, endorsed by, or sponsored by GitHub, Inc. GitHub and GitHub Classroom are trademarks of GitHub, Inc.
+ClassDock is an independent project and is not affiliated with, endorsed by, or sponsored by GitHub, Inc. GitHub is a trademark of GitHub, Inc.
 
 The use of GitHub's API and services is subject to GitHub's Terms of Service and API Terms of Use.
 

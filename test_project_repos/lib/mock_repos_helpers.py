@@ -2,7 +2,7 @@
 """
 Mock Helpers for Repos Commands Testing
 
-This module provides Python-based mocking utilities for testing classroom-pilot
+This module provides Python-based mocking utilities for testing classdock
 repos commands. It uses unittest.mock to patch repository operations and simulate
 various scenarios without making actual GitHub API calls or filesystem changes.
 

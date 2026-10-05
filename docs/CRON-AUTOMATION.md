@@ -1,8 +1,8 @@
-# Cron Automation - Scheduled GitHub Classroom Management
+# Cron Automation - Scheduled Assignment Management
 
 ## 🎯 Overview
 
-ClassDock provides comprehensive automation capabilities for scheduling GitHub Classroom management tasks. Set up automated workflows that run unattended to keep your assignments synchronized and students supported.
+ClassDock provides comprehensive automation capabilities for scheduling assignment management tasks. Set up automated workflows that run unattended to keep your assignments synchronized and students supported.
 
 ## 📦 Installation
 
@@ -57,7 +57,7 @@ classdock automation scheduler setup --config assignment.conf
 
 # This configures cron jobs for:
 # - Regular assignment orchestration
-# - Template synchronization
+# - Repository discovery
 # - Secret management
 # - Repository monitoring
 ```
@@ -116,8 +116,8 @@ The automation system includes optimized default schedules:
 # Assignment orchestration: Daily at 2 AM
 0 2 * * *
 
-# Template synchronization: Every 4 hours
-0 */4 * * *
+# Repository discovery: Daily at 1 AM
+0 1 * * *
 
 # Secret management: Weekly on Sunday at 3 AM
 0 3 * * 0
@@ -167,7 +167,7 @@ AUTOMATION_SCHEDULE_END="0 6 * * *"                # Daily at 6 AM
 # Setup comprehensive automation
 cat > automation-assignment.conf << 'EOF'
 # Assignment Configuration
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/homework1"
+ASSIGNMENT_NAME="homework1"
 TEMPLATE_REPO_URL="https://github.com/instructor/homework1-template"
 ASSIGNMENT_FILE="homework1.py"
 SECRETS_CONFIG="
@@ -194,13 +194,13 @@ classdock automation scheduler setup --config automation-assignment.conf
 ```bash
 # High-frequency monitoring for exam period
 cat > midterm-automation.conf << 'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/midterm"
+ASSIGNMENT_NAME="midterm"
 TEMPLATE_REPO_URL="https://github.com/instructor/midterm-template"
 
 # Intensive monitoring during exam
 AUTOMATION_SCHEDULE_MONITOR="*/10 8-20 * * *"     # Every 10 minutes, 8 AM - 8 PM
 AUTOMATION_SCHEDULE_ASSISTANCE="*/5 8-20 * * *"   # Every 5 minutes during exam
-AUTOMATION_SCHEDULE_SYNC="0 */1 * * *"            # Hourly sync
+AUTOMATION_SCHEDULE_DISCOVER="0 */1 * * *"        # Hourly discovery
 EOF
 
 classdock automation scheduler setup --config midterm-automation.conf
@@ -211,7 +211,7 @@ classdock automation scheduler setup --config midterm-automation.conf
 ```bash
 # Reduced automation for semester end
 cat > semester-end-automation.conf << 'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/final-project"
+ASSIGNMENT_NAME="final-project"
 
 # Minimal automation
 AUTOMATION_SCHEDULE_ORCHESTRATE="0 6 * * *"       # Daily at 6 AM
@@ -363,4 +363,4 @@ classdock --dry-run automation scheduler setup --config assignment.conf
 
 ---
 
-Cron automation provides powerful, unattended management of GitHub Classroom assignments through intelligent scheduling and monitoring.
+Cron automation provides powerful, unattended management of assignments through intelligent scheduling and monitoring.

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 #
 # Real Repository Testing Script
-# Tests classroom-pilot with actual GitHub repositories and real workflows
+# Tests classdock with actual GitHub repositories and real workflows
 #
 
 set -e
@@ -52,7 +52,7 @@ REAL_REPO_CONFIG="$TEST_PROJECT_REPOS_DIR/sample_projects/real_repo/real_repo_in
 INSTRUCTOR_TOKEN_FILE="$TEST_PROJECT_REPOS_DIR/sample_projects/real_repo/instructor_token.txt"
 
 # Test environment variables
-TEST_ENV_NAME="classroom-pilot-real-test"
+TEST_ENV_NAME="classdock-real-test"
 TEST_WORKSPACE_DIR="$TEST_PROJECT_REPOS_DIR/real_test_workspace"
 CLONED_REPO_DIR="$TEST_WORKSPACE_DIR/student_repo"
 GENERATED_CONFIG_FILE="$TEST_WORKSPACE_DIR/assignment.conf"
@@ -82,7 +82,7 @@ show_usage() {
     cat << EOF
 Usage: $0 [OPTIONS]
 
-Test classroom-pilot with real GitHub repositories and workflows.
+Test classdock with real GitHub repositories and workflows.
 
 Options:
     --setup-only        Only set up the test environment
@@ -217,21 +217,19 @@ parse_real_repo_config() {
     source "$REAL_REPO_CONFIG"
     
     # Extract key information
-    CLASSROOM_URL_VAL="$CLASSROOM_URL"
     TEMPLATE_REPO_URL_VAL="$TEMPLATE_REPO_URL"
     GITHUB_ORGANIZATION_VAL="$GITHUB_ORGANIZATION"
     ASSIGNMENT_NAME_VAL="$ASSIGNMENT_NAME"
     ASSIGNMENT_FILE_VAL="$ASSIGNMENT_FILE"
     
-    log_detail "Classroom URL: $CLASSROOM_URL_VAL"
     log_detail "Template Repo: $TEMPLATE_REPO_URL_VAL"
     log_detail "Organization: $GITHUB_ORGANIZATION_VAL"
     log_detail "Assignment: $ASSIGNMENT_NAME_VAL"
     log_detail "Assignment File: $ASSIGNMENT_FILE_VAL"
     
     # Validate required fields
-    if [[ -z "$CLASSROOM_URL_VAL" ]]; then
-        mark_test_failed "Configuration parsing" "CLASSROOM_URL is empty"
+    if [[ -z "$ASSIGNMENT_NAME_VAL" ]]; then
+        mark_test_failed "Configuration parsing" "ASSIGNMENT_NAME is empty"
         return 1
     fi
     
@@ -268,8 +266,8 @@ setup_conda_environment() {
         return 1
     fi
     
-    # Activate environment and install classroom-pilot
-    log_info "Installing classroom-pilot in test environment"
+    # Activate environment and install classdock
+    log_info "Installing classdock in test environment"
     if conda run -n "$TEST_ENV_NAME" pip install --upgrade pip setuptools wheel; then
         mark_test_passed "Pip updated in conda environment"
     else
@@ -289,20 +287,20 @@ setup_conda_environment() {
         fi
     fi
     
-    # Install classroom-pilot from local source
+    # Install classdock from local source
     local current_dir=$(pwd)
     if conda run -n "$TEST_ENV_NAME" pip install -e "$PROJECT_ROOT"; then
-        mark_test_passed "Classroom-pilot installed in conda environment"
+        mark_test_passed "ClassDock installed in conda environment"
     else
-        mark_test_failed "Classroom-pilot installation" "Failed to install classroom-pilot"
+        mark_test_failed "ClassDock installation" "Failed to install classdock"
         return 1
     fi
     
     # Verify installation
-    if conda run -n "$TEST_ENV_NAME" classroom-pilot --version; then
-        mark_test_passed "Classroom-pilot CLI verified in conda environment"
+    if conda run -n "$TEST_ENV_NAME" classdock --version; then
+        mark_test_passed "ClassDock CLI verified in conda environment"
     else
-        mark_test_failed "CLI verification" "Classroom-pilot CLI not working in conda environment"
+        mark_test_failed "CLI verification" "ClassDock CLI not working in conda environment"
         return 1
     fi
     
@@ -375,7 +373,6 @@ generate_assignment_config() {
 # Generated on: $(date)
 # Source: $REAL_REPO_CONFIG
 
-CLASSROOM_URL=$CLASSROOM_URL_VAL
 GITHUB_ORGANIZATION=$GITHUB_ORGANIZATION_VAL
 TEMPLATE_REPO_URL=$TEMPLATE_REPO_URL_VAL
 ASSIGNMENT_FILE=$ASSIGNMENT_FILE_VAL
@@ -412,11 +409,11 @@ test_config_validation() {
         return 0
     fi
     
-    # Test configuration validation with classroom-pilot
-    if conda run -n "$TEST_ENV_NAME" classroom-pilot --config "$GENERATED_CONFIG_FILE" assignments validate-config; then
+    # Test configuration validation with classdock
+    if conda run -n "$TEST_ENV_NAME" classdock --config "$GENERATED_CONFIG_FILE" assignments validate-config; then
         mark_test_passed "Configuration validation passed"
     else
-        mark_test_failed "Configuration validation" "classroom-pilot config validation failed"
+        mark_test_failed "Configuration validation" "classdock config validation failed"
         return 1
     fi
     
@@ -438,7 +435,7 @@ test_assignment_setup() {
     
     # Test assignment setup in dry-run mode
     log_info "Running assignment setup in dry-run mode"
-    if conda run -n "$TEST_ENV_NAME" classroom-pilot --config "$GENERATED_CONFIG_FILE" assignments --dry-run setup --verbose; then
+    if conda run -n "$TEST_ENV_NAME" classdock --config "$GENERATED_CONFIG_FILE" assignments --dry-run setup --verbose; then
         mark_test_passed "Assignment setup dry-run passed"
     else
         mark_test_failed "Assignment setup" "Assignment setup dry-run failed"
@@ -462,7 +459,7 @@ test_repo_operations() {
     
     # Test repository fetch operations
     log_info "Testing repository fetch operations"
-    if conda run -n "$TEST_ENV_NAME" classroom-pilot repos fetch --help > /dev/null; then
+    if conda run -n "$TEST_ENV_NAME" classdock repos fetch --help > /dev/null; then
         mark_test_passed "Repository fetch command available"
     else
         mark_test_failed "Repository operations" "Repository fetch command not available"
@@ -471,7 +468,7 @@ test_repo_operations() {
     
     # Test collaborator operations (help only - no actual changes)
     log_info "Testing collaborator operations"
-    if conda run -n "$TEST_ENV_NAME" classroom-pilot repos cycle-collaborator --help > /dev/null; then
+    if conda run -n "$TEST_ENV_NAME" classdock repos cycle-collaborator --help > /dev/null; then
         mark_test_passed "Collaborator operations available"
     else
         mark_test_failed "Repository operations" "Collaborator operations not available"
@@ -495,14 +492,14 @@ test_secrets_management() {
     
     # Test secrets validation (dry-run mode only)
     log_info "Testing secrets validation"
-    if conda run -n "$TEST_ENV_NAME" classroom-pilot --config "$GENERATED_CONFIG_FILE" secrets --dry-run add; then
+    if conda run -n "$TEST_ENV_NAME" classdock --config "$GENERATED_CONFIG_FILE" secrets --dry-run add; then
         mark_test_passed "Secrets validation passed"
     else
         log_warning "Secrets validation failed (this may be expected in test environment)"
     fi
     
     # Test secrets help system
-    if conda run -n "$TEST_ENV_NAME" classroom-pilot secrets --help > /dev/null; then
+    if conda run -n "$TEST_ENV_NAME" classdock secrets --help > /dev/null; then
         mark_test_passed "Secrets management commands available"
     else
         mark_test_failed "Secrets management" "Secrets commands not available"
@@ -523,7 +520,7 @@ test_cli_interface() {
     fi
     
     # Test main help
-    if conda run -n "$TEST_ENV_NAME" classroom-pilot --help > /dev/null; then
+    if conda run -n "$TEST_ENV_NAME" classdock --help > /dev/null; then
         mark_test_passed "Main CLI help system working"
     else
         mark_test_failed "CLI interface" "Main help system failed"
@@ -532,7 +529,7 @@ test_cli_interface() {
     
     # Test version command
     local version_output
-    if version_output=$(conda run -n "$TEST_ENV_NAME" classroom-pilot --version 2>&1); then
+    if version_output=$(conda run -n "$TEST_ENV_NAME" classdock --version 2>&1); then
         mark_test_passed "Version command working"
         log_detail "Version: $version_output"
     else
@@ -543,7 +540,7 @@ test_cli_interface() {
     # Test subcommands help
     local subcommands=("assignments" "repos" "secrets")
     for subcmd in "${subcommands[@]}"; do
-        if conda run -n "$TEST_ENV_NAME" classroom-pilot "$subcmd" --help > /dev/null; then
+        if conda run -n "$TEST_ENV_NAME" classdock "$subcmd" --help > /dev/null; then
             mark_test_passed "Subcommand '$subcmd' help working"
         else
             mark_test_failed "CLI interface" "Subcommand '$subcmd' help failed"
@@ -564,7 +561,7 @@ test_python_api() {
     fi
     
     # Test basic imports
-    if conda run -n "$TEST_ENV_NAME" python -c "import classroom_pilot; print('Import successful')"; then
+    if conda run -n "$TEST_ENV_NAME" python -c "import classdock; print('Import successful')"; then
         mark_test_passed "Python API import working"
     else
         mark_test_failed "Python API" "Basic import failed"
@@ -572,7 +569,7 @@ test_python_api() {
     fi
     
     # Test configuration loading
-    if conda run -n "$TEST_ENV_NAME" python -c "from classroom_pilot import ConfigLoader; cl = ConfigLoader(); print('ConfigLoader working')"; then
+    if conda run -n "$TEST_ENV_NAME" python -c "from classdock import ConfigLoader; cl = ConfigLoader(); print('ConfigLoader working')"; then
         mark_test_passed "ConfigLoader functionality working"
     else
         mark_test_failed "Python API" "ConfigLoader failed"
@@ -583,11 +580,11 @@ test_python_api() {
     local test_script="$TEST_WORKSPACE_DIR/api_test.py"
     cat > "$test_script" << 'EOF'
 import sys
-sys.path.insert(0, '/Users/hugovalle/classroom_pilot')
+sys.path.insert(0, '/Users/hugovalle/classdock')
 
 try:
-    from classroom_pilot import ConfigLoader
-    from classroom_pilot.assignments.setup import AssignmentSetup
+    from classdock import ConfigLoader
+    from classdock.assignments.setup import AssignmentSetup
     
     # Test config loading
     config_file = sys.argv[1]
@@ -706,7 +703,7 @@ show_test_summary() {
 
 # Main execution function
 main() {
-    log_info "Starting Real Repository Testing for Classroom Pilot"
+    log_info "Starting Real Repository Testing for ClassDock"
     log_info "Test environment: $TEST_ENV_NAME"
     log_info "Workspace: $TEST_WORKSPACE_DIR"
     

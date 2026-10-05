@@ -555,12 +555,10 @@ create_minimal_test_config() {
     cat > "$config_file" << 'EOF'
 # Minimal Test Configuration
 # Auto-generated for QA testing
-CLASSROOM_URL=https://classroom.github.com/classrooms/123456/assignments/test-assignment
 TEMPLATE_REPO_URL=https://github.com/test-org/test-assignment-template
 GITHUB_ORGANIZATION=test-org
 ASSIGNMENT_NAME=test-assignment
 ASSIGNMENT_FILE=assignment.ipynb
-CLASSROOM_REPO_URL=https://github.com/test-org/classroom-test-assignment
 COLLABORATOR_USERS=ta1,ta2,instructor
 EOF
     

@@ -45,7 +45,6 @@ class GlobalConfig:
     instructor_token_file: str = "instructor_token.txt"
 
     # Workflow Configuration
-    step_sync_template: bool = True
     step_discover_repos: bool = True
     step_manage_secrets: bool = True
     step_assist_students: bool = False
@@ -250,8 +249,6 @@ class ConfigurationManager:
                 "INSTRUCTOR_TOKEN_FILE", "instructor_token.txt"
             ),
             # Workflow Configuration
-            step_sync_template=raw_config.get("STEP_SYNC_TEMPLATE", "true").lower()
-            == "true",
             step_discover_repos=raw_config.get("STEP_DISCOVER_REPOS", "true").lower()
             == "true",
             step_manage_secrets=step_manage_secrets_parsed,
@@ -354,9 +351,9 @@ class ConfigurationManager:
                             name=name,
                             description=description,
                             token_file=third_part,
-                            max_age_days=int(fourth_part)
-                            if fourth_part.isdigit()
-                            else 90,
+                            max_age_days=(
+                                int(fourth_part) if fourth_part.isdigit() else 90
+                            ),
                             validate_format=True,
                         )
                 elif len(parts) >= 5:

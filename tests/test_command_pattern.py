@@ -18,7 +18,7 @@ from unittest.mock import MagicMock
 # ---------------------------------------------------------------------------
 
 class TestWorkflowCommand:
-    def _make_command(self, step_value="sync", description="Do sync"):
+    def _make_command(self, step_value="discover", description="Do discover"):
         from classdock.assignments.orchestrator import WorkflowCommand, WorkflowStep, StepResult
         step = WorkflowStep(step_value)
         fake_result = StepResult(step=step, success=True, message="ok", duration=0.0)
@@ -38,8 +38,8 @@ class TestWorkflowCommand:
         executor.assert_called_once_with(dry_run=True)
 
     def test_description_is_stored(self):
-        cmd, _, _ = self._make_command(description="Synchronize template")
-        assert cmd.description == "Synchronize template"
+        cmd, _, _ = self._make_command(description="Discover repos")
+        assert cmd.description == "Discover repos"
 
     def test_step_is_stored(self):
         from classdock.assignments.orchestrator import WorkflowStep
@@ -48,7 +48,7 @@ class TestWorkflowCommand:
 
     def test_execute_without_executor_raises(self):
         from classdock.assignments.orchestrator import WorkflowCommand, WorkflowStep
-        cmd = WorkflowCommand(step=WorkflowStep.SYNC, description="test", _executor=None)
+        cmd = WorkflowCommand(step=WorkflowStep.DISCOVER, description="test", _executor=None)
         with pytest.raises(RuntimeError, match="no executor bound"):
             cmd.execute()
 
@@ -109,7 +109,7 @@ class TestGetWorkflowPlan:
         cfg = WorkflowConfig(enabled_steps=set(WorkflowStep))
         plan = orch.get_workflow_plan(cfg)
         expected_order = [
-            WorkflowStep.SYNC, WorkflowStep.DISCOVER, WorkflowStep.SYNC_ROSTER,
+            WorkflowStep.DISCOVER, WorkflowStep.SYNC_ROSTER,
             WorkflowStep.SECRETS, WorkflowStep.ASSIST, WorkflowStep.CYCLE,
         ]
         assert [cmd.step for cmd in plan] == expected_order
@@ -119,7 +119,6 @@ class TestGetWorkflowPlan:
         from classdock.assignments.orchestrator import WorkflowConfig, WorkflowStep, StepResult
         orch = self._make_orchestrator()
         # Provide minimal config attributes to avoid real API calls
-        orch.global_config.step_sync_template = False
         orch.global_config.step_discover_repos = False
         orch.global_config.step_sync_roster = False
         orch.global_config.step_manage_secrets = False

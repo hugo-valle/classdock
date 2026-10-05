@@ -1,16 +1,16 @@
 # Automation Commands
 
-Automation commands provide scheduling and batch processing capabilities for classroom management workflows.
+Automation commands provide scheduling and batch processing capabilities for course management workflows.
 
 ## Overview
 
-Automation features enable scheduled execution of classroom operations, batch processing of assignments, and monitoring of ongoing tasks.
+Automation features enable scheduled execution of assignment operations, batch processing of assignments, and monitoring of ongoing tasks.
 
 ## Commands
 
 ### `classdock automation schedule`
 
-Schedule classroom operations using cron-like syntax.
+Schedule assignment operations using cron-like syntax.
 
 ```bash
 # Schedule daily assignment orchestration

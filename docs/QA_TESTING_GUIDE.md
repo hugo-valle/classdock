@@ -24,7 +24,7 @@
 
 ### Required Setup
 1. **GitHub Token**: Configured in keychain or environment variable
-2. **Test Repository**: A GitHub Classroom assignment to work with
+2. **Test Repository**: A GitHub assignment to work with
 3. **Configuration File**: `assignment.conf` in test directory
 4. **Python Environment**: Python 3.10+ with classdock installed
 
@@ -36,7 +36,7 @@ poetry install
 ```
 
 ### Test Data Requirements
-- A GitHub organization with classroom access
+- A GitHub organization where you have admin access
 - At least one test student repository
 - Template repository with sample code
 - Student list file (students.txt with GitHub usernames)
@@ -129,7 +129,7 @@ cat > ~/.config/classdock/token_config.json << 'EOF'
 EOF
 
 # Test
-classdock assignments setup --url "https://classroom.github.com/..."
+classdock assignments setup
 ```
 
 **Validate:**
@@ -154,7 +154,7 @@ cat > ~/.config/classdock/token_config.json << 'EOF'
 EOF
 
 # Test
-classdock assignments setup --url "https://classroom.github.com/..."
+classdock assignments setup
 ```
 
 **Validate:**
@@ -253,7 +253,7 @@ rm -f ~/.config/classdock/token_config.json
 export GITHUB_TOKEN=ghp_xxxxxxxxxxxx
 
 # Test
-classdock assignments setup --url "https://classroom.github.com/..."
+classdock assignments setup
 ```
 
 **Validate:**
@@ -311,7 +311,7 @@ cat > ~/.config/classdock/token_config.json << 'EOF'
 }
 EOF
 
-classdock assignments setup --url "https://classroom.github.com/..."
+classdock assignments setup
 ```
 
 **Validate:**
@@ -369,9 +369,6 @@ classdock assignments setup
 # Simplified setup with minimal prompts
 classdock assignments setup --simplified
 
-# Setup with GitHub Classroom URL (auto-extracts info)
-classdock assignments setup --url "https://classroom.github.com/classrooms/12345/assignments/abc123"
-
 # Setup with global options
 classdock assignments --verbose setup
 classdock assignments --dry-run setup
@@ -384,7 +381,6 @@ classdock assignments --verbose --dry-run setup --simplified
 |----------|---------|-----------------|
 | Interactive setup | `classdock assignments setup` | Wizard prompts for all configuration |
 | Simplified setup | `classdock assignments setup --simplified` | Minimal prompts, uses defaults |
-| URL-based setup | `classdock assignments setup --url "https://classroom.github.com/..."` | Auto-extracts org and assignment |
 | Dry-run setup | `classdock assignments --dry-run setup` | Shows what would be configured |
 | Verbose setup | `classdock assignments --verbose setup` | Detailed output during setup |
 | Combined flags | `classdock assignments --verbose --dry-run setup --simplified` | Verbose dry-run simplified setup |
@@ -512,7 +508,7 @@ classdock assignments orchestrate --skip secrets,cycle -y -c custom.conf
 # Help single student (interactive)
 classdock assignments help-student "https://github.com/org/assignment-student123"
 
-# Use template directly (bypass classroom repo)
+# Use template directly (bypass the student repository)
 classdock assignments help-student --one-student "https://github.com/org/assignment-student123"
 
 # Auto-confirm
@@ -687,49 +683,7 @@ classdock assignments student-instructions -o inst.txt -c custom.conf "https://g
 
 ---
 
-### 8. `assignments check-classroom`
-
-**Purpose:** Check if the classroom repository is ready for student updates.
-
-**Command Variants:**
-
-```bash
-# Check classroom readiness
-classdock assignments check-classroom
-
-# Verbose check
-classdock assignments check-classroom --verbose
-classdock assignments check-classroom -v
-
-# Custom config
-classdock assignments check-classroom --config custom.conf
-classdock assignments check-classroom -c custom.conf
-
-# Combined options
-classdock assignments --verbose check-classroom
-classdock assignments --dry-run check-classroom
-classdock assignments --verbose --dry-run check-classroom -c custom.conf
-```
-
-**Test Scenarios:**
-
-| Scenario | Command | Expected Result |
-|----------|---------|-----------------|
-| Ready classroom | `classdock assignments check-classroom` | ✅ Ready status |
-| Unready classroom | `classdock assignments check-classroom` | ⚠️ Issues listed |
-| No config | `classdock assignments check-classroom` (no config file) | ❌ Error: config needed |
-| Verbose check | `classdock assignments --verbose check-classroom` | Detailed status info |
-
-**What to Validate:**
-- [ ] Repository access verified
-- [ ] Comparison with template
-- [ ] Sync status shown
-- [ ] Issues clearly listed
-- [ ] Recommendations provided
-
----
-
-### 9. `assignments manage`
+### 8. `assignments manage`
 
 **Purpose:** High-level interface for managing assignment lifecycle (placeholder).
 
@@ -759,7 +713,7 @@ classdock assignments --verbose --dry-run manage
 
 ---
 
-### 10. `assignments cycle-collaborator`
+### 9. `assignments cycle-collaborator`
 
 **Purpose:** Cycle collaborator permissions for a single repository.
 
@@ -804,7 +758,7 @@ classdock assignments --verbose --dry-run cycle-collaborator -f -c custom.conf "
 
 ---
 
-### 11. `assignments cycle-collaborators`
+### 10. `assignments cycle-collaborators`
 
 **Purpose:** Cycle collaborator permissions for multiple repositories (batch).
 
@@ -869,7 +823,7 @@ https://github.com/org/assignment-student3
 
 ---
 
-### 12. `assignments check-repository-access`
+### 11. `assignments check-repository-access`
 
 **Purpose:** Check repository access status for a specific user.
 
@@ -912,68 +866,9 @@ classdock assignments --verbose check-repository-access -v -c custom.conf "URL" 
 
 ---
 
-### 13. `assignments push-to-classroom`
+### 12. `repos fetch`
 
-**Purpose:** Push template repository changes to the classroom repository.
-
-**Command Variants:**
-
-```bash
-# Interactive push (default)
-classdock assignments push-to-classroom
-
-# Force push without confirmation
-classdock assignments push-to-classroom --force
-classdock assignments push-to-classroom -f
-
-# Non-interactive mode
-classdock assignments push-to-classroom --non-interactive
-classdock assignments push-to-classroom --non-interactive --force
-
-# Specific branch
-classdock assignments push-to-classroom --branch develop
-classdock assignments push-to-classroom -b develop
-
-# Custom config
-classdock assignments push-to-classroom --config custom.conf
-classdock assignments push-to-classroom -c custom.conf
-
-# Combined options
-classdock assignments --verbose push-to-classroom --force --branch main
-classdock assignments --dry-run push-to-classroom -f -b develop
-classdock assignments --verbose --dry-run push-to-classroom --non-interactive -f -b main -c custom.conf
-```
-
-**Test Scenarios:**
-
-| Scenario | Command | Expected Result |
-|----------|---------|-----------------|
-| Interactive push | `classdock assignments push-to-classroom` | Prompts for confirmation |
-| Force push | `classdock assignments push-to-classroom -f` | No confirmation |
-| Non-interactive | `classdock assignments push-to-classroom --non-interactive` | No prompts |
-| Specific branch | `classdock assignments push-to-classroom -b develop` | Pushes develop branch |
-| Invalid branch | `classdock assignments push-to-classroom -b nonexistent` | ❌ Error: branch not found |
-| No changes | `classdock assignments push-to-classroom` | ℹ️ Already up to date |
-| Conflicts | `classdock assignments push-to-classroom` | ⚠️ Conflict warning |
-| Dry-run push | `classdock assignments --dry-run push-to-classroom` | Shows what would push |
-| Verbose push | `classdock assignments --verbose push-to-classroom` | Detailed push process |
-
-**What to Validate:**
-- [ ] Changes detected correctly
-- [ ] Confirmation works (unless forced)
-- [ ] Push successful
-- [ ] Branch selection works
-- [ ] Dry-run doesn't push
-- [ ] Conflicts handled properly
-- [ ] Error messages clear
-
----
-
-## Repos Commands
-
-### 14. `repos fetch`
-
-**Purpose:** Discover and fetch student repositories from GitHub Classroom.
+**Purpose:** Discover and fetch student repositories from the organization.
 
 **Command Variants:**
 
@@ -1012,7 +907,7 @@ classdock repos --verbose --dry-run fetch -c custom.conf
 
 ---
 
-### 15. `repos update`
+### 13. `repos update`
 
 **Purpose:** Update assignment configuration and student repositories.
 
@@ -1054,47 +949,7 @@ classdock repos --verbose --dry-run update -c custom.conf
 
 ---
 
-### 16. `repos push`
-
-**Purpose:** Syncs the template repository to the GitHub Classroom repository.
-
-**Command Variants:**
-
-```bash
-# Basic push
-classdock repos push
-
-# Custom config
-classdock repos push --config custom.conf
-classdock repos push -c custom.conf
-
-# With global options
-classdock repos --verbose push
-classdock repos --dry-run push
-classdock repos --verbose --dry-run push
-classdock repos --verbose --dry-run push -c custom.conf
-```
-
-**Test Scenarios:**
-
-| Scenario | Command | Expected Result |
-|----------|---------|-----------------|
-| Basic push | `classdock repos push` | Syncs template to classroom |
-| No changes | `classdock repos push` (no changes) | ℹ️ Already up to date |
-| With changes | `classdock repos push` (changes exist) | Pushes changes |
-| Dry-run push | `classdock repos --dry-run push` | Shows what would push |
-| Verbose push | `classdock repos --verbose push` | Detailed push process |
-
-**What to Validate:**
-- [ ] Changes detected
-- [ ] Push successful
-- [ ] Dry-run doesn't push
-- [ ] Error messages clear
-- [ ] Verification performed
-
----
-
-### 17. `repos cycle-collaborator`
+### 14. `repos cycle-collaborator`
 
 **Purpose:** Cycle repository collaborator permissions for assignments.
 
@@ -1152,7 +1007,7 @@ classdock repos cycle-collaborator --assignment-prefix hw1 --username student123
 
 ## Secrets Commands
 
-### 18. `secrets add`
+### 15. `secrets add`
 
 **Purpose:** Add or update secrets in student repositories.
 
@@ -1203,7 +1058,7 @@ classdock secrets --verbose --dry-run add -r /path --repos "url1,url2"
 
 ---
 
-### 19. `secrets manage`
+### 16. `secrets manage`
 
 **Purpose:** Interface for advanced secret and token management (placeholder).
 
@@ -1235,7 +1090,7 @@ classdock secrets --verbose --dry-run manage
 
 ## Automation Commands
 
-### 20. `automation cron-install`
+### 17. `automation cron-install`
 
 **Purpose:** Install cron job for automated workflow steps.
 
@@ -1299,7 +1154,7 @@ classdock automation --verbose --dry-run cron-install sync -s "0 2 * * *" -c cus
 
 ---
 
-### 21. `automation cron-remove`
+### 18. `automation cron-remove`
 
 **Purpose:** Remove cron jobs for automated workflow steps.
 
@@ -1349,7 +1204,7 @@ classdock automation cron-remove sync secrets -c custom.conf
 
 ---
 
-### 22. `automation cron-status`
+### 19. `automation cron-status`
 
 **Purpose:** Show status of installed cron jobs.
 
@@ -1386,7 +1241,7 @@ classdock automation --verbose --dry-run cron-status -c custom.conf
 
 ---
 
-### 23. `automation cron-logs`
+### 20. `automation cron-logs`
 
 **Purpose:** Show recent workflow log entries.
 
@@ -1432,7 +1287,7 @@ classdock automation --verbose cron-logs -n 100
 
 ---
 
-### 24. `automation cron-schedules`
+### 21. `automation cron-schedules`
 
 **Purpose:** List default schedules for workflow steps.
 
@@ -1458,7 +1313,7 @@ classdock automation cron-schedules
 
 ---
 
-### 25. `automation cron-sync`
+### 22. `automation cron-sync`
 
 **Purpose:** Execute automated workflow cron job with specified steps.
 
@@ -1522,7 +1377,7 @@ classdock automation --verbose --dry-run cron-sync --stop-on-failure --show-log 
 
 ---
 
-### 26. `automation cron` (Legacy)
+### 23. `automation cron` (Legacy)
 
 **Purpose:** Manage cron automation jobs via CLI (legacy command).
 
@@ -1571,7 +1426,7 @@ classdock automation --verbose --dry-run cron -a status -c custom.conf
 
 ---
 
-### 27. `automation sync`
+### 24. `automation sync`
 
 **Purpose:** Execute scheduled synchronization tasks.
 
@@ -1611,7 +1466,7 @@ classdock automation --verbose --dry-run sync -c custom.conf
 
 ---
 
-### 28. `automation batch`
+### 25. `automation batch`
 
 **Purpose:** Run batch processing operations (placeholder).
 
@@ -1667,7 +1522,6 @@ classdock automation batch
 - [ ] Test student help commands
 - [ ] Test status checking commands
 - [ ] Test collaborator cycling commands
-- [ ] Test push-to-classroom with all options
 
 #### Phase 4: Repos Commands
 - [ ] Test `fetch` operations

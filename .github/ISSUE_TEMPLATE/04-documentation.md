@@ -153,7 +153,6 @@ classdock example --help
 - Follows #(issue number)
 
 **External References:**
-- GitHub Classroom docs
 - GitHub API docs
 - Python/Poetry docs
 - Related projects

@@ -8,10 +8,6 @@ This directory contains test fixtures specifically designed to trigger various e
 
 ### Missing Configuration Fixtures
 
-- **`missing_all_required.conf`** - Configuration missing all required fields
-  - Tests validation error reporting when all required fields are absent
-  - Expected: Error listing all missing required fields (CLASSROOM_URL, TEMPLATE_REPO_URL, GITHUB_ORGANIZATION, ASSIGNMENT_NAME, ASSIGNMENT_FILE)
-
 - **`completely_empty.conf`** - Completely empty configuration file
   - Tests handling of completely empty configuration files
   - Expected: Error about missing required fields
@@ -50,38 +46,38 @@ This directory contains test fixtures specifically designed to trigger various e
 
 ### Test missing configuration fields
 ```bash
-classroom-pilot assignments validate-config --config-file fixtures/errors/missing_all_required.conf
+classdock assignments validate-config --config-file fixtures/errors/missing_all_required.conf
 # Expected: Error listing all missing required fields
 ```
 
 ### Test invalid URL formats
 ```bash
-classroom-pilot assignments validate-config --config-file fixtures/errors/invalid_url_formats.conf
+classdock assignments validate-config --config-file fixtures/errors/invalid_url_formats.conf
 # Expected: Error about malformed URLs with specific field names
 ```
 
 ### Test nonexistent repositories
 ```bash
-classroom-pilot assignments help-students fixtures/errors/nonexistent_repos.txt
+classdock assignments help-students fixtures/errors/nonexistent_repos.txt
 # Expected: Errors for each nonexistent repo, summary of failures
 ```
 
 ### Test mixed valid/invalid entries
 ```bash
-classroom-pilot assignments help-students fixtures/errors/mixed_valid_invalid_repos.txt
+classdock assignments help-students fixtures/errors/mixed_valid_invalid_repos.txt
 # Expected: Process valid entries, report errors for invalid ones, show summary
 ```
 
 ### Test permission errors
 ```bash
-classroom-pilot assignments orchestrate --config fixtures/errors/permission_denied.conf
+classdock assignments orchestrate --config fixtures/errors/permission_denied.conf
 # Expected: Error about access denied with suggestions to check permissions
 ```
 
 ### Test corrupted JSON
 ```bash
-# Copy corrupted_json_token.json to ~/.config/classroom-pilot/token_config.json
-classroom-pilot assignments validate-config
+# Copy corrupted_json_token.json to ~/.config/classdock/token_config.json
+classdock assignments validate-config
 # Expected: Error about malformed JSON in token configuration
 ```
 
@@ -112,17 +108,6 @@ classroom-pilot assignments validate-config
 Error: Configuration file not found: /path/to/nonexistent.conf
 Suggestion: Create the configuration file or specify a different path with --config
 
-# Invalid URL
-Error: Invalid URL format in CLASSROOM_URL: htp://classroom.github.com/...
-Suggestion: URLs must start with http:// or https://
-
-# Missing required fields
-Error: Configuration validation failed:
-  - Missing required field: CLASSROOM_URL
-  - Missing required field: TEMPLATE_REPO_URL
-  - Missing required field: GITHUB_ORGANIZATION
-Suggestion: Add the required fields to your configuration file
-
 # Nonexistent repository
 Error: Repository not found: https://github.com/test-org/nonexistent-repo
 Suggestion: Verify the repository URL is correct and you have access
@@ -133,7 +118,7 @@ Suggestion: Verify you are a member of the organization and your token has the r
 
 # Malformed JSON
 Error: Failed to parse token configuration: Invalid JSON syntax
-Suggestion: Check ~/.config/classroom-pilot/token_config.json for syntax errors
+Suggestion: Check ~/.config/classdock/token_config.json for syntax errors
 ```
 
 ## Adding New Error Fixtures
@@ -161,8 +146,8 @@ Suggestion: Check ~/.config/classroom-pilot/token_config.json for syntax errors
 
 - `docs/QA_TESTING_GUIDE.md` - Comprehensive QA testing guide (lines 1691-1705 for error scenarios, lines 1748-1804 for troubleshooting)
 - `test_project_repos/qa_tests/test_error_scenarios.sh` - Main error scenarios test suite
-- `classroom_pilot/utils/github_exceptions.py` - Custom exception classes and error handling
-- `classroom_pilot/services/` - Service layer error handling patterns
+- `classdock/utils/github_exceptions.py` - Custom exception classes and error handling
+- `classdock/services/` - Service layer error handling patterns
 
 ## Security Note
 

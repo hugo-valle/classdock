@@ -1,5 +1,5 @@
 """
-Repository Fetcher for GitHub Classroom Student Repositories.
+Repository Fetcher for Student Repositories.
 
 This module handles:
 - Student repository discovery via GitHub API integration
@@ -59,7 +59,7 @@ class FetchResult:
 
 class RepositoryFetcher:
     """
-    RepositoryFetcher handles comprehensive GitHub Classroom repository operations.
+    RepositoryFetcher handles comprehensive student repository operations.
 
     This class provides methods for discovering student repositories through GitHub API,
     filtering repositories by assignment patterns, batch fetching with progress tracking,
@@ -367,10 +367,6 @@ class RepositoryFetcher:
 
         # Exclude template and instructor repositories
         if repo_name.endswith("-template") or "instructor" in repo_name.lower():
-            return False
-
-        # Exclude classroom template copies
-        if "classroom" in repo_name.lower() and "template" in repo_name.lower():
             return False
 
         return True
@@ -803,9 +799,7 @@ class RepositoryFetcher:
                     if existing_lines and not existing_lines[-1].strip() == "":
                         # Add blank line if file doesn't end with one
                         f.write("\n")
-                    f.write(
-                        "# GitHub Classroom student repositories (auto-generated)\n"
-                    )
+                    f.write("# Student repositories (auto-generated)\n")
                     for entry in entries_to_add:
                         f.write(f"{entry}\n")
 

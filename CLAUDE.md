@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-**ClassDock** is a Python CLI tool for automating GitHub Classroom assignment management. It handles assignment setup, repository discovery, secret distribution, automated scheduling, and collaborator management.
+**ClassDock** is a Python CLI tool for automating assignment management for GitHub-based courses. It handles assignment setup, repository discovery, secret distribution, automated scheduling, and collaborator management.
 
 - **Package**: `classdock` on PyPI
 - **Python**: 3.10+
@@ -442,3 +442,17 @@ See `docs/ROSTER_SYNC.md` for complete documentation.
 - `docs/ERROR_HANDLING.md` - Error handling system
 - `docs/TESTING.md` - Testing framework and patterns
 - `docs/ROSTER_SYNC.md` - Roster management and sync integration guide
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues (hugo-valle/classdock), via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.

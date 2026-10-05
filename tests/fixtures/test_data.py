@@ -6,10 +6,8 @@ This module contains test configuration files and sample data.
 
 # Sample test configuration content
 TEST_CONFIG_CONTENT = '''# Test configuration for classdock
-CLASSROOM_URL="https://classroom.github.com/classrooms/test/assignments/test"
 TEMPLATE_REPO_URL="https://github.com/test/template"
 GITHUB_ORGANIZATION="test-org"
-CLASSROOM_REPO_URL="https://github.com/test-org/test-assignment"
 SECRETS_JSON='{"TEST_SECRET": "test-value"}'
 INSTRUCTOR_HANDLE="instructor"
 ASSIGNMENT_NAME="test-assignment"
@@ -26,5 +24,5 @@ homework01 student3 test-org
 # Sample invalid configuration
 INVALID_CONFIG_CONTENT = '''# Invalid configuration - missing required fields
 TEMPLATE_REPO_URL="https://github.com/test/template"
-# Missing CLASSROOM_URL and GITHUB_ORGANIZATION
+# Missing ASSIGNMENT_NAME and GITHUB_ORGANIZATION
 '''

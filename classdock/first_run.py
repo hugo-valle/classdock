@@ -38,7 +38,7 @@ def run_first_run_wizard() -> None:
     _console.print(
         Panel(
             "[bold magenta]Welcome to ClassDock![/bold magenta]\n\n"
-            "ClassDock automates GitHub Classroom assignment management:\n"
+            "ClassDock automates assignment management for GitHub-based courses:\n"
             "  • Discover student repositories\n"
             "  • Distribute secrets to student repos\n"
             "  • Schedule automated workflows\n"

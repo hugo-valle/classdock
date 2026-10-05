@@ -2,7 +2,7 @@
 Comprehensive test suite for classdock.cli module.
 
 This test suite provides comprehensive coverage for the CLI interface,
-which handles command-line operations for GitHub Classroom assignment management.
+which handles command-line operations for assignment management.
 The tests include unit tests for individual commands, integration tests for
 workflow operations, and comprehensive validation of CLI behavior across different scenarios.
 
@@ -218,7 +218,6 @@ class TestWorkflowCommands:
         # Create a temporary config file
         config_file = tmp_path / "assignment.conf"
         config_file.write_text("""
-CLASSROOM_URL=https://classroom.github.com/test
 TEMPLATE_REPO_URL=https://github.com/test/template
 GITHUB_ORGANIZATION=test-org
 ASSIGNMENT_NAME=test-assignment
@@ -302,7 +301,6 @@ class TestGlobalOptions:
 
         # Create a valid assignment.conf file
         config_content = """# Test Assignment Configuration
-CLASSROOM_URL=https://classroom.github.com/classrooms/test/assignments/test-assignment
 TEMPLATE_REPO_URL=https://github.com/test-org/test-assignment-template.git
 GITHUB_ORGANIZATION=test-org
 ASSIGNMENT_NAME=test-assignment
@@ -401,7 +399,6 @@ BATCH_SIZE=5
         other_dir = tmp_path / "other_assignment"
         other_dir.mkdir()
         other_config = """# Other Assignment Configuration
-CLASSROOM_URL=https://classroom.github.com/classrooms/other/assignments/other-assignment
 TEMPLATE_REPO_URL=https://github.com/other-org/other-template.git
 GITHUB_ORGANIZATION=other-org
 ASSIGNMENT_NAME=other-assignment
@@ -440,7 +437,6 @@ STUDENT_FILES=assignment.ipynb
         other_dir = tmp_path / "other_assignment"
         other_dir.mkdir()
         other_config = """# Other Assignment Configuration
-CLASSROOM_URL=https://classroom.github.com/classrooms/other/assignments/other-assignment
 TEMPLATE_REPO_URL=https://github.com/other-org/other-template.git
 GITHUB_ORGANIZATION=other-org
 ASSIGNMENT_NAME=other-assignment
@@ -463,7 +459,6 @@ STUDENT_FILES=assignment.ipynb
         # Create a custom config file in the assignment root
         custom_config = temp_assignment_dir / "custom.conf"
         custom_content = """# Custom Config
-CLASSROOM_URL=https://classroom.github.com/classrooms/custom/assignments/custom-assignment
 TEMPLATE_REPO_URL=https://github.com/custom-org/custom-template.git
 GITHUB_ORGANIZATION=custom-org
 ASSIGNMENT_NAME=custom-assignment

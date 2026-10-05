@@ -358,11 +358,3 @@ class TestRosterSynchronizer:
         assert link1 is not None
         assert link2 is not None
         assert link1.repository_url != link2.repository_url
-
-    def test_sync_from_classroom_api_not_implemented(self, synchronizer):
-        """Test that classroom API sync returns warning."""
-        result = synchronizer.sync_from_classroom_api(1, 1, None)
-
-        assert result.sync_type == 'github_classroom'
-        # Should return empty result since not implemented
-        assert result.total_repos == 0

@@ -1,6 +1,6 @@
 # Troubleshooting Guide
 
-This guide helps resolve common issues encountered when using the classroom-pilot testing framework.
+This guide helps resolve common issues encountered when using the classdock testing framework.
 
 ## Quick Diagnostics
 
@@ -12,11 +12,11 @@ Run the following commands to verify your test environment:
 # Check Python version
 python3 --version
 
-# Check if classroom-pilot is installed
-python3 -c "import classroom_pilot; print(classroom_pilot.__version__)"
+# Check if classdock is installed
+python3 -c "import classdock; print(classdock.__version__)"
 
 # Check if CLI is available
-classroom-pilot --version
+classdock --version
 
 # Verify test framework structure
 ls -la test_project_repos/scripts/
@@ -26,14 +26,14 @@ ls -la test_project_repos/scripts/
 
 1. **Refresh test environment**: `./scripts/setup_test_env.sh --clean`
 2. **Clean temporary files**: `./scripts/cleanup.sh --all`
-3. **Reinstall package**: `pip uninstall classroom-pilot && pip install classroom-pilot`
+3. **Reinstall package**: `pip uninstall classdock && pip install classdock`
 4. **Reset scripts permissions**: `chmod +x scripts/*.sh scripts/*.py`
 
 ## Installation Issues
 
 ### Package Not Found
 
-**Symptoms**: `ModuleNotFoundError: No module named 'classroom_pilot'`
+**Symptoms**: `ModuleNotFoundError: No module named 'classdock'`
 
 **Causes**:
 - Package not installed
@@ -43,16 +43,16 @@ ls -la test_project_repos/scripts/
 **Solutions**:
 ```bash
 # Check if package is installed
-pip list | grep classroom-pilot
+pip list | grep classdock
 
 # Install if missing
-pip install classroom-pilot
+pip install classdock
 
 # Install in development mode (if working from source)
 pip install -e .
 
 # Verify installation
-python3 -c "import classroom_pilot; print('OK')"
+python3 -c "import classdock; print('OK')"
 ```
 
 ### Version Mismatch
@@ -67,13 +67,13 @@ python3 -c "import classroom_pilot; print('OK')"
 **Solutions**:
 ```bash
 # Check installed version
-pip show classroom-pilot
+pip show classdock
 
 # Check expected version
 cat pyproject.toml | grep version
 
 # Force reinstall latest version
-pip install --force-reinstall classroom-pilot
+pip install --force-reinstall classdock
 
 # Clear pip cache
 pip cache purge
@@ -94,19 +94,19 @@ pip cache purge
 pip install --upgrade pip setuptools wheel
 
 # Install with no dependencies (diagnose specific conflicts)
-pip install --no-deps classroom-pilot
+pip install --no-deps classdock
 
 # Create clean environment
 python3 -m venv fresh_env
 source fresh_env/bin/activate
-pip install classroom-pilot
+pip install classdock
 ```
 
 ## CLI Interface Issues
 
 ### Command Not Found
 
-**Symptoms**: `command not found: classroom-pilot`
+**Symptoms**: `command not found: classdock`
 
 **Causes**:
 - Package not installed with CLI entry point
@@ -116,13 +116,13 @@ pip install classroom-pilot
 **Solutions**:
 ```bash
 # Check if entry point is installed
-pip show -f classroom-pilot | grep console_scripts
+pip show -f classdock | grep console_scripts
 
 # Try running via Python module
-python3 -m classroom_pilot --version
+python3 -m classdock --version
 
 # Check if in PATH
-which classroom-pilot
+which classdock
 
 # Activate virtual environment if needed
 source venv/bin/activate  # or conda activate env_name
@@ -140,13 +140,13 @@ source venv/bin/activate  # or conda activate env_name
 **Solutions**:
 ```bash
 # Enable verbose mode for debugging
-classroom-pilot --verbose command args
+classdock --verbose command args
 
 # Check command help
-classroom-pilot command --help
+classdock command --help
 
 # Verify configuration
-classroom-pilot assignments validate-config --config-file path/to/config
+classdock assignments validate-config --config-file path/to/config
 
 # Check file permissions
 ls -la assignment.conf
@@ -170,7 +170,7 @@ pip list | grep -E "(typer|click)"
 pip install "typer>=0.12.0" "click>=8.0.0,<8.2.0"
 
 # Test CLI module import
-python3 -c "from classroom_pilot import cli; print('CLI import OK')"
+python3 -c "from classdock import cli; print('CLI import OK')"
 ```
 
 ## Python API Issues
@@ -187,12 +187,12 @@ python3 -c "from classroom_pilot import cli; print('CLI import OK')"
 **Solutions**:
 ```bash
 # Test systematic imports
-python3 -c "import classroom_pilot"
-python3 -c "from classroom_pilot import ConfigLoader"
-python3 -c "from classroom_pilot.assignments.setup import AssignmentSetup"
+python3 -c "import classdock"
+python3 -c "from classdock import ConfigLoader"
+python3 -c "from classdock.assignments.setup import AssignmentSetup"
 
 # Check package structure
-python3 -c "import classroom_pilot; print(classroom_pilot.__file__)"
+python3 -c "import classdock; print(classdock.__file__)"
 
 # Verify dependencies
 pip check
@@ -222,7 +222,6 @@ file assignment.conf
 
 # Create minimal test config
 cat > test.conf << EOF
-CLASSROOM_URL=https://classroom.github.com/test
 GITHUB_ORGANIZATION=test-org
 TEMPLATE_REPO_URL=https://github.com/test/template
 ASSIGNMENT_FILE=assignment.conf
@@ -243,7 +242,7 @@ EOF
 # Monitor memory usage
 python3 -c "
 import psutil
-import classroom_pilot
+import classdock
 process = psutil.Process()
 print(f'Memory before: {process.memory_info().rss / 1024 / 1024:.1f} MB')
 # Your operations here
@@ -254,7 +253,7 @@ print(f'Memory after: {process.memory_info().rss / 1024 / 1024:.1f} MB')
 python3 -c "
 import time
 start = time.time()
-import classroom_pilot
+import classdock
 print(f'Import time: {time.time() - start:.3f}s')
 "
 ```
@@ -308,7 +307,7 @@ find scripts/ -type f -name "*.py" -exec chmod +x {} \;
 python3 -m venv test_env
 source test_env/bin/activate
 pip install --upgrade pip
-pip install classroom-pilot
+pip install classdock
 ```
 
 ### Test Execution Failures
@@ -334,8 +333,8 @@ pip install classroom-pilot
 ./scripts/test_installation.sh --verbose
 
 # Check for resource conflicts
-ps aux | grep classroom-pilot
-lsof | grep classroom-pilot
+ps aux | grep classdock
+lsof | grep classdock
 ```
 
 ### Report Generation Issues
@@ -397,7 +396,7 @@ curl -H "Authorization: token $(cat sample_projects/real_repo/instructor_token.t
 
 ### Environment Setup Failures
 
-**Symptoms**: Conda environment creation fails or classroom-pilot installation errors
+**Symptoms**: Conda environment creation fails or classdock installation errors
 
 **Causes**:
 - Conda not in PATH
@@ -417,10 +416,10 @@ which conda
 # Manual environment creation
 conda create -n test-env python=3.11 -y
 conda activate test-env
-pip install -e /path/to/classroom-pilot
+pip install -e /path/to/classdock
 
 # Clean up failed environments
-conda env remove -n classroom-pilot-real-test -y
+conda env remove -n classdock-real-test -y
 ./scripts/test_real_repo.sh --cleanup-only
 ```
 
@@ -500,9 +499,9 @@ echo "Rate limit resets at: $(curl -s -H "Authorization: token $TOKEN" https://a
 DEBUG=1 VERBOSE=1 ./scripts/test_real_repo.sh --dry-run
 
 # Check individual components
-conda activate classroom-pilot-real-test
-classroom-pilot --version
-classroom-pilot assignments --help
+conda activate classdock-real-test
+classdock --version
+classdock assignments --help
 ```
 
 ## Environment-Specific Issues
@@ -545,7 +544,7 @@ sudo apt-get install python3-pip python3-venv python3-dev
 sudo yum install python3-pip python3-venv python3-devel
 
 # Fix user permissions
-pip install --user classroom-pilot
+pip install --user classdock
 export PATH="$HOME/.local/bin:$PATH"
 ```
 
@@ -594,7 +593,7 @@ pip install --upgrade pip setuptools wheel
 ./scripts/run_full_test.sh --mode quick
 
 # Monitor system resources
-top -p $(pgrep -f classroom-pilot)
+top -p $(pgrep -f classdock)
 
 # Profile test execution
 time ./scripts/test_runner.sh cli
@@ -677,7 +676,6 @@ except Exception as e:
 "
 
 # Check for required fields
-grep -E '^(CLASSROOM_URL|GITHUB_ORGANIZATION|TEMPLATE_REPO_URL)' assignment.conf
 ```
 
 ## Network and Connectivity Issues
@@ -750,8 +748,8 @@ python3 --version
 pip --version
 
 # Package information
-pip show classroom-pilot
-pip list | grep -E "(classroom|typer|click)"
+pip show classdock
+pip list | grep -E "(classdock|typer|click)"
 
 # Environment information
 env | grep -E "(PYTHON|PATH|VIRTUAL_ENV)"
@@ -769,11 +767,11 @@ mkdir debug_test
 cd debug_test
 python3 -m venv venv
 source venv/bin/activate
-pip install classroom-pilot
+pip install classdock
 
 # Test minimal functionality
-classroom-pilot --version
-python3 -c "import classroom_pilot; print('OK')"
+classdock --version
+python3 -c "import classdock; print('OK')"
 ```
 
 ### Contact Support

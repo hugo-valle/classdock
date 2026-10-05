@@ -283,7 +283,6 @@ ORGANIZATION="org1"
 ASSIGNMENT_NAME="test"
 REPOS_FILE="/path/to/repos.txt"
 # Conflicting: both file and URL specified
-CLASSROOM_URL="https://classroom.github.com/a/test"
 EOF
     
     local output
@@ -367,28 +366,10 @@ EOF
     fi
 }
 
-test_invalid_github_classroom_url() {
-    # Check if test should be skipped
-    is_test_skipped "${FUNCNAME[0]}" && mark_test_skipped "invalid classroom url" "$(get_skip_reason "${FUNCNAME[0]}")" && return
-    log_step "Testing invalid GitHub Classroom URL format"
-    
-    local output
-    local exit_code=0
-    
-    output=$(cd "$PROJECT_ROOT" && poetry run classdock assignments --dry-run setup --url "https://not-classroom.com/a/test" 2>&1) || exit_code=$?
-    
-    if verify_nonzero_exit "$exit_code" && verify_error_message "$output" "(invalid|classroom|url)"; then
-        mark_test_passed "Invalid Classroom URL shows error"
-    else
-        mark_test_failed "invalid classroom url" "Expected URL validation error, got exit=$exit_code"
-    fi
-}
-
 run_invalid_url_tests() {
     log_section "Running Invalid URL Tests"
     
     test_malformed_repository_url
-    test_invalid_github_classroom_url
 }
 
 ################################################################################
@@ -505,7 +486,6 @@ test_network_timeout_simulation() {
     cat > "$config_file" << 'EOF'
 ORGANIZATION="test-org"
 ASSIGNMENT_NAME="test"
-CLASSROOM_URL="https://invalid-host-that-does-not-exist.local/a/test"
 EOF
     
     local output

@@ -175,7 +175,7 @@ clean_envs() {
     
     # Remove any conda environments (be careful here)
     if command -v conda &> /dev/null; then
-        local test_envs=$(conda env list | grep "classroom-pilot-test" | awk '{print $1}' || true)
+        local test_envs=$(conda env list | grep "classdock-test" | awk '{print $1}' || true)
         if [[ -n "$test_envs" ]]; then
             echo "$test_envs" | while read -r env_name; do
                 if [[ "$DRY_RUN" == "true" ]]; then

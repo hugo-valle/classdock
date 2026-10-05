@@ -11,8 +11,7 @@ Guides the instructor interactively through the full workflow:
   6. Clone selected templates locally
   7. Create the GitHub organization (requires admin:org scope)
   8. Fork each local repo to the new GitHub org and mark as template
-  9. Guide through manual GitHub Classroom setup (API limitation)
-  10. Generate assignment.conf in the new org folder
+  9. Generate assignment.conf in the new org folder
 
 All I/O is done via ``rich`` console for a consistent look.
 """
@@ -165,7 +164,7 @@ class OrganizationSetupWizard:
                 "white",
             ),
             (
-                "for a new semester, ready for GitHub Classroom assignments.\n\n",
+                "for a new semester, ready for assignments.\n\n",
                 "white",
             ),
             ("✨ What this wizard will do:\n", "bold green"),

@@ -83,35 +83,6 @@ EOF
     echo "$repos"
 }
 
-# Generate mock GitHub Classroom API response
-# Usage: json=$(mock_github_classroom_response "assignment_id")
-# Returns: JSON object for classroom assignment
-mock_github_classroom_response() {
-    local assignment_id="${1:-12345}"
-    
-    cat <<EOF
-{
-  "id": $assignment_id,
-  "title": "Test Assignment",
-  "type": "individual",
-  "public_repo": false,
-  "starter_code_repository": {
-    "id": 54321,
-    "full_name": "test-org/test-template",
-    "html_url": "https://github.com/test-org/test-template"
-  },
-  "accepted": 10,
-  "submitted": 8,
-  "passing": 7,
-  "classroom": {
-    "id": 99999,
-    "name": "Test Classroom",
-    "url": "https://classroom.github.com/classrooms/99999"
-  }
-}
-EOF
-}
-
 # Generate mock secrets API response
 # Usage: json=$(mock_github_secrets_response "secret_count")
 # Returns: JSON object with secrets list
@@ -230,21 +201,21 @@ mock_environment_setup() {
     mock_token=$(setup_mock_github_token)
     
     # Set up mock paths
-    export CLASSROOM_PILOT_TEST_MODE="true"
-    export CLASSROOM_PILOT_MOCK_API="true"
+    export CLASSDOCK_TEST_MODE="true"
+    export CLASSDOCK_MOCK_API="true"
     
     # Set up mock home directory for config
     if [ -z "$MOCK_DATA_DIR" ]; then
         MOCK_DATA_DIR=$(mktemp -d -t "mock_data_XXXXXX")
     fi
     export HOME="$MOCK_DATA_DIR/home"
-    mkdir -p "$HOME/.config/classroom-pilot"
+    mkdir -p "$HOME/.config/classdock"
 }
 
 # Create mock token configuration file
 # Usage: mock_token_config
 mock_token_config() {
-    local config_dir="$HOME/.config/classroom-pilot"
+    local config_dir="$HOME/.config/classdock"
     mkdir -p "$config_dir"
     
     local token=$(setup_mock_github_token)
@@ -268,8 +239,8 @@ restore_environment() {
     if [ -n "$ORIGINAL_ENV_BACKUP" ] && [ -f "$ORIGINAL_ENV_BACKUP" ]; then
         # Restore key environment variables
         unset GITHUB_TOKEN
-        unset CLASSROOM_PILOT_TEST_MODE
-        unset CLASSROOM_PILOT_MOCK_API
+        unset CLASSDOCK_TEST_MODE
+        unset CLASSDOCK_MOCK_API
         
         # Restore HOME and PATH if they were backed up
         if [ -n "$ORIGINAL_HOME" ]; then
@@ -719,7 +690,7 @@ reset_mock_state() {
 ################################################################################
 
 export -f mock_github_api_response setup_mock_github_token mock_github_repo_list
-export -f mock_github_classroom_response mock_github_secrets_response
+export -f mock_github_secrets_response
 export -f create_mock_repo_structure create_mock_student_list create_mock_repos_file
 export -f mock_environment_setup mock_token_config restore_environment
 export -f mock_git_command mock_gh_command restore_commands

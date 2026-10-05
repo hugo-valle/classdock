@@ -1,5 +1,5 @@
 """
-Secrets and Token Management for GitHub Classroom Repository Operations.
+Secrets and Token Management for Student Repository Operations.
 
 This module handles:
 - GitHub token management and authentication for repository access

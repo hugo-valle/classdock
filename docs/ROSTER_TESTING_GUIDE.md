@@ -1,13 +1,13 @@
 # Roster Management Testing Guide
 
-This guide helps you build, install, and test the new SQLite Roster Management System locally with real GitHub Classroom data.
+This guide helps you build, install, and test the new SQLite Roster Management System locally with real GitHub data.
 
 ## Prerequisites
 
 - Python 3.10+
 - Poetry installed
 - GitHub CLI (`gh`) authenticated
-- Access to a GitHub Classroom organization
+- Access to a GitHub organization
 
 ## Quick Start: Build and Install
 
@@ -174,13 +174,13 @@ classdock roster status --org=soc-cs3550-f25
 
 ---
 
-### Scenario 2: Real GitHub Classroom Integration
+### Scenario 2: Real Repository Integration
 
-**Goal**: Test roster sync with actual GitHub Classroom repositories.
+**Goal**: Test roster sync with actual student repositories.
 
 #### Prerequisites
 
-- Existing GitHub Classroom assignment with student repositories
+- An existing assignment with student repositories
 - Assignment already distributed to students
 
 #### Step 1: Configure Assignment
@@ -191,7 +191,7 @@ cd ~/path/to/test-assignment
 
 # Create or verify assignment.conf
 cat > assignment.conf << 'EOF'
-classroom_url="https://classroom.github.com/classrooms/YOUR_CLASSROOM_ID/assignments/YOUR_ASSIGNMENT_ID"
+ASSIGNMENT_NAME="homework-1"
 template_repo_url="https://github.com/YOUR_ORG/YOUR_TEMPLATE"
 github_organization="soc-cs3550-f25"
 assignment_name="python-basics"
@@ -264,7 +264,7 @@ classdock assignments orchestrate
 
 ### Scenario 3: Multi-Organization Testing
 
-**Goal**: Test with multiple GitHub Classroom organizations (multiple courses).
+**Goal**: Test with multiple GitHub organizations (multiple courses).
 
 ```bash
 # Import students for first course

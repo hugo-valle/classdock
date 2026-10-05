@@ -23,7 +23,7 @@ from pathlib import Path
 from unittest.mock import patch, MagicMock
 from typing import List
 
-# Add classroom_pilot to path
+# Add classdock to path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -122,7 +122,7 @@ def mock_invalid_urls_scenario():
 
 def run_cli_with_mocks(scenario: str, repos_list_file: str = None):
     """
-    Run the classroom-pilot CLI with appropriate mocks for the given scenario.
+    Run the classdock CLI with appropriate mocks for the given scenario.
 
     Args:
         scenario: The test scenario (auto_discovery, repos_list, empty_list, invalid_urls)

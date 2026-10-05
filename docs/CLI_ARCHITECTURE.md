@@ -90,7 +90,7 @@ python -m classdock repos update
 
 # Template synchronization with rate limit handling
 python -m classdock repos push
-  --target [classroom|template]   # Push destination
+  --target template               # Push destination
   --rate-limit-respect            # Honor GitHub rate limits
   --conflict-resolution [merge|overwrite|skip]
 
@@ -207,7 +207,7 @@ from enum import Enum
 
 app = Typer(
     name="classdock",
-    help="Enterprise GitHub Classroom Assignment Management",
+    help="Enterprise Assignment Management for GitHub-based Courses",
     rich_markup_mode="rich"
 )
 

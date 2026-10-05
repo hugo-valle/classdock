@@ -127,7 +127,6 @@ classdock roster import students-fall2025.csv --org=soc-cs3550-f25
 
 # 2. Configure assignment
 cat > assignment.conf << 'EOF'
-classroom_url="https://classroom.github.com/classrooms/12345/assignments/67890"
 template_repo_url="https://github.com/soc-cs3550-f25/python-basics"
 github_organization="soc-cs3550-f25"
 assignment_name="python-basics"

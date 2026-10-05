@@ -26,7 +26,6 @@ def _make_orchestrator():
     fake_config.assignment_name = "test-assignment"
     fake_config.github_organization = "test-org"
     fake_config.template_repo_url = "https://github.com/org/template"
-    fake_config.classroom_url = "https://classroom.github.com/a/abc"
     return AssignmentOrchestrator(global_config=fake_config)
 
 
@@ -37,11 +36,11 @@ def _make_orchestrator():
 class TestRunStep:
     def test_returns_skipped_when_config_flag_is_false(self):
         orch = _make_orchestrator()
-        orch.global_config.step_sync_template = False
+        orch.global_config.step_discover_repos = False
 
         body = MagicMock()  # should NOT be called
         result = orch._run_step(
-            WorkflowStep.SYNC, 'step_sync_template', True, False, body)
+            WorkflowStep.DISCOVER, 'step_discover_repos', True, False, body)
 
         assert result.success is True
         assert "Skipped" in result.message
@@ -49,16 +48,16 @@ class TestRunStep:
 
     def test_returns_success_result_from_body(self):
         orch = _make_orchestrator()
-        orch.global_config.step_sync_template = True
+        orch.global_config.step_discover_repos = True
 
         body = MagicMock(return_value=(True, "done", {"x": 1}))
         result = orch._run_step(
-            WorkflowStep.SYNC, 'step_sync_template', True, False, body)
+            WorkflowStep.DISCOVER, 'step_discover_repos', True, False, body)
 
         assert result.success is True
         assert result.message == "done"
         assert result.data == {"x": 1}
-        assert result.step == WorkflowStep.SYNC
+        assert result.step == WorkflowStep.DISCOVER
 
     def test_returns_failure_result_from_body(self):
         orch = _make_orchestrator()
@@ -86,11 +85,11 @@ class TestRunStep:
 
     def test_duration_is_non_negative(self):
         orch = _make_orchestrator()
-        orch.global_config.step_sync_template = True
+        orch.global_config.step_discover_repos = True
 
         body = MagicMock(return_value=(True, "ok", None))
         result = orch._run_step(
-            WorkflowStep.SYNC, 'step_sync_template', True, False, body)
+            WorkflowStep.DISCOVER, 'step_discover_repos', True, False, body)
 
         assert result.duration >= 0.0
 
@@ -127,17 +126,6 @@ class TestStepMethodsDelegation:
             setattr(orch.global_config, attr, val)
         return orch
 
-    def test_step_sync_template_skips_when_disabled(self):
-        orch = self._orch_with(step_sync_template=False)
-        result = orch.step_sync_template(dry_run=False)
-        assert "Skipped" in result.message
-
-    def test_step_sync_template_dry_run(self):
-        orch = self._orch_with(step_sync_template=True)
-        result = orch.step_sync_template(dry_run=True)
-        assert result.success is True
-        assert "DRY RUN" in result.message
-
     def test_step_discover_repos_skips_when_disabled(self):
         orch = self._orch_with(step_discover_repos=False)
         result = orch.step_discover_repos(dry_run=False)
@@ -167,13 +155,12 @@ class TestStepMethodsDelegation:
 
     def test_all_step_methods_return_step_result(self):
         orch = _make_orchestrator()
-        for attr in ['step_sync_template', 'step_discover_repos',
+        for attr in ['step_discover_repos',
                      'step_sync_roster', 'step_manage_secrets',
                      'step_assist_students', 'step_cycle_collaborators']:
             setattr(orch.global_config, attr, False)
 
         step_methods = [
-            orch.step_sync_template,
             orch.step_discover_repos,
             orch.step_sync_roster,
             orch.step_manage_secrets,

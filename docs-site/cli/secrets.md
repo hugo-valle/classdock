@@ -1,6 +1,6 @@
 # Secret Management Commands
 
-Secret management commands provide secure handling of sensitive information for GitHub Classroom assignments.
+Secret management commands provide secure handling of sensitive information for assignments.
 
 ## Overview
 
@@ -196,7 +196,7 @@ secrets:
     notification_webhook: "${WEBHOOK_URL}"
 
 github:
-  organization: "my-classroom"
+  organization: "my-org"
   token: "${GITHUB_TOKEN}"
 ```
 
@@ -441,7 +441,7 @@ classdock secrets add \
 
 # Use external secret managers
 classdock secrets add \
-  --source vault://secret/classroom \
+  --source vault://secret/classdock \
   --assignment "secure-project"
 ```
 

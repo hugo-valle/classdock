@@ -134,12 +134,12 @@ def assignment_orchestrate(
     step: Optional[str] = typer.Option(
         None,
         "--step",
-        help="Execute only a specific step (sync, discover, secrets, assist, cycle)",
+        help="Execute only a specific step (discover, secrets, assist, cycle)",
     ),
     skip_steps: Optional[str] = typer.Option(
         None,
         "--skip",
-        help="Skip specific steps (comma-separated: sync,discover,secrets,assist,cycle)",
+        help="Skip specific steps (comma-separated: discover,secrets,assist,cycle)",
     ),
     config_file: str = typer.Option(
         "assignment.conf", "--config", "-c", help="Configuration file path"
@@ -151,7 +151,7 @@ def assignment_orchestrate(
     Example:
         $ classdock assignments --dry-run --verbose orchestrate
         $ classdock assignments orchestrate --step discover
-        $ classdock assignments orchestrate --skip sync,assist
+        $ classdock assignments orchestrate --skip discover,assist
         $ classdock assignments orchestrate --config my-assignment.conf
     """
     verbose, dry_run = get_global_options(ctx)

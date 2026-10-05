@@ -1,6 +1,6 @@
 # Assignment Commands
 
-The assignment commands provide comprehensive tools for managing GitHub Classroom assignments throughout their lifecycle.
+The assignment commands provide comprehensive tools for managing assignments throughout their lifecycle.
 
 ## Overview
 
@@ -130,7 +130,7 @@ Assignment commands use configuration files to define:
 assignment:
   name: "homework-01"
   prefix: "hw01-"
-  template_repo: "classroom-template"
+  template_repo: "assignment-template"
   
 github:
   organization: "my-class-org"

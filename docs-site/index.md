@@ -1,6 +1,6 @@
 # ClassDock 🚀
 
-**ClassDock** is a modern Python CLI tool for automating GitHub Classroom assignment management with comprehensive workflow orchestration, repository operations, and secret management.
+**ClassDock** is a modern Python CLI tool for automating GitHub assignment management with comprehensive workflow orchestration, repository operations, and secret management.
 
 [![PyPI version](https://badge.fury.io/py/classdock.svg)](https://badge.fury.io/py/classdock)
 [![Python Support](https://img.shields.io/pypi/pyversions/classdock.svg)](https://pypi.org/project/classdock/)
@@ -78,7 +78,7 @@ classdock secrets add --config assignment.conf
 ## 🎯 Use Cases
 
 ### **Assignment Management**
-Automate the complete lifecycle of GitHub Classroom assignments from template synchronization to student support.
+Automate the complete lifecycle of assignments from repository discovery to student support.
 
 ### **Repository Operations**
 Efficiently discover, manage, and operate on student repositories with intelligent filtering and batch operations.
@@ -104,4 +104,4 @@ Set up scheduled automation for continuous assignment management with comprehens
 
 MIT License - see [License](about/license.md) for details.
 
-**ClassDock** - Modern Python automation for GitHub Classroom assignment management.
+**ClassDock** - Modern Python automation for GitHub assignment management.

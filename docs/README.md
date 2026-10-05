@@ -1,6 +1,6 @@
 # 📚 ClassDock Documentation
 
-Welcome to the documentation for ClassDock - a modern Python CLI tool for GitHub Classroom automation.
+Welcome to the documentation for ClassDock - a modern Python CLI tool for automating GitHub-based courses.
 
 ## 🎯 Quick Start
 
@@ -44,7 +44,6 @@ Welcome to the documentation for ClassDock - a modern Python CLI tool for GitHub
 ### Repository Management
 - **[Collaborator Cycling](CYCLE-COLLABORATOR.md)** - Managing repository collaborators
 - **[Secrets Management](SECRETS-MANAGEMENT.md)** - Secure token and secret distribution
-- **[Classroom URL Integration](CLASSROOM-URL-INTEGRATION.md)** - GitHub Classroom integration
 
 ## 📦 Package Information
 

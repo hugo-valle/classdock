@@ -1,5 +1,5 @@
 """
-Input Handlers and Validation for the GitHub Classroom Setup Wizard.
+Input Handlers and Validation for the Assignment Setup Wizard.
 
 This module provides input prompting, validation functions, and URL parsing utilities.
 """

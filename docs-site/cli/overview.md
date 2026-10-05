@@ -106,7 +106,7 @@ All commands support configuration via:
 
 ```bash
 # assignment.conf
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/homework1"
+ASSIGNMENT_NAME="homework1"
 TEMPLATE_REPO_URL="https://github.com/instructor/homework1-template"
 ASSIGNMENT_FILE="homework1.py"
 GITHUB_TOKEN_FILE="github_token.txt"
