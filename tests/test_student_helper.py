@@ -204,10 +204,6 @@ class TestStudentUpdateHelper:
         assert status.accessible is True
         assert status.needs_update is False
 
-    def test_check_classroom_ready_removed(self):
-        """check_classroom_ready removed — GitHub Classroom deprecated."""
-        assert not hasattr(student_helper, 'check_classroom_ready') if False else True
-
     @patch('subprocess.run')
     @patch('os.chdir')
     @patch('shutil.rmtree')
@@ -450,13 +446,12 @@ class TestStudentUpdateHelperExecuteUpdateWorkflow:
     """
     TestStudentUpdateHelperExecuteUpdateWorkflow contains unit tests for the execute_update_workflow
     method added to StudentUpdateHelper. This method is the main entry point for the update
-    workflow that validates configuration and checks classroom readiness.
+    workflow that validates configuration and checks template repository readiness.
 
     Test Cases:
     - test_execute_update_workflow_success: Tests successful workflow execution
     - test_execute_update_workflow_with_auto_confirm: Tests auto_confirm parameter handling
     - test_execute_update_workflow_config_validation_failure: Tests config validation failure
-    - test_execute_update_workflow_classroom_not_ready: Tests when classroom not ready
     - test_execute_update_workflow_exception_handling: Tests exception handling
     - test_execute_update_workflow_verbose_mode: Tests verbose logging
     """
@@ -467,7 +462,6 @@ class TestStudentUpdateHelperExecuteUpdateWorkflow:
 
         This test verifies that execute_update_workflow correctly:
         - Validates configuration
-        - Checks classroom readiness
         - Returns True with success message
         """
         with patch('classdock.assignments.student_helper.get_global_config', return_value=mock_config):
@@ -514,10 +508,6 @@ class TestStudentUpdateHelperExecuteUpdateWorkflow:
 
                 assert success is False
                 assert "Configuration validation failed" in message
-
-    def test_execute_update_workflow_classroom_not_ready_removed(self):
-        """check_classroom_ready step removed — GitHub Classroom deprecated."""
-        pass
 
     def test_execute_update_workflow_exception_handling(self, mock_config):
         """

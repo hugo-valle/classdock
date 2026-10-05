@@ -2,7 +2,7 @@
 Comprehensive test suite for classdock.config.loader module.
 
 This test suite provides comprehensive coverage for the ConfigLoader class,
-which is responsible for loading, parsing, and updating GitHub Classroom assignment
+which is responsible for loading, parsing, and updating assignment
 configuration files. The tests include unit tests for individual methods, integration
 tests for file operations, error handling, edge cases, and proper validation of
 configuration file parsing and updating functionality.
@@ -1041,7 +1041,7 @@ ASSIGNMENT_NAME=final_value"""
         """
         config_content = """assignment_name=lowercase_value
 ASSIGNMENT_NAME=uppercase_value
-Classroom_Url=mixedcase_value"""
+Assignment_Name=mixedcase_value"""
 
         config_path = Path("/test/config.conf")
 
@@ -1055,7 +1055,7 @@ Classroom_Url=mixedcase_value"""
             # All should be treated as separate keys
             assert config['assignment_name'] == 'lowercase_value'
             assert config['ASSIGNMENT_NAME'] == 'uppercase_value'
-            assert config['Classroom_Url'] == 'mixedcase_value'
+            assert config['Assignment_Name'] == 'mixedcase_value'
             assert len(config) == 3
 
 

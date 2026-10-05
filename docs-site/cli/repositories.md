@@ -171,7 +171,7 @@ Repository commands use configuration for GitHub access and organization setting
 ```yaml
 # repository.conf
 github:
-  organization: "my-classroom-org"
+  organization: "my-github-org"
   token: "${GITHUB_TOKEN}"
   api_url: "https://api.github.com"
 

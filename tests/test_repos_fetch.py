@@ -559,7 +559,7 @@ class TestRepositoryFetcherFiltering:
         assert fetcher._is_student_repository(
             "other-assignment-student1", "python-basics") is False
         assert fetcher._is_student_repository(
-            "python-basics-classroom-template", "python-basics") is False
+            "python-basics-course-template", "python-basics") is False
 
     @patch('classdock.repos.fetch.PathManager')
     @patch('classdock.repos.fetch.GitManager')
@@ -878,14 +878,6 @@ class TestRepositoryFetcherBatchFetch:
         assert results[1].success is False
         assert results[2].success is True
         assert "Clone failed" in results[1].error_message
-
-
-class TestRepositoryFetcherTemplateSync:
-    """sync_template_repository removed — GitHub Classroom deprecated."""
-
-    def test_sync_template_removed_stub(self):
-        """sync_template_repository was tied to classroom template-push workflow; now removed."""
-        pass
 
 
 class TestRepositoryFetcherErrorHandling:
