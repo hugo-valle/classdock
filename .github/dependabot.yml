@@ -4,9 +4,14 @@ updates:
     directory: /
     schedule:
       interval: weekly
+    # Only raise a range's floor when the new version falls outside it (ADR 0003).
+    versioning-strategy: increase-if-necessary
     commit-message:
       prefix: chore
       include: scope
+    groups:
+      pip-minor-patch:
+        update-types: [minor, patch]
   - package-ecosystem: github-actions
     directory: /
     schedule:
@@ -14,3 +19,6 @@ updates:
     commit-message:
       prefix: ci
       include: scope
+    groups:
+      actions:
+        patterns: ["*"]
