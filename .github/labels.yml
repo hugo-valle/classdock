@@ -43,7 +43,7 @@
   description: "Release preparation and management"
   color: "0e8a16"
 
-# Priority Labels (from hotfix template)
+# Priority Labels
 - name: "P0"
   description: "Critical priority - System down or unusable"
   color: "b60205"
@@ -139,3 +139,12 @@
 - name: "needs more info"
   description: "More information needed from author"
   color: "d876e3"
+
+# Triage Labels
+- name: "ready-for-agent"
+  description: "Fully specified, ready for an AFK agent"
+  color: "0e8a16"
+
+- name: "ready-for-human"
+  description: "Requires human implementation"
+  color: "fbca04"

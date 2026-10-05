@@ -34,12 +34,12 @@ Example: `3.1.0rc1`, `3.1.0rc2`, `3.2.0rc1`
 
 ## Git Tag Format
 
-Git tags include a `v` prefix and match the version identifier:
+Git tags are the bare version identifier, with no `v` prefix:
 
-- Stable: `v3.1.0`
-- Alpha: `v3.1.0a1`
-- Beta: `v3.1.0b1`
-- Release Candidate: `v3.1.0rc1`
+- Stable: `3.1.0`
+- Alpha: `3.1.0a1`
+- Beta: `3.1.0b1`
+- Release Candidate: `3.1.0rc1`
 
 ## Version Components
 
@@ -97,58 +97,7 @@ Our versioning follows [PEP 440](https://peps.python.org/pep-0440/) to ensure:
 
 ## Release Process
 
-### 1. Development
-Work happens on feature branches and `develop` branch.
-
-### 2. Alpha Release
-```bash
-# Update version to alpha
-poetry version 3.2.0a1
-
-# Create and push tag
-git tag v3.2.0a1
-git push origin v3.2.0a1
-```
-
-### 3. Beta Release
-```bash
-# Update version to beta  
-poetry version 3.2.0b1
-
-# Create and push tag
-git tag v3.2.0b1
-git push origin v3.2.0b1
-```
-
-### 4. Release Candidate
-```bash
-# Update version to rc
-poetry version 3.2.0rc1
-
-# Create and push tag
-git tag v3.2.0rc1
-git push origin v3.2.0rc1
-```
-
-### 5. Stable Release
-```bash
-# Update version to stable
-poetry version 3.2.0
-
-# Create and push tag
-git tag v3.2.0
-git push origin v3.2.0
-```
-
-## Automated Workflows
-
-Our GitHub Actions workflows automatically:
-
-- ✅ **Build and test** on all version tags
-- ✅ **Publish to PyPI** with correct version format
-- ✅ **Create GitHub releases** with appropriate pre-release flags
-- ✅ **Generate release notes** based on version type
-- ✅ **Update documentation** with new version references
+Work happens on short-lived topic branches merged into `main`. A release is a GitHub Release whose tag matches the version in `pyproject.toml`; publishing it runs `release.yml`, which tests, builds and publishes to PyPI. See the [release steps in the contributing guide](https://github.com/hugo-valle/classdock/blob/main/docs/CONTRIBUTING.md#-releasing).
 
 ## Version Checking
 

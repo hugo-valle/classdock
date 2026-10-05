@@ -51,12 +51,8 @@ Thank you for your interest in contributing to ClassDock! This document provides
 
 ### Version Management
 
-- **Semantic Versioning**: `MAJOR.MINOR.PATCH-prerelease`
-- **Pre-release Format**: `alpha.X`, `beta.X`, `rc.X`
-- **Version Locations**: Keep synchronized:
-  - `pyproject.toml` → `version = "X.Y.Z"`
-  - `classdock/__init__.py` → `__version__ = "X.Y.Z"`
-  - `classdock/cli.py` → version command output
+- **Versioning**: [PEP 440](https://peps.python.org/pep-0440/) semantic versions (`1.2.3`, `1.3.0a1`)
+- **Single source**: the version lives only in `pyproject.toml` (`poetry version X.Y.Z`)
 
 ## 🧪 Testing
 
@@ -163,12 +159,7 @@ Examples:
 
 ## 🚀 Release Process
 
-1. Update version in all locations
-2. Update CHANGELOG.md
-3. Commit changes: `git commit -m "bump: version X.Y.Z"`
-4. Create tag: `git tag vX.Y.Z`
-5. Push: `git push origin main --tags`
-6. CI/CD handles automatic PyPI publication
+Releases are published from a GitHub Release (`gh release create X.Y.Z --generate-notes`). See the [release steps in the contributing guide](https://github.com/hugo-valle/classdock/blob/main/docs/CONTRIBUTING.md#-releasing).
 
 ## 🐛 Bug Reports
 

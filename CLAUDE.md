@@ -11,7 +11,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - **CLI Framework**: Typer
 - **Package Manager**: Poetry
 
-> **📋 Development Workflow**: See the [Development Workflow](#development-workflow) section below for step-by-step instructions on creating issues, branches, and PRs.
+> **📋 Workflow**: See the [Workflow](#workflow) section below for branches, PRs and releases.
 
 ## Prerequisites
 
@@ -91,228 +91,27 @@ gh pr view                            # View current PR
 gh pr list                            # List all PRs
 ```
 
-## Development Workflow
+## Workflow
 
-### Working with Plan Mode
+Trunk-based: `main` is the only long-lived branch (see `docs/adr/0002-trunk-based-development.md`).
 
-When using plan mode for complex tasks:
-
-1. **Create and Finalize Your Plan**
-   - Use plan mode to design the implementation approach
-   - Explore the codebase and create a detailed plan
-   - Exit plan mode when the plan is complete
-
-2. **Create an Issue from the Plan**
-
-   **Use Issue Templates**: Choose the appropriate template for your work type:
-   - 🚀 **Feature Request** (`01-feature-request.md`) - New features
-   - 🐛 **Bug Report** (`02-bug-report.md`) - Bug fixes
-   - 🔥 **Hotfix** (`03-hotfix.md`) - Critical production fixes
-   - 📚 **Documentation** (`04-documentation.md`) - Documentation updates
-   - 🛠️ **Maintenance** (`05-maintenance.md`) - Code maintenance
-   - 📦 **Release** (`06-release.md`) - Release preparation
-
+1. **Issue first**: find or create a GitHub issue (`gh issue list --search ...`, `gh issue create`).
+2. **Branch from `main`**, named `<type>/<issue>-<slug>` where type is `feature`, `bugfix`, `docs`, `chore` or `claude`:
    ```bash
-   # Create issue using web interface with templates (recommended):
-   # https://github.com/hugo-valle/classdock/issues/new/choose
-
-   # Or create via CLI with plan content:
-   gh issue create --title "Brief description of planned work" \
-     --body "$(cat /path/to/plan/file.md)"
+   git checkout main && git pull
+   git checkout -b feature/123-short-description
    ```
+3. **Commit** with Conventional Commits (`feat|fix|docs|refactor|test|chore|ci(scope): ...`) and reference the issue.
+4. **PR into `main`**: `gh pr create --base main --fill`, body includes `Closes #123`. CI (`ci.yml`: `test (3.10)`, `test (3.14)`, `lint`) must pass. Merging never publishes.
 
-3. **Follow Standard Development Workflow**
-   - Note the issue number from step 2
-   - Create a branch referencing the issue (e.g., `feature/123-description`)
-   - Implement according to the plan
-   - Create PR linking back to the issue
+**Releasing** (the version lives only in `pyproject.toml`):
 
-**Why This Matters**: Creating an issue from your plan ensures the work is tracked, provides context for reviewers, and maintains a clear development history.
+1. On a `chore/<issue>-release-X.Y.Z` branch, run `poetry version X.Y.Z`, then PR and merge into `main`.
+2. `git checkout main && git pull`
+3. `gh release create X.Y.Z --generate-notes` (bare semver tag, no `v`; add `--draft` to review notes first)
+4. Publishing the release runs `release.yml`: it checks the tag matches `pyproject.toml`, runs tests, builds, and publishes to PyPI via **trusted publishing** (OIDC, no tokens).
 
-### Before Starting Any Work
-
-1. **Check for Existing Issues**
-   ```bash
-   # Search GitHub issues for related work
-   gh issue list --search "keyword"
-   gh issue view <issue-number>
-   ```
-
-2. **Create an Issue (if none exists)**
-
-   **Use Issue Templates** (recommended for consistency):
-
-   Visit [New Issue with Templates](https://github.com/hugo-valle/classdock/issues/new/choose) and select:
-   - 🚀 **Feature Request** - New features or enhancements
-   - 🐛 **Bug Report** - Bug fixes and issues
-   - 🔥 **Hotfix** - Critical production fixes
-   - 📚 **Documentation** - Documentation improvements
-   - 🛠️ **Maintenance** - Code maintenance tasks
-   - 📦 **Release** - Release preparation
-
-   ```bash
-   # Or create via CLI (less structured):
-   gh issue create --title "Brief description" --body "Detailed description"
-   ```
-
-3. **Note the Issue Number**
-   - You'll reference this in your branch name and PR
-   - Format: `#<number>` (e.g., #123)
-
-### Branch Strategy Quick Reference
-
-**Branch Types & Naming**:
-- `feature/<issue>-brief-description` → New features (from main)
-- `bugfix/<issue>-brief-description` → Bug fixes (from main)
-- `hotfix/<issue>-brief-description` → Critical fixes (from main)
-- `chore/<issue>-release-X.Y.Z` → Version bump before a release (from main)
-
-**Examples**:
-```bash
-# Feature branch for issue #68
-git checkout main
-git pull origin main
-git checkout -b feature/68-fix-global-cli-options
-
-# Bugfix branch for issue #123
-git checkout main
-git pull origin main
-git checkout -b bugfix/123-fix-token-validation
-
-# Hotfix branch for issue #456 (critical production issue)
-git checkout main
-git pull origin main
-git checkout -b hotfix/456-fix-security-vulnerability
-```
-
-### Complete Development Workflow
-
-1. **Create Your Branch**
-   ```bash
-   # Start from main
-   git checkout main
-   git pull origin main
-   git checkout -b feature/<issue>-description
-   ```
-
-2. **Make Changes and Test**
-   ```bash
-   # Run tests frequently
-   make test              # Quick functionality tests
-   make test-unit         # Full unit test suite
-
-   # Check code quality before committing
-   make lint              # Run flake8 and pylint
-   make format            # Format with black
-   poetry run mypy classdock/
-   ```
-
-3. **Commit Your Changes**
-   ```bash
-   # Use Conventional Commits format
-   git add <files>
-   git commit -m "type(scope): description
-
-   - Detailed change explanation
-   - Reference issue: #<issue-number>
-
-   Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>"
-
-   # Commit types: feat, fix, docs, refactor, test, chore
-   ```
-
-4. **Push and Create PR**
-   ```bash
-   # Push your branch
-   git push -u origin feature/<issue>-description
-
-   # Create PR (will auto-populate from template)
-   gh pr create --base main --fill
-
-   # Or create with specific details
-   gh pr create --title "Title" --body "Description" --base main
-   ```
-
-5. **PR Requirements**
-   - Links to issue using GitHub keywords (Closes #123, Fixes #456)
-   - All tests passing (CI will verify)
-   - 2 reviewer approvals required
-   - Code coverage maintained or improved
-   - Documentation updated if needed
-
-6. **After Merge**
-   - Branch auto-deletes
-   - Issue auto-closes (if using Closes/Fixes keywords)
-   - Switch back to main: `git checkout main && git pull`
-
-### Hotfix Emergency Workflow
-
-For critical production issues ONLY:
-
-```bash
-# 1. Create hotfix branch from main
-git checkout main
-git pull origin main
-git checkout -b hotfix/<issue>-description
-
-# 2. Make minimal fix and test thoroughly
-make test-unit
-
-# 3. Create PR to main
-gh pr create --base main --title "Hotfix: description"
-```
-
-### Version Management for Releases
-
-When creating a release:
-
-```bash
-# 1. Branch from main
-git checkout main && git pull
-git checkout -b chore/<issue>-release-1.2.3
-
-# 2. Update version in 3 locations:
-# - pyproject.toml (version = "1.2.3")
-# - classdock/__init__.py (__version__ = "1.2.3")
-# - classdock/cli.py (version command output)
-
-# 3. Commit, PR to main, merge (merging publishes nothing)
-git commit -m "chore: bump version to 1.2.3"
-gh pr create --base main --title "chore: release 1.2.3" --body "Closes #<issue>"
-
-# 4. Publish: the GitHub Release triggers release.yml, which checks the
-#    tag matches pyproject.toml, runs tests, and publishes to PyPI via
-#    trusted publishing. Tags are bare semver (no 'v').
-gh release create 1.2.3 --generate-notes
-```
-
-### CI/CD Workflows
-
-GitHub Actions automatically run on:
-- **All PRs**: `ci.yml` (tests, linting, coverage)
-- **Push to main**: `ci.yml`
-- **GitHub Release published**: `release.yml` (PyPI release via trusted publishing)
-
-**View workflow status**:
-```bash
-gh pr checks        # Check status of current PR
-gh run list         # List recent workflow runs
-gh run view <id>    # View specific run details
-```
-
-### Troubleshooting
-
-**Common Issues**:
-- **Tests failing locally**: Ensure `poetry install` is up to date
-- **CI failing but local passes**: Check Python version (3.10+)
-- **Branch protection blocks push**: Never force push to main
-- **PR blocked**: Ensure 2 approvals and all CI checks pass
-- **Version mismatch**: Update all 3 version locations
-
-**Getting Help**:
-- Review `/docs/CONTRIBUTING.md` for detailed guidelines
-- Check `/docs/branching_strategy.md` for branch workflows
-- See `/.github/README.md` for GitHub Actions details
+A hotfix is an ordinary `bugfix/` PR followed by a patch release.
 
 ## Architecture
 
@@ -357,13 +156,6 @@ classdock/
 - **CLI → Services → Utils**: Clear separation of concerns
 - **Centralized Error Handling**: All GitHub API errors go through `utils/github_exceptions.py` with retry logic and rate limit handling
 - **Two-Tier Testing**: `tests/` for fast unit tests, `test_project_repos/` for E2E integration tests
-
-## Version Management
-
-Keep version synchronized in three locations:
-1. `pyproject.toml` → `version = "X.Y.Z"`
-2. `classdock/__init__.py` → `__version__ = "X.Y.Z"`
-3. `classdock/cli.py` → version command output
 
 ## Critical Dependencies
 
@@ -434,7 +226,6 @@ See `docs/ROSTER_SYNC.md` for complete documentation.
 
 ## Key Documentation
 
-- `.github/copilot-instructions.md` - Detailed development patterns and GitHub API integration methodology
 - `docs/CLI_ARCHITECTURE.md` - Typer-based command structure
 - `docs/ERROR_HANDLING.md` - Error handling system
 - `docs/TESTING.md` - Testing framework and patterns

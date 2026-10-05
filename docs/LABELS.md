@@ -23,7 +23,7 @@ These labels are automatically applied by issue templates:
 
 ### Priority Labels
 
-Use these to indicate issue priority (referenced in hotfix template):
+Use these to indicate issue priority:
 
 | Label | Description | Color | When to Use |
 |-------|-------------|-------|-------------|
@@ -98,7 +98,7 @@ The repository includes a GitHub Action (`.github/workflows/sync-labels.yml`) th
 
 - Changes are made to `.github/labels.yml`
 - Manually triggered via workflow dispatch
-- Push to `main` or `develop` branches
+- Push to `main`
 
 ## 📝 Usage Guidelines
 
