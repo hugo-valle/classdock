@@ -34,9 +34,10 @@ poetry run pytest tests/ -v
 poetry run flake8 classdock/ --select=E9,F63,F7,F82
 poetry run black --check classdock/
 poetry run isort --check-only classdock/
+mkdocs build --strict   # when you touch docs-site/ or mkdocs.yml
 ```
 
-CI (`ci.yml`) must pass before merge: `test (3.10)`, `test (3.14)` and `lint`. Merging to `main` never publishes; releasing is a separate step.
+CI (`ci.yml`) must pass before merge: `test (3.10)`, `test (3.14)`, `lint` and `docs`. Merging to `main` never publishes; releasing is a separate step.
 
 ## Code standards
 
