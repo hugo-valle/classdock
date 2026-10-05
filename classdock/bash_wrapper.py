@@ -237,16 +237,6 @@ class BashWrapper:
 
         return self._execute_script("assignment-orchestrator.sh", args)
 
-    def push_to_classroom(self) -> bool:
-        """
-        Execute the push to classroom script.
-
-        Returns:
-            True if successful, False otherwise
-        """
-        logger.info("🚀 Pushing template to classroom")
-        return self._execute_script("push-to-classroom.sh")
-
     def fetch_student_repos(self) -> bool:
         """
         Execute the fetch student repositories script.

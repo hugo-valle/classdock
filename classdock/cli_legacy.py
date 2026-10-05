@@ -42,30 +42,6 @@ def run(
 
 
 @app.command()
-def sync(
-    dry_run: bool = False,
-    verbose: bool = False,
-    config_file: str = None,
-    yes: bool = False,
-):
-    """Sync template repository to GitHub Classroom."""
-    # Setup logging
-    setup_logging(verbose)
-
-    # Load configuration
-    config = Configuration.load(config_file)
-
-    wrapper = BashWrapper(config, dry_run=dry_run, verbose=verbose, auto_yes=yes)
-    success = wrapper.push_to_classroom()
-
-    if success:
-        logger.info("✅ Sync completed successfully")
-    else:
-        logger.error("❌ Sync failed")
-        raise typer.Exit(code=1)
-
-
-@app.command()
 def discover(
     dry_run: bool = False,
     verbose: bool = False,
