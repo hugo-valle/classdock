@@ -125,7 +125,6 @@ See **[Roster Sync Guide](docs/ROSTER_SYNC.md)** for detailed setup.
 | [Full Command Reference](docs/COMMANDS.md) | Every command, subcommand, and option |
 | [Roster Sync Guide](docs/ROSTER_SYNC.md) | Roster management and orchestrator integration |
 | [Error Handling](docs/ERROR_HANDLING.md) | GitHub API resilience and retry patterns |
-| [CI/CD Workflow](docs/CICD_WORKFLOW.md) | Automated testing and PyPI publishing |
 | [Contributing Guide](docs/CONTRIBUTING.md) | Development workflow and guidelines |
 | [Changelog](docs/CHANGELOG.md) | Release history |
 

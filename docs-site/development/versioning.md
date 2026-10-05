@@ -98,7 +98,7 @@ Our versioning follows [PEP 440](https://peps.python.org/pep-0440/) to ensure:
 ## Release Process
 
 ### 1. Development
-Work happens on feature branches and `develop` branch.
+Work happens on short-lived topic branches merged into `main`.
 
 ### 2. Alpha Release
 ```bash

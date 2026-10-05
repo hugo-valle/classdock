@@ -139,3 +139,11 @@
 - name: "needs more info"
   description: "More information needed from author"
   color: "d876e3"
+# Triage Labels
+- name: "ready-for-agent"
+  description: "Fully specified, ready for an AFK agent"
+  color: "0e8a16"
+
+- name: "ready-for-human"
+  description: "Requires human implementation"
+  color: "fbca04"

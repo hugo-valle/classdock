@@ -40,7 +40,6 @@ You are an expert Code Reviewer specializing in Python development with deep kno
      - `classroom_pilot/cli.py`
 
 6. **Project Standards Compliance**
-   - Verify adherence to patterns in `.github/copilot-instructions.md`
    - Check that error handling follows `docs/ERROR_HANDLING.md` guidelines
    - Ensure testing patterns align with `docs/TESTING.md`
    - Validate CLI commands follow `docs/CLI_ARCHITECTURE.md` structure

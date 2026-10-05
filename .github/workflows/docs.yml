@@ -2,13 +2,13 @@ name: Deploy Documentation
 
 on:
   push:
-    branches: [ develop ]
+    branches: [ main ]
     paths:
       - 'docs-site/**'
       - 'mkdocs.yml'
       - '.github/workflows/docs.yml'
   pull_request:
-    branches: [ develop ]
+    branches: [ main ]
     paths:
       - 'docs-site/**'
       - 'mkdocs.yml'
@@ -64,7 +64,7 @@ jobs:
           path: ./site
 
   deploy:
-    if: github.ref == 'refs/heads/develop'
+    if: github.ref == 'refs/heads/main'
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}

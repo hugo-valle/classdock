@@ -26,8 +26,6 @@ Welcome to the documentation for ClassDock - a modern Python CLI tool for automa
 - **[Development Setup](../README.md#development)** - Local development environment setup
 
 ### Release & Publishing
-- **[PyPI Publication Guide](PYPI_PUBLICATION.md)** - Complete PyPI publishing documentation
-- **[CI/CD Workflow](CICD_WORKFLOW.md)** - Automated testing and publishing pipeline
 - **[Changelog](CHANGELOG.md)** - Version history and release notes
 
 ### Architecture

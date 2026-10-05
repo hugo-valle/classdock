@@ -58,15 +58,18 @@ poetry run pytest tests/test_cli.py -v
 
 ## 🔧 Development Workflow
 
-### 1. Create Feature Branch
+ClassDock uses trunk-based development: `main` is the only long-lived branch and every PR targets it ([ADR 0002](adr/0002-trunk-based-development.md)).
+
+### 1. Create a Topic Branch
 
 ```bash
 # Always start from main and sync first
 git checkout main
 git pull upstream main
 
-# Create feature branch
-git checkout -b feature/your-feature-name
+# Create a topic branch: <type>/<issue>-<slug>
+# type is feature, bugfix, docs, chore or claude
+git checkout -b feature/123-your-feature-name
 ```
 
 ### 2. Make Changes
@@ -106,15 +109,16 @@ git add .
 git commit -m "feat: add new assignment orchestration feature"
 
 # Push to your fork
-git push origin feature/your-feature-name
+git push origin feature/123-your-feature-name
 ```
 
 ### 5. Create Pull Request
 
-- Open a PR from your feature branch to `main`
+- Open a PR from your branch to `main`
 - Provide clear description of changes
-- Reference any related issues
-- Ensure all CI checks pass
+- Link the issue with `Closes #123`
+- Ensure all CI checks pass (`test (3.10)`, `test (3.14)`, `lint`)
+- Merging to `main` never publishes; releases are a separate step
 
 ## 📋 Contribution Guidelines
 
@@ -216,35 +220,26 @@ poetry run pytest tests/ --cov=classdock --cov-report=html
 poetry run pytest-watch tests/
 ```
 
-## 📦 Version Management
+## 🚀 Releasing
 
-### Semantic Versioning
+Versions follow [PEP 440](https://peps.python.org/pep-0440/) semantic versioning (`1.2.3`, pre-releases like `1.3.0a1`). The version lives only in `pyproject.toml`; `classdock.__version__` and `classdock --version` read it from there.
 
-We follow semantic versioning: `MAJOR.MINOR.PATCH-prerelease`
+1. **Bump the version** on a branch and merge it:
+   ```bash
+   git checkout main && git pull
+   git checkout -b chore/123-release-1.2.3
+   poetry version 1.2.3
+   git commit -am "chore: release 1.2.3"
+   gh pr create --base main --title "chore: release 1.2.3" --body "Closes #123"
+   ```
+2. **After the PR merges**, update your local `main`: `git checkout main && git pull`
+3. **Create the GitHub Release** with a bare semver tag (no `v` prefix):
+   ```bash
+   gh release create 1.2.3 --generate-notes            # add --draft to review notes first
+   ```
+4. **Publishing the release** runs `.github/workflows/release.yml`. It fails if the tag doesn't match `pyproject.toml`, then runs the tests, builds with Poetry and publishes to PyPI through trusted publishing (OIDC, no API tokens).
 
-- **MAJOR**: Breaking changes
-- **MINOR**: New features (backward compatible)
-- **PATCH**: Bug fixes
-- **Pre-release**: `alpha.X`, `beta.X`, `rc.X`
-
-### Version Update Process
-
-When your changes require a version bump:
-
-1. Update `pyproject.toml` version
-2. Update `classdock/__init__.py` `__version__`
-3. Update `classdock/cli.py` version command
-4. Update `CHANGELOG.md` with changes
-
-## 🚀 Release Process
-
-Releases are automated via GitHub Actions:
-
-1. **Create PR** with your changes
-2. **Merge to main** after review
-3. **Tag release**: `git tag v3.0.1-alpha.3`
-4. **Push tag**: `git push origin main --tags`
-5. **CI/CD handles the rest**: testing, building, PyPI publishing
+Release notes are generated from merged PR titles, grouped by label (`.github/release.yml`). A hotfix is an ordinary `bugfix/` PR followed by a patch release.
 
 ## 🔍 Common Issues
 

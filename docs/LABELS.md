@@ -98,7 +98,7 @@ The repository includes a GitHub Action (`.github/workflows/sync-labels.yml`) th
 
 - Changes are made to `.github/labels.yml`
 - Manually triggered via workflow dispatch
-- Push to `main` or `develop` branches
+- Push to `main`
 
 ## 📝 Usage Guidelines
 
