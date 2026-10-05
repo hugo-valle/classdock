@@ -442,3 +442,17 @@ See `docs/ROSTER_SYNC.md` for complete documentation.
 - `docs/ERROR_HANDLING.md` - Error handling system
 - `docs/TESTING.md` - Testing framework and patterns
 - `docs/ROSTER_SYNC.md` - Roster management and sync integration guide
+
+## Agent skills
+
+### Issue tracker
+
+Issues live in GitHub Issues (hugo-valle/classdock), via the `gh` CLI. See `docs/agents/issue-tracker.md`.
+
+### Triage labels
+
+Default five-role vocabulary (`needs-triage`, `needs-info`, `ready-for-agent`, `ready-for-human`, `wontfix`). See `docs/agents/triage-labels.md`.
+
+### Domain docs
+
+Single-context: root `CONTEXT.md` + `docs/adr/`. See `docs/agents/domain.md`.
