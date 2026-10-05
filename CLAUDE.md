@@ -165,7 +165,7 @@ When using plan mode for complex tasks:
 - `feature/<issue>-brief-description` → New features (from main)
 - `bugfix/<issue>-brief-description` → Bug fixes (from main)
 - `hotfix/<issue>-brief-description` → Critical fixes (from main)
-- `release/vX.Y.Z` → Release preparation (from develop)
+- `chore/<issue>-release-X.Y.Z` → Version bump before a release (from main)
 
 **Examples**:
 ```bash
@@ -260,9 +260,6 @@ make test-unit
 
 # 3. Create PR to main
 gh pr create --base main --title "Hotfix: description"
-
-# 4. After merge to main, MUST merge to develop
-# (Automated workflow handles this, but verify)
 ```
 
 ### Version Management for Releases
@@ -272,7 +269,7 @@ When creating a release:
 ```bash
 # 1. Branch from main
 git checkout main && git pull
-git checkout -b chore/release-1.2.3
+git checkout -b chore/<issue>-release-1.2.3
 
 # 2. Update version in 3 locations:
 # - pyproject.toml (version = "1.2.3")
@@ -281,7 +278,7 @@ git checkout -b chore/release-1.2.3
 
 # 3. Commit, PR to main, merge (merging publishes nothing)
 git commit -m "chore: bump version to 1.2.3"
-gh pr create --base main --fill
+gh pr create --base main --title "chore: release 1.2.3" --body "Closes #<issue>"
 
 # 4. Publish: the GitHub Release triggers release.yml, which checks the
 #    tag matches pyproject.toml, runs tests, and publishes to PyPI via
