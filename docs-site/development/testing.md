@@ -86,8 +86,13 @@ Error paths matter as much as happy paths. Assert on the exception type and mess
 ## E2E Tests
 
 The E2E harness lives in `test_project_repos/`. Its [README](https://github.com/hugo-valle/classdock/blob/main/test_project_repos/README.md)
-documents the directory layout, scripts and configuration. Troubleshooting and scenario docs sit next to it in
-`test_project_repos/docs/`.
+documents the directory layout, scripts and configuration. Troubleshooting and scenario docs sit next to it:
+[TROUBLESHOOTING.md](https://github.com/hugo-valle/classdock/blob/main/test_project_repos/docs/TROUBLESHOOTING.md)
+(install, CLI and environment problems such as `command not found: classdock` or import errors) and
+[TEST_SCENARIOS.md](https://github.com/hugo-valle/classdock/blob/main/test_project_repos/docs/TEST_SCENARIOS.md).
+
+**Prerequisites:** Python 3.10+, Poetry, and the GitHub CLI (`gh`) authenticated. The harness builds the package
+and installs it into an isolated environment, so it validates the built artifact rather than your working tree.
 
 ### Full harness
 
@@ -133,7 +138,8 @@ lists the options.
 ### Manual testing
 
 Use a throwaway organization and assignment. A token is resolved from the environment, a token config file, or the
-OS keychain, so test the storage method you changed.
+OS keychain (macOS Keychain, Linux Secret Service, Windows Credential Manager), so test the storage method you
+changed. Cover classic and fine-grained tokens, and an invalid or under-scoped token (for example `repo` only).
 
 **Pass criteria for any manual pass:**
 
@@ -161,9 +167,9 @@ classdock roster sync --assignment=YOUR_ASSIGNMENT --org=YOUR_ORG
 
 Check that `init` creates the database, `import` loads the CSV, `list` and `status` show the students,
 and `sync` links repositories to students. To exercise the orchestrator, follow the
-orchestrator setup in the roster guide and confirm the roster sync step runs. Also confirm existing commands still work when no
+orchestrator setup in [Roster Sync](../workflows/roster-sync.md) and confirm the roster sync step runs. Also confirm existing commands still work when no
 roster database exists (roster features are skipped silently). To start over, delete the roster database and
-run `classdock roster init` again. See [Roster Sync](../workflows/roster-sync.md) for the full workflow.
+run `classdock roster init` again.
 
 ## Continuous Integration
 
