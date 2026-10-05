@@ -177,7 +177,7 @@ class TestRepositoryFetcher:
         
         assert len(repositories) == 2  # Only assignment-1 repos
         assert all(repo.name.startswith("assignment-1") for repo in repositories)
-        mock_github_class.assert_called_once_with(mock_config.github_token)
+        assert mock_github_class.call_args.kwargs['auth'].token == mock_config.github_token
 ```
 
 ## 🧪 Professional Testing Patterns
