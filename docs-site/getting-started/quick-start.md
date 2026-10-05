@@ -15,7 +15,7 @@ This guide will walk you through:
 
 - [ClassDock installed](installation.md)
 - GitHub personal access token
-- GitHub Classroom assignment URL
+- GitHub assignment URL
 
 ## 🚀 Step 1: Assignment Setup
 
@@ -30,7 +30,7 @@ classdock assignments setup
 
 The wizard will guide you through:
 
-- GitHub Classroom URL
+- GitHub URL
 - Template repository URL
 - Assignment file name
 - Secret requirements
@@ -43,8 +43,8 @@ Alternatively, create an `assignment.conf` file manually:
 ```bash
 # Create assignment.conf
 cat > assignment.conf << 'EOF'
-# GitHub Classroom Configuration
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/homework1"
+# Assignment Configuration
+ASSIGNMENT_NAME="homework1"
 TEMPLATE_REPO_URL="https://github.com/instructor/homework1-template"
 ASSIGNMENT_FILE="homework1.py"
 
@@ -76,7 +76,7 @@ classdock --verbose repos fetch --config assignment.conf
 
 This will:
 
-- Parse your classroom URL
+- Read your organization and assignment name
 - Find all student repositories
 - Filter out instructor/template repositories
 - Generate a list for batch operations
@@ -129,8 +129,7 @@ This orchestrates:
 1. Configuration validation
 2. Repository discovery
 3. Secret distribution
-4. Template synchronization
-5. Access management
+4. Access management
 
 ## 📊 Step 5: Verify Results
 
@@ -196,7 +195,7 @@ done
 
 - **Use `--verbose`** for debugging issues
 - **Check logs** regularly for errors
-- **Monitor API rate limits** with large classrooms
+- **Monitor API rate limits** with large courses
 - **Validate results** after batch operations
 
 ## 🆘 Troubleshooting
@@ -211,7 +210,7 @@ classdock --verbose repos fetch --config assignment.conf
 
 **Repository Not Found**:
 ```bash
-# Verify classroom URL format
+# Verify organization and assignment name
 classdock --dry-run repos fetch --config assignment.conf
 ```
 

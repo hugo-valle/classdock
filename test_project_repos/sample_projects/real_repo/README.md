@@ -1,14 +1,13 @@
 # Real Repository Testing Configuration
 
-This directory contains the configuration files needed for testing classroom-pilot with actual GitHub repositories.
+This directory contains the configuration files needed for testing classdock with actual GitHub repositories.
 
 ## Files
 
 ### `real_repo_info.conf`
 
-Contains the complete configuration for a real GitHub Classroom assignment, including:
+Contains the complete configuration for a real GitHub assignment, including:
 
-- **CLASSROOM_URL**: The GitHub Classroom assignment URL
 - **TEMPLATE_REPO_URL**: The template repository URL
 - **GITHUB_ORGANIZATION**: The GitHub organization name
 - **ASSIGNMENT_NAME**: The assignment name
@@ -30,11 +29,10 @@ Contains a valid GitHub personal access token with appropriate permissions for:
 
 ### 1. Configure Repository Information
 
-Edit `real_repo_info.conf` to match your actual GitHub Classroom assignment:
+Edit `real_repo_info.conf` to match your actual GitHub assignment:
 
 ```bash
 # Example configuration
-CLASSROOM_URL="https://classroom.github.com/classrooms/YOUR_CLASSROOM_ID/assignments/YOUR_ASSIGNMENT"
 TEMPLATE_REPO_URL="https://github.com/YOUR_ORG/your-template-repo"
 GITHUB_ORGANIZATION="YOUR_ORG"
 ASSIGNMENT_NAME="your-assignment-name"
@@ -102,7 +100,7 @@ Test that your configuration is valid:
 
 ## What the Test Does
 
-1. **Environment Setup**: Creates a clean conda environment with classroom-pilot
+1. **Environment Setup**: Creates a clean conda environment with classdock
 2. **Repository Cloning**: Clones the actual template repository
 3. **Configuration Generation**: Creates assignment.conf from real_repo_info.conf
 4. **Validation Testing**: Tests configuration validation

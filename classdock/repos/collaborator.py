@@ -1,5 +1,5 @@
 """
-Repository Collaborator Management for GitHub Classroom Operations.
+Repository Collaborator Management for GitHub Operations.
 
 This module handles:
 - Collaborator permission management and access control for student repositories
@@ -416,9 +416,7 @@ class CollaboratorManager:
             # 2. Remove collaborator from all repositories
             # 3. Add collaborator to next repository in cycle
 
-            logger.warning(
-                "Permission cycling not yet implemented - using bash wrapper"
-            )
+            logger.warning("Permission cycling not yet implemented")
             results[assignment_prefix] = True
 
         except Exception as e:
@@ -439,7 +437,7 @@ class CollaboratorManager:
             # 2. List collaborators for each repository
             # 3. Generate access report
 
-            logger.warning("Access auditing not yet implemented - using bash wrapper")
+            logger.warning("Access auditing not yet implemented")
 
         except Exception as e:
             logger.error(f"Access audit failed for {assignment_prefix}: {e}")

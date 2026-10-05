@@ -31,7 +31,9 @@ def run_interactive() -> Optional[int]:
 
     Returns the exit code (0 = success, 1 = error, None = clean exit).
     """
-    _console.print("\n[bold cyan]ClassDock[/bold cyan] — GitHub Classroom automation\n")
+    _console.print(
+        "\n[bold cyan]ClassDock[/bold cyan] — automation for GitHub-based courses\n"
+    )
 
     choice = prompt_select("What would you like to do?", _MENU_CHOICES)
 

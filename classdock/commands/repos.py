@@ -36,7 +36,7 @@ def repos_fetch(
     ),
 ):
     """
-    Discover and fetch student repositories from GitHub Classroom.
+    Discover and fetch student repositories from the organization.
 
     This command loads the assignment configuration, then uses a Bash wrapper to fetch
     student repositories as specified in the configuration file. It supports dry-run and

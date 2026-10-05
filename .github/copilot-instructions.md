@@ -4,7 +4,7 @@ This document provides comprehensive instructions for AI assistants working on t
 
 ## 🎯 Project Overview
 
-**ClassDock** is a comprehensive Python CLI tool for automating GitHub Classroom assignment management. It provides modular functionality for repository operations, assignment orchestration, secret management, and automation workflows.
+**ClassDock** is a comprehensive Python CLI tool for automating assignment management for GitHub-based courses. It provides modular functionality for repository operations, assignment orchestration, secret management, and automation workflows.
 
 ### Key Information
 - **Language**: Python 3.10+
@@ -495,10 +495,10 @@ This project uses a **two-tier testing strategy** with distinct but complementar
 - **Execution**: `pytest tests/ -v` (runs in seconds)
 - **Examples**:
   ```python
-  def test_assignment_service_setup_with_url():
-      service = AssignmentService(dry_run=True) 
-      success, message = service.setup(url="https://classroom.github.com/a/test")
-      assert "GitHub Classroom URL" in message
+  def test_assignment_service_validate_config_dry_run():
+      service = AssignmentService(dry_run=True)
+      success, message = service.validate_config("assignment.conf")
+      assert success
   ```
 
 #### **Tier 2: `test_project_repos/` - End-to-End Validation (Release Testing)**
@@ -510,7 +510,7 @@ This project uses a **two-tier testing strategy** with distinct but complementar
 - **Examples**:
   ```bash
   # Tests real GitHub API integration, actual repository cloning
-  classdock assignments setup --url "https://real-github-classroom-url"
+  classdock assignments setup
   classdock assignments orchestrate --config real_assignment.conf
   ```
 

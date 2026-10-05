@@ -26,7 +26,7 @@ ClassDock now includes an optional roster management system that:
 
 - ✅ Want to track which students accepted assignments
 - ✅ Need acceptance rate statistics
-- ✅ Manage multiple GitHub Classroom organizations
+- ✅ Manage multiple GitHub organizations
 - ✅ Want to identify students who haven't started
 - ✅ Need centralized student enrollment tracking
 - ✅ Use Google Forms for student registration

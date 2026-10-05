@@ -2,31 +2,13 @@
 
 ## Purpose
 
-This directory contains test fixtures for comprehensive QA testing of the classroom-pilot assignments commands. These fixtures enable testing of various scenarios including valid configurations, batch operations, error handling, and edge cases without requiring actual GitHub resources or API access.
+This directory contains test fixtures for comprehensive QA testing of the classdock assignments commands. These fixtures enable testing of various scenarios including valid configurations, batch operations, error handling, and edge cases without requiring actual GitHub resources or API access.
 
 ## Fixture Categories
 
 ### Configuration Files
 
 #### Valid Configurations
-
-**`valid_assignment.conf`**
-- **Type**: Comprehensive valid configuration with all fields
-- **Fields**: All required and optional fields populated
-- **Use Case**: Testing standard assignment operations with full configuration
-- **Includes**: Classroom URL, template repo, secrets, student files, collaborators
-
-**`minimal_assignment.conf`**
-- **Type**: Minimal valid configuration with only required fields
-- **Fields**: CLASSROOM_URL, TEMPLATE_REPO_URL, GITHUB_ORGANIZATION, ASSIGNMENT_NAME, ASSIGNMENT_FILE
-- **Use Case**: Testing that commands work with minimal configuration
-- **Purpose**: Validates required field detection and defaults
-
-**`with_classroom_repo.conf`**
-- **Type**: Configuration with classroom repository URL
-- **Special Field**: CLASSROOM_REPO_URL
-- **Use Case**: Testing classroom-specific commands (check-classroom, push-to-classroom, help-student updates)
-- **Purpose**: Commands that require classroom repository for synchronization
 
 **`with_secrets.conf`**
 - **Type**: Configuration with secrets management enabled
@@ -35,11 +17,6 @@ This directory contains test fixtures for comprehensive QA testing of the classr
 - **Purpose**: Validates secrets synchronization and management
 
 #### Invalid Configurations
-
-**`invalid_no_classroom_url.conf`**
-- **Type**: Missing CLASSROOM_URL (required field)
-- **Purpose**: Test validation error detection for missing classroom URL
-- **Expected**: Validation should fail with clear error message
 
 **`invalid_no_template_url.conf`**
 - **Type**: Missing TEMPLATE_REPO_URL (required field)
@@ -79,44 +56,36 @@ This directory contains test fixtures for comprehensive QA testing of the classr
 
 ```bash
 # Test with valid comprehensive configuration
-classroom-pilot assignments validate-config --config-file fixtures/assignments/valid_assignment.conf
+classdock assignments validate-config --config-file fixtures/assignments/valid_assignment.conf
 
 # Test with minimal configuration
-classroom-pilot assignments orchestrate --config fixtures/assignments/minimal_assignment.conf
-
-# Test with classroom repository configuration
-classroom-pilot assignments check-classroom --config fixtures/assignments/with_classroom_repo.conf
+classdock assignments orchestrate --config fixtures/assignments/minimal_assignment.conf
 
 # Test with secrets configuration
-classroom-pilot assignments orchestrate --step secrets --config fixtures/assignments/with_secrets.conf
+classdock assignments orchestrate --step secrets --config fixtures/assignments/with_secrets.conf
 ```
 
 ### Using Repository Lists in Tests
 
 ```bash
 # Test batch help with repository URLs
-classroom-pilot assignments help-students fixtures/assignments/student_repos.txt --yes
+classdock assignments help-students fixtures/assignments/student_repos.txt --yes
 
 # Test cycle collaborators with usernames
-classroom-pilot assignments cycle-collaborators fixtures/assignments/usernames.txt
+classdock assignments cycle-collaborators fixtures/assignments/usernames.txt
 
 # Test cycle collaborators with repository URLs
-classroom-pilot assignments cycle-collaborators fixtures/assignments/student_repos.txt --repo-urls
+classdock assignments cycle-collaborators fixtures/assignments/student_repos.txt --repo-urls
 ```
 
 ### Testing Error Scenarios
 
-```bash
-# Test validation with missing required field
-classroom-pilot assignments validate-config --config-file fixtures/assignments/invalid_no_classroom_url.conf
-# Expected: Error message about missing CLASSROOM_URL
-
 # Test batch operation with empty file
-classroom-pilot assignments help-students fixtures/assignments/empty_repos.txt
+classdock assignments help-students fixtures/assignments/empty_repos.txt
 # Expected: Error or warning about empty file
 
 # Test batch operation with invalid URLs
-classroom-pilot assignments help-students fixtures/assignments/invalid_repos.txt --yes
+classdock assignments help-students fixtures/assignments/invalid_repos.txt --yes
 # Expected: Errors for each invalid URL with clear messages
 ```
 
@@ -132,14 +101,14 @@ source "$CONFIG_FILE"
 
 # Use in tests
 test_orchestrate_full() {
-    classroom-pilot assignments orchestrate --config "$CONFIG_FILE" --yes
+    classdock assignments orchestrate --config "$CONFIG_FILE" --yes
     assert_exit_code 0
 }
 
 # Load repository list
 REPOS_FILE="$FIXTURES_DIR/assignments/student_repos.txt"
 test_help_students_batch() {
-    classroom-pilot assignments help-students "$REPOS_FILE" --yes
+    classdock assignments help-students "$REPOS_FILE" --yes
     assert_output_contains "processed"
 }
 ```
@@ -149,10 +118,6 @@ test_help_students_batch() {
 ### Required Fields
 
 All assignment configurations must include these fields:
-
-- **CLASSROOM_URL** - GitHub Classroom assignment URL
-  - Format: `https://classroom.github.com/classrooms/{id}/assignments/{name}`
-  - Example: `https://classroom.github.com/classrooms/123456/assignments/test-assignment`
 
 - **TEMPLATE_REPO_URL** - Source template repository URL
   - Format: `https://github.com/{org}/{repo}`
@@ -173,10 +138,6 @@ All assignment configurations must include these fields:
 ### Optional Fields
 
 These fields enhance functionality but are not required:
-
-- **CLASSROOM_REPO_URL** - Central classroom repository URL
-  - Purpose: For classroom synchronization and updates
-  - Example: `https://github.com/test-org/classroom-test-assignment`
 
 - **SECRETS_LIST** - Comma-separated list of GitHub Actions secrets
   - Purpose: Secrets to synchronize across student repositories
@@ -301,8 +262,8 @@ Before committing new fixtures:
 - `test_project_repos/qa_tests/test_assignments_commands.sh` - Main test suite using these fixtures
 - `test_project_repos/lib/test_helpers.sh` - Test helper functions and assertions
 - `test_project_repos/lib/mock_helpers.sh` - Mocking utilities for GitHub API and file system
-- `classroom_pilot/cli.py` - CLI implementation for assignments commands
-- `classroom_pilot/assignments/` - Assignments module implementations
+- `classdock/cli.py` - CLI implementation for assignments commands
+- `classdock/assignments/` - Assignments module implementations
 
 ## Security Note
 

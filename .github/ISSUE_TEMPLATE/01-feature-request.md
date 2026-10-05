@@ -143,7 +143,6 @@ Any security implications or requirements?
 - Depends on #(issue number)
 
 **External References:**
-- GitHub Classroom documentation
 - GitHub API documentation
 - Other relevant links
 

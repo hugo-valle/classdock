@@ -2,7 +2,7 @@
 #
 # CLI Interface Testing Script
 #
-# Tests the command-line interface functionality of classroom-pilot
+# Tests the command-line interface functionality of classdock
 #
 
 set -euo pipefail
@@ -153,7 +153,6 @@ test_configuration_commands() {
     # Create sample configuration first
     cat > assignment.conf << EOF
 # Sample configuration for testing
-CLASSROOM_URL=https://classroom.github.com/classrooms/test-classroom
 TEMPLATE_REPO_URL=https://github.com/test-org/test-template
 GITHUB_ORGANIZATION=test-org
 ASSIGNMENT_FILE=assignment.conf
@@ -268,7 +267,7 @@ test_dry_run_mode() {
     
     # Create valid configuration
     cat > assignment.conf << EOF
-CLASSROOM_URL=https://classroom.github.com/classrooms/test-classroom
+ASSIGNMENT_NAME="test-assignment"
 TEMPLATE_REPO_URL=https://github.com/test-org/test-template
 GITHUB_ORGANIZATION=test-org
 ASSIGNMENT_FILE=assignment.conf

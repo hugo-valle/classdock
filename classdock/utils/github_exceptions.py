@@ -19,7 +19,7 @@ Usage:
     from classdock.utils.github_exceptions import (
         github_api_retry, GitHubAPIError, handle_github_errors
     )
-    
+
     @github_api_retry(max_attempts=3)
     def fetch_repositories(github_client):
         # GitHub API calls with automatic retry
@@ -215,7 +215,7 @@ class GitHubDiscoveryError(GitHubAPIError):
     Raised when repository discovery operations fail.
 
     This includes organization scanning failures, repository filtering issues,
-    and classroom URL parsing problems.
+    and repository name parsing problems.
     """
 
     def __init__(

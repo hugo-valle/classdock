@@ -2,7 +2,7 @@
 
 ## Overview
 
-This guide provides comprehensive documentation for automating QA functional tests in the `classroom-pilot` project. The QA test automation infrastructure enables running functional tests individually, in groups, or as complete test suites with flexible orchestration options.
+This guide provides comprehensive documentation for automating QA functional tests in the `classdock` project. The QA test automation infrastructure enables running functional tests individually, in groups, or as complete test suites with flexible orchestration options.
 
 **Relationship to QA_TESTING_GUIDE.md:**
 - **QA_TESTING_GUIDE.md**: Manual testing guide focused on test development, fixtures, patterns, and execution
@@ -120,7 +120,6 @@ test_project_repos/
 │   │   ├── mock_helpers.sh     # Mock GitHub API calls
 │   │   └── assertion_helpers.sh # Test assertions
 │   └── fixtures/
-│       ├── test_classroom_urls.txt    # Test URLs
 │       ├── test_assignment_config.conf # Test configs
 │       └── test_student_lists/        # Student fixtures
 └── docs/
@@ -311,7 +310,7 @@ The QA test infrastructure supports three report formats:
 
 **Example:**
 ```markdown
-# QA Test Report - classroom-pilot
+# QA Test Report - classdock
 
 Generated: 2024-01-15 14:30:45
 
@@ -403,14 +402,14 @@ jobs:
       with:
         python-version: '3.11'
     
-    - name: Install classroom-pilot
+    - name: Install classdock
       run: |
         pip install -e .
     
     - name: Run QA tests
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        GH_CLASSROOM_TOKEN: ${{ secrets.GH_CLASSROOM_TOKEN }}
+        GH_TOKEN: ${{ secrets.GH_TOKEN }}
       run: |
         cd test_project_repos/qa_tests
         ./run_qa_tests.sh --all --report --junit
@@ -433,8 +432,8 @@ jobs:
 
 **Prerequisites:**
 - Set `GITHUB_TOKEN` secret (for GitHub API operations)
-- Set `GH_CLASSROOM_TOKEN` secret (for GitHub Classroom operations)
-- Install `classroom-pilot` package
+- Set `GH_TOKEN` secret (for GitHub operations)
+- Install `classdock` package
 - Set up Python 3.10+ environment
 
 **CI Execution:**
@@ -461,7 +460,7 @@ cd test_project_repos/qa_tests
 ```bash
 # Set GitHub token
 export GITHUB_TOKEN="your-github-token"
-export GH_CLASSROOM_TOKEN="your-classroom-token"
+export GH_TOKEN="your-course-token"
 
 # Or use test helper
 cd test_project_repos/qa_tests
@@ -671,7 +670,6 @@ steps:
 **Update fixtures regularly:**
 ```bash
 # Update test URLs
-vim qa_tests/fixtures/test_classroom_urls.txt
 
 # Update test configurations
 vim qa_tests/fixtures/test_assignment_config.conf

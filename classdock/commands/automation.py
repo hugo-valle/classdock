@@ -34,7 +34,7 @@ def automation_callback(
 def automation_cron_install(
     ctx: typer.Context,
     steps: List[str] = typer.Argument(
-        ..., help="Workflow steps to schedule (sync, secrets, cycle, discover, assist)"
+        ..., help="Workflow steps to schedule (secrets, cycle, discover, assist)"
     ),
     schedule: Optional[str] = typer.Option(
         None,
@@ -49,8 +49,8 @@ def automation_cron_install(
     """
     Install cron job for automated workflow steps.
 
-    Install cron jobs to automate GitHub Classroom workflow operations like
-    template synchronization, secret management, and repository access cycling.
+    Install cron jobs to automate workflow operations like
+    repository discovery, secret management, and repository access cycling.
 
     Supports universal options: --verbose, --dry-run
 
@@ -90,7 +90,7 @@ def automation_cron_remove(
     ctx: typer.Context,
     steps: Optional[List[str]] = typer.Argument(
         None,
-        help="Workflow steps to remove (sync, secrets, cycle, discover, assist) or 'all'",
+        help="Workflow steps to remove (secrets, cycle, discover, assist) or 'all'",
     ),
     config_file: str = typer.Option(
         "assignment.conf", "--config", "-c", help="Configuration file path"
@@ -290,7 +290,7 @@ def automation_cron_schedules():
 def automation_cron_sync(
     ctx: typer.Context,
     steps: List[str] = typer.Argument(
-        None, help="Workflow steps to execute (sync, discover, secrets, assist, cycle)"
+        None, help="Workflow steps to execute (discover, secrets, assist, cycle)"
     ),
     config_file: str = typer.Option(
         "assignment.conf", "--config", "-c", help="Configuration file path"
@@ -310,7 +310,6 @@ def automation_cron_sync(
     cron job automation.
 
     Available workflow steps:
-    - sync: Synchronize template with classroom repository
     - discover: Discover and update student repositories
     - secrets: Manage repository secrets
     - assist: Provide automated student assistance
@@ -336,7 +335,7 @@ def automation_cron_sync(
 
         if dry_run:
             logger.info("📋 Workflow steps that would be executed:")
-            for i, step in enumerate(steps or ["sync"], 1):
+            for i, step in enumerate(steps or ["discover"], 1):
                 logger.info(f"  {i}. {step}")
             logger.info(
                 f"📂 Log file: {result.get('log_file') if isinstance(result, dict) else 'unknown'}"

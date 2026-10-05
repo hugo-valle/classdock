@@ -142,7 +142,7 @@ def version_callback(value: bool):
         from . import __version__
 
         typer.echo(f"ClassDock {__version__}")
-        typer.echo("Modular Python CLI for GitHub Classroom automation")
+        typer.echo("Modular Python CLI for GitHub-based course automation")
         typer.echo("https://github.com/hugo-valle/classdock")
         raise typer.Exit()
 
@@ -154,7 +154,7 @@ def version_callback(value: bool):
 #   - AFTER subcommands: classdock assignments --verbose orchestrate
 # Each callback merges options so they work from either position.
 app = typer.Typer(
-    help="ClassDock - Comprehensive automation suite for managing GitHub Classroom assignments.",
+    help="ClassDock - Automation suite for managing assignments in GitHub-based courses.",
     no_args_is_help=False,
     rich_markup_mode="rich",
 )
@@ -185,7 +185,7 @@ def main(
     ),
 ):
     """
-    [bold cyan]ClassDock[/bold cyan] — GitHub Classroom automation suite.
+    [bold cyan]ClassDock[/bold cyan] — automation suite for GitHub-based courses.
 
     [bold]Common commands:[/bold]
       [cyan]classdock run[/cyan]     Run the full assignment workflow

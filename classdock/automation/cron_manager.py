@@ -1,5 +1,5 @@
 """
-Cron job management for automated GitHub Classroom workflows.
+Cron job management for automated workflows.
 
 This module provides Python-based cron job management,
 handling cron job installation, removal, status checking, and validation
@@ -24,7 +24,6 @@ logger = get_logger("automation.cron_manager")
 class CronJobType(Enum):
     """Supported cron job workflow types."""
 
-    SYNC = "sync"
     DISCOVER = "discover"
     SECRETS = "secrets"
     ASSIST = "assist"
@@ -94,7 +93,7 @@ class CronStatus:
 
 
 class CronManager:
-    """Manages cron jobs for automated GitHub Classroom workflows."""
+    """Manages cron jobs for automated workflows."""
 
     def __init__(self, global_config: Optional[GlobalConfig] = None):
         """Initialize cron manager with configuration."""
@@ -102,7 +101,6 @@ class CronManager:
 
         # Default schedules for different workflow types
         self.default_schedules = {
-            CronJobType.SYNC: "0 */4 * * *",  # Every 4 hours
             CronJobType.SECRETS: "0 2 * * *",  # Daily at 2 AM
             CronJobType.CYCLE: "0 6 * * 0",  # Weekly on Sunday at 6 AM
             CronJobType.DISCOVER: "0 1 * * *",  # Daily at 1 AM
@@ -110,7 +108,9 @@ class CronManager:
         }
 
         # Configuration constants
-        self.cron_comment_prefix = "# GitHub Classroom Assignment Auto"
+        self.cron_comment_prefix = "# ClassDock Auto"
+        # Jobs installed by earlier versions; still recognized so they stay manageable
+        self.legacy_cron_comment_prefixes = ("# GitHub Classroom Assignment Auto",)
         self.cron_script_path = self._get_cron_script_path()
         self.log_file_path = self._get_log_file_path()
 
@@ -292,6 +292,13 @@ class CronManager:
 
         return f"{self.cron_comment_prefix}-{assignment_identifier}-{steps_key}"
 
+    def _has_cron_prefix(self, line: str, anchored: bool = False) -> bool:
+        """Check whether a crontab line carries our marker (current or legacy)."""
+        prefixes = (self.cron_comment_prefix, *self.legacy_cron_comment_prefixes)
+        if anchored:
+            return line.startswith(prefixes)
+        return any(prefix in line for prefix in prefixes)
+
     def _get_assignment_identifier(self) -> str:
         """Get unique identifier for the current assignment."""
         # Try to get assignment name from config
@@ -465,7 +472,7 @@ class CronManager:
                 while i < len(lines):
                     line = lines[i]
                     # If this line is a comment with our prefix, skip it and the next line (command)
-                    if self.cron_comment_prefix in line:
+                    if self._has_cron_prefix(line):
                         i += 1  # Skip comment line
                         if i < len(lines):
                             i += 1  # Skip command line too
@@ -577,7 +584,7 @@ class CronManager:
                 line = lines[i].strip()
 
                 # Check if this is our comment line
-                if line.startswith(self.cron_comment_prefix):
+                if self._has_cron_prefix(line, anchored=True):
                     # Extract steps from comment
                     comment_parts = line.split("-")
                     if len(comment_parts) > 1:

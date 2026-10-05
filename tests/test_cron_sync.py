@@ -22,7 +22,7 @@ class TestWorkflowStep:
 
     def test_workflow_step_values(self):
         """Test all workflow step values are correct."""
-        assert WorkflowStep.SYNC.value == "sync"
+        assert WorkflowStep.DISCOVER.value == "discover"
         assert WorkflowStep.DISCOVER.value == "discover"
         assert WorkflowStep.SECRETS.value == "secrets"
         assert WorkflowStep.ASSIST.value == "assist"
@@ -30,7 +30,7 @@ class TestWorkflowStep:
 
     def test_workflow_step_from_string(self):
         """Test creating WorkflowStep from string values."""
-        assert WorkflowStep("sync") == WorkflowStep.SYNC
+        assert WorkflowStep("discover") == WorkflowStep.DISCOVER
         assert WorkflowStep("discover") == WorkflowStep.DISCOVER
         assert WorkflowStep("secrets") == WorkflowStep.SECRETS
         assert WorkflowStep("assist") == WorkflowStep.ASSIST
@@ -48,14 +48,14 @@ class TestStepResult:
     def test_step_result_creation(self):
         """Test creating StepResult with all fields."""
         result = StepResult(
-            step=WorkflowStep.SYNC,
+            step=WorkflowStep.DISCOVER,
             success=True,
             exit_code=0,
             message="Step completed successfully",
             execution_time=1.5
         )
 
-        assert result.step == WorkflowStep.SYNC
+        assert result.step == WorkflowStep.DISCOVER
         assert result.success is True
         assert result.exit_code == 0
         assert result.message == "Step completed successfully"
@@ -68,7 +68,7 @@ class TestCronSyncExecutionResult:
     def test_execution_result_creation(self):
         """Test creating CronSyncExecutionResult with all fields."""
         step_results = [
-            StepResult(WorkflowStep.SYNC, True, 0, "Success", 1.0),
+            StepResult(WorkflowStep.DISCOVER, True, 0, "Success", 1.0),
             StepResult(WorkflowStep.SECRETS, False, 1, "Failed", 0.5)
         ]
 
@@ -197,12 +197,12 @@ class TestStepValidation:
         return CronSyncManager(config, tmp_path)
 
     def test_validate_steps_empty_list(self, cron_manager):
-        """Test validating empty steps list defaults to sync."""
+        """Test validating empty steps list defaults to discover."""
         valid, steps, message = cron_manager.validate_steps([])
 
         assert valid
-        assert steps == [WorkflowStep.SYNC]
-        assert "default sync step" in message
+        assert steps == [WorkflowStep.DISCOVER]
+        assert "default discover step" in message
 
     def test_validate_steps_valid_single(self, cron_manager):
         """Test validating single valid step."""
@@ -215,20 +215,20 @@ class TestStepValidation:
     def test_validate_steps_valid_multiple(self, cron_manager):
         """Test validating multiple valid steps."""
         valid, steps, message = cron_manager.validate_steps(
-            ["sync", "secrets", "cycle"])
+            ["discover", "secrets", "cycle"])
 
         assert valid
-        assert steps == [WorkflowStep.SYNC,
+        assert steps == [WorkflowStep.DISCOVER,
                          WorkflowStep.SECRETS, WorkflowStep.CYCLE]
         assert "Validated 3 steps" in message
 
     def test_validate_steps_case_insensitive(self, cron_manager):
         """Test step validation is case insensitive."""
         valid, steps, message = cron_manager.validate_steps(
-            ["SYNC", "Secrets", "cYcLe"])
+            ["DISCOVER", "Secrets", "cYcLe"])
 
         assert valid
-        assert steps == [WorkflowStep.SYNC,
+        assert steps == [WorkflowStep.DISCOVER,
                          WorkflowStep.SECRETS, WorkflowStep.CYCLE]
 
     def test_validate_steps_invalid_single(self, cron_manager):
@@ -243,7 +243,7 @@ class TestStepValidation:
     def test_validate_steps_mixed_valid_invalid(self, cron_manager):
         """Test validating mix of valid and invalid steps."""
         valid, steps, message = cron_manager.validate_steps(
-            ["sync", "invalid", "secrets", "bad"])
+            ["discover", "invalid", "secrets", "bad"])
 
         assert not valid
         assert steps == []
@@ -448,9 +448,9 @@ class TestWorkflowStepExecution:
                 True, "Step completed successfully")
             mock_orchestrator_class.return_value = mock_orchestrator
 
-            result = cron_manager.execute_workflow_step(WorkflowStep.SYNC)
+            result = cron_manager.execute_workflow_step(WorkflowStep.DISCOVER)
 
-        assert result.step == WorkflowStep.SYNC
+        assert result.step == WorkflowStep.DISCOVER
         assert result.success is True
         assert result.exit_code == 0
         assert result.message == "Step completed successfully"
@@ -512,12 +512,12 @@ class TestCronSyncExecution:
 
         with patch.object(cron_manager, 'execute_workflow_step') as mock_execute:
             mock_execute.side_effect = [
-                StepResult(WorkflowStep.SYNC, True, 0, "Sync success", 2.0),
+                StepResult(WorkflowStep.DISCOVER, True, 0, "Discover success", 2.0),
                 StepResult(WorkflowStep.SECRETS, True,
                            0, "Secrets success", 3.0)
             ]
 
-            result = cron_manager.execute_cron_sync(["sync", "secrets"])
+            result = cron_manager.execute_cron_sync(["discover", "secrets"])
 
         assert result.overall_result == CronSyncResult.SUCCESS
         assert len(result.steps_executed) == 2
@@ -531,14 +531,14 @@ class TestCronSyncExecution:
 
         with patch.object(cron_manager, 'execute_workflow_step') as mock_execute:
             mock_execute.side_effect = [
-                StepResult(WorkflowStep.SYNC, True, 0, "Sync success", 2.0),
+                StepResult(WorkflowStep.DISCOVER, True, 0, "Discover success", 2.0),
                 StepResult(WorkflowStep.SECRETS, False,
                            1, "Secrets failed", 1.0),
                 StepResult(WorkflowStep.CYCLE, True, 0, "Cycle success", 3.0)
             ]
 
             result = cron_manager.execute_cron_sync(
-                ["sync", "secrets", "cycle"])
+                ["discover", "secrets", "cycle"])
 
         assert result.overall_result == CronSyncResult.PARTIAL_FAILURE
         assert len(result.steps_executed) == 3
@@ -551,15 +551,15 @@ class TestCronSyncExecution:
 
         with patch.object(cron_manager, 'execute_workflow_step') as mock_execute:
             mock_execute.side_effect = [
-                StepResult(WorkflowStep.SYNC, False, 1, "Sync failed", 2.0),
+                StepResult(WorkflowStep.DISCOVER, False, 1, "Discover failed", 2.0),
                 StepResult(WorkflowStep.SECRETS, False,
                            1, "Secrets failed", 1.0)
             ]
 
-            result = cron_manager.execute_cron_sync(["sync", "secrets"])
+            result = cron_manager.execute_cron_sync(["discover", "secrets"])
 
         assert result.overall_result == CronSyncResult.COMPLETE_FAILURE
-        assert "Failed steps: ['sync', 'secrets']" in result.error_summary
+        assert "Failed steps: ['discover', 'secrets']" in result.error_summary
 
     def test_execute_cron_sync_environment_error(self, tmp_path):
         """Test execution with environment validation error."""
@@ -567,7 +567,7 @@ class TestCronSyncExecution:
         # Don't create git directory to trigger environment error
         manager = CronSyncManager(config, tmp_path)
 
-        result = manager.execute_cron_sync(["sync"])
+        result = manager.execute_cron_sync(["discover"])
 
         assert result.overall_result == CronSyncResult.ENVIRONMENT_ERROR
         assert len(result.steps_executed) == 0
@@ -588,11 +588,11 @@ class TestCronSyncExecution:
 
         with patch.object(cron_manager, 'execute_workflow_step') as mock_execute:
             mock_execute.side_effect = [
-                StepResult(WorkflowStep.SYNC, False, 1, "Sync failed", 1.0)
+                StepResult(WorkflowStep.DISCOVER, False, 1, "Discover failed", 1.0)
             ]
 
             result = cron_manager.execute_cron_sync(
-                ["sync", "secrets", "cycle"],
+                ["discover", "secrets", "cycle"],
                 stop_on_failure=True
             )
 
@@ -602,15 +602,15 @@ class TestCronSyncExecution:
 
     @patch('classdock.automation.cron_sync.time.time')
     def test_execute_cron_sync_default_step(self, mock_time, cron_manager):
-        """Test execution with empty steps list defaults to sync."""
+        """Test execution with empty steps list defaults to discover."""
         mock_time.side_effect = [1000.0, 1002.0]  # 2 seconds total
 
         with patch.object(cron_manager, 'execute_workflow_step') as mock_execute:
             mock_execute.return_value = StepResult(
-                WorkflowStep.SYNC, True, 0, "Success", 1.0)
+                WorkflowStep.DISCOVER, True, 0, "Success", 1.0)
 
             result = cron_manager.execute_cron_sync([])
 
         assert result.overall_result == CronSyncResult.SUCCESS
         assert len(result.steps_executed) == 1
-        assert result.steps_executed[0].step == WorkflowStep.SYNC
+        assert result.steps_executed[0].step == WorkflowStep.DISCOVER

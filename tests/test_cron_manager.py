@@ -38,8 +38,8 @@ class TestCronManager:
 
         assert manager.global_config == mock_config
         assert isinstance(manager.default_schedules, dict)
-        assert len(manager.default_schedules) == 5
-        assert manager.cron_comment_prefix == "# GitHub Classroom Assignment Auto"
+        assert len(manager.default_schedules) == 4
+        assert manager.cron_comment_prefix == "# ClassDock Auto"
 
     def test_init_without_config(self):
         """Test CronManager initialization without config."""
@@ -51,7 +51,7 @@ class TestCronManager:
         """Test default schedule configuration."""
         schedules = cron_manager.default_schedules
 
-        assert schedules[CronJobType.SYNC] == "0 */4 * * *"
+        assert schedules[CronJobType.DISCOVER] == "0 1 * * *"
         assert schedules[CronJobType.SECRETS] == "0 2 * * *"
         assert schedules[CronJobType.CYCLE] == "0 6 * * 0"
         assert schedules[CronJobType.DISCOVER] == "0 1 * * *"
@@ -91,7 +91,7 @@ class TestCronValidation:
     def test_validate_cron_schedule_valid(self, cron_manager):
         """Test validation of valid cron schedules."""
         valid_schedules = [
-            "0 */4 * * *",      # Every 4 hours
+            "0 1 * * *",      # Every 4 hours
             "0 2 * * *",        # Daily at 2 AM
             "0 6 * * 0",        # Weekly on Sunday at 6 AM
             "*/15 * * * *",     # Every 15 minutes
@@ -165,10 +165,10 @@ class TestCronValidation:
     def test_validate_steps_valid(self, cron_manager):
         """Test validation of valid workflow steps."""
         valid_step_combinations = [
-            ["sync"],
+            ["discover"],
             ["secrets"],
-            ["sync", "secrets"],
-            ["sync", "discover", "secrets"],
+            ["discover", "secrets"],
+            ["discover", "secrets", "cycle"],
             ["cycle"],
             ["assist"]
         ]
@@ -183,8 +183,8 @@ class TestCronValidation:
         invalid_step_combinations = [
             [],                     # Empty list
             ["invalid_step"],       # Invalid step name
-            ["sync", "invalid"],    # Mix of valid and invalid
-            ["SYNC"],              # Wrong case
+            ["discover", "invalid"],    # Mix of valid and invalid
+            ["DISCOVER"],              # Wrong case
         ]
 
         for steps in invalid_step_combinations:
@@ -239,30 +239,30 @@ class TestCronOperations:
 
     def test_get_default_schedule_single_step(self, cron_manager):
         """Test getting default schedule for single step."""
-        assert cron_manager.get_default_schedule(["sync"]) == "0 */4 * * *"
+        assert cron_manager.get_default_schedule(["discover"]) == "0 1 * * *"
         assert cron_manager.get_default_schedule(["secrets"]) == "0 2 * * *"
         assert cron_manager.get_default_schedule(["cycle"]) == "0 6 * * 0"
 
     def test_get_default_schedule_multiple_steps(self, cron_manager):
         """Test getting default schedule for multiple steps."""
-        result = cron_manager.get_default_schedule(["sync", "secrets"])
+        result = cron_manager.get_default_schedule(["discover", "secrets"])
         assert result == "0 1 * * *"  # Daily at 1 AM for multiple steps
 
     def test_get_cron_comment(self, cron_manager):
         """Test cron comment generation with assignment identifier."""
-        comment = cron_manager._get_cron_comment(["sync"])
+        comment = cron_manager._get_cron_comment(["discover"])
         # Comment now includes assignment identifier (directory name: classdock)
-        assert comment == "# GitHub Classroom Assignment Auto-classdock-sync"
+        assert comment == "# ClassDock Auto-classdock-discover"
 
-        comment = cron_manager._get_cron_comment(["sync", "secrets"])
-        assert comment == "# GitHub Classroom Assignment Auto-classdock-sync-secrets"
+        comment = cron_manager._get_cron_comment(["discover", "secrets"])
+        assert comment == "# ClassDock Auto-classdock-discover-secrets"
 
     def test_get_cron_command(self, cron_manager):
         """Test cron command generation."""
-        command = cron_manager._get_cron_command(["sync"])
+        command = cron_manager._get_cron_command(["discover"])
 
         assert "python -m classdock automation cron-sync" in command
-        assert "sync" in command
+        assert "discover" in command
         assert ">/dev/null 2>&1" in command
 
     @patch('classdock.automation.cron_manager.subprocess.run')
@@ -352,11 +352,11 @@ class TestCronOperations:
     def test_job_exists_true(self, mock_get_crontab, cron_manager):
         """Test checking if job exists when it does."""
         mock_get_crontab.return_value = (
-            "# GitHub Classroom Assignment Auto-classdock-sync\n"
-            "0 */4 * * * python -m classdock automation cron-sync\n"
+            "# ClassDock Auto-classdock-discover\n"
+            "0 1 * * * python -m classdock automation cron-sync\n"
         )
 
-        result = cron_manager.job_exists(["sync"])
+        result = cron_manager.job_exists(["discover"])
         assert result is True
 
     @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
@@ -367,7 +367,7 @@ class TestCronOperations:
             "0 0 * * * /other/command\n"
         )
 
-        result = cron_manager.job_exists(["sync"])
+        result = cron_manager.job_exists(["discover"])
         assert result is False
 
     @patch('classdock.automation.cron_manager.CronManager._get_current_crontab')
@@ -375,7 +375,7 @@ class TestCronOperations:
         """Test checking if job exists when no crontab exists."""
         mock_get_crontab.return_value = None
 
-        result = cron_manager.job_exists(["sync"])
+        result = cron_manager.job_exists(["discover"])
         assert result is False
 
 
@@ -415,7 +415,7 @@ class TestCronInstallation:
         mock_set_crontab.return_value = True
 
         result, message = cron_manager.install_cron_job(
-            ["sync"], "0 */4 * * *")
+            ["discover"], "0 1 * * *")
 
         assert result == CronOperationResult.SUCCESS
         assert "successfully" in message
@@ -428,7 +428,7 @@ class TestCronInstallation:
             False, ["Script not found"], []
         )
 
-        result, message = cron_manager.install_cron_job(["sync"])
+        result, message = cron_manager.install_cron_job(["discover"])
 
         assert result == CronOperationResult.VALIDATION_ERROR
         assert "Prerequisites validation failed" in message
@@ -463,7 +463,7 @@ class TestCronInstallation:
         )
 
         result, message = cron_manager.install_cron_job(
-            ["sync"], "invalid schedule")
+            ["discover"], "invalid schedule")
 
         assert result == CronOperationResult.VALIDATION_ERROR
         assert "Schedule validation failed" in message
@@ -486,7 +486,7 @@ class TestCronInstallation:
         # Mock job exists
         mock_job_exists.return_value = True
 
-        result, message = cron_manager.install_cron_job(["sync"])
+        result, message = cron_manager.install_cron_job(["discover"])
 
         assert result == CronOperationResult.ALREADY_EXISTS
         assert "already exists" in message
@@ -518,14 +518,14 @@ class TestCronInstallation:
         # Mock successful crontab creation
         mock_set_crontab.return_value = True
 
-        result, message = cron_manager.install_cron_job(["sync"])
+        result, message = cron_manager.install_cron_job(["discover"])
 
         assert result == CronOperationResult.SUCCESS
         mock_set_crontab.assert_called_once()
         # Verify the new crontab contains our job with assignment identifier
         call_args = mock_set_crontab.call_args[0][0]
-        assert "# GitHub Classroom Assignment Auto-classdock-sync" in call_args
-        assert "0 */4 * * *" in call_args  # Default schedule for sync
+        assert "# ClassDock Auto-classdock-discover" in call_args
+        assert "0 1 * * *" in call_args  # Default schedule for discover
 
 
 class TestCronRemoval:
@@ -541,7 +541,7 @@ class TestCronRemoval:
         """Test removing cron job when no crontab exists."""
         mock_get_crontab.return_value = None
 
-        result, message = cron_manager.remove_cron_job(["sync"])
+        result, message = cron_manager.remove_cron_job(["discover"])
 
         assert result == CronOperationResult.NOT_FOUND
         assert "No crontab exists" in message
@@ -551,8 +551,8 @@ class TestCronRemoval:
     def test_remove_cron_job_all_success(self, mock_set_crontab, mock_get_crontab, cron_manager):
         """Test removing all assignment cron jobs successfully."""
         mock_get_crontab.return_value = (
-            "# GitHub Classroom Assignment Auto-sync\n"
-            "0 */4 * * * /path/to/sync\n"
+            "# GitHub Classroom Assignment Auto-discover\n"
+            "0 1 * * * /path/to/sync\n"
             "# GitHub Classroom Assignment Auto-secrets\n"
             "0 2 * * * /path/to/secrets\n"
             "# Other job\n"
@@ -590,8 +590,8 @@ class TestCronRemoval:
     ):
         """Test removing all jobs when only assignment jobs exist."""
         mock_get_crontab.return_value = (
-            "# GitHub Classroom Assignment Auto-sync\n"
-            "0 */4 * * * /path/to/sync\n"
+            "# GitHub Classroom Assignment Auto-discover\n"
+            "0 1 * * * /path/to/sync\n"
         )
         mock_remove_crontab.return_value = True
 
@@ -605,7 +605,7 @@ class TestCronRemoval:
         """Test removing specific job when it doesn't exist."""
         mock_job_exists.return_value = False
 
-        result, message = cron_manager.remove_cron_job(["sync"])
+        result, message = cron_manager.remove_cron_job(["discover"])
 
         assert result == CronOperationResult.NOT_FOUND
         # Handle both possible error messages: specific job not found vs no crontab exists
@@ -620,21 +620,21 @@ class TestCronRemoval:
         """Test removing specific job successfully."""
         mock_job_exists.return_value = True
         mock_get_crontab.return_value = (
-            "# GitHub Classroom Assignment Auto-classdock-sync\n"
-            "0 */4 * * * python -m classdock automation cron-sync 'assignment.conf' sync >/dev/null 2>&1\n"
+            "# ClassDock Auto-classdock-discover\n"
+            "0 1 * * * python -m classdock automation cron-sync 'assignment.conf' discover >/dev/null 2>&1\n"
             "# Other job\n"
             "0 0 * * * /other/command\n"
         )
         mock_set_crontab.return_value = True
 
-        result, message = cron_manager.remove_cron_job(["sync"])
+        result, message = cron_manager.remove_cron_job(["discover"])
 
         assert result == CronOperationResult.SUCCESS
         assert "removed successfully" in message
 
         # Verify sync job is removed but other job remains
         call_args = mock_set_crontab.call_args[0][0]
-        assert "Auto-classdock-sync" not in call_args
+        assert "Auto-classdock-discover" not in call_args
         assert "# Other job" in call_args
 
 
@@ -666,8 +666,8 @@ class TestCronStatus:
     def test_get_cron_status_with_jobs(self, mock_exists, mock_get_crontab, cron_manager):
         """Test getting status with installed cron jobs."""
         mock_get_crontab.return_value = (
-            "# GitHub Classroom Assignment Auto-sync\n"
-            "0 */4 * * * python -m classdock automation cron-sync 'assignment.conf' sync >/dev/null 2>&1\n"
+            "# GitHub Classroom Assignment Auto-discover\n"
+            "0 1 * * * python -m classdock automation cron-sync 'assignment.conf' discover >/dev/null 2>&1\n"
             "# GitHub Classroom Assignment Auto-secrets\n"
             "0 2 * * * python -m classdock automation cron-sync 'assignment.conf' secrets >/dev/null 2>&1\n"
         )
@@ -681,8 +681,8 @@ class TestCronStatus:
 
         # Check first job
         sync_job = status.installed_jobs[0]
-        assert sync_job.steps == ["sync"]
-        assert sync_job.schedule == "0 */4 * * *"
+        assert sync_job.steps == ["discover"]
+        assert sync_job.schedule == "0 1 * * *"
         assert sync_job.is_active
 
         # Check second job
@@ -746,10 +746,10 @@ class TestCronStatus:
         output = cron_manager.list_default_schedules()
 
         assert "Default schedules for workflow steps" in output
-        assert "sync" in output
+        assert "discover" in output
         assert "secrets" in output
         assert "cycle" in output
-        assert "0 */4 * * *" in output  # Sync schedule
+        assert "0 1 * * *" in output  # Discover schedule
         assert "0 2 * * *" in output    # Secrets schedule
         assert "Examples:" in output
 
@@ -785,7 +785,7 @@ class TestCronManagerEdgeCases:
         # Mock permission error
         mock_set_crontab.side_effect = PermissionError("Permission denied")
 
-        result, message = cron_manager.install_cron_job(["sync"])
+        result, message = cron_manager.install_cron_job(["discover"])
 
         assert result == CronOperationResult.PERMISSION_ERROR
         assert "Permission denied" in message
@@ -795,7 +795,7 @@ class TestCronManagerEdgeCases:
         """Test cron job removal with permission error."""
         mock_get_crontab.side_effect = PermissionError("Permission denied")
 
-        result, message = cron_manager.remove_cron_job(["sync"])
+        result, message = cron_manager.remove_cron_job(["discover"])
 
         assert result == CronOperationResult.PERMISSION_ERROR
         assert "Permission denied" in message
@@ -833,12 +833,12 @@ class TestCronManagerEdgeCases:
     def test_cron_job_steps_key(self):
         """Test CronJob steps_key property."""
         job = CronJob(
-            steps=["sync", "secrets"],
+            steps=["discover", "secrets"],
             schedule="0 1 * * *",
             command="/test/command",
             comment="# Test comment"
         )
-        assert job.steps_key == "sync-secrets"
+        assert job.steps_key == "discover-secrets"
 
     def test_cron_status_has_jobs(self):
         """Test CronStatus has_jobs property."""

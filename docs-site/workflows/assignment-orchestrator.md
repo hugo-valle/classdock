@@ -1,16 +1,15 @@
 # Assignment Orchestrator - Workflow Automation
 
-The Assignment Orchestrator provides comprehensive workflow automation for GitHub Classroom assignments through the modern Python CLI interface.
+The Assignment Orchestrator provides comprehensive workflow automation for assignments through the modern Python CLI interface.
 
 ## 🎯 Overview
 
 The orchestrator automates the complete assignment lifecycle through a single command:
 
-1. **Template Synchronization** - Updates GitHub Classroom with latest template changes
-2. **Repository Discovery** - Finds all student repositories from the classroom
-3. **Secret Management** - Distributes/updates secrets across all student repositories
-4. **Student Assistance** - Runs student help and support tools
-5. **Collaborator Management** - Manages repository access and permissions
+1. **Repository Discovery** - Finds all student repositories in the organization
+2. **Secret Management** - Distributes/updates secrets across all student repositories
+3. **Student Assistance** - Runs student help and support tools
+4. **Collaborator Management** - Manages repository access and permissions
 
 ## 📦 Installation
 
@@ -55,8 +54,8 @@ classdock --verbose assignments orchestrate --config assignment.conf
 The `assignment.conf` file contains all settings for your assignment:
 
 ```bash
-# GitHub Classroom Configuration
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/456"
+# Assignment Configuration
+ASSIGNMENT_NAME="homework-1"
 TEMPLATE_REPO_URL="https://github.com/instructor/assignment-template"
 ASSIGNMENT_FILE="homework.py"
 
@@ -109,10 +108,9 @@ classdock --verbose assignments orchestrate
 The orchestrator runs these components in sequence:
 
 1. **Configuration Validation** - Validates all settings and URLs
-2. **Template Sync** - Updates GitHub Classroom template
-3. **Repository Discovery** - Finds student repositories
-4. **Secret Distribution** - Adds/updates repository secrets
-5. **Access Management** - Manages collaborator permissions
+2. **Repository Discovery** - Finds student repositories
+3. **Secret Distribution** - Adds/updates repository secrets
+4. **Access Management** - Manages collaborator permissions
 
 ## 🔄 Workflow Steps
 
@@ -261,4 +259,4 @@ classdock --dry-run --verbose assignments orchestrate --config assignment.conf
 
 ---
 
-The Assignment Orchestrator provides a comprehensive, automated solution for managing GitHub Classroom assignments through the modern Python CLI interface.
+The Assignment Orchestrator provides a comprehensive, automated solution for managing assignments through the modern Python CLI interface.

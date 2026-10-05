@@ -1,6 +1,6 @@
 # Automation Fixtures
 
-This directory contains test fixtures for comprehensive QA testing of automation commands in the `classroom-pilot` CLI tool.
+This directory contains test fixtures for comprehensive QA testing of automation commands in the `classdock` CLI tool.
 
 ## Purpose
 
@@ -13,7 +13,7 @@ These fixtures provide sample data and configuration files needed to test all au
 - **`sample_crontab.txt`** - Example crontab with installed automation jobs
   - Used for testing cron-status and cron-remove commands
   - Shows format of installed cron entries
-  - Contains realistic GitHub Classroom automation schedules
+  - Contains realistic GitHub automation schedules
 
 ### Log Files
 
@@ -46,22 +46,22 @@ These fixtures provide sample data and configuration files needed to test all au
 
 ### Test cron-install with valid schedule
 ```bash
-classroom-pilot automation cron-install sync --schedule "0 */4 * * *"
+classdock automation cron-install sync --schedule "0 */4 * * *"
 ```
 
 ### Test cron-install with invalid schedule (should fail)
 ```bash
-classroom-pilot automation cron-install sync --schedule "invalid"
+classdock automation cron-install sync --schedule "invalid"
 ```
 
 ### Test cron-logs with sample log file
 ```bash
-classroom-pilot automation cron-logs --lines 30
+classdock automation cron-logs --lines 30
 ```
 
 ### Test cron-status with sample crontab
 ```bash
-classroom-pilot automation cron-status
+classdock automation cron-status
 ```
 
 ## Cron Schedule Format
@@ -134,8 +134,8 @@ Log entries follow the format:
 
 - `docs/QA_TESTING_GUIDE.md` - Comprehensive QA testing guide for automation commands (lines 1234-1635)
 - `test_project_repos/qa_tests/test_automation_commands.sh` - Main test suite using these fixtures
-- `classroom_pilot/automation/cron_manager.py` - CronManager implementation
-- `classroom_pilot/automation/cron_sync.py` - CronSyncManager implementation
+- `classdock/automation/cron_manager.py` - CronManager implementation
+- `classdock/automation/cron_sync.py` - CronSyncManager implementation
 
 ## Security Note
 

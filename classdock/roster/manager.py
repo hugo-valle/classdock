@@ -20,7 +20,7 @@ class RosterManager:
 
     Provides methods for creating, reading, updating, and deleting students,
     assignments, and their relationships. All operations are organization-scoped
-    to support multiple classrooms.
+    to support multiple organizations.
     """
 
     def __init__(self, db_manager: DatabaseManager):
@@ -285,16 +285,14 @@ class RosterManager:
         """
         query = """
             INSERT INTO assignments (
-                name, classroom_id, classroom_url, template_repo_url,
+                name, template_repo_url,
                 github_organization, assignment_type, deadline,
                 points_available, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
         """
 
         params = (
             assignment.name,
-            assignment.classroom_id,
-            assignment.classroom_url,
             assignment.template_repo_url,
             assignment.github_organization,
             assignment.assignment_type,
@@ -326,7 +324,7 @@ class RosterManager:
 
         query = """
             UPDATE assignments
-            SET name = ?, classroom_id = ?, classroom_url = ?,
+            SET name = ?,
                 template_repo_url = ?, github_organization = ?,
                 assignment_type = ?, deadline = ?, points_available = ?,
                 status = ?, updated_at = CURRENT_TIMESTAMP
@@ -335,8 +333,6 @@ class RosterManager:
 
         params = (
             assignment.name,
-            assignment.classroom_id,
-            assignment.classroom_url,
             assignment.template_repo_url,
             assignment.github_organization,
             assignment.assignment_type,
@@ -650,8 +646,6 @@ class RosterManager:
             SELECT
                 a.id as assignment_id,
                 a.name,
-                a.classroom_id,
-                a.classroom_url,
                 a.template_repo_url,
                 a.github_organization,
                 a.assignment_type,
@@ -685,8 +679,6 @@ class RosterManager:
             assignment_data = {
                 "id": row["assignment_id"],
                 "name": row["name"],
-                "classroom_id": row["classroom_id"],
-                "classroom_url": row["classroom_url"],
                 "template_repo_url": row["template_repo_url"],
                 "github_organization": row["github_organization"],
                 "assignment_type": row["assignment_type"],

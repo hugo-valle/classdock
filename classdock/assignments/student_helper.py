@@ -835,7 +835,7 @@ Instructional Team
         Execute the update workflow for student repositories.
 
         This is the main entry point for updating student repositories. It validates
-        the configuration, checks if the classroom repository is ready, and returns
+        the configuration, checks if the template repository is ready, and returns
         status information.
 
         Args:

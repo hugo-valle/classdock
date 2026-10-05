@@ -4,7 +4,7 @@ Data models for ClassDock roster management.
 Defines dataclasses for students, assignments, and their relationships.
 """
 
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, fields
 from datetime import datetime
 from typing import Any, Dict, List, Optional
 
@@ -88,9 +88,9 @@ class Student:
             "github_username": self.github_username,
             "github_id": self.github_id,
             "github_organization": self.github_organization,
-            "enrolled_date": self.enrolled_date.isoformat()
-            if self.enrolled_date
-            else None,
+            "enrolled_date": (
+                self.enrolled_date.isoformat() if self.enrolled_date else None
+            ),
             "status": self.status,
             "notes": self.notes,
             "created_at": self.created_at.isoformat() if self.created_at else None,
@@ -102,14 +102,12 @@ class Student:
 @dataclass
 class Assignment:
     """
-    Represents an assignment in the classroom.
+    Represents an assignment in an organization.
 
     Attributes:
         name: Assignment name (unique identifier)
         github_organization: GitHub organization
         id: Database primary key (None for new assignments)
-        classroom_id: GitHub Classroom assignment ID
-        classroom_url: URL to GitHub Classroom assignment
         template_repo_url: URL to template repository
         assignment_type: Type (individual, group)
         deadline: Assignment deadline
@@ -122,8 +120,6 @@ class Assignment:
     name: str
     github_organization: str
     id: Optional[int] = None
-    classroom_id: Optional[int] = None
-    classroom_url: Optional[str] = None
     template_repo_url: Optional[str] = None
     assignment_type: str = "individual"
     deadline: Optional[datetime] = None
@@ -166,7 +162,9 @@ class Assignment:
                 except (ValueError, TypeError):
                     data[field_name] = None
 
-        return cls(**data)
+        # Existing roster databases still carry legacy columns; ignore unknown keys
+        known = {f.name for f in fields(cls)}
+        return cls(**{k: v for k, v in data.items() if k in known})
 
     def to_dict(self) -> Dict[str, Any]:
         """
@@ -178,8 +176,6 @@ class Assignment:
         data = {
             "id": self.id,
             "name": self.name,
-            "classroom_id": self.classroom_id,
-            "classroom_url": self.classroom_url,
             "template_repo_url": self.template_repo_url,
             "github_organization": self.github_organization,
             "assignment_type": self.assignment_type,
@@ -277,12 +273,12 @@ class StudentAssignment:
             "repository_name": self.repository_name,
             "acceptance_status": self.acceptance_status,
             "accepted_at": self.accepted_at.isoformat() if self.accepted_at else None,
-            "last_commit_at": self.last_commit_at.isoformat()
-            if self.last_commit_at
-            else None,
-            "last_synced_at": self.last_synced_at.isoformat()
-            if self.last_synced_at
-            else None,
+            "last_commit_at": (
+                self.last_commit_at.isoformat() if self.last_commit_at else None
+            ),
+            "last_synced_at": (
+                self.last_synced_at.isoformat() if self.last_synced_at else None
+            ),
             "notes": self.notes,
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "updated_at": self.updated_at.isoformat() if self.updated_at else None,
@@ -339,7 +335,7 @@ class SyncResult:
     Result of a repository synchronization operation.
 
     Attributes:
-        sync_type: Type of sync (github_classroom, repositories)
+        sync_type: Type of sync (repositories)
         total_repos: Total repositories processed
         linked_count: Number of successfully linked repositories
         unlinked_count: Number of repositories that couldn't be linked

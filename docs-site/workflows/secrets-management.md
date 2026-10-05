@@ -1,6 +1,6 @@
 # GitHub Secrets Management
 
-Comprehensive secret management for GitHub Classroom assignments through the modern Python CLI interface.
+Comprehensive secret management for assignments through the modern Python CLI interface.
 
 ## 🎯 Overview
 
@@ -8,7 +8,7 @@ ClassDock provides robust secret management capabilities for:
 
 - **Automated Secret Distribution** - Add secrets across multiple student repositories
 - **Secure Token Management** - Handle authentication tokens safely
-- **Batch Operations** - Manage secrets for entire classrooms efficiently
+- **Batch Operations** - Manage secrets for entire courses efficiently
 - **Secret Rotation** - Update and rotate secrets across repositories
 - **Access Control** - Manage secret visibility and permissions
 
@@ -48,7 +48,7 @@ export GITHUB_TOKEN="ghp_your_github_token_here"
 ```bash
 # Create assignment configuration
 cat > assignment.conf << 'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/homework1"
+ASSIGNMENT_NAME="homework1"
 TEMPLATE_REPO_URL="https://github.com/instructor/homework1-template"
 SECRETS_CONFIG="
 API_KEY:API key for external service:true
@@ -298,7 +298,7 @@ classdock secrets list --config assignment.conf | grep -c "API_KEY"
 ```bash
 # Setup automated secret rotation
 cat > secret-rotation.conf << 'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/homework1"
+ASSIGNMENT_NAME="homework1"
 GITHUB_TOKEN_FILE="automation_token.txt"
 SECRETS_LIST="API_KEY,DATABASE_URL"
 
@@ -369,7 +369,7 @@ classdock --dry-run --verbose secrets add --config assignment.conf
 ```bash
 # Setup secure exam environment
 cat > exam-secrets.conf << 'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/midterm"
+ASSIGNMENT_NAME="midterm"
 GITHUB_TOKEN_FILE="exam_token.txt"
 SECRETS_LIST="EXAM_API_KEY,GRADING_DATABASE,SECURE_TOKEN"
 EXCLUDE_REPOS="template,instructor-solution"
@@ -401,4 +401,4 @@ classdock secrets list --config assignment.conf --secrets "API_KEY"
 
 ---
 
-GitHub Secrets Management provides secure, efficient handling of sensitive information across GitHub Classroom assignments.
+GitHub Secrets Management provides secure, efficient handling of sensitive information across assignments.

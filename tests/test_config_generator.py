@@ -2,7 +2,7 @@
 Comprehensive test suite for classdock.config.generator module.
 
 This test suite provides comprehensive coverage for the ConfigGenerator class,
-which is responsible for generating GitHub Classroom assignment configuration files.
+which is responsible for generating assignment configuration files.
 The tests include unit tests for individual methods, integration tests for complete
 configuration generation, error handling, edge cases, and proper validation of
 generated configuration file content.
@@ -402,7 +402,6 @@ class TestConfigGeneratorWorkflowSection:
         assert 'WORKFLOW CONFIGURATION' in section
 
         # Check workflow steps
-        assert 'STEP_SYNC_TEMPLATE=true' in section
         assert 'STEP_DISCOVER_REPOS=true' in section
         assert 'STEP_MANAGE_SECRETS=true' in section
         assert 'STEP_ASSIST_STUDENTS=false' in section
@@ -428,7 +427,6 @@ class TestConfigGeneratorWorkflowSection:
         assert 'STEP_MANAGE_SECRETS=false' in section
 
         # Other steps should remain the same
-        assert 'STEP_SYNC_TEMPLATE=true' in section
         assert 'STEP_DISCOVER_REPOS=true' in section
         assert 'STEP_ASSIST_STUDENTS=false' in section
 

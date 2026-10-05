@@ -1,6 +1,6 @@
 # Basic Assignment Test
 
-This is a test assignment for integration testing of the classroom-pilot package.
+This is a test assignment for integration testing of the classdock package.
 
 ## Instructions
 

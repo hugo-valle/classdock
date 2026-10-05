@@ -1,6 +1,6 @@
-# 📚 Comprehensive Testing Guide for Classroom Pilot
+# 📚 Comprehensive Testing Guide for ClassDock
 
-This guide provides detailed instructions for testing the `classroom-pilot` Python package before releases.
+This guide provides detailed instructions for testing the `classdock` Python package before releases.
 
 ## 🎯 Testing Philosophy
 
@@ -32,8 +32,8 @@ source test_env/bin/activate  # macOS/Linux
 # test_env\Scripts\activate   # Windows
 
 # Option 2: Conda
-conda create -n classroom_pilot_test python=3.11
-conda activate classroom_pilot_test
+conda create -n classdock_test python=3.11
+conda activate classdock_test
 ```
 
 ## 📦 Installation Testing
@@ -42,43 +42,43 @@ conda activate classroom_pilot_test
 
 ```bash
 # Build package with Poetry
-cd /path/to/classroom_pilot
+cd /path/to/classdock
 poetry build
 
 # Verify build artifacts
 ls -la dist/
-# Expected: classroom_pilot-3.1.0a2-py3-none-any.whl
-#           classroom_pilot-3.1.0a2.tar.gz
+# Expected: classdock-3.1.0a2-py3-none-any.whl
+#           classdock-3.1.0a2.tar.gz
 ```
 
 ### Installation Methods
 
 **Method 1: From Wheel**
 ```bash
-pip install /path/to/classroom_pilot/dist/classroom_pilot-3.1.0a2-py3-none-any.whl
+pip install /path/to/classdock/dist/classdock-3.1.0a2-py3-none-any.whl
 ```
 
 **Method 2: From Source**
 ```bash
-pip install /path/to/classroom_pilot/
+pip install /path/to/classdock/
 ```
 
 **Method 3: Editable Install**
 ```bash
-pip install -e /path/to/classroom_pilot/
+pip install -e /path/to/classdock/
 ```
 
 ### Installation Validation
 
 ```bash
 # Verify package installation
-pip show classroom-pilot
+pip show classdock
 
 # Test entry point
-classroom-pilot --version
+classdock --version
 
 # Test Python import
-python -c "import classroom_pilot; print(classroom_pilot.__version__)"
+python -c "import classdock; print(classdock.__version__)"
 ```
 
 ## 🖥️ CLI Interface Testing
@@ -87,52 +87,52 @@ python -c "import classroom_pilot; print(classroom_pilot.__version__)"
 
 ```bash
 # Main help
-classroom-pilot --help
+classdock --help
 
 # Subcommand help
-classroom-pilot assignments --help
-classroom-pilot repos --help
-classroom-pilot secrets --help
-classroom-pilot automation --help
+classdock assignments --help
+classdock repos --help
+classdock secrets --help
+classdock automation --help
 
 # Command-specific help
-classroom-pilot assignments setup --help
-classroom-pilot assignments orchestrate --help
-classroom-pilot repos fetch --help
-classroom-pilot repos collaborator --help
+classdock assignments setup --help
+classdock assignments orchestrate --help
+classdock repos fetch --help
+classdock repos collaborator --help
 ```
 
 ### Functional Testing
 
 ```bash
 # Version information
-classroom-pilot --version
-classroom-pilot version
+classdock --version
+classdock version
 
 # Configuration commands
-classroom-pilot assignments setup --dry-run
-classroom-pilot assignments validate
+classdock assignments setup --dry-run
+classdock assignments validate
 
 # Repository commands (dry-run)
-classroom-pilot repos fetch --dry-run --verbose
-classroom-pilot repos collaborator --dry-run --verbose
+classdock repos fetch --dry-run --verbose
+classdock repos collaborator --dry-run --verbose
 
 # Help system completeness
-classroom-pilot invalid-command  # Should show helpful error
+classdock invalid-command  # Should show helpful error
 ```
 
 ### Error Handling Testing
 
 ```bash
 # Invalid commands
-classroom-pilot nonexistent-command
+classdock nonexistent-command
 
 # Missing required parameters
-classroom-pilot assignments setup
+classdock assignments setup
 
 # Invalid configuration
 echo "INVALID=true" > assignment.conf
-classroom-pilot assignments validate
+classdock assignments validate
 ```
 
 ## 🐍 Python API Testing
@@ -141,24 +141,23 @@ classroom-pilot assignments validate
 
 ```python
 # Test all major imports
-import classroom_pilot
-from classroom_pilot import ConfigLoader, ConfigValidator, BashWrapper
-from classroom_pilot import setup_logging, get_logger
-from classroom_pilot import AssignmentService, ReposService, SecretsService, AutomationService
-from classroom_pilot.assignments.setup import AssignmentSetup
+import classdock
+from classdock import ConfigLoader, ConfigValidator, BashWrapper
+from classdock import setup_logging, get_logger
+from classdock import AssignmentService, ReposService, SecretsService, AutomationService
+from classdock.assignments.setup import AssignmentSetup
 
 # Verify version
-print(f"Version: {classroom_pilot.__version__}")
+print(f"Version: {classdock.__version__}")
 ```
 
 ### Configuration System Testing
 
 ```python
-from classroom_pilot import ConfigLoader, ConfigValidator
+from classdock import ConfigLoader, ConfigValidator
 
 # Test configuration loading
 config_data = {
-    "CLASSROOM_URL": "https://classroom.github.com/test",
     "GITHUB_ORGANIZATION": "test-org",
     "TEMPLATE_REPO_URL": "https://github.com/test/template"
 }
@@ -172,7 +171,7 @@ print(f"Validation result: {result}")
 ### Logging System Testing
 
 ```python
-from classroom_pilot import setup_logging, get_logger
+from classdock import setup_logging, get_logger
 
 # Test logging setup
 setup_logging(verbose=True)
@@ -188,7 +187,7 @@ logger.error("Error message")
 ### Service Layer Testing
 
 ```python
-from classroom_pilot import AssignmentService, ReposService, SecretsService, AutomationService
+from classdock import AssignmentService, ReposService, SecretsService, AutomationService
 
 # Test service instantiation
 assignment_service = AssignmentService()
@@ -218,16 +217,15 @@ mkdir test_basic_assignment
 cd test_basic_assignment
 
 cat > assignment.conf << EOF
-CLASSROOM_URL=https://classroom.github.com/classrooms/test-classroom
 TEMPLATE_REPO_URL=https://github.com/test-org/python-basics
-GITHUB_ORGANIZATION=test-classroom-org
+GITHUB_ORGANIZATION=test-course-org
 ASSIGNMENT_FILE=assignment.conf
 ASSIGNMENT_NAME=Python Basics
 EOF
 
 # Test workflow
-classroom-pilot assignments setup --dry-run --verbose
-classroom-pilot assignments orchestrate --dry-run --verbose
+classdock assignments setup --dry-run --verbose
+classdock assignments orchestrate --dry-run --verbose
 ```
 
 ### Error Recovery Testing
@@ -235,12 +233,11 @@ classroom-pilot assignments orchestrate --dry-run --verbose
 ```bash
 # Test missing configuration
 rm assignment.conf
-classroom-pilot assignments setup --dry-run
+classdock assignments setup --dry-run
 # Expected: Graceful error with helpful message
 
 # Test invalid URLs
-echo "CLASSROOM_URL=invalid-url" > assignment.conf
-classroom-pilot assignments validate
+classdock assignments validate
 # Expected: Validation error with clear explanation
 ```
 
@@ -248,11 +245,11 @@ classroom-pilot assignments validate
 
 ### Overview
 
-Real repository testing validates classroom-pilot functionality using actual GitHub repositories and live data. This provides the most comprehensive validation possible, testing real-world scenarios with actual GitHub Classroom assignments.
+Real repository testing validates classdock functionality using actual GitHub repositories and live data. This provides the most comprehensive validation possible, testing real-world scenarios with actual assignments.
 
 ### Prerequisites
 
-1. **GitHub Repository Access**: Valid GitHub repository with classroom assignment
+1. **GitHub Repository Access**: Valid GitHub organization with assignment repositories
 2. **GitHub Token**: Personal access token with appropriate permissions
 3. **Conda Environment**: Conda installed and available
 4. **Configuration Files**: Properly configured real repository settings
@@ -270,7 +267,6 @@ cd sample_projects/real_repo/
 vim real_repo_info.conf
 
 # Required fields:
-# CLASSROOM_URL - GitHub Classroom assignment URL
 # TEMPLATE_REPO_URL - Template repository URL  
 # GITHUB_ORGANIZATION - Organization name
 # ASSIGNMENT_NAME - Assignment identifier
@@ -333,7 +329,7 @@ echo "ghp_YOUR_TOKEN_HERE" > instructor_token.txt
 ### What Gets Tested
 
 1. **Configuration Parsing**: Real repository configuration validation
-2. **Environment Setup**: Conda environment creation with classroom-pilot
+2. **Environment Setup**: Conda environment creation with classdock
 3. **Repository Operations**: Cloning actual GitHub repositories
 4. **Assignment Setup**: Configuration generation and validation
 5. **CLI Functionality**: Complete command-line interface testing
@@ -356,7 +352,6 @@ echo "ghp_YOUR_TOKEN_HERE" > instructor_token.txt
 [SUCCESS] ✓ Real repo config file exists
 [SUCCESS] ✓ GitHub token format is valid
 [STEP] Parsing real repository configuration
-[DETAIL] Classroom URL: https://classroom.github.com/...
 [DETAIL] Template Repo: https://github.com/org/repo
 [STEP] Setting up conda test environment
 [SUCCESS] ✓ Conda environment created
@@ -397,10 +392,10 @@ git ls-remote https://github.com/ORG/REPO
 ```bash
 # Test large configuration files
 # Create config with many parameters
-time classroom-pilot assignments validate
+time classdock assignments validate
 
 # Test multiple operations
-time classroom-pilot assignments setup --dry-run
+time classdock assignments setup --dry-run
 ```
 
 ## 🔍 Advanced Testing Scenarios
@@ -409,9 +404,9 @@ time classroom-pilot assignments setup --dry-run
 
 ```bash
 # Test in different shells
-bash -c "classroom-pilot --version"
-zsh -c "classroom-pilot --version"
-sh -c "classroom-pilot --version"
+bash -c "classdock --version"
+zsh -c "classdock --version"
+sh -c "classdock --version"
 ```
 
 ### Memory and Resource Testing
@@ -419,13 +414,13 @@ sh -c "classroom-pilot --version"
 ```python
 # Memory usage testing
 import psutil
-import classroom_pilot
+import classdock
 
 process = psutil.Process()
 initial_memory = process.memory_info().rss
 
 # Perform operations
-from classroom_pilot import ConfigLoader
+from classdock import ConfigLoader
 config = ConfigLoader()
 
 final_memory = process.memory_info().rss
@@ -437,7 +432,7 @@ print(f"Memory increase: {memory_increase / 1024 / 1024:.2f} MB")
 
 ```bash
 # Test with minimal dependencies
-pip install --no-deps classroom-pilot
+pip install --no-deps classdock
 # Then install dependencies one by one to check conflicts
 
 # Check for dependency issues
@@ -493,7 +488,7 @@ When tests fail:
 set -euo pipefail
 
 # Configuration
-PACKAGE_NAME="classroom-pilot"
+PACKAGE_NAME="classdock"
 EXPECTED_VERSION="3.1.0a2"
 
 # Test functions
@@ -536,21 +531,21 @@ main "$@"
 
 ### Import Errors
 
-**Problem**: `ModuleNotFoundError: No module named 'classroom_pilot'`
+**Problem**: `ModuleNotFoundError: No module named 'classdock'`
 
 **Solutions**:
-- Verify package installation: `pip show classroom-pilot`
+- Verify package installation: `pip show classdock`
 - Check Python path: `python -c "import sys; print(sys.path)"`
-- Reinstall package: `pip uninstall classroom-pilot && pip install ...`
+- Reinstall package: `pip uninstall classdock && pip install ...`
 
 ### CLI Entry Point Issues
 
-**Problem**: `command not found: classroom-pilot`
+**Problem**: `command not found: classdock`
 
 **Solutions**:
 - Check if scripts directory is in PATH
 - Verify installation method (system vs user)
-- Try `python -m classroom_pilot` as alternative
+- Try `python -m classdock` as alternative
 
 ### Permission Errors
 
@@ -597,4 +592,4 @@ main "$@"
 
 ---
 
-*This comprehensive testing guide ensures thorough validation of the classroom-pilot package across all use cases and environments.*
+*This comprehensive testing guide ensures thorough validation of the classdock package across all use cases and environments.*

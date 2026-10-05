@@ -1,6 +1,6 @@
 # Secrets Fixtures
 
-This directory contains test fixtures for comprehensive QA testing of secrets commands in the `classroom-pilot` CLI tool.
+This directory contains test fixtures for comprehensive QA testing of secrets commands in the `classdock` CLI tool.
 
 ## Purpose
 
@@ -40,11 +40,6 @@ These fixtures provide sample configuration files, repository lists, and token f
   - Contains entries missing required colons
   - Invalid format examples for validation testing
 
-- **`invalid_url.conf`** - Configuration with invalid GitHub Classroom URL
-  - Tests auto-discovery error handling
-  - Invalid CLASSROOM_URL format
-  - Should fail gracefully with clear error
-
 ### Repository Lists
 
 - **`sample_repos.txt`** - Valid repository URLs for testing
@@ -73,7 +68,7 @@ These fixtures provide sample configuration files, repository lists, and token f
 
 ### Basic secrets add with configuration
 ```bash
-classroom-pilot secrets add \
+classdock secrets add \
   --assignment-root fixtures/secrets/ \
   --config basic_secrets.conf \
   --repos "https://github.com/test-org/repo1"
@@ -81,14 +76,14 @@ classroom-pilot secrets add \
 
 ### Testing with multiple secrets
 ```bash
-classroom-pilot secrets add \
+classdock secrets add \
   --config fixtures/secrets/multiple_secrets.conf \
   --repos-file fixtures/secrets/sample_repos.txt
 ```
 
 ### Testing force update
 ```bash
-classroom-pilot secrets add \
+classdock secrets add \
   --config fixtures/secrets/basic_secrets.conf \
   --repos "https://github.com/test-org/repo1" \
   --force
@@ -96,7 +91,7 @@ classroom-pilot secrets add \
 
 ### Testing with disabled secrets
 ```bash
-classroom-pilot secrets add \
+classdock secrets add \
   --config fixtures/secrets/disabled_secrets.conf \
   --repos "https://github.com/test-org/repo1"
 # Should skip or warn about disabled secrets
@@ -105,17 +100,17 @@ classroom-pilot secrets add \
 ### Testing error handling
 ```bash
 # Missing SECRETS_CONFIG
-classroom-pilot secrets add \
+classdock secrets add \
   --config fixtures/secrets/no_secrets_config.conf \
   --repos "https://github.com/test-org/repo1"
 
 # Malformed SECRETS_CONFIG
-classroom-pilot secrets add \
+classdock secrets add \
   --config fixtures/secrets/malformed_secrets.conf \
   --repos "https://github.com/test-org/repo1"
 
 # Invalid repository URLs
-classroom-pilot secrets add \
+classdock secrets add \
   --config fixtures/secrets/basic_secrets.conf \
   --repos-file fixtures/secrets/invalid_repos.txt
 ```
@@ -209,8 +204,8 @@ not-a-url                           # Malformed
 
 - `docs/QA_TESTING_GUIDE.md` - Comprehensive QA testing guide for secrets commands (lines 1151-1233)
 - `test_project_repos/qa_tests/test_secrets_commands.sh` - Main test suite using these fixtures
-- `classroom_pilot/secrets/github_secrets.py` - GitHubSecretsManager implementation
-- `classroom_pilot/services/secrets_service.py` - SecretsService layer
+- `classdock/secrets/github_secrets.py` - GitHubSecretsManager implementation
+- `classdock/services/secrets_service.py` - SecretsService layer
 
 ## Security Note
 
@@ -251,7 +246,7 @@ not-a-url                           # Malformed
 - ✅ Empty SECRETS_CONFIG
 - ✅ Missing SECRETS_CONFIG
 - ✅ Malformed SECRETS_CONFIG format
-- ✅ Invalid GitHub Classroom URL
+- ✅ Invalid GitHub URL
 
 ### Repository Tests
 - ✅ Valid repository URLs

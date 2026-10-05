@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Python API Testing Script for Classroom Pilot
+Python API Testing Script for ClassDock
 
 Tests the Python API functionality including imports, configuration,
 logging, and core functionality.
@@ -84,7 +84,7 @@ def test_package_imports(results: TestResult) -> None:
         results.mark_passed("Main package import")
 
         # Check version
-        if hasattr(classroom_pilot, '__version__'):
+        if hasattr(classdock, '__version__'):
             log_info(f"Package version: {classdock.__version__}")
             results.mark_passed("Version attribute available")
         else:
@@ -96,7 +96,7 @@ def test_package_imports(results: TestResult) -> None:
 
     # Test core utility imports
     try:
-        from classdock import ConfigLoader, ConfigValidator, BashWrapper
+        from classdock import ConfigLoader, ConfigValidator
         results.mark_passed("Core utilities import")
     except ImportError as e:
         results.mark_failed("Core utilities import", str(e))
@@ -156,8 +156,7 @@ def test_configuration_system(results: TestResult) -> None:
         # Test configuration validation with sample data
         try:
             sample_config = {
-                "CLASSROOM_URL": "https://classroom.github.com/test",
-                "GITHUB_ORGANIZATION": "test-org",
+                                "GITHUB_ORGANIZATION": "test-org",
                 "TEMPLATE_REPO_URL": "https://github.com/test/template",
                 "ASSIGNMENT_FILE": "assignment.conf"
             }
@@ -214,38 +213,6 @@ def test_logging_system(results: TestResult) -> None:
         results.mark_failed("Logging system import", str(e))
 
 
-def test_bash_wrapper(results: TestResult) -> None:
-    """Test BashWrapper functionality."""
-    log_info("Testing BashWrapper")
-
-    try:
-        from classdock import BashWrapper
-
-        # Test BashWrapper instantiation
-        try:
-            # BashWrapper requires a config parameter
-            test_config = {"test": "value"}
-            bash_wrapper = BashWrapper(test_config)
-            results.mark_passed("BashWrapper instantiation")
-        except Exception as e:
-            results.mark_failed("BashWrapper instantiation", str(e))
-            return
-
-        # Test BashWrapper methods availability
-        try:
-            # Check for actual methods that exist
-            if hasattr(bash_wrapper, 'assignment_orchestrator'):
-                results.mark_passed("BashWrapper methods available")
-            else:
-                results.mark_failed(
-                    "BashWrapper methods", "assignment_orchestrator method not found")
-        except Exception as e:
-            results.mark_failed("BashWrapper methods test", str(e))
-
-    except ImportError as e:
-        results.mark_failed("BashWrapper import", str(e))
-
-
 def test_assignment_setup(results: TestResult) -> None:
     """Test AssignmentSetup functionality."""
     log_info("Testing AssignmentSetup")
@@ -258,7 +225,7 @@ def test_assignment_setup(results: TestResult) -> None:
             # Create sample configuration file
             config_file = Path(temp_dir) / "assignment.conf"
             config_file.write_text("""
-CLASSROOM_URL=https://classroom.github.com/test
+ASSIGNMENT_NAME="test-assignment"
 GITHUB_ORGANIZATION=test-org
 TEMPLATE_REPO_URL=https://github.com/test/template
 ASSIGNMENT_FILE=assignment.conf
@@ -456,7 +423,7 @@ def test_import_time(results: TestResult) -> None:
 
 def main() -> int:
     """Main test execution."""
-    log_info("Starting Python API tests for Classroom Pilot")
+    log_info("Starting Python API tests for ClassDock")
 
     results = TestResult()
 
@@ -464,7 +431,6 @@ def main() -> int:
     test_package_imports(results)
     test_configuration_system(results)
     test_logging_system(results)
-    test_bash_wrapper(results)
     test_assignment_setup(results)
     test_cli_module(results)
     test_service_layer(results)

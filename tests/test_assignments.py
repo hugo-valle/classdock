@@ -98,7 +98,6 @@ class TestAssignmentOrchestrator:
 
         # Check that methods exist (even if they're placeholders)
         assert hasattr(orchestrator, 'run_complete_workflow')
-        assert hasattr(orchestrator, 'sync_template')
         assert hasattr(orchestrator, 'discover_repositories')
 
     @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
@@ -119,11 +118,10 @@ class TestAssignmentOrchestrator:
 
         # Test that methods can be called without errors
         orchestrator.run_complete_workflow()
-        orchestrator.sync_template()
         orchestrator.discover_repositories()
 
         # Verify logging occurs
-        assert mock_logger.info.call_count >= 3
+        assert mock_logger.info.call_count >= 2
 
     @patch('classdock.secrets.github_secrets.GitHubSecretsManager')
     @patch('classdock.utils.token_manager.GitHubTokenManager')
@@ -237,7 +235,6 @@ class TestAssignmentsIntegration:
 
         # Orchestrator should have workflow methods
         assert hasattr(orchestrator, 'run_complete_workflow')
-        assert hasattr(orchestrator, 'sync_template')
 
         # Manager should have lifecycle methods
         assert hasattr(manager, 'create_assignment')

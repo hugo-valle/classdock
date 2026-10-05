@@ -14,7 +14,7 @@ from ..utils.ui_components import print_header, print_success
 
 class ConfigGenerator:
     """
-    ConfigGenerator is responsible for generating configuration files for GitHub Classroom assignments.
+    ConfigGenerator is responsible for generating configuration files for assignments.
 
     This class provides methods to assemble and write a configuration file containing assignment information,
     secret management, workflow configuration, and advanced options. It supports injecting values for assignment
@@ -226,7 +226,6 @@ SECRETS_CONFIG=""
 # =============================================================================
 
 # Workflow steps to execute (true/false)
-STEP_SYNC_TEMPLATE=true
 STEP_DISCOVER_REPOS=true
 STEP_MANAGE_SECRETS={config_values.get('USE_SECRETS', 'false')}
 STEP_ASSIST_STUDENTS=false

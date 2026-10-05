@@ -2,18 +2,16 @@
 """
 Mock Runner for Update and Push Command Testing
 
-This script patches StudentUpdateHelper and ClassroomPushManager methods to simulate
+This script patches StudentUpdateHelper methods to simulate
 various workflow scenarios without making actual operations. It supports testing
-success and failure paths for update and push commands.
+success and failure paths for the update command.
 
 Usage:
     COMMAND=update SCENARIO=success poetry run python run_with_workflow_mocks.py [CLI args]
     COMMAND=update SCENARIO=failure poetry run python run_with_workflow_mocks.py [CLI args]
-    COMMAND=push SCENARIO=success poetry run python run_with_workflow_mocks.py [CLI args]
-    COMMAND=push SCENARIO=failure poetry run python run_with_workflow_mocks.py [CLI args]
 
 Environment Variables:
-    COMMAND: One of [update, push]
+    COMMAND: update
     SCENARIO: One of [success, failure]
 """
 
@@ -22,7 +20,7 @@ import os
 from pathlib import Path
 from unittest.mock import patch, MagicMock
 
-# Add classroom_pilot to path
+# Add classdock to path
 project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
@@ -47,34 +45,12 @@ def mock_update_failure():
     return mock_execute_update_workflow
 
 
-def mock_push_success():
-    """Mock successful push workflow."""
-
-    def mock_execute_push_workflow(self, force: bool = False, interactive: bool = False):
-        """Mock successful push workflow execution."""
-        from classdock.assignments.push_manager import PushResult
-        return (PushResult.SUCCESS, "Push completed successfully")
-
-    return mock_execute_push_workflow
-
-
-def mock_push_failure():
-    """Mock failed push workflow."""
-
-    def mock_execute_push_workflow(self, force: bool = False, interactive: bool = False):
-        """Mock failed push workflow execution."""
-        from classdock.assignments.push_manager import PushResult
-        return (PushResult.FAILED, "Push failed: Missing classroom repository")
-
-    return mock_execute_push_workflow
-
-
 def run_cli_with_mocks(command: str, scenario: str):
     """
-    Run the classroom-pilot CLI with appropriate mocks for the given command and scenario.
+    Run the classdock CLI with appropriate mocks for the given command and scenario.
 
     Args:
-        command: The command to run (update, push)
+        command: The command to run (update)
         scenario: The test scenario (success, failure)
 
     Returns:
@@ -104,23 +80,10 @@ def run_cli_with_mocks(command: str, scenario: str):
                 f"ERROR: Unknown scenario '{scenario}' for update command", file=sys.stderr)
             return 1
 
-    elif command == "push":
-        if scenario == "success":
-            mock_func = mock_push_success()
-            with patch('classdock.assignments.push_manager.ClassroomPushManager.execute_push_workflow', mock_func):
-                result = runner.invoke(app, ["repos", "push"] + cli_args)
-        elif scenario == "failure":
-            mock_func = mock_push_failure()
-            with patch('classdock.assignments.push_manager.ClassroomPushManager.execute_push_workflow', mock_func):
-                result = runner.invoke(app, ["repos", "push"] + cli_args)
-        else:
-            print(
-                f"ERROR: Unknown scenario '{scenario}' for push command", file=sys.stderr)
-            return 1
 
     else:
         print(f"ERROR: Unknown command '{command}'", file=sys.stderr)
-        print("Valid commands: update, push", file=sys.stderr)
+        print("Valid commands: update", file=sys.stderr)
         return 1
 
     # Print CLI output
@@ -137,7 +100,7 @@ def main():
 
     if not command:
         print("ERROR: COMMAND environment variable required", file=sys.stderr)
-        print("Valid commands: update, push", file=sys.stderr)
+        print("Valid commands: update", file=sys.stderr)
         return 1
 
     if not scenario:

@@ -2,7 +2,7 @@
 Comprehensive test suite for classdock.repos.fetch module.
 
 This test suite provides comprehensive coverage for the RepositoryFetcher class,
-which handles GitHub Classroom repository operations including discovery, fetching,
+which handles student repository operations including discovery, fetching,
 and management. The tests include unit tests for individual methods, integration
 tests for GitHub API operations, error handling, and comprehensive mocking
 scenarios for reliable test execution.
@@ -559,7 +559,7 @@ class TestRepositoryFetcherFiltering:
         assert fetcher._is_student_repository(
             "other-assignment-student1", "python-basics") is False
         assert fetcher._is_student_repository(
-            "python-basics-classroom-template", "python-basics") is False
+            "python-basics-course-template", "python-basics") is False
 
     @patch('classdock.repos.fetch.PathManager')
     @patch('classdock.repos.fetch.GitManager')
@@ -570,7 +570,7 @@ class TestRepositoryFetcherFiltering:
 
         This test verifies that the _extract_student_identifier method correctly
         extracts student usernames or identifiers from repository names following
-        the standard GitHub Classroom naming pattern.
+        the standard student repository naming pattern.
         """
         mock_config_instance = Mock()
         mock_config_instance.load.return_value = {}
@@ -878,14 +878,6 @@ class TestRepositoryFetcherBatchFetch:
         assert results[1].success is False
         assert results[2].success is True
         assert "Clone failed" in results[1].error_message
-
-
-class TestRepositoryFetcherTemplateSync:
-    """sync_template_repository removed — GitHub Classroom deprecated."""
-
-    def test_sync_template_removed_stub(self):
-        """sync_template_repository was tied to classroom template-push workflow; now removed."""
-        pass
 
 
 class TestRepositoryFetcherErrorHandling:

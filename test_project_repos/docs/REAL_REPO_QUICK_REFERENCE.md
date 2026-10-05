@@ -47,7 +47,6 @@ cd test_project_repos/sample_projects/real_repo/
 
 ### Key Configuration Fields
 ```bash
-CLASSROOM_URL="https://classroom.github.com/classrooms/ID/assignments/NAME"
 TEMPLATE_REPO_URL="https://github.com/ORG/REPO"
 GITHUB_ORGANIZATION="your-org"
 ASSIGNMENT_NAME="assignment-name"
@@ -86,8 +85,8 @@ CI_MODE=1 ./scripts/test_real_repo.sh --verbose
 ./scripts/test_real_repo.sh --keep-env --keep-repo --verbose
 
 # Test individual components
-conda activate classroom-pilot-real-test
-classroom-pilot --version
+conda activate classdock-real-test
+classdock --version
 ```
 
 ## 🔍 Troubleshooting
@@ -120,7 +119,7 @@ conda --version && conda info
 
 1. ✅ **Prerequisites Validation** - Configuration files, tokens, dependencies
 2. ✅ **Configuration Parsing** - Real repository data extraction
-3. ✅ **Environment Setup** - Conda environment with classroom-pilot
+3. ✅ **Environment Setup** - Conda environment with classdock
 4. ✅ **Repository Operations** - Clone actual GitHub repositories
 5. ✅ **Assignment Setup** - Configuration generation and validation
 6. ✅ **CLI Testing** - Complete command-line interface validation

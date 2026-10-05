@@ -124,7 +124,6 @@ create_test_config() {
         case "$config_type" in
             "basic"|"basic_secrets")
                 cat > "$dest_path" <<'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/test"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="test-assignment"
 TEMPLATE_REPO_URL="https://github.com/test-org/test-template"
@@ -136,7 +135,6 @@ EOF
                 ;;
             "multiple_secrets")
                 cat > "$dest_path" <<'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/test"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="test-assignment"
 TEMPLATE_REPO_URL="https://github.com/test-org/test-template"
@@ -151,7 +149,6 @@ EOF
                 ;;
             "disabled_secrets")
                 cat > "$dest_path" <<'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/test"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="test-assignment"
 TEMPLATE_REPO_URL="https://github.com/test-org/test-template"
@@ -194,7 +191,6 @@ create_invalid_secrets_config() {
     case "$invalid_type" in
         "malformed_secrets")
             cat > "$dest_path" <<'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/test"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="test-assignment"
 SECRETS_CONFIG="
@@ -207,7 +203,6 @@ EOF
             ;;
         "invalid_url")
             cat > "$dest_path" <<'EOF'
-CLASSROOM_URL="not-a-valid-url"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="test-assignment"
 SECRETS_CONFIG="
@@ -218,7 +213,6 @@ EOF
             ;;
         "empty_secrets")
             cat > "$dest_path" <<'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/test"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="test-assignment"
 SECRETS_CONFIG=""
@@ -692,11 +686,10 @@ test_secrets_add_auto_discovery_error() {
     
     log_step "Testing secrets add auto-discovery error handling"
     
-    # Test without proper GitHub Classroom URL
+    # Test without proper GitHub URL
     local test_dir="$TEST_TEMP_DIR/test_invalid_url"
     mkdir -p "$test_dir"
     cat > "$test_dir/assignment.conf" <<'EOF'
-CLASSROOM_URL="invalid-url"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="test-assignment"
 EOF
@@ -845,7 +838,6 @@ test_secrets_add_no_secrets_config() {
     local test_dir="$TEST_TEMP_DIR/test_no_secrets_config"
     mkdir -p "$test_dir"
     cat > "$test_dir/assignment.conf" <<'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/test"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="test-assignment"
 STEP_MANAGE_SECRETS=true
@@ -867,7 +859,6 @@ test_secrets_add_empty_secrets_config() {
     local test_dir="$TEST_TEMP_DIR/test_empty_secrets_config"
     mkdir -p "$test_dir"
     cat > "$test_dir/assignment.conf" <<'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/test"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="test-assignment"
 SECRETS_CONFIG=""
@@ -890,7 +881,6 @@ test_secrets_add_malformed_secrets_config() {
     local test_dir="$TEST_TEMP_DIR/test_malformed_secrets_config"
     mkdir -p "$test_dir"
     cat > "$test_dir/assignment.conf" <<'EOF'
-CLASSROOM_URL="https://classroom.github.com/classrooms/123/assignments/test"
 GITHUB_ORGANIZATION="test-org"
 ASSIGNMENT_NAME="test-assignment"
 SECRETS_CONFIG="

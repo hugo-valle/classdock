@@ -165,8 +165,6 @@ class TestAssignment:
         assignment = Assignment(
             id=1,
             name='full-assignment',
-            classroom_id=12345,
-            classroom_url='https://classroom.github.com/assignments/test',
             template_repo_url='https://github.com/org/template',
             github_organization='test-org',
             assignment_type='group',
@@ -178,7 +176,6 @@ class TestAssignment:
         )
 
         assert assignment.id == 1
-        assert assignment.classroom_id == 12345
         assert assignment.assignment_type == 'group'
         assert assignment.deadline == deadline
 
@@ -232,6 +229,7 @@ class TestAssignment:
         data = {
             'id': 1,
             'name': 'dict-assignment',
+            # Legacy columns present in existing roster databases are ignored
             'classroom_id': 123,
             'classroom_url': None,
             'template_repo_url': None,
@@ -255,7 +253,6 @@ class TestAssignment:
         assignment = Assignment(
             id=1,
             name='test-assignment',
-            classroom_id=123,
             github_organization='test-org',
             deadline=now,
             created_at=now,

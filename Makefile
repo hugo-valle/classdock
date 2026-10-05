@@ -33,8 +33,6 @@ test:
 	@echo "🧪 Running quick functionality tests..."
 	@echo "Testing CLI import..."
 	@python -c "from classdock.cli import app; print('✅ CLI import successful')"
-	@echo "Testing BashWrapper import..."
-	@python -c "from classdock.bash_wrapper import BashWrapper; print('✅ BashWrapper import successful')"
 	@echo "Testing Configuration import..."
 	@python -c "from classdock.config import ConfigLoader; print('✅ ConfigLoader import successful')"
 	@echo "🎉 All basic tests passed!"
