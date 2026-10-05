@@ -68,7 +68,6 @@ dev = [
 packages = [{include = "classdock"}]
 exclude = ["tests"]
 include = [
-    "classdock/scripts_legacy/*.sh",
     "classdock/utils/*.sh",
     "classdock/docs/*.md",
     "classdock/docs/*.yml",

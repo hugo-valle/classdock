@@ -11,7 +11,6 @@ __version__ = get_version()
 __author__ = "Hugo Valle"
 __description__ = "ClassDock - Comprehensive automation suite for managing assignments"
 
-from .bash_wrapper import BashWrapper
 from .config import ConfigLoader, ConfigValidator
 from .services.assignment_service import AssignmentService
 from .services.automation_service import AutomationService
@@ -24,7 +23,6 @@ __all__ = [
     "ConfigValidator",
     "setup_logging",
     "get_logger",
-    "BashWrapper",
     "AssignmentService",
     "ReposService",
     "SecretsService",

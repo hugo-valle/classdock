@@ -1,5 +1,15 @@
 # Migration Guide: classroom-pilot → classdock
 
+## Removed in 0.5.0
+
+GitHub Classroom was decommissioned by GitHub in August 2026, and ClassDock no longer depends on it. Upgrade notes:
+
+- `BashWrapper` and the `scripts_legacy/` bash scripts are removed. Use the `classdock` CLI.
+- `CLASSROOM_URL` is no longer read. Set `GITHUB_ORGANIZATION` and `ASSIGNMENT_NAME` in `assignment.conf`.
+- The `sync` workflow step and `STEP_SYNC_TEMPLATE` are removed. `classdock automation cron-sync` now defaults to `discover`; update any crontab entry that passes `--steps sync`.
+- Cron jobs are now marked `# ClassDock Auto`. Jobs installed with the old `# GitHub Classroom Assignment Auto` marker are still listed and removable.
+- Existing `roster.db` files keep their `classroom_id` / `classroom_url` columns; they are ignored.
+
 ## For Existing Users
 
 ### Update Installation

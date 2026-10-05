@@ -96,7 +96,7 @@ def test_package_imports(results: TestResult) -> None:
 
     # Test core utility imports
     try:
-        from classdock import ConfigLoader, ConfigValidator, BashWrapper
+        from classdock import ConfigLoader, ConfigValidator
         results.mark_passed("Core utilities import")
     except ImportError as e:
         results.mark_failed("Core utilities import", str(e))
@@ -212,38 +212,6 @@ def test_logging_system(results: TestResult) -> None:
 
     except ImportError as e:
         results.mark_failed("Logging system import", str(e))
-
-
-def test_bash_wrapper(results: TestResult) -> None:
-    """Test BashWrapper functionality."""
-    log_info("Testing BashWrapper")
-
-    try:
-        from classdock import BashWrapper
-
-        # Test BashWrapper instantiation
-        try:
-            # BashWrapper requires a config parameter
-            test_config = {"test": "value"}
-            bash_wrapper = BashWrapper(test_config)
-            results.mark_passed("BashWrapper instantiation")
-        except Exception as e:
-            results.mark_failed("BashWrapper instantiation", str(e))
-            return
-
-        # Test BashWrapper methods availability
-        try:
-            # Check for actual methods that exist
-            if hasattr(bash_wrapper, 'assignment_orchestrator'):
-                results.mark_passed("BashWrapper methods available")
-            else:
-                results.mark_failed(
-                    "BashWrapper methods", "assignment_orchestrator method not found")
-        except Exception as e:
-            results.mark_failed("BashWrapper methods test", str(e))
-
-    except ImportError as e:
-        results.mark_failed("BashWrapper import", str(e))
 
 
 def test_assignment_setup(results: TestResult) -> None:
@@ -464,7 +432,6 @@ def main() -> int:
     test_package_imports(results)
     test_configuration_system(results)
     test_logging_system(results)
-    test_bash_wrapper(results)
     test_assignment_setup(results)
     test_cli_module(results)
     test_service_layer(results)
