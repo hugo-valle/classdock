@@ -2,7 +2,7 @@
 #
 # Package Installation Testing Script
 #
-# Tests various installation methods for the classroom-pilot package
+# Tests various installation methods for the classdock package
 #
 
 set -euo pipefail

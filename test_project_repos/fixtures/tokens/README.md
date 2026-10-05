@@ -2,7 +2,7 @@
 
 ## Purpose
 
-This directory contains token configuration fixtures for comprehensive QA testing of the classroom-pilot token management system. These fixtures enable testing of various token scenarios, validation logic, and error handling without requiring actual GitHub tokens or API access.
+This directory contains token configuration fixtures for comprehensive QA testing of the classdock token management system. These fixtures enable testing of various token scenarios, validation logic, and error handling without requiring actual GitHub tokens or API access.
 
 ## Fixture Categories
 
@@ -53,22 +53,22 @@ source "lib/test_helpers.sh"
 
 # Test with valid classic token
 test_valid_classic_token() {
-    local config_dir="$HOME/.config/classroom-pilot"
+    local config_dir="$HOME/.config/classdock"
     local config_file="$config_dir/token_config.json"
-    
+
     # Backup existing config if present
     if [ -f "$config_file" ]; then
         mv "$config_file" "${config_file}.backup"
     fi
-    
+
     # Copy fixture to config location
     mkdir -p "$config_dir"
     cp "fixtures/tokens/valid_classic_token.json" "$config_file"
     chmod 0600 "$config_file"
-    
+
     # Run test operations
     # ... your test logic here ...
-    
+
     # Cleanup
     rm "$config_file"
     if [ -f "${config_file}.backup" ]; then
@@ -84,13 +84,13 @@ test_valid_classic_token() {
 test_token_verification() {
     local test_config=$(create_temp_test_dir "token_test")
     local token_config="$test_config/token_config.json"
-    
+
     # Copy and customize fixture
     cp "fixtures/tokens/valid_classic_token.json" "$token_config"
-    
+
     # Run token manager operations
     # ... test logic ...
-    
+
     # Cleanup
     cleanup_temp_test_dir "$test_config"
 }
@@ -102,19 +102,19 @@ test_token_verification() {
 # Test with custom expiration date
 test_custom_expiration() {
     local token_config="/tmp/test_token_config.json"
-    
+
     # Copy fixture
     cp "fixtures/tokens/valid_fine_grained_token.json" "$token_config"
-    
+
     # Modify expiration date using jq
     local new_expiration=$(date -u -v+3d +"%Y-%m-%dT%H:%M:%SZ")
     jq --arg exp "$new_expiration" '.github_token.expires_at = $exp' \
         "$token_config" > "${token_config}.tmp"
     mv "${token_config}.tmp" "$token_config"
-    
+
     # Run test
     # ... test logic ...
-    
+
     # Cleanup
     rm "$token_config"
 }
@@ -122,7 +122,7 @@ test_custom_expiration() {
 
 ## Token Structure Reference
 
-All token fixtures follow this JSON structure expected by `classroom_pilot/utils/token_manager.py`:
+All token fixtures follow this JSON structure expected by `classdock/utils/token_manager.py`:
 
 ```json
 {
@@ -162,7 +162,7 @@ All token fixtures follow this JSON structure expected by `classroom_pilot/utils
 
 ### Valid Scope Values
 
-**Required for classroom-pilot operations**:
+**Required for classdock operations**:
 - `repo` - Full control of private repositories
 - `read:org` - Read org and team membership
 - `admin:repo_hook` - Full control of repository hooks
@@ -227,7 +227,7 @@ When creating additional token test fixtures:
 
 ## Related Documentation
 
-- `classroom_pilot/utils/token_manager.py` - Token management implementation
+- `classdock/utils/token_manager.py` - Token management implementation
 - `docs/QA_TESTING_GUIDE.md` - Comprehensive QA testing guide
 - `test_project_repos/lib/test_helpers.sh` - Test helper functions
 - `test_project_repos/lib/mock_helpers.sh` - Mocking utilities

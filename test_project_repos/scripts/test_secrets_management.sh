@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Secrets Management Testing Script for Classroom Pilot
+# Secrets Management Testing Script for ClassDock
 # Tests the secrets add command with various directory contexts and configurations
 #
 
@@ -77,10 +77,10 @@ test_secrets_help() {
     log_info "Testing secrets command help and structure"
     
     run_secrets_test "secrets help" \
-        "classroom-pilot secrets --help"
+        "classdock secrets --help"
     
     run_secrets_test "secrets add help" \
-        "classroom-pilot secrets add --help"
+        "classdock secrets add --help"
 }
 
 # Function to test secrets add with assignment root parameter
@@ -91,11 +91,11 @@ test_secrets_with_assignment_root() {
     
     # Test with valid assignment root
     run_secrets_test "secrets add with valid assignment root (dry-run)" \
-        "classroom-pilot secrets add --assignment-root '$test_assignment' --dry-run --verbose"
+        "classdock secrets add --assignment-root '$test_assignment' --dry-run --verbose"
     
     # Test with invalid assignment root
     run_secrets_test "secrets add with invalid assignment root" \
-        "classroom-pilot secrets add --assignment-root '/nonexistent/path' --dry-run" \
+        "classdock secrets add --assignment-root '/nonexistent/path' --dry-run" \
         1  # Expect failure
 }
 
@@ -110,7 +110,7 @@ test_secrets_from_assignment_directory() {
     cd "$test_assignment"
     
     run_secrets_test "secrets add from template repository directory (dry-run)" \
-        "classroom-pilot secrets add --dry-run --verbose"
+        "classdock secrets add --dry-run --verbose"
     
     # Test from student repository (has assignment.conf and instructor_token.txt)
     cd "$original_dir"
@@ -120,7 +120,7 @@ test_secrets_from_assignment_directory() {
     
     cd "$temp_student_repo"
     run_secrets_test "secrets add from student repository directory (dry-run)" \
-        "classroom-pilot secrets add --dry-run --verbose"
+        "classdock secrets add --dry-run --verbose"
     
     # Return to original directory and cleanup
     cd "$original_dir"
@@ -135,11 +135,11 @@ test_secrets_config_handling() {
     
     # Test with custom config file
     run_secrets_test "secrets add with custom config file" \
-        "classroom-pilot secrets add --assignment-root '$test_assignment' --config assignment.conf --dry-run"
+        "classdock secrets add --assignment-root '$test_assignment' --config assignment.conf --dry-run"
     
     # Test with missing config file
     run_secrets_test "secrets add with missing config file" \
-        "classroom-pilot secrets add --assignment-root '$test_assignment' --config nonexistent.conf --dry-run" \
+        "classdock secrets add --assignment-root '$test_assignment' --config nonexistent.conf --dry-run" \
         1  # Expect failure
 }
 
@@ -149,7 +149,7 @@ test_directory_context_validation() {
     
     # Test from main project directory without assignment root (should fail - no assignment files or token)
     run_secrets_test "secrets add from main project (no assignment root)" \
-        "classroom-pilot secrets add --dry-run" \
+        "classdock secrets add --dry-run" \
         1  # Expect failure due to missing assignment files and instructor_token.txt
     
     # Test with missing assignment files and missing instructor_token.txt
@@ -158,7 +158,7 @@ test_directory_context_validation() {
     echo "ASSIGNMENT_FILE=missing.py" >> "$temp_dir/assignment.conf"
     
     run_secrets_test "secrets add with incomplete directory (no files or token)" \
-        "classroom-pilot secrets add --assignment-root '$temp_dir' --dry-run" \
+        "classdock secrets add --assignment-root '$temp_dir' --dry-run" \
         1  # Expect failure due to missing assignment files and instructor_token.txt
     
     # Cleanup
@@ -173,12 +173,12 @@ test_secrets_error_handling() {
     
     # Test verbose mode
     run_secrets_test "secrets add verbose mode" \
-        "classroom-pilot secrets add --assignment-root '$test_assignment' --dry-run --verbose"
+        "classdock secrets add --assignment-root '$test_assignment' --dry-run --verbose"
     
     # Test with absolute path
     local abs_path=$(realpath "$test_assignment")
     run_secrets_test "secrets add with absolute path" \
-        "classroom-pilot secrets add --assignment-root '$abs_path' --dry-run"
+        "classdock secrets add --assignment-root '$abs_path' --dry-run"
 }
 
 # Function to validate test assignment structure
@@ -205,7 +205,7 @@ validate_test_assignment_structure() {
     
     # Check assignment.conf has required variables
     local required_vars=(
-        "CLASSROOM_URL"
+        "ASSIGNMENT_NAME"
         "GITHUB_ORGANIZATION"
         "TEMPLATE_REPO_URL"
         "ASSIGNMENT_FILE"

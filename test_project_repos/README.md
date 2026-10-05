@@ -1,6 +1,6 @@
-# 🧪 Local Testing Workflow for Classroom Pilot
+# 🧪 Local Testing Workflow for ClassDock
 
-This directory contains comprehensive testing tools and documentation for validating the `classroom-pilot` Python package before releases.
+This directory contains comprehensive testing tools and documentation for validating the `classdock` Python package before releases.
 
 ## Directory Structure
 
@@ -47,7 +47,6 @@ test_project_repos/
 │   │   ├── mock_helpers.sh      # GitHub API mocks
 │   │   └── assertion_helpers.sh # Test assertions
 │   └── fixtures/                # Test data and configurations
-│       ├── test_classroom_urls.txt # Sample classroom URLs
 │       ├── test_assignment_config.conf # Test configurations
 │       └── test_student_lists/  # Student roster fixtures
 └── reports/                     # Generated test reports (auto-created)
@@ -61,7 +60,7 @@ test_project_repos/
 ### Run Complete Test Suite
 
 ```bash
-# From the classroom_pilot root directory
+# From the classdock root directory
 cd test_project_repos
 ./scripts/run_full_test.sh
 ```
@@ -190,7 +189,7 @@ cd ../scripts
 
 **Prerequisites:**
 1. Set up configuration in `sample_projects/real_repo/`:
-   - Edit `real_repo_info.conf` with your actual GitHub Classroom assignment details
+   - Edit `real_repo_info.conf` with your actual GitHub assignment details
    - Add your GitHub token to `instructor_token.txt`
    - See `sample_projects/real_repo/README.md` for detailed setup instructions
 
@@ -274,9 +273,9 @@ COMPREHENSIVE_TESTING=true
 CLEANUP_AFTER_TESTS=true
 
 # Package settings
-PACKAGE_NAME="classroom-pilot"
+PACKAGE_NAME="classdock"
 EXPECTED_VERSION="3.1.0a2"
-CLI_COMMAND="classroom-pilot"
+CLI_COMMAND="classdock"
 ```
 
 ## 🆘 Troubleshooting
@@ -312,4 +311,4 @@ To add new test scenarios:
 
 ---
 
-*This testing framework ensures the `classroom-pilot` package is thoroughly validated before release, providing confidence in package quality and user experience.*
+*This testing framework ensures the `classdock` package is thoroughly validated before release, providing confidence in package quality and user experience.*

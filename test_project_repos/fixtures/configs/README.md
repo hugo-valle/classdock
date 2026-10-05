@@ -1,6 +1,6 @@
 # Configuration Fixtures for Testing
 
-This directory contains test configuration files that cover various scenarios for validating `classroom-pilot` configuration parsing, validation, and error handling.
+This directory contains test configuration files that cover various scenarios for validating `classdock` configuration parsing, validation, and error handling.
 
 ## 📁 Fixture Files
 
@@ -33,7 +33,7 @@ This directory contains test configuration files that cover various scenarios fo
 **Fields:** All 40+ supported configuration parameters including:
 - Organization and assignment settings
 - File paths (students, repos, output, logs)
-- GitHub Classroom URLs
+- GitHub URLs
 - Secrets management
 - Repository settings
 - Collaboration configuration
@@ -68,11 +68,6 @@ This directory contains test configuration files that cover various scenarios fo
 - Test URL validation logic
 - Verify protocol requirements (https://)
 - Test domain format validation
-
-**Invalid Values:**
-- `CLASSROOM_URL=not-a-valid-url`
-- `ASSIGNMENT_URL=htp://missing-second-t.com`
-- `TEMPLATE_REPO=github.com/missing-protocol/repo`
 
 **Expected Behavior:** Should fail with URL validation errors, indicating which fields contain invalid URLs.
 
@@ -170,11 +165,11 @@ source lib/test_helpers.sh
 
 # Test valid minimal configuration
 run_test_case "Valid minimal config loads successfully" \
-    classroom-pilot assignments setup --config fixtures/configs/valid_minimal.conf --dry-run
+    classdock assignments setup --config fixtures/configs/valid_minimal.conf --dry-run
 
 # Test invalid configuration detection
 run_test_case "Missing required fields detected" \
-    "! classroom-pilot assignments setup --config fixtures/configs/invalid_missing_required.conf --dry-run"
+    "! classdock assignments setup --config fixtures/configs/invalid_missing_required.conf --dry-run"
 ```
 
 ### Validation Testing
@@ -184,14 +179,14 @@ run_test_case "Missing required fields detected" \
 for config in fixtures/configs/invalid_*.conf; do
     config_name=$(basename "$config" .conf)
     run_test_case "Invalid config rejected: $config_name" \
-        "! classroom-pilot assignments setup --config $config --dry-run"
+        "! classdock assignments setup --config $config --dry-run"
 done
 
 # Test all valid configurations should succeed
 for config in fixtures/configs/valid_*.conf; do
     config_name=$(basename "$config" .conf)
     run_test_case "Valid config accepted: $config_name" \
-        classroom-pilot assignments setup --config $config --dry-run
+        classdock assignments setup --config $config --dry-run
 done
 ```
 
@@ -201,7 +196,7 @@ done
 # Test edge cases with specific assertions
 setup_test_config fixtures/configs/edge_case_empty_values.conf
 
-result=$(classroom-pilot assignments setup --config $TEST_CONFIG_PATH --dry-run 2>&1)
+result=$(classdock assignments setup --config $TEST_CONFIG_PATH --dry-run 2>&1)
 
 assert_output_contains "$result" "Using default value"
 assert_exit_code 0
@@ -244,14 +239,6 @@ STUDENTS_FILE=students.txt
 - `GITHUB_ORGANIZATION`: GitHub organization name
 - `ASSIGNMENT_NAME`: Assignment identifier
 - `STUDENTS_FILE`: Path to student list file
-
-### Field Types
-- **String:** Most fields (names, descriptions, paths)
-- **Boolean:** `DRY_RUN`, `VERBOSE`, `FORCE`, `PRIVATE_REPOS`, etc.
-- **Integer:** `PARALLEL_LIMIT`, `TIMEOUT`, `CLONE_DEPTH`
-- **URL:** `CLASSROOM_URL`, `ASSIGNMENT_URL`, `TEMPLATE_REPO`
-- **Path:** All `*_FILE`, `*_DIR` fields
-- **List:** Comma-separated values (e.g., `SECRETS_LIST`)
 
 ### Validation Checks
 1. **Required field presence**
@@ -299,4 +286,4 @@ cd test_project_repos
 
 ---
 
-*These fixtures are essential for comprehensive QA testing of configuration parsing and validation in classroom-pilot.*
+*These fixtures are essential for comprehensive QA testing of configuration parsing and validation in classdock.*

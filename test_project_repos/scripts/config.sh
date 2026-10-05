@@ -1,16 +1,16 @@
 #!/bin/bash
 #
-# Configuration file for Classroom Pilot Testing Suite
+# Configuration file for ClassDock Testing Suite
 #
 # This file contains all configuration settings for the testing framework.
 # Modify these values to customize test behavior.
 #
 
 # Package Information
-PACKAGE_NAME="classroom-pilot"
+PACKAGE_NAME="classdock"
 EXPECTED_VERSION="3.1.0a2"
-CLI_COMMAND="classroom-pilot"
-PYTHON_MODULE="classroom_pilot"
+CLI_COMMAND="classdock"
+PYTHON_MODULE="classdock"
 
 # Project Paths
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -61,7 +61,7 @@ LOG_LEVEL="INFO"
 GENERATE_JUNIT_XML=false
 
 # Directory Configuration
-TEST_ENV_BASE_NAME="classroom_pilot_test"
+TEST_ENV_BASE_NAME="classdock_test"
 BUILD_DIR="dist"
 LOGS_DIR="logs"
 
@@ -167,14 +167,14 @@ export LIB_DIR FIXTURES_DIR
 check_qa_prerequisites() {
     local errors=0
     
-    # Check if classroom-pilot CLI is available
-    if ! command -v classroom-pilot >/dev/null 2>&1; then
-        echo "[ERROR] classroom-pilot CLI not found in PATH" >&2
-        echo "[ERROR] Please install classroom-pilot before running QA tests" >&2
-        echo "[INFO] Run: poetry install or pip install classroom-pilot" >&2
+    # Check if classdock CLI is available
+    if ! command -v classdock >/dev/null 2>&1; then
+        echo "[ERROR] classdock CLI not found in PATH" >&2
+        echo "[ERROR] Please install classdock before running QA tests" >&2
+        echo "[INFO] Run: poetry install or pip install classdock" >&2
         ((errors++))
     else
-        echo "[INFO] classroom-pilot CLI found: $(command -v classroom-pilot)"
+        echo "[INFO] classdock CLI found: $(command -v classdock)"
     fi
     
     # Check QA directories exist

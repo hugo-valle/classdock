@@ -43,7 +43,7 @@ show_usage() {
     cat << EOF
 Usage: $0 [TEST_SUITE] [OPTIONS]
 
-Run specific test suites for classroom-pilot package.
+Run specific test suites for classdock package.
 
 Test Suites:
     installation       Test package installation
@@ -443,7 +443,7 @@ generate_test_report() {
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Classroom Pilot Test Report</title>
+    <title>ClassDock Test Report</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 40px; }
         .header { background-color: #f4f4f4; padding: 20px; border-radius: 5px; }
@@ -460,7 +460,7 @@ generate_test_report() {
 </head>
 <body>
     <div class="header">
-        <h1>Classroom Pilot Test Report</h1>
+        <h1>ClassDock Test Report</h1>
         <p><strong>Generated:</strong> $timestamp</p>
         <p><strong>Test Suite:</strong> $TEST_SUITE</p>
     </div>
@@ -657,7 +657,7 @@ show_test_summary() {
 
 # Main test execution
 main() {
-    log_info "Starting test runner for classroom-pilot"
+    log_info "Starting test runner for classdock"
     log_info "Test suite: $TEST_SUITE"
     log_info "Options: setup=$SETUP_ENV, cleanup=$CLEANUP_AFTER, verbose=$VERBOSE"
     

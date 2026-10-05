@@ -12,7 +12,7 @@ if [ -n "$TEST_ENV_NAME" ] && [ -f "$TEST_DIR/test_environments/$TEST_ENV_NAME/a
     echo "Running integration test in conda environment: $TEST_ENV_NAME"
     source "$TEST_DIR/test_environments/$TEST_ENV_NAME/activate_test_env.sh"
     echo "Python path after activation: $(which python)"
-    echo "Testing classroom_pilot import: $(python -c 'import classroom_pilot; print("SUCCESS")' 2>/dev/null || echo "FAILED")"
+    echo "Testing classdock import: $(python -c 'import classdock; print("SUCCESS")' 2>/dev/null || echo "FAILED")"
 else
     echo "Running integration test in host environment (no conda environment available)"
 fi

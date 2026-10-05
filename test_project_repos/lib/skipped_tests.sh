@@ -50,7 +50,6 @@ declare -a SKIP_LIST=(
     "test_error_scenarios:test_invalid_config_syntax:Config syntax validation not implemented"
     "test_error_scenarios:test_invalid_path_in_config:Path validation not implemented"
     "test_error_scenarios:test_malformed_repository_url:URL validation not implemented"
-    "test_error_scenarios:test_invalid_github_classroom_url:Classroom URL validation not implemented"
     "test_error_scenarios:test_malformed_json_token:JSON parsing error handling needs work"
     "test_error_scenarios:test_whitespace_only_values:Whitespace validation not implemented"
 )

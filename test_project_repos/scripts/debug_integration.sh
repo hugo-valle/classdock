@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # 
-# Integration Testing Script for Classroom Pilot
+# Integration Testing Script for ClassDock
 # Tests the complete workflow with sample projects
 #
 
@@ -67,9 +67,9 @@ test_config_file_creation() {
     # Test basic config creation
     local config_file="$test_dir/assignment.conf"
     cat > "$config_file" << 'EOF'
-CLASSROOM_URL=https://classroom.github.com/classrooms/12345/assignments/test-assignment
-GITHUB_ORGANIZATION=test-classroom
-TEMPLATE_REPO_URL=https://github.com/test-classroom/template-repo
+ASSIGNMENT_NAME="test-assignment"
+GITHUB_ORGANIZATION=test-course
+TEMPLATE_REPO_URL=https://github.com/test-course/template-repo
 ASSIGNMENT_FILE=main.py
 STUDENT_REPO_PREFIX=assignment-1
 COLLABORATOR_USERS=student1,student2,student3
@@ -85,8 +85,8 @@ EOF
     fi
     
     # Test config validation using our new validate-config command
-    if command -v classroom-pilot &> /dev/null; then
-        if classroom-pilot assignments validate-config --config-file "$config_file" &> /dev/null; then
+    if command -v classdock &> /dev/null; then
+        if classdock assignments validate-config --config-file "$config_file" &> /dev/null; then
             mark_test_passed "Configuration validation"
         else
             mark_test_failed "Configuration validation" "Config validation failed"
@@ -103,41 +103,41 @@ EOF
 test_cli_commands() {
     log_info "Testing CLI command execution"
     
-    if ! command -v classroom-pilot &> /dev/null; then
-        mark_test_failed "CLI availability" "classroom-pilot command not found"
+    if ! command -v classdock &> /dev/null; then
+        mark_test_failed "CLI availability" "classdock command not found"
         return 1
     fi
     
     # Test help command
-    if classroom-pilot --help &> /dev/null; then
+    if classdock --help &> /dev/null; then
         mark_test_passed "CLI help command"
     else
         mark_test_failed "CLI help command" "Help command failed"
     fi
     
     # Test version command
-    if classroom-pilot --version &> /dev/null; then
+    if classdock --version &> /dev/null; then
         mark_test_passed "CLI version command"
     else
         mark_test_failed "CLI version command" "Version command failed"
     fi
     
     # Test assignments help
-    if classroom-pilot assignments --help &> /dev/null; then
+    if classdock assignments --help &> /dev/null; then
         mark_test_passed "Assignments subcommand help"
     else
         mark_test_failed "Assignments subcommand help" "Assignments help failed"
     fi
     
     # Test repos help
-    if classroom-pilot repos --help &> /dev/null; then
+    if classdock repos --help &> /dev/null; then
         mark_test_passed "Repos subcommand help"
     else
         mark_test_failed "Repos subcommand help" "Repos help failed"
     fi
     
     # Test secrets help
-    if classroom-pilot secrets --help &> /dev/null; then
+    if classdock secrets --help &> /dev/null; then
         mark_test_passed "Secrets subcommand help"
     else
         mark_test_failed "Secrets subcommand help" "Secrets help failed"
@@ -173,9 +173,9 @@ test_sample_project_workflow() {
         
         # Create minimal sample project
         cat > "$sample_dir/assignment.conf" << 'EOF'
-CLASSROOM_URL=https://classroom.github.com/test-assignment
-GITHUB_ORGANIZATION=test-classroom
-TEMPLATE_REPO_URL=https://github.com/test-classroom/basic-template
+ASSIGNMENT_NAME="test-assignment"
+GITHUB_ORGANIZATION=test-course
+TEMPLATE_REPO_URL=https://github.com/test-course/basic-template
 ASSIGNMENT_FILE=assignment.conf
 STUDENT_REPO_PREFIX=basic-assignment
 EOF
@@ -221,11 +221,11 @@ EOF
     fi
     
     # Test CLI operations on sample project
-    if command -v classroom-pilot &> /dev/null; then
+    if command -v classdock &> /dev/null; then
         local config_file="$sample_dir/assignment.conf"
         
         # Test dry-run operations with orchestrate command
-        if classroom-pilot assignments orchestrate --config "$config_file" --dry-run &> /dev/null; then
+        if classdock assignments orchestrate --config "$config_file" --dry-run &> /dev/null; then
             mark_test_passed "Assignment orchestrate dry-run"
         else
             mark_test_failed "Assignment orchestrate dry-run" "Dry-run failed"
@@ -249,9 +249,9 @@ INVALID_KEY=invalid_value
 MISSING_REQUIRED_FIELDS=true
 EOF
     
-    if command -v classroom-pilot &> /dev/null; then
+    if command -v classdock &> /dev/null; then
         # This should fail gracefully with our new validate-config command
-        if ! classroom-pilot assignments validate-config --config-file "$invalid_config" &> /dev/null; then
+        if ! classdock assignments validate-config --config-file "$invalid_config" &> /dev/null; then
             mark_test_passed "Invalid config error handling"
         else
             mark_test_failed "Invalid config error handling" "Should have failed validation"
@@ -262,8 +262,8 @@ EOF
     
     # Test missing config file
     local missing_config="$error_dir/nonexistent.conf"
-    if command -v classroom-pilot &> /dev/null; then
-        if ! classroom-pilot assignments validate-config --config-file "$missing_config" &> /dev/null; then
+    if command -v classdock &> /dev/null; then
+        if ! classdock assignments validate-config --config-file "$missing_config" &> /dev/null; then
             mark_test_passed "Missing config error handling"
         else
             mark_test_failed "Missing config error handling" "Should have failed with missing file"
@@ -278,7 +278,7 @@ EOF
 test_performance() {
     log_info "Testing performance with multiple operations"
     
-    if ! command -v classroom-pilot &> /dev/null; then
+    if ! command -v classdock &> /dev/null; then
         log_warning "CLI not available for performance testing"
         return
     fi
@@ -287,10 +287,10 @@ test_performance() {
     
     # Run multiple help commands (should be fast)
     for i in {1..5}; do
-        classroom-pilot --help &> /dev/null
-        classroom-pilot assignments --help &> /dev/null
-        classroom-pilot repos --help &> /dev/null
-        classroom-pilot secrets --help &> /dev/null
+        classdock --help &> /dev/null
+        classdock assignments --help &> /dev/null
+        classdock repos --help &> /dev/null
+        classdock secrets --help &> /dev/null
     done
     
     local end_time=$(date +%s)
@@ -323,7 +323,7 @@ if '.' in sys.path:
     sys.path.remove('.')
 
 try:
-    import classroom_pilot
+    import classdock
     print("SUCCESS: Package import in isolated environment")
     exit(0)
 except ImportError as e:
@@ -346,7 +346,7 @@ EOF
 test_logging_output() {
     log_info "Testing logging and output functionality"
     
-    if ! command -v classroom-pilot &> /dev/null; then
+    if ! command -v classdock &> /dev/null; then
         log_warning "CLI not available for logging tests"
         return
     fi
@@ -354,7 +354,7 @@ test_logging_output() {
     local log_file=$(mktemp)
     
     # Test verbose flag acceptance (using validate-config which supports verbose)
-    if classroom-pilot assignments validate-config --verbose --config-file /dev/null > "$log_file" 2>&1; then
+    if classdock assignments validate-config --verbose --config-file /dev/null > "$log_file" 2>&1; then
         # Command succeeded, verbose flag is accepted
         mark_test_passed "Verbose logging output"
     elif grep -q "📋\|📊\|Loaded configuration from\|Configuration contains" "$log_file"; then
@@ -398,7 +398,7 @@ show_test_summary() {
 
 # Main test execution
 main() {
-    log_info "Starting Integration Tests for Classroom Pilot"
+    log_info "Starting Integration Tests for ClassDock"
     log_info "Test directory: $TEST_PROJECT_REPOS_DIR"
     
     # Ensure test environment is set up

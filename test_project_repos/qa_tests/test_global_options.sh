@@ -111,12 +111,10 @@ create_test_config() {
             else
                 # Create minimal valid config
                 cat > "$dest_path" << 'EOF'
-CLASSROOM_URL=https://classroom.github.com/classrooms/123456/assignments/test-assignment
 TEMPLATE_REPO_URL=https://github.com/test-org/test-assignment-template
 GITHUB_ORGANIZATION=test-org
 ASSIGNMENT_NAME=test-assignment
 ASSIGNMENT_FILE=assignment.ipynb
-CLASSROOM_REPO_URL=https://github.com/test-org/classroom-test-assignment
 EOF
             fi
             ;;

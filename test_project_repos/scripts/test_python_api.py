@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-Python API Testing Script for Classroom Pilot
+Python API Testing Script for ClassDock
 
 Tests the Python API functionality including imports, configuration,
 logging, and core functionality.
@@ -84,7 +84,7 @@ def test_package_imports(results: TestResult) -> None:
         results.mark_passed("Main package import")
 
         # Check version
-        if hasattr(classroom_pilot, '__version__'):
+        if hasattr(classdock, '__version__'):
             log_info(f"Package version: {classdock.__version__}")
             results.mark_passed("Version attribute available")
         else:
@@ -156,8 +156,7 @@ def test_configuration_system(results: TestResult) -> None:
         # Test configuration validation with sample data
         try:
             sample_config = {
-                "CLASSROOM_URL": "https://classroom.github.com/test",
-                "GITHUB_ORGANIZATION": "test-org",
+                                "GITHUB_ORGANIZATION": "test-org",
                 "TEMPLATE_REPO_URL": "https://github.com/test/template",
                 "ASSIGNMENT_FILE": "assignment.conf"
             }
@@ -226,7 +225,7 @@ def test_assignment_setup(results: TestResult) -> None:
             # Create sample configuration file
             config_file = Path(temp_dir) / "assignment.conf"
             config_file.write_text("""
-CLASSROOM_URL=https://classroom.github.com/test
+ASSIGNMENT_NAME="test-assignment"
 GITHUB_ORGANIZATION=test-org
 TEMPLATE_REPO_URL=https://github.com/test/template
 ASSIGNMENT_FILE=assignment.conf
@@ -424,7 +423,7 @@ def test_import_time(results: TestResult) -> None:
 
 def main() -> int:
     """Main test execution."""
-    log_info("Starting Python API tests for Classroom Pilot")
+    log_info("Starting Python API tests for ClassDock")
 
     results = TestResult()
 

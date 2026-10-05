@@ -1,10 +1,10 @@
 # Test Scenarios Documentation
 
-This document describes the various test scenarios implemented in the testing framework for the classroom-pilot package.
+This document describes the various test scenarios implemented in the testing framework for the classdock package.
 
 ## Overview
 
-The testing framework includes comprehensive scenarios to validate all aspects of the classroom-pilot package, from basic installation to complex integration workflows.
+The testing framework includes comprehensive scenarios to validate all aspects of the classdock package, from basic installation to complex integration workflows.
 
 ## Test Categories
 
@@ -103,11 +103,11 @@ python3 scripts/test_python_api.py
 
 ### 5. Real Repository Tests
 
-**Purpose**: Validate classroom-pilot with actual GitHub repositories and live workflows.
+**Purpose**: Validate classdock with actual GitHub repositories and live workflows.
 
 **Scenarios**:
 - **Actual Repository Cloning**: Clone real GitHub repositories for testing
-- **Live Configuration Parsing**: Parse actual GitHub Classroom assignment data
+- **Live Configuration Parsing**: Parse actual GitHub assignment data
 - **Conda Environment Integration**: Test in isolated conda environments
 - **Real Token Validation**: Validate GitHub tokens with actual API calls
 - **End-to-End Workflows**: Complete assignment setup workflows with real data
