@@ -46,7 +46,7 @@ Launch interactive wizard to configure a new assignment. Generates `assignment.c
 ```
 classdock assignments orchestrate
 ```
-Execute the complete assignment workflow: sync template, discover repos, manage secrets, and optionally sync roster.
+Execute the complete assignment workflow: discover repos, manage secrets, and optionally sync roster.
 
 ```
 classdock assignments validate-config

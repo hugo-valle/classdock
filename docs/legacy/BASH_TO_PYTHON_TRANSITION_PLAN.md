@@ -11,7 +11,7 @@ This document outlines the comprehensive plan for migrating all remaining bash s
 | Component | Bash Script | Python Implementation | Status | Lines Migrated |
 |-----------|-------------|----------------------|--------|----------------|
 | Secret Management | `add-secrets-to-students.sh` | `secrets/github_secrets.py` | ✅ Complete | 605 |
-| Repository Discovery | `fetch-student-repos.sh` | GitHub Classroom API integration | ✅ Complete | 445 |
+| Repository Discovery | `fetch-student-repos.sh` | GitHub API integration | ✅ Complete | 445 |
 | Assignment Setup | `setup-assignment.sh` | `assignments/setup.py` | ✅ Complete | 813 |
 
 **Total Completed**: 1,863 lines of bash → Python
@@ -39,7 +39,7 @@ This document outlines the comprehensive plan for migrating all remaining bash s
 **Lines**: 835 | **Complexity**: High | **Priority**: 🔴 Critical
 
 **Current Functionality**:
-- Main workflow coordinator for GitHub Classroom assignments
+- Main workflow coordinator for assignments
 - Orchestrates template sync, discovery, secrets, and assistance steps
 - Handles step sequencing and error propagation
 - Provides progress tracking and logging
@@ -48,7 +48,7 @@ This document outlines the comprehensive plan for migrating all remaining bash s
 **Migration Requirements**:
 ```python
 class AssignmentOrchestrator:
-    """Main workflow coordinator for GitHub Classroom assignments."""
+    """Main workflow coordinator for assignments."""
     
     def __init__(self, global_config: GlobalConfig)
     def execute_workflow(self, steps: List[str], dry_run: bool = False) -> bool
@@ -158,7 +158,7 @@ class CollaboratorManager:
 **Lines**: 289 | **Complexity**: Medium | **Priority**: 🟡 Important
 
 **Current Functionality**:
-- Pushes template changes to GitHub Classroom repository
+- Pushes template changes to GitHub repository
 - Manages git remotes and authentication
 - Handles force push operations when needed
 - Validates repository states before pushing
@@ -443,7 +443,7 @@ For each migration, use this checklist:
 - [ ] Update documentation
 
 ### Validation Phase
-- [ ] Test with real GitHub Classroom assignments
+- [ ] Test with real assignments
 - [ ] Validate against original bash script behavior
 - [ ] Performance testing and optimization
 - [ ] Error scenario testing
