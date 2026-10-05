@@ -5,13 +5,13 @@ build-backend = "poetry.core.masonry.api"
 [project]
 name = "classdock"
 version = "0.4.2"
-description = "Modern Python CLI for automating GitHub Classroom assignment management"
+description = "Modern Python CLI for automating assignment management in GitHub-based courses"
 authors = [
     {name = "Hugo Valle", email = "hugovalle1@weber.edu"}
 ]
 license = {text = "MIT"}
 readme = "README.md"
-keywords = ["github", "classroom", "education", "automation", "cli"]
+keywords = ["github", "education", "automation", "cli"]
 classifiers = [
     "Development Status :: 4 - Beta",
     "Intended Audience :: Education",

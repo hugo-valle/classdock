@@ -26,7 +26,7 @@ Top-level shortcuts for the most common operations:
 ```
 classdock run       Run the full assignment workflow
 classdock setup     Launch the interactive assignment setup wizard
-classdock fetch     Discover student repositories from GitHub Classroom
+classdock fetch     Discover student repositories in the organization
 classdock status    Show assignment dashboard
 classdock token     Configure your GitHub Personal Access Token
 classdock completion [SHELL] [--install]  Generate or install shell tab-completion
@@ -74,11 +74,6 @@ classdock assignments student-instructions --repo <repo>
 Generate update instructions for a student.
 
 ```
-classdock assignments check-classroom
-```
-Check if the classroom repository is ready for student updates.
-
-```
 classdock assignments cycle-collaborator --repo <repo>
 ```
 Cycle collaborator permissions for a single repository.
@@ -93,11 +88,6 @@ classdock assignments check-repository-access --repo <repo> --user <user>
 ```
 Check repository access status for a specific user.
 
-```
-classdock assignments push-to-classroom
-```
-Push template repository changes to the classroom repository.
-
 ---
 
 ## repos
@@ -107,7 +97,7 @@ Repository operations.
 ```
 classdock repos fetch
 ```
-Discover and save all student repositories from GitHub Classroom. Results are saved to `student-repos.txt`.
+Discover and save all student repositories in the organization. Results are saved to `student-repos.txt`.
 
 ---
 
@@ -226,7 +216,6 @@ ClassDock reads `assignment.conf` from the current directory (or a parent direct
 
 ```bash
 # Required
-classroom_url="https://classroom.github.com/classrooms/<id>/assignments/<id>"
 github_organization="your-github-org"
 assignment_name="homework-1"
 

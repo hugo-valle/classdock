@@ -4,7 +4,7 @@ Thank you for your interest in contributing to ClassDock! This guide will help y
 
 ## 🎯 Project Overview
 
-ClassDock is a modern Python CLI tool for GitHub Classroom automation, built with:
+ClassDock is a modern Python CLI tool for automating GitHub-based courses, built with:
 
 - **Python 3.10+** with type hints and modern syntax
 - **Typer** for CLI interface with universal options (`--help`, `--verbose`, `--dry-run`)

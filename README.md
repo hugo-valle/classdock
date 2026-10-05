@@ -1,15 +1,15 @@
 # ClassDock
 
-> Automate GitHub Classroom assignment management with a modern Python CLI
+> Automation for GitHub-based courses, from a modern Python CLI
 
 [![PyPI version](https://badge.fury.io/py/classdock.svg)](https://badge.fury.io/py/classdock)
 [![Python Support](https://img.shields.io/pypi/pyversions/classdock.svg)](https://pypi.org/project/classdock/)
 [![CI](https://github.com/hugo-valle/classdock/actions/workflows/ci.yml/badge.svg)](https://github.com/hugo-valle/classdock/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
-ClassDock is a command-line tool for computer science instructors who manage [GitHub Classroom](https://classroom.github.com/) assignments. Instead of manually clicking through dozens of student repositories, ClassDock automates the repetitive work — discovering repos, distributing secrets, tracking roster acceptance — so you can focus on teaching.
+ClassDock is a command-line tool for computer science instructors who run assignments as template repositories in a GitHub organization. Instead of manually clicking through dozens of student repositories, ClassDock automates the repetitive work — discovering repos, distributing secrets, tracking roster acceptance — so you can focus on teaching.
 
-**Perfect for:** Instructors managing GitHub Classroom assignments for classes of any size.
+**Perfect for:** Instructors managing assignments on GitHub for classes of any size.
 
 ---
 
@@ -52,7 +52,7 @@ These shortcuts cover the most common operations without navigating command grou
 |---------|--------------|
 | `classdock run` | Run the full assignment workflow (`assignments orchestrate`) |
 | `classdock setup` | Launch the interactive assignment setup wizard |
-| `classdock fetch` | Discover all student repositories from GitHub Classroom |
+| `classdock fetch` | Discover all student repositories in the organization |
 | `classdock status` | Show assignment dashboard (repos, roster, token status) |
 | `classdock token` | Configure your GitHub Personal Access Token |
 
@@ -81,9 +81,9 @@ ClassDock reads an `assignment.conf` file from your assignment directory:
 
 ```bash
 # Minimal configuration
-classroom_url="https://classroom.github.com/classrooms/123/assignments/456"
-github_organization="your-github-org"
-assignment_name="homework-1"
+GITHUB_ORGANIZATION="your-github-org"
+ASSIGNMENT_NAME="homework-1"
+TEMPLATE_REPO_URL="https://github.com/your-github-org/homework-1-template"
 
 # Optional: secrets to distribute to every student repo
 secrets_list="API_KEY,DATABASE_URL"
