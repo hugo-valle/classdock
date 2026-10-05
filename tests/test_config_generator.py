@@ -402,7 +402,6 @@ class TestConfigGeneratorWorkflowSection:
         assert 'WORKFLOW CONFIGURATION' in section
 
         # Check workflow steps
-        assert 'STEP_SYNC_TEMPLATE=true' in section
         assert 'STEP_DISCOVER_REPOS=true' in section
         assert 'STEP_MANAGE_SECRETS=true' in section
         assert 'STEP_ASSIST_STUDENTS=false' in section
@@ -428,7 +427,6 @@ class TestConfigGeneratorWorkflowSection:
         assert 'STEP_MANAGE_SECRETS=false' in section
 
         # Other steps should remain the same
-        assert 'STEP_SYNC_TEMPLATE=true' in section
         assert 'STEP_DISCOVER_REPOS=true' in section
         assert 'STEP_ASSIST_STUDENTS=false' in section
 

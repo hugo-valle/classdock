@@ -24,7 +24,7 @@ def run(
     config_file: str = None,
     yes: bool = False,
 ):
-    """Run the complete classroom workflow (sync, discover, secrets, assist)."""
+    """Run the complete workflow (discover, secrets, assist)."""
     # Setup logging
     setup_logging(verbose)
 

@@ -226,7 +226,6 @@ SECRETS_CONFIG=""
 # =============================================================================
 
 # Workflow steps to execute (true/false)
-STEP_SYNC_TEMPLATE=true
 STEP_DISCOVER_REPOS=true
 STEP_MANAGE_SECRETS={config_values.get('USE_SECRETS', 'false')}
 STEP_ASSIST_STUDENTS=false

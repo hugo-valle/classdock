@@ -1,8 +1,8 @@
 """
 Bash script wrapper module for executing existing bash scripts.
 
-This module provides a BashWrapper class that handles subprocess execution 
-of scripts in the scripts/ directory, maintaining compatibility with the 
+This module provides a BashWrapper class that handles subprocess execution
+of scripts in the scripts/ directory, maintaining compatibility with the
 existing bash script functionality.
 """
 
@@ -224,7 +224,7 @@ class BashWrapper:
         Execute the assignment orchestrator script.
 
         Args:
-            workflow_type: Type of workflow to run (run, sync, discover, secrets, assist)
+            workflow_type: Type of workflow to run (run, discover, secrets, assist)
 
         Returns:
             True if successful, False otherwise

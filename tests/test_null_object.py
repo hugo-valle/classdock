@@ -32,7 +32,6 @@ class TestNullOrchestrator:
         from classdock.assignments.orchestrator import WorkflowStep
         null = self._make()
         step_methods = {
-            WorkflowStep.SYNC: null.step_sync_template,
             WorkflowStep.DISCOVER: null.step_discover_repos,
             WorkflowStep.SYNC_ROSTER: null.step_sync_roster,
             WorkflowStep.SECRETS: null.step_manage_secrets,
@@ -57,12 +56,12 @@ class TestNullOrchestrator:
             NullOrchestrator, WorkflowConfig, WorkflowStep
         )
         null = NullOrchestrator()
-        cfg = WorkflowConfig(enabled_steps={WorkflowStep.SYNC, WorkflowStep.DISCOVER})
+        cfg = WorkflowConfig(enabled_steps={WorkflowStep.DISCOVER, WorkflowStep.SECRETS})
         results = null.execute_workflow(cfg)
         assert len(results) == 2
         assert all(r.success for r in results)
         steps_executed = {r.step for r in results}
-        assert steps_executed == {WorkflowStep.SYNC, WorkflowStep.DISCOVER}
+        assert steps_executed == {WorkflowStep.DISCOVER, WorkflowStep.SECRETS}
 
     def test_execute_workflow_respects_step_override(self):
         from classdock.assignments.orchestrator import (
