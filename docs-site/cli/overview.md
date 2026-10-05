@@ -2,6 +2,8 @@
 
 ClassDock provides a comprehensive command-line interface organized into logical command groups.
 
+For every subcommand and option, see the [Command Reference](commands.md).
+
 ## 🏗️ Command Structure
 
 The CLI is organized into four main command groups:

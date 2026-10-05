@@ -190,7 +190,7 @@ Your GitHub Personal Access Token must include:
 To update your token:
 
 ```bash
-classdock config token <NEW_TOKEN>
+classdock config set-token <NEW_TOKEN>
 ```
 
 Or set the environment variable:
@@ -233,7 +233,7 @@ classdock assignments orchestrate
 1. Visit [github.com/settings/tokens](https://github.com/settings/tokens)
 2. Select your ClassDock token
 3. Enable the `admin:org` scope
-4. Regenerate and update: `classdock config token <NEW_TOKEN>`
+4. Regenerate and update: `classdock config set-token <NEW_TOKEN>`
 
 ### "Organization already exists on GitHub"
 
