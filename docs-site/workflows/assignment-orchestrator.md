@@ -60,7 +60,8 @@ TEMPLATE_REPO_URL="https://github.com/instructor/assignment-template"
 ASSIGNMENT_FILE="homework.py"
 
 # Authentication
-GITHUB_TOKEN_FILE="github_token.txt"
+# Prefer centralized token manager (see secrets-management.md) or set GITHUB_TOKEN
+# Example (CI): export GITHUB_TOKEN="ghp_your_token_here"
 
 # Secret Management
 SECRETS_LIST="API_KEY,DATABASE_URL,SECRET_TOKEN"
@@ -193,8 +194,8 @@ classdock assignments orchestrate
 
 ### Token Management
 
-- Store tokens securely using `GITHUB_TOKEN_FILE`
-- Use environment variables for sensitive information
+- Use centralized token manager for secure storage
+- Set tokens via environment variables or config files
 - Regularly rotate API tokens
 - Limit token permissions to required scopes
 
@@ -211,8 +212,13 @@ classdock assignments orchestrate
 # Secure configuration file permissions
 chmod 600 assignment.conf
 
-# Use environment variables for sensitive data
-export GITHUB_TOKEN="$(cat secure_token.txt)"
+# Use centralized token config (recommended)
+mkdir -p ~/.config/classdock
+echo '{"github_token":"ghp_token_here","username":"instructor"}' > ~/.config/classdock/token_config.json
+chmod 600 ~/.config/classdock/token_config.json
+
+# Or use environment variable for automation
+export GITHUB_TOKEN="ghp_your_token_here"
 classdock assignments orchestrate --config assignment.conf
 ```
 
@@ -252,10 +258,10 @@ classdock --dry-run --verbose assignments orchestrate --config assignment.conf
 
 ## 📚 Related Documentation
 
-- **[Main CLI Reference](../README.md#command-reference)** - Complete command documentation
+- **[Main CLI Reference](../cli/commands.md)** - Complete command documentation
 - **[Secrets Management](secrets-management.md)** - Detailed secret handling guide
-- **[Repository Operations](../README.md#repository-operations)** - Repository management commands
-- **[Configuration Guide](../README.md#configuration)** - Configuration file setup
+- **[Repository Operations](../cli/repositories.md)** - Repository management commands
+- **[Configuration Guide](../getting-started/configuration.md)** - Configuration file setup
 
 ---
 

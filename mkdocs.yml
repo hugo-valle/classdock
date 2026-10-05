@@ -42,8 +42,10 @@ nav:
     - Installation: getting-started/installation.md
     - Quick Start: getting-started/quick-start.md
     - Configuration: getting-started/configuration.md
+    - Organization Setup: getting-started/organization-setup.md
   - CLI Reference:
     - Overview: cli/overview.md
+    - Command Reference: cli/commands.md
     - Assignment Commands: cli/assignments.md
     - Repository Commands: cli/repositories.md
     - Secret Management: cli/secrets.md
@@ -53,6 +55,9 @@ nav:
     - Automation Suite: workflows/automation-suite.md
     - Cron Automation: workflows/cron-automation.md
     - Secrets Management: workflows/secrets-management.md
+    - Roster Sync: workflows/roster-sync.md
+    - Roster Migration: workflows/roster-migration.md
+    - Collaborator Cycling: workflows/cycle-collaborator.md
   - Development:
     - Contributing: development/contributing.md
     - Architecture: development/architecture.md

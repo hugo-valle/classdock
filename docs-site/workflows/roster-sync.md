@@ -211,6 +211,6 @@ classdock roster add --email=unknown@example.com --name="Unknown Student" \
 
 ## See Also
 
-- [Roster CLI Commands](../CLAUDE.md#roster-commands)
-- [Assignment Orchestrator](CLI_ARCHITECTURE.md#orchestrator)
-- [Configuration Guide](../README.md#configuration)
+- [Command Reference](../cli/commands.md)
+- [Assignment Orchestrator](assignment-orchestrator.md)
+- [Configuration Guide](../getting-started/configuration.md)

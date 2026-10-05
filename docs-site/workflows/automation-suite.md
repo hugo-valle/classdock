@@ -369,7 +369,7 @@ classdock --verbose --dry-run assignments orchestrate --config assignment.conf
 - **[Assignment Orchestrator](assignment-orchestrator.md)** - Complete workflow automation
 - **[Secrets Management](secrets-management.md)** - Detailed secret handling
 - **[Cron Automation](cron-automation.md)** - Scheduled task management
-- **[Main CLI Reference](../README.md)** - Complete command documentation
+- **[Main CLI Reference](../cli/commands.md)** - Complete command documentation
 
 ---
 
