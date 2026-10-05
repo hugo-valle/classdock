@@ -15,6 +15,7 @@
       "Bash(git -C /home/hvalle/classroom-pilot diff)",
       "Bash(git -C /home/hvalle/classroom-pilot push)",
       "Bash(gh pr create:*)",
+      "Bash(gh pr merge:*)",
       "Bash(find:*)",
       "Bash(grep:*)",
       "Bash(poetry build:*)",
