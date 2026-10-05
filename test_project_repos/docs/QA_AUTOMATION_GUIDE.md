@@ -380,9 +380,9 @@ name: QA Functional Tests
 
 on:
   push:
-    branches: [ main, develop, feature/* ]
+    branches: [ main, feature/* ]
   pull_request:
-    branches: [ main, develop ]
+    branches: [ main ]
   schedule:
     - cron: '0 2 * * *'  # Daily at 2 AM UTC
 
@@ -636,7 +636,7 @@ cd test_project_repos/scripts
 ### CI/CD Best Practices
 
 **Trigger QA tests on:**
-- Every push to main/develop branches
+- Every push to the main branch
 - Every pull request
 - Nightly builds (scheduled workflow)
 - Pre-release tags
