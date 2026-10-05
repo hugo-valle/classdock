@@ -270,31 +270,31 @@ gh pr create --base main --title "Hotfix: description"
 When creating a release:
 
 ```bash
-# 1. Create release branch
-git checkout develop
-git checkout -b release/v1.2.3
+# 1. Branch from main
+git checkout main && git pull
+git checkout -b chore/release-1.2.3
 
 # 2. Update version in 3 locations:
 # - pyproject.toml (version = "1.2.3")
 # - classdock/__init__.py (__version__ = "1.2.3")
 # - classdock/cli.py (version command output)
 
-# 3. Commit and PR to main
+# 3. Commit, PR to main, merge (merging publishes nothing)
 git commit -m "chore: bump version to 1.2.3"
-gh pr create --base main --title "Release v1.2.3"
+gh pr create --base main --fill
 
-# 4. After merge, CI automatically:
-# - Creates git tag (1.2.3 - no 'v' prefix)
-# - Publishes to PyPI
-# - Merges back to develop
+# 4. Publish: the GitHub Release triggers release.yml, which checks the
+#    tag matches pyproject.toml, runs tests, and publishes to PyPI via
+#    trusted publishing. Tags are bare semver (no 'v').
+gh release create 1.2.3 --generate-notes
 ```
 
 ### CI/CD Workflows
 
 GitHub Actions automatically run on:
 - **All PRs**: `ci.yml` (tests, linting, coverage)
-- **Merge to main**: `publish.yml` (PyPI release)
-- **Hotfix tags**: `auto-release.yml` (automated patch release)
+- **Push to main**: `ci.yml`
+- **GitHub Release published**: `release.yml` (PyPI release via trusted publishing)
 
 **View workflow status**:
 ```bash
