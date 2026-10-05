@@ -1,6 +1,6 @@
 # Migrating from classroom-pilot
 
-ClassDock is the renamed successor to `classroom-pilot`. This page is the only place the old name, and GitHub Classroom, are mentioned.
+ClassDock is the renamed successor to `classroom-pilot`. This page covers upgrading from it.
 
 ## Upgrade
 
